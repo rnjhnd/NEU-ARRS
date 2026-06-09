@@ -312,7 +312,14 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
                         {format(new Date(req.createdAt), "MMM d, yyyy")}
                       </TableCell>
                       <TableCell>
-                        {getStatusBadge(req.status)}
+                        <div className="flex flex-col items-start gap-1">
+                          {getStatusBadge(req.status)}
+                          {req.status === "COMPLETED" && (
+                            <a href={`/receipt/${req.id}`} target="_blank" rel="noreferrer" className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                              View Receipt
+                            </a>
+                          )}
+                        </div>
                       </TableCell>
                     </motion.tr>
                   ))}

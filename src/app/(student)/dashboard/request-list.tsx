@@ -168,6 +168,15 @@ export function RequestList({ requests }: { requests: Request[] }) {
                                   </Button>
                                 </div>
                               )}
+                              {req.status === "COMPLETED" && (
+                                <div className="flex justify-end mt-2 px-8">
+                                  <Link href={`/receipt/${req.id}`} target="_blank">
+                                    <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
+                                      Download Receipt
+                                    </Button>
+                                  </Link>
+                                </div>
+                              )}
                             </motion.div>
                           </TableCell>
                         </motion.tr>
