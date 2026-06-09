@@ -108,7 +108,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
     <div className="space-y-8">
       {/* At-A-Glance Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="shadow-sm border-border bg-card">
+        <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] border-emerald-500/20 bg-background/50 backdrop-blur-xl transition-all hover:bg-background/80">
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Pending Action</p>
@@ -120,7 +120,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
           </CardContent>
         </Card>
         
-        <Card className="shadow-sm border-border bg-card">
+        <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] border-emerald-500/20 bg-background/50 backdrop-blur-xl transition-all hover:bg-background/80">
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">In Processing</p>
@@ -132,7 +132,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-border bg-card">
+        <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] border-emerald-500/20 bg-background/50 backdrop-blur-xl transition-all hover:bg-background/80">
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Ready for Pickup</p>
@@ -153,8 +153,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
               onClick={() => { setFilter(f); setCurrentPage(1); }}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                 filter === f 
-                  ? "bg-foreground text-background shadow-sm" 
-                  : "bg-card text-muted-foreground hover:bg-muted border border-transparent"
+                  ? "bg-foreground text-background shadow-[0_2px_10px_rgba(10,92,54,0.2)]" 
+                  : "bg-background/50 backdrop-blur-xl text-muted-foreground hover:bg-muted border-emerald-500/20 border"
               }`}
             >
               {f.replace(/_/g, " ")}
@@ -165,14 +165,14 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
             placeholder="Search ID or Document..." 
-            className="pl-9 bg-card border-border shadow-sm rounded-full"
+            className="pl-9 bg-background/50 backdrop-blur-xl border-emerald-500/20 shadow-[0_2px_10px_rgb(0,0,0,0.02)] rounded-full"
             value={searchQuery}
             onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
           />
         </div>
       </div>
 
-      <Card className="shadow-sm border-border">
+      <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] border-emerald-500/20 bg-background/50 backdrop-blur-xl">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-4 mb-4">
           <div>
             <CardTitle className="text-lg flex items-center gap-2">
