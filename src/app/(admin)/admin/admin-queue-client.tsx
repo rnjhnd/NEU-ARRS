@@ -356,8 +356,11 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {format(new Date(req.createdAt), "MMM d, yyyy")}
+                      <TableCell>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-sm font-medium text-foreground">{format(new Date(req.createdAt), "MMM d, yyyy")}</span>
+                          <span className="text-[10px] text-muted-foreground">{format(new Date(req.createdAt), "h:mm a")}</span>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col items-start gap-1">
