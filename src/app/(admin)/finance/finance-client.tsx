@@ -137,7 +137,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
                   itemStyle={{ color: 'hsl(var(--foreground))' }}
-                  formatter={(value: number) => [`₱${value.toLocaleString()}`, 'Revenue']}
+                  formatter={(value: any) => [`₱${Number(value).toLocaleString()}`, 'Revenue']}
                 />
                 <Line 
                   type="monotone" 
@@ -178,7 +178,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                   </Pie>
                   <Tooltip 
                     contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
-                    formatter={(value: number) => [`₱${value.toLocaleString()}`, 'Revenue']}
+                    formatter={(value: any) => [`₱${Number(value).toLocaleString()}`, 'Revenue']}
                   />
                   <Legend verticalAlign="bottom" height={36} />
                 </PieChart>
@@ -221,7 +221,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                   <Tooltip 
                     cursor={{ fill: 'currentColor', opacity: 0.05 }}
                     contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
-                    formatter={(value: number) => [`₱${value.toLocaleString()}`, 'Revenue']}
+                    formatter={(value: any) => [`₱${Number(value).toLocaleString()}`, 'Revenue']}
                   />
                   <Bar dataKey="revenue" fill="#10b981" radius={[0, 4, 4, 0]} barSize={32}>
                     {documentData.map((entry, index) => (
