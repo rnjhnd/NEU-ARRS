@@ -7,7 +7,9 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { DollarSign, CreditCard, Landmark, TrendingUp } from "lucide-react";
 import { Request } from "@prisma/client";
 
-export function FinanceClient({ data }: { data: Request[] }) {
+type FinanceDataItem = Pick<Request, "id" | "amountPaid" | "paymentMethod" | "createdAt">;
+
+export function FinanceClient({ data }: { data: FinanceDataItem[] }) {
   const [timeframe, setTimeframe] = useState<"ALL" | "MONTH" | "WEEK">("ALL");
 
   const filteredData = useMemo(() => {

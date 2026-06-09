@@ -52,7 +52,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
 
     if (id === "new") {
       const res = await createDocumentConfig(formData);
-      if (res.success) {
+      if (res.success && res.config) {
         toast.success("New document created.");
         setConfigs([...configs, res.config]);
         setEditingId(null);
