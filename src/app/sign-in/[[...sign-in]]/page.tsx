@@ -36,9 +36,10 @@ export default function SignInPage() {
         console.error(result);
         toast.error("Sign in failed. Please check your credentials.");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.errors?.[0]?.longMessage || "An error occurred during sign in.");
+      const error = err as { errors?: { longMessage?: string }[] };
+      toast.error(error.errors?.[0]?.longMessage || "An error occurred during sign in.");
     } finally {
       setIsLoading(false);
     }
@@ -53,9 +54,10 @@ export default function SignInPage() {
         redirectUrl: "/sso-callback",
         redirectUrlComplete: "/",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.errors?.[0]?.longMessage || "Failed to authenticate with Google.");
+      const error = err as { errors?: { longMessage?: string }[] };
+      toast.error(error.errors?.[0]?.longMessage || "Failed to authenticate with Google.");
     }
   };
 
@@ -211,7 +213,7 @@ export default function SignInPage() {
             </form>
 
             <div className="text-center text-sm">
-              <span className="text-muted-foreground">Don't have an account? </span>
+              <span className="text-muted-foreground">Don&apos;t have an account? </span>
               <Link href="/sign-up" className="font-semibold text-primary hover:underline">
                 Sign up
               </Link>

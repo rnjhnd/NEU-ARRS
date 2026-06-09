@@ -40,9 +40,10 @@ export default function SignUpPage() {
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       setPendingVerification(true);
       toast.success("Verification code sent to your email.");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.errors?.[0]?.longMessage || "An error occurred during sign up.");
+      const error = err as { errors?: { longMessage?: string }[] };
+      toast.error(error.errors?.[0]?.longMessage || "An error occurred during sign up.");
     } finally {
       setIsLoading(false);
     }
@@ -66,9 +67,10 @@ export default function SignUpPage() {
         await setActive({ session: completeSignUp.createdSessionId });
         router.push("/");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.errors?.[0]?.longMessage || "Invalid verification code.");
+      const error = err as { errors?: { longMessage?: string }[] };
+      toast.error(error.errors?.[0]?.longMessage || "Invalid verification code.");
     } finally {
       setIsLoading(false);
     }
@@ -83,9 +85,10 @@ export default function SignUpPage() {
         redirectUrl: "/sso-callback",
         redirectUrlComplete: "/",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.errors?.[0]?.longMessage || "Failed to authenticate with Google.");
+      const error = err as { errors?: { longMessage?: string }[] };
+      toast.error(error.errors?.[0]?.longMessage || "Failed to authenticate with Google.");
     }
   };
 
@@ -299,7 +302,7 @@ export default function SignUpPage() {
                 </form>
 
                 <div className="text-center text-sm">
-                  <span className="text-muted-foreground">Didn't receive a code? </span>
+                  <span className="text-muted-foreground">Didn&apos;t receive a code? </span>
                   <button 
                     onClick={() => {
                       setPendingVerification(false);
