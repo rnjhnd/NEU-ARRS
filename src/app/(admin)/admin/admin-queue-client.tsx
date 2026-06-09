@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, CheckCircle2, Package, Activity, Search, Download } from "lucide-react";
+import { Clock, CheckCircle2, Package, Activity, Search, Download, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import useSWR from "swr";
 
@@ -45,8 +45,29 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
     return true;
   });
 
-  const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
-  const paginatedRequests = filteredRequests.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  type SortConfig = { key: keyof MappedRequest; direction: "asc" | "desc" } | null;
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "createdAt", direction: "desc" });
+
+  const sortedRequests = [...filteredRequests].sort((a, b) => {
+    if (!sortConfig) return 0;
+    
+    let aValue = a[sortConfig.key];
+    let bValue = b[sortConfig.key];
+
+    // Handle nulls/undefined for strings
+    if (typeof aValue === "string") aValue = aValue.toLowerCase();
+    if (typeof bValue === "string") bValue = bValue.toLowerCase();
+
+    if (aValue === undefined || aValue === null) return 1;
+    if (bValue === undefined || bValue === null) return -1;
+
+    if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  const totalPages = Math.ceil(sortedRequests.length / ITEMS_PER_PAGE);
+  const paginatedRequests = sortedRequests.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   // Calculate Stats
   const pendingCount = requests.filter(r => r.status === "PENDING" || r.status === "PENDING_PAYMENT").length;
@@ -132,6 +153,33 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
     link.setAttribute("href", url);
     link.setAttribute("download", `neu_requests_export_${format(new Date(), "yyyyMMdd")}.csv`);
     link.click();
+  };
+
+  const handleSort = (key: keyof MappedRequest) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const SortableHeader = ({ title, sortKey }: { title: string, sortKey: keyof MappedRequest }) => {
+    const isActive = sortConfig?.key === sortKey;
+    return (
+      <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">
+        <button 
+          onClick={() => handleSort(sortKey)}
+          className="flex items-center gap-1.5 hover:text-emerald-950 dark:hover:text-emerald-300 transition-colors py-2 group"
+        >
+          {title}
+          {isActive ? (
+            sortConfig.direction === "asc" ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+          ) : (
+            <ArrowUpDown className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />
+          )}
+        </button>
+      </TableHead>
+    );
   };
 
   return (
@@ -284,16 +332,16 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   <TableHead className="w-[50px] pl-8">
                     <input
                       type="checkbox"
-                      checked={selectedIds.size === filteredRequests.length && filteredRequests.length > 0}
+                      checked={selectedIds.size === sortedRequests.length && sortedRequests.length > 0}
                       onChange={toggleSelectAll}
                       className="rounded border-input text-primary focus:ring-primary h-4 w-4 transition-all"
                     />
                   </TableHead>
-                  <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Student</TableHead>
-                  <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Document / Purpose</TableHead>
-                  <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Payment</TableHead>
-                  <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Date</TableHead>
-                  <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Status</TableHead>
+                  <SortableHeader title="Student" sortKey="studentName" />
+                  <SortableHeader title="Document" sortKey="documentType" />
+                  <SortableHeader title="Payment" sortKey="paymentStatus" />
+                  <SortableHeader title="Date" sortKey="createdAt" />
+                  <SortableHeader title="Status" sortKey="status" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -387,7 +435,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
           {totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-border px-6 py-4 bg-muted/10">
               <span className="text-sm text-muted-foreground">
-                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredRequests.length)} of {filteredRequests.length} requests
+                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, sortedRequests.length)} of {sortedRequests.length} requests
               </span>
               <div className="flex items-center gap-2">
                 <Button 
