@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { clerkClient } from "@clerk/nextjs/server";
 import { AdminQueueClient } from "./admin-queue-client";
 
 export default async function AdminPage() {
@@ -7,8 +8,24 @@ export default async function AdminPage() {
   await requireAdmin();
 
   const requests = await prisma.request.findMany({
-    orderBy: { createdAt: "asc" },
+    orderBy: { createdAt: "desc" },
   });
+
+  const client = await clerkClient();
+  const { data: users } = await client.users.getUserList();
+  const userMap = new Map(users.map(u => [
+    u.id, 
+    {
+      name: `${u.firstName || ""} ${u.lastName || ""}`.trim() || "Unknown Student",
+      email: u.emailAddresses[0]?.emailAddress || "No email"
+    }
+  ]));
+
+  const mappedRequests = requests.map(req => ({
+    ...req,
+    studentName: userMap.get(req.studentId)?.name || "Unknown Student",
+    studentEmail: userMap.get(req.studentId)?.email || "No email"
+  }));
 
   return (
     <div className="space-y-8 w-full">
@@ -29,7 +46,7 @@ export default async function AdminPage() {
         </div>
       </div>
       
-      <AdminQueueClient initialRequests={requests} />
+      <AdminQueueClient initialRequests={mappedRequests as any} />
     </div>
   );
 }

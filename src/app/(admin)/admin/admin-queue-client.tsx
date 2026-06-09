@@ -13,10 +13,12 @@ import { Clock, CheckCircle2, Package, Activity, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import useSWR from "swr";
 
+export type MappedRequest = Request & { studentName?: string; studentEmail?: string };
+
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export function AdminQueueClient({ initialRequests }: { initialRequests: Request[] }) {
-  const { data: requests = initialRequests, mutate } = useSWR<Request[]>("/api/admin/requests", fetcher, {
+export function AdminQueueClient({ initialRequests }: { initialRequests: MappedRequest[] }) {
+  const { data: requests = initialRequests, mutate } = useSWR<MappedRequest[]>("/api/admin/requests", fetcher, {
     fallbackData: initialRequests,
     refreshInterval: 5000,
   });
@@ -32,7 +34,11 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
     if (filter !== "ALL" && req.status !== filter) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      if (!req.id.toLowerCase().includes(q) && !req.documentType.toLowerCase().includes(q)) {
+      if (
+        !req.id.toLowerCase().includes(q) && 
+        !req.documentType.toLowerCase().includes(q) &&
+        !req.studentName?.toLowerCase().includes(q)
+      ) {
         return false;
       }
     }
@@ -164,7 +170,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
-            placeholder="Search ID or Document..." 
+            placeholder="Search ID, Document, or Student..." 
             className="pl-9 bg-background/50 backdrop-blur-xl border-emerald-500/20 shadow-[0_2px_10px_rgb(0,0,0,0.02)] rounded-full"
             value={searchQuery}
             onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
@@ -255,7 +261,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
                     />
                   </TableHead>
                   <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Reference ID</TableHead>
-                  <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Document</TableHead>
+                  <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Student</TableHead>
+                  <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Document / Purpose</TableHead>
                   <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Payment</TableHead>
                   <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Date</TableHead>
                   <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Status</TableHead>
@@ -297,8 +304,19 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {req.id.slice(0, 8).toUpperCase()}
                       </TableCell>
-                      <TableCell className="font-medium text-foreground">
-                        {req.documentType.replace("_", " ")}
+                      <TableCell>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-semibold text-sm text-foreground">{req.studentName || "Unknown"}</span>
+                          <span className="text-[10px] text-muted-foreground">{req.studentEmail || "No email"}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-medium text-foreground">{req.documentType.replace("_", " ")}</span>
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                            {req.purpose.replace("_", " ")}
+                          </span>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col gap-0.5">
