@@ -7,11 +7,12 @@ import { RequestStatus } from "@prisma/client";
 
 export const metadata = { title: "Document Receipt" };
 
-export default async function ReceiptPage({ params }: { params: { id: string } }) {
+export default async function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const userId = await requireAuth();
   
   const request = await prisma.request.findUnique({
-    where: { id: params.id }
+    where: { id: id }
   });
 
   if (!request) {
