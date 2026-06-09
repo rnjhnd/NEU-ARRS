@@ -1,98 +1,95 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Download, CheckCircle2 } from "lucide-react";
+import { Printer, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { format } from "date-fns";
+import { Button, buttonVariants } from "@/components/ui/button";
 
-type ReceiptData = {
-  transactionId: string;
-  dateCompleted: string;
-  studentName: string;
-  studentEmail: string;
-  documentLabel: string;
-  purpose: string;
-  paymentMethod: string;
-  amountPaid: number;
-};
+interface ReceiptProps {
+  receipt: {
+    transactionId: string;
+    dateCompleted: string;
+    studentName: string;
+    studentEmail: string;
+    documentLabel: string;
+    purpose: string;
+    paymentMethod: string;
+    amountPaid: number;
+  };
+}
 
-export function ReceiptClient({ receipt }: { receipt: ReceiptData }) {
+export function ReceiptClient({ receipt }: ReceiptProps) {
   const handlePrint = () => {
     window.print();
   };
 
+  const formattedDate = format(new Date(receipt.dateCompleted), "PPP 'at' p");
+  const priceFormatted = (receipt.amountPaid / 100).toLocaleString("en-PH", {
+    style: "currency",
+    currency: "PHP",
+  });
+
   return (
-    <div className="min-h-screen bg-slate-50 py-10 print:py-0 print:bg-white flex flex-col items-center">
-      
-      {/* Controls - Hidden during print */}
-      <div className="w-full max-w-3xl mb-8 flex justify-end px-4 print:hidden">
-        <Button onClick={handlePrint} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md">
-          <Download className="w-4 h-4 mr-2" /> Download PDF Receipt
+    <div className="mx-auto max-w-3xl p-8 bg-white min-h-screen text-slate-900 font-sans">
+      {/* Non-printable controls */}
+      <div className="print:hidden flex items-center justify-between mb-12 border-b pb-4">
+        <Link href="/dashboard" className={buttonVariants({ variant: "ghost", className: "flex items-center gap-2" })}>
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+        </Link>
+        <Button onClick={handlePrint} className="flex items-center gap-2">
+          <Printer className="w-4 h-4" /> Print Receipt
         </Button>
       </div>
 
-      {/* Printable Receipt Paper */}
-      <div className="w-full max-w-3xl bg-white shadow-xl print:shadow-none p-10 sm:p-16 border border-slate-200 print:border-none mx-4">
+      {/* Printable Receipt Content */}
+      <div className="border border-slate-200 rounded-lg p-10 shadow-sm print:shadow-none print:border-none print:p-0">
         
         {/* Header */}
-        <div className="flex justify-between items-start border-b border-slate-200 pb-8 mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 pb-8 border-b border-slate-200">
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-slate-900">NEW ERA UNIVERSITY</h1>
-            <p className="text-slate-500 font-medium mt-1">Office of the University Registrar</p>
-            <p className="text-slate-400 text-sm mt-1">No. 9 Central Ave, New Era, Quezon City, 1107 Metro Manila</p>
+            <h1 className="text-3xl font-black tracking-tight text-slate-900 mb-2 uppercase">
+              Official Receipt
+            </h1>
+            <p className="text-slate-500 font-medium">New Era University</p>
+            <p className="text-slate-400 text-sm mt-1">Document Request System</p>
           </div>
-          <div className="text-right">
-            <h2 className="text-4xl font-light text-slate-300 uppercase tracking-widest">Receipt</h2>
-            <p className="text-slate-600 font-medium mt-2">#{receipt.transactionId.slice(-8).toUpperCase()}</p>
+          <div className="text-left md:text-right mt-6 md:mt-0">
+            <div className="text-sm text-slate-500 uppercase tracking-widest font-semibold mb-1">Receipt No.</div>
+            <div className="text-lg font-mono text-slate-800">{receipt.transactionId.toUpperCase()}</div>
           </div>
         </div>
 
-        {/* Success Banner */}
-        <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-4 flex items-center gap-3 mb-10 print:bg-emerald-50/50">
-          <CheckCircle2 className="text-emerald-600 w-6 h-6" />
-          <p className="text-emerald-800 font-medium">Payment completed successfully on {format(new Date(receipt.dateCompleted), "MMMM d, yyyy h:mm a")}</p>
-        </div>
-
-        {/* Two-Column Details */}
-        <div className="grid grid-cols-2 gap-12 mb-12">
+        {/* Details Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
           <div>
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Billed To</h3>
-            <p className="font-bold text-slate-900 text-lg">{receipt.studentName}</p>
-            <p className="text-slate-600">{receipt.studentEmail}</p>
-            <p className="text-slate-600 mt-2 capitalize font-medium">
-              Payment Method: {receipt.paymentMethod}
-            </p>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-3">Billed To</h3>
+            <p className="font-semibold text-slate-800 text-lg">{receipt.studentName}</p>
+            <p className="text-slate-500">{receipt.studentEmail}</p>
           </div>
-          <div>
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Transaction Details</h3>
-            <div className="grid grid-cols-2 gap-y-2 text-sm">
-              <span className="text-slate-500">Receipt ID:</span>
-              <span className="font-medium text-slate-900 text-right">{receipt.transactionId}</span>
-              
-              <span className="text-slate-500">Date Issued:</span>
-              <span className="font-medium text-slate-900 text-right">{format(new Date(receipt.dateCompleted), "MMM dd, yyyy")}</span>
-            </div>
+          <div className="md:text-right">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-3">Payment Details</h3>
+            <p className="text-slate-800"><span className="text-slate-500 mr-2">Method:</span> <span className="font-semibold uppercase">{receipt.paymentMethod}</span></p>
+            <p className="text-slate-800 mt-1"><span className="text-slate-500 mr-2">Date:</span> <span className="font-semibold">{formattedDate}</span></p>
           </div>
         </div>
 
-        {/* Line Items Table */}
+        {/* Line Items */}
         <div className="mb-12">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b-2 border-slate-900">
-                <th className="py-3 text-sm font-bold text-slate-900 uppercase">Description</th>
-                <th className="py-3 text-sm font-bold text-slate-900 uppercase text-center">Purpose</th>
-                <th className="py-3 text-sm font-bold text-slate-900 uppercase text-right">Amount</th>
+              <tr className="border-b-2 border-slate-800">
+                <th className="py-3 font-bold text-slate-800 text-sm uppercase tracking-wider w-2/3">Description</th>
+                <th className="py-3 font-bold text-slate-800 text-sm uppercase tracking-wider text-right">Amount</th>
               </tr>
             </thead>
-            <tbody>
-              <tr className="border-b border-slate-200">
+            <tbody className="divide-y divide-slate-100">
+              <tr>
                 <td className="py-5">
-                  <p className="font-bold text-slate-900">{receipt.documentLabel}</p>
-                  <p className="text-slate-500 text-sm mt-1">Official Document Processing Fee</p>
+                  <p className="font-semibold text-slate-900 text-lg">{receipt.documentLabel}</p>
+                  <p className="text-slate-500 text-sm mt-1">Purpose: {receipt.purpose}</p>
                 </td>
-                <td className="py-5 text-center text-slate-700 capitalize">{receipt.purpose.toLowerCase()}</td>
-                <td className="py-5 text-right font-bold text-slate-900">
-                  ₱{(receipt.amountPaid / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}
+                <td className="py-5 text-right font-mono text-lg text-slate-800">
+                  {priceFormatted}
                 </td>
               </tr>
             </tbody>
@@ -100,31 +97,27 @@ export function ReceiptClient({ receipt }: { receipt: ReceiptData }) {
         </div>
 
         {/* Totals */}
-        <div className="flex justify-end mb-16">
-          <div className="w-1/2 max-w-sm">
-            <div className="flex justify-between py-2 text-slate-600">
-              <span>Subtotal</span>
-              <span>₱{(receipt.amountPaid / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+        <div className="flex justify-end pt-6 border-t-2 border-slate-800">
+          <div className="w-full md:w-1/2">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-slate-500 font-medium">Subtotal</span>
+              <span className="font-mono text-slate-800">{priceFormatted}</span>
             </div>
-            <div className="flex justify-between py-2 text-slate-600">
-              <span>Processing Fee</span>
-              <span>₱0.00</span>
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-slate-500 font-medium">Tax / Processing</span>
+              <span className="font-mono text-slate-800 uppercase text-sm">Included</span>
             </div>
-            <div className="flex justify-between py-4 mt-2 border-t-2 border-slate-900 text-xl font-black text-slate-900">
-              <span>Total Paid</span>
-              <span>₱{(receipt.amountPaid / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+            <div className="flex justify-between items-center pt-4 border-t border-slate-200">
+              <span className="font-black text-xl text-slate-900 uppercase tracking-wide">Total Paid</span>
+              <span className="font-black text-2xl font-mono text-emerald-600">{priceFormatted}</span>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="text-center border-t border-slate-200 pt-8 mt-auto">
-          <p className="text-slate-500 font-medium text-sm">Thank you for your request.</p>
-          <p className="text-slate-400 text-xs mt-2">
-            This is an electronically generated receipt and does not require a physical signature.
-            <br />
-            For any concerns, please present this receipt to the Registrar's Office.
-          </p>
+        <div className="mt-24 pt-8 border-t border-slate-100 text-center text-slate-400 text-sm">
+          <p>This is a computer-generated receipt. No signature is required.</p>
+          <p className="mt-1">Thank you for using the NEU Automated Request and Release System.</p>
         </div>
 
       </div>
