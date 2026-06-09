@@ -298,9 +298,15 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <AnimatePresence>
+                <AnimatePresence mode="wait">
                   {filteredRequests.length === 0 && (
-                    <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    <motion.tr 
+                      key="empty-state"
+                      initial={{ opacity: 0, y: 5 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      exit={{ opacity: 0, y: -5 }}
+                      transition={{ duration: 0.2 }}
+                    >
                       <TableCell colSpan={6} className="h-48 text-center text-muted-foreground">
                         <div className="flex flex-col items-center justify-center">
                           <CheckCircle2 className="w-8 h-8 text-muted mb-2" />
@@ -311,10 +317,10 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   )}
                   {paginatedRequests.map((req, i) => (
                     <motion.tr 
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
+                      exit={{ opacity: 0, y: -15 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 30, delay: i * 0.03 }}
                       key={req.id}
                       className={`cursor-pointer border-b border-border/50 transition-colors ${selectedIds.has(req.id) ? "bg-emerald-500/10" : "hover:bg-emerald-500/5"}`}
                       onClick={(e) => {
