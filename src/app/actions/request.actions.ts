@@ -40,6 +40,14 @@ export async function createRequest(formData: FormData) {
       status = RequestStatus.PENDING;
     }
 
+    // 3.5 Fetch Document Config for Dynamic Pricing
+    const config = await prisma.documentConfig.findUnique({
+      where: { typeId: documentType }
+    });
+    
+    // Fallback to 15000 if not found, though it should exist
+    const dynamicPrice = config?.price || 15000;
+
     // 4. Create the Prisma record
     const newRequest = await prisma.request.create({
       data: {
@@ -49,6 +57,7 @@ export async function createRequest(formData: FormData) {
         paymentMethod,
         paymentStatus,
         status,
+        amountPaid: paymentMethod === "cash" ? dynamicPrice : null, // Store cash price immediately for LTV tracking
       },
     });
 
@@ -73,9 +82,9 @@ export async function createRequest(formData: FormData) {
             line_items: [
               {
                 currency: "PHP",
-                amount: 15000, // Fixed amount 150.00 PHP for this example
+                amount: dynamicPrice, // Dynamically fetched amount from DocumentConfig
                 description: `Purpose: ${purpose.replace("_", " ")}`,
-                name: documentType.replace("_", " "),
+                name: config?.label || documentType.replace("_", " "),
                 quantity: 1,
               },
             ],

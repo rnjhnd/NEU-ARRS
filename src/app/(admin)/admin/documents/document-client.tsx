@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { FileText, Edit2, Check, X, Loader2 } from "lucide-react";
+import { FileText, Edit2, Check, X, Loader2, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { updateDocumentConfig, createDocumentConfig } from "@/app/actions/admin.actions";
 import { DocumentConfig } from "@prisma/client";
@@ -79,32 +79,48 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Document Management</h2>
-          <p className="text-muted-foreground">Configure the documents available for student requests.</p>
+    <div className="space-y-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+      
+      {/* Premium Hero Banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-600 via-orange-600 to-red-800 p-8 sm:p-10 text-white shadow-xl">
+        <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 rounded-full bg-white/10 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-48 h-48 rounded-full bg-orange-400/20 blur-2xl"></div>
+        
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight drop-shadow-sm">
+              Document Management
+            </h1>
+            <p className="text-amber-100/90 text-lg font-medium max-w-xl">
+              Configure dynamic pricing and availability for official university documents.
+            </p>
+          </div>
+          
+          <Button 
+            className="rounded-full bg-white/20 hover:bg-white/30 text-white border-none shadow-sm backdrop-blur-md" 
+            onClick={startNew} 
+            disabled={editingId === "new"}
+          >
+            <Plus className="w-5 h-5 mr-2" /> Add New Document
+          </Button>
         </div>
-        <Button className="shadow-sm" onClick={startNew} disabled={editingId === "new"}>
-          <FileText className="w-4 h-4 mr-2" /> Add New Document
-        </Button>
       </div>
 
-      <Card className="shadow-sm border-border">
-        <CardHeader className="bg-muted/10 border-b border-border pb-6">
-          <CardTitle className="text-xl">Available Documents</CardTitle>
-          <CardDescription>Manage descriptions, pricing, and availability.</CardDescription>
+      <Card className="shadow-lg border-amber-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl">
+        <CardHeader className="bg-gradient-to-r from-amber-500/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
+          <CardTitle className="text-xl font-bold tracking-tight text-foreground">Available Documents</CardTitle>
+          <CardDescription>Manage descriptions, pricing, and active status.</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="w-full overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-b border-border bg-muted/30">
-                  <TableHead className="pl-6 font-semibold">Document Name</TableHead>
-                  <TableHead className="font-semibold">Description</TableHead>
-                  <TableHead className="font-semibold">Price (₱)</TableHead>
-                  <TableHead className="font-semibold">Status</TableHead>
-                  <TableHead className="text-right pr-6 font-semibold">Action</TableHead>
+                <TableRow className="border-b border-border/50 hover:bg-transparent">
+                  <TableHead className="pl-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Document</TableHead>
+                  <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Description</TableHead>
+                  <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase text-right">Price</TableHead>
+                  <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase text-center">Status</TableHead>
+                  <TableHead className="text-right pr-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -114,35 +130,38 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="border-b border-border bg-muted/20"
+                      className="border-b border-border/40 bg-muted/20"
                     >
-                      <TableCell className="pl-6">
+                      <TableCell className="pl-8 py-4">
                         <Input 
                           placeholder="Label (e.g. Report Card)"
                           value={editForm.label} 
                           onChange={(e) => setEditForm({...editForm, label: e.target.value})} 
-                          className="h-8 w-48"
+                          className="h-9 w-48 bg-background border-border/50 rounded-lg"
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-4">
                         <Input 
                           placeholder="Description..."
                           value={editForm.description} 
                           onChange={(e) => setEditForm({...editForm, description: e.target.value})} 
-                          className="h-8 w-64"
+                          className="h-9 w-64 bg-background border-border/50 rounded-lg"
                         />
                       </TableCell>
-                      <TableCell>
-                        <Input 
-                          type="number"
-                          value={editForm.price} 
-                          onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
-                          className="h-8 w-24"
-                        />
+                      <TableCell className="py-4 text-right">
+                        <div className="relative inline-block w-28">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
+                          <Input 
+                            type="number"
+                            value={editForm.price} 
+                            onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
+                            className="h-9 pl-7 bg-background border-border/50 rounded-lg text-right"
+                          />
+                        </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="py-4 text-center">
                         <select 
-                          className="h-8 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                          className="h-9 rounded-lg border border-border/50 bg-background px-3 py-1 text-sm shadow-sm"
                           value={editForm.isActive}
                           onChange={(e) => setEditForm({...editForm, isActive: e.target.value})}
                         >
@@ -150,12 +169,12 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                           <option value="false">Inactive</option>
                         </select>
                       </TableCell>
-                      <TableCell className="text-right pr-6">
+                      <TableCell className="text-right pr-8 py-4">
                         <div className="flex items-center justify-end gap-2">
-                          <Button variant="ghost" size="sm" onClick={() => setEditingId(null)} disabled={isSubmitting}>
-                            <X className="w-4 h-4 text-red-500" />
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-red-500/10 hover:text-red-500" onClick={() => setEditingId(null)} disabled={isSubmitting}>
+                            <X className="w-4 h-4" />
                           </Button>
-                          <Button variant="default" size="sm" onClick={() => handleSave("new")} disabled={isSubmitting}>
+                          <Button variant="default" size="icon" className="h-8 w-8 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleSave("new")} disabled={isSubmitting}>
                             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                           </Button>
                         </div>
@@ -169,49 +188,57 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         key={config.id}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="border-b border-border hover:bg-muted/40 transition-colors"
+                        className="border-b border-border/40 hover:bg-amber-500/5 transition-colors group"
                       >
-                        <TableCell className="pl-6">
+                        <TableCell className="pl-8 py-4">
                           {isEditing ? (
                             <Input 
                               value={editForm.label} 
                               onChange={(e) => setEditForm({...editForm, label: e.target.value})} 
-                              className="h-8 w-48"
+                              className="h-9 w-48 bg-background border-border/50 rounded-lg"
                             />
                           ) : (
-                            <div className="flex flex-col">
-                              <span className="font-medium text-foreground">{config.label}</span>
-                              <span className="text-xs text-muted-foreground font-mono">{config.typeId}</span>
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-2">
+                                <FileText className="w-4 h-4 text-amber-600" />
+                                <span className="font-bold text-foreground">{config.label}</span>
+                              </div>
+                              <span className="text-xs text-muted-foreground font-mono bg-muted/50 w-max px-1.5 py-0.5 rounded">{config.typeId}</span>
                             </div>
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-4">
                           {isEditing ? (
                             <Input 
                               value={editForm.description} 
                               onChange={(e) => setEditForm({...editForm, description: e.target.value})} 
-                              className="h-8 w-64"
+                              className="h-9 w-64 bg-background border-border/50 rounded-lg"
                             />
                           ) : (
                             <span className="text-muted-foreground text-sm">{config.description}</span>
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-4 text-right">
                           {isEditing ? (
-                            <Input 
-                              type="number"
-                              value={editForm.price} 
-                              onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
-                              className="h-8 w-24"
-                            />
+                            <div className="relative inline-block w-28 ml-auto">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
+                              <Input 
+                                type="number"
+                                value={editForm.price} 
+                                onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
+                                className="h-9 pl-7 bg-background border-border/50 rounded-lg text-right"
+                              />
+                            </div>
                           ) : (
-                            <span className="font-medium text-foreground">{(config.price / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                            <span className="font-semibold text-foreground bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full text-sm">
+                              ₱{(config.price / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}
+                            </span>
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-4 text-center">
                           {isEditing ? (
                             <select 
-                              className="h-8 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                              className="h-9 rounded-lg border border-border/50 bg-background px-3 py-1 text-sm shadow-sm"
                               value={editForm.isActive}
                               onChange={(e) => setEditForm({...editForm, isActive: e.target.value})}
                             >
@@ -220,25 +247,29 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             </select>
                           ) : (
                             config.isActive ? (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Active</span>
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                                Active
+                              </span>
                             ) : (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300">Inactive</span>
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-500/10 text-slate-700 dark:text-slate-400">
+                                Inactive
+                              </span>
                             )
                           )}
                         </TableCell>
-                        <TableCell className="text-right pr-6">
+                        <TableCell className="text-right pr-8 py-4">
                           {isEditing ? (
                             <div className="flex items-center justify-end gap-2">
-                              <Button variant="ghost" size="sm" onClick={() => setEditingId(null)} disabled={isSubmitting}>
-                                <X className="w-4 h-4 text-red-500" />
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-red-500/10 hover:text-red-500" onClick={() => setEditingId(null)} disabled={isSubmitting}>
+                                <X className="w-4 h-4" />
                               </Button>
-                              <Button variant="default" size="sm" onClick={() => handleSave(config.id)} disabled={isSubmitting}>
+                              <Button variant="default" size="icon" className="h-8 w-8 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleSave(config.id)} disabled={isSubmitting}>
                                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                               </Button>
                             </div>
                           ) : (
-                            <Button variant="ghost" size="sm" onClick={() => startEdit(config)}>
-                              <Edit2 className="w-4 h-4 text-muted-foreground" />
+                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-amber-500/10 hover:text-amber-600 transition-colors" onClick={() => startEdit(config)}>
+                              <Edit2 className="w-4 h-4" />
                             </Button>
                           )}
                         </TableCell>
