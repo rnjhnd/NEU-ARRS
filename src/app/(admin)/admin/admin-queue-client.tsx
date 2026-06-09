@@ -108,7 +108,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
     <div className="space-y-8">
       {/* At-A-Glance Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] border-emerald-500/20 bg-background/50 backdrop-blur-xl transition-all hover:bg-background/80">
+        <Card className="bg-background/60 backdrop-blur-md rounded-2xl border border-border/50 shadow-sm transition-all hover:bg-background/80">
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Pending Action</p>
@@ -120,7 +120,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
           </CardContent>
         </Card>
         
-        <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] border-emerald-500/20 bg-background/50 backdrop-blur-xl transition-all hover:bg-background/80">
+        <Card className="bg-background/60 backdrop-blur-md rounded-2xl border border-border/50 shadow-sm transition-all hover:bg-background/80">
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">In Processing</p>
@@ -132,7 +132,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
           </CardContent>
         </Card>
 
-        <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] border-emerald-500/20 bg-background/50 backdrop-blur-xl transition-all hover:bg-background/80">
+        <Card className="bg-background/60 backdrop-blur-md rounded-2xl border border-border/50 shadow-sm transition-all hover:bg-background/80">
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Ready for Pickup</p>
@@ -172,10 +172,10 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
         </div>
       </div>
 
-      <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] border-emerald-500/20 bg-background/50 backdrop-blur-xl">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-4 mb-4">
+      <Card className="shadow-lg border-emerald-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 bg-gradient-to-r from-emerald-500/5 to-transparent pb-6 px-8 pt-8">
           <div>
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
               Request Queue
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100/50 dark:bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 shadow-sm ml-2">
                 <span className="relative flex h-2 w-2">
@@ -185,7 +185,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
                 Live
               </span>
             </CardTitle>
-            <CardDescription className="mt-1">Automatically syncing with database.</CardDescription>
+            <CardDescription className="mt-1 text-base text-muted-foreground">Automatically syncing with database.</CardDescription>
           </div>
           
           <AnimatePresence>
@@ -245,8 +245,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
           <div className="w-full">
             <Table>
               <TableHeader>
-                <TableRow className="border-b border-border bg-muted/30">
-                  <TableHead className="w-[50px] px-6">
+                <TableRow className="border-b border-border/50 bg-emerald-500/5">
+                  <TableHead className="w-[50px] pl-8">
                     <input
                       type="checkbox"
                       checked={selectedIds.size === filteredRequests.length && filteredRequests.length > 0}
@@ -254,11 +254,11 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
                       className="rounded border-input text-primary focus:ring-primary h-4 w-4 transition-all"
                     />
                   </TableHead>
-                  <TableHead className="font-semibold">Reference ID</TableHead>
-                  <TableHead className="font-semibold">Document</TableHead>
-                  <TableHead className="font-semibold">Payment</TableHead>
-                  <TableHead className="font-semibold">Date</TableHead>
-                  <TableHead className="font-semibold">Status</TableHead>
+                  <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Reference ID</TableHead>
+                  <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Document</TableHead>
+                  <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Payment</TableHead>
+                  <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Date</TableHead>
+                  <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -281,12 +281,12 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: i * 0.05 }}
                       key={req.id}
-                      className={`cursor-pointer border-b border-border transition-colors ${selectedIds.has(req.id) ? "bg-primary/5" : "hover:bg-muted/40"}`}
+                      className={`cursor-pointer border-b border-border/50 transition-colors ${selectedIds.has(req.id) ? "bg-emerald-500/10" : "hover:bg-emerald-500/5"}`}
                       onClick={(e) => {
                         if ((e.target as HTMLElement).tagName !== "INPUT") toggleSelectRow(req.id);
                       }}
                     >
-                      <TableCell className="px-6">
+                      <TableCell className="pl-8">
                         <input
                           type="checkbox"
                           checked={selectedIds.has(req.id)}
