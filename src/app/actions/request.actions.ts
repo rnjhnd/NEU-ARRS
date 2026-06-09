@@ -5,7 +5,8 @@ import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { DocumentType, Purpose, PaymentStatus, RequestStatus } from "@prisma/client";
 
-// Zod schema for input validation
+import { clerkClient } from "@clerk/nextjs/server";
+import { sendStatusUpdateEmail } from "@/lib/email";
 const CreateRequestSchema = z.object({
   documentType: z.nativeEnum(DocumentType),
   purpose: z.nativeEnum(Purpose),
@@ -148,6 +149,23 @@ export async function cancelStudentRequest(requestId: string, reason: string) {
         cancelReason: reason,
       },
     });
+
+    try {
+      const client = await clerkClient();
+      const user = await client.users.getUser(studentId);
+      const primaryEmail = user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress;
+      if (primaryEmail) {
+        await sendStatusUpdateEmail(
+          primaryEmail,
+          user.firstName || "Student",
+          request.documentType,
+          RequestStatus.CANCELLED,
+          reason
+        );
+      }
+    } catch (err) {
+      console.error("Failed to send cancellation email", err);
+    }
 
     return { success: true, request: updatedRequest };
   } catch (error: unknown) {

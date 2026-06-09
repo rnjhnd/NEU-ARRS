@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 import { RequestStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { clerkClient } from "@clerk/nextjs/server";
+import { sendStatusUpdateEmail } from "@/lib/email";
 
 const UpdateStatusSchema = z.object({
   requestIds: z.array(z.string().cuid()),
@@ -73,6 +74,29 @@ export async function updateRequestStatus(formData: FormData) {
         ...(newStatus === RequestStatus.CANCELLED ? { cancelReason: reason } : {}),
       },
     });
+
+    // 5.5 Send Email Notifications
+    const client = await clerkClient();
+    for (const req of requestsToUpdate) {
+      try {
+        const fullReq = await prisma.request.findUnique({ where: { id: req.id } });
+        if (fullReq) {
+          const user = await client.users.getUser(fullReq.studentId);
+          const primaryEmail = user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress;
+          if (primaryEmail) {
+            await sendStatusUpdateEmail(
+              primaryEmail,
+              user.firstName || "Student",
+              fullReq.documentType,
+              newStatus,
+              reason
+            );
+          }
+        }
+      } catch (err) {
+        console.error("Failed to send email notification", err);
+      }
+    }
 
     // 6. Revalidate cache
     revalidatePath("/admin");
