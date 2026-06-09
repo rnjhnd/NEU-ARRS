@@ -11,9 +11,16 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { Clock, CheckCircle2, Package, Activity, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import useSWR from "swr";
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function AdminQueueClient({ initialRequests }: { initialRequests: Request[] }) {
-  const [requests, setRequests] = useState<Request[]>(initialRequests);
+  const { data: requests = initialRequests, mutate } = useSWR<Request[]>("/api/admin/requests", fetcher, {
+    fallbackData: initialRequests,
+    refreshInterval: 5000,
+  });
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [filter, setFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,10 +73,11 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
     if (res.success) {
       toast.success(`Updated ${selectedIds.size} requests to ${newStatus}.`);
       setSelectedIds(new Set());
-      setRequests((prev) =>
-        prev.map((r) =>
+      mutate(
+        (prev) => prev?.map((r) =>
           selectedIds.has(r.id) ? { ...r, status: newStatus, cancelReason: cancelReason || r.cancelReason } : r
-        )
+        ),
+        { revalidate: false }
       );
     } else {
       toast.error(res.error);
@@ -167,8 +175,17 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: Request
       <Card className="shadow-sm border-border">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-4 mb-4">
           <div>
-            <CardTitle className="text-lg">Request Queue</CardTitle>
-            <CardDescription>Manage and update student document requests.</CardDescription>
+            <CardTitle className="text-lg flex items-center gap-2">
+              Request Queue
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100/50 dark:bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 shadow-sm ml-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                Live
+              </span>
+            </CardTitle>
+            <CardDescription className="mt-1">Automatically syncing with database.</CardDescription>
           </div>
           
           <AnimatePresence>
