@@ -53,21 +53,28 @@ export async function POST(req: NextRequest) {
       }
 
       const payments = sessionData.attributes.payments;
-      const successfulPayment = payments?.find((p: { attributes: { status: string; amount: number; source?: { type: string } }; id: string }) => p.attributes.status === "paid");
+      const successfulPayment = payments?.find((p: any) => p.attributes.status === "paid");
+      const paymentIntent = sessionData.attributes.payment_intent;
 
-      if (successfulPayment) {
+      if (successfulPayment || paymentIntent) {
+        const paymentId = successfulPayment ? successfulPayment.id : paymentIntent?.id;
+        const amountPaid = successfulPayment ? successfulPayment.attributes.amount : paymentIntent?.attributes.amount;
+        const paymentType = successfulPayment ? successfulPayment.attributes.source?.type : sessionData.attributes.payment_method_used;
+
         // 3. Update the Prisma record securely
         await prisma.request.update({
           where: { id: requestId },
           data: {
             status: "PENDING", // Moved from PENDING_PAYMENT to PENDING
             paymentStatus: "PAID",
-            paymongoPaymentId: successfulPayment.id,
-            paymongoPaymentType: successfulPayment.attributes.source?.type || "unknown",
-            amountPaid: successfulPayment.attributes.amount,
+            paymongoPaymentId: paymentId || "unknown",
+            paymongoPaymentType: paymentType || "online",
+            amountPaid: amountPaid || 0,
           },
         });
         console.log(`Successfully confirmed payment for Request ID: ${requestId}`);
+      } else {
+        console.error("No valid payment data found in payload.");
       }
     }
 
