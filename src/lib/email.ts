@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 import { StatusUpdateEmail } from '@/emails/status-update-email';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || "re_dummy_key");
 
 export async function sendStatusUpdateEmail(
   to: string,
