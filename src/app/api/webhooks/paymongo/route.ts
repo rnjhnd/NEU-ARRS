@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     // 2. Process the Webhook Payload
     const event = JSON.parse(rawBody);
 
-    if (event.data.attributes.type === "checkout.session.payment.paid") {
+    if (event.data.attributes.type === "checkout_session.payment.paid") {
       const sessionData = event.data.attributes.data;
       const metadata = sessionData.attributes.metadata;
       
