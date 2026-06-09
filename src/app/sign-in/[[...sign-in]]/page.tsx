@@ -55,24 +55,11 @@ export default function SignInPage() {
     if (!signIn) return;
     setIsLoading(true);
     try {
-      const { error } = await signIn.sso({
+      await clerk.client.signIn.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/sso-callback",
-        redirectCallbackUrl: "/sso-callback",
+        redirectUrlComplete: "/",
       });
-
-      if (error) {
-        console.error(error);
-        toast.error(error.longMessage || "Failed to authenticate with Google.");
-        setIsLoading(false);
-        return;
-      }
-
-      // Read from the mutable clerk client object to avoid stale closure state
-      const redirectUrl = clerk.client.signIn.firstFactorVerification?.externalVerificationRedirectURL?.href;
-      if (redirectUrl) {
-        window.location.href = redirectUrl;
-      }
     } catch (err: unknown) {
       console.error(err);
       toast.error("An unexpected error occurred.");
