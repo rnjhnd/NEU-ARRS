@@ -31,6 +31,14 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
 
   return (
     <div className="mx-auto max-w-3xl p-8 bg-white min-h-screen text-slate-900 font-sans">
+      <style dangerouslySetInnerHTML={{__html: `
+        @media print {
+          @page {
+            size: letter;
+            margin: 0.5in;
+          }
+        }
+      `}} />
       {/* Non-printable controls */}
       <div className="print:hidden flex items-center justify-between mb-12 border-b pb-4">
         <Link href="/dashboard" className={buttonVariants({ variant: "ghost", className: "flex items-center gap-2" })}>
