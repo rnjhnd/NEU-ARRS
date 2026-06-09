@@ -30,7 +30,7 @@ export async function updateRequestStatus(formData: FormData) {
     // 2. Extract and Validate Input
     const rawIds = formData.getAll("requestIds") as string[];
     const rawStatus = formData.get("newStatus") as string;
-    const cancelReason = formData.get("cancelReason") as string | undefined;
+    const cancelReason = (formData.get("cancelReason") as string) || undefined;
 
     const validatedFields = UpdateStatusSchema.safeParse({
       requestIds: rawIds,
