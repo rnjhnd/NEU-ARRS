@@ -97,12 +97,18 @@ export default function SignUpPage() {
     try {
       const { error } = await signUp.sso({
         strategy: "oauth_google",
-        redirectUrl: "/",
+        redirectUrl: "/sso-callback",
         redirectCallbackUrl: "/sso-callback",
       });
+
       if (error) {
         console.error(error);
         toast.error(error.longMessage || "Failed to authenticate with Google.");
+        return;
+      }
+
+      if (signUp.verifications.externalAccount?.externalVerificationRedirectURL) {
+        window.location.href = signUp.verifications.externalAccount.externalVerificationRedirectURL.href;
       }
     } catch (err: unknown) {
       console.error(err);

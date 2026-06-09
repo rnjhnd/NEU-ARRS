@@ -55,12 +55,18 @@ export default function SignInPage() {
     try {
       const { error } = await signIn.sso({
         strategy: "oauth_google",
-        redirectUrl: "/",
+        redirectUrl: "/sso-callback",
         redirectCallbackUrl: "/sso-callback",
       });
+
       if (error) {
         console.error(error);
         toast.error(error.longMessage || "Failed to authenticate with Google.");
+        return;
+      }
+
+      if (signIn.firstFactorVerification?.externalVerificationRedirectURL) {
+        window.location.href = signIn.firstFactorVerification.externalVerificationRedirectURL.href;
       }
     } catch (err: unknown) {
       console.error(err);
