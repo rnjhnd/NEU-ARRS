@@ -289,7 +289,6 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       className="rounded border-input text-primary focus:ring-primary h-4 w-4 transition-all"
                     />
                   </TableHead>
-                  <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Reference ID</TableHead>
                   <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Student</TableHead>
                   <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Document / Purpose</TableHead>
                   <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Payment</TableHead>
@@ -334,9 +333,6 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                           onChange={() => toggleSelectRow(req.id)}
                           className="rounded border-input text-primary focus:ring-primary h-4 w-4 transition-all"
                         />
-                      </TableCell>
-                      <TableCell className="font-mono text-xs text-muted-foreground">
-                        {req.id.slice(0, 8).toUpperCase()}
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col gap-0.5">
