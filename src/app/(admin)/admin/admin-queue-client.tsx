@@ -348,7 +348,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 <AnimatePresence mode="wait">
                   {filteredRequests.length === 0 && (
                     <motion.tr 
-                      key="empty-state"
+                      key={`empty-${filter}-${searchQuery}`}
                       initial={{ opacity: 0 }} 
                       animate={{ opacity: 1 }} 
                       exit={{ opacity: 0 }}
@@ -368,7 +368,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.15 }}
-                      key={req.id}
+                      key={`${req.id}-${filter}-${currentPage}-${sortConfig?.key}-${sortConfig?.direction}`}
                       className={`cursor-pointer border-b border-border/50 transition-colors ${selectedIds.has(req.id) ? "bg-emerald-500/10" : "hover:bg-emerald-500/5"}`}
                       onClick={(e) => {
                         if ((e.target as HTMLElement).tagName !== "INPUT") toggleSelectRow(req.id);
