@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export default function SignInPage() {
-  const { isLoaded, signIn, setActive } = useSignIn();
+  const { signIn } = useSignIn();
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -20,26 +20,30 @@ export default function SignInPage() {
   // Handle standard email/password login
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded) return;
+    if (!signIn) return;
     setIsLoading(true);
 
     try {
-      const result = await signIn.create({
+      const { error } = await signIn.create({
         identifier: emailAddress,
         password,
       });
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
+      if (error) {
+        console.error(error);
+        toast.error(error.longMessage || error.message || "Sign in failed. Please check your credentials.");
+        return;
+      }
+
+      if (signIn.status === "complete") {
+        await signIn.finalize();
         router.push("/");
       } else {
-        console.error(result);
-        toast.error("Sign in failed. Please check your credentials.");
+        toast.error("Sign in requires further verification.");
       }
     } catch (err: unknown) {
       console.error(err);
-      const error = err as { errors?: { longMessage?: string }[] };
-      toast.error(error.errors?.[0]?.longMessage || "An error occurred during sign in.");
+      toast.error("An unexpected error occurred during sign in.");
     } finally {
       setIsLoading(false);
     }
@@ -47,17 +51,20 @@ export default function SignInPage() {
 
   // Handle Google OAuth login
   const handleGoogleSignIn = async () => {
-    if (!isLoaded) return;
+    if (!signIn) return;
     try {
-      await signIn.authenticateWithRedirect({
+      const { error } = await signIn.sso({
         strategy: "oauth_google",
-        redirectUrl: "/sso-callback",
-        redirectUrlComplete: "/",
+        redirectUrl: "/",
+        redirectCallbackUrl: "/sso-callback",
       });
+      if (error) {
+        console.error(error);
+        toast.error(error.longMessage || "Failed to authenticate with Google.");
+      }
     } catch (err: unknown) {
       console.error(err);
-      const error = err as { errors?: { longMessage?: string }[] };
-      toast.error(error.errors?.[0]?.longMessage || "Failed to authenticate with Google.");
+      toast.error("An unexpected error occurred.");
     }
   };
 
@@ -129,7 +136,7 @@ export default function SignInPage() {
               variant="outline" 
               className="w-full h-12 bg-background hover:bg-muted text-foreground font-medium rounded-xl border-border"
               onClick={handleGoogleSignIn}
-              disabled={!isLoaded || isLoading}
+              disabled={!signIn || isLoading}
             >
               <svg className="mr-3 h-5 w-5" viewBox="0 0 24 24">
                 <path
@@ -199,7 +206,7 @@ export default function SignInPage() {
               <Button 
                 type="submit" 
                 className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl transition-all"
-                disabled={!isLoaded || isLoading}
+                disabled={!signIn || isLoading}
               >
                 {isLoading ? (
                   <>

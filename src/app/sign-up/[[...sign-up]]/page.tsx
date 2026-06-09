@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export default function SignUpPage() {
-  const { isLoaded, signUp, setActive } = useSignUp();
+  const { signUp } = useSignUp();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
@@ -25,25 +25,36 @@ export default function SignUpPage() {
   // Handle standard registration
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded) return;
+    if (!signUp) return;
     setIsLoading(true);
 
     try {
-      await signUp.create({
+      const { error: createError } = await signUp.create({
         firstName,
         lastName,
         emailAddress,
         password,
       });
 
+      if (createError) {
+        console.error(createError);
+        toast.error(createError.longMessage || "An error occurred during sign up.");
+        return;
+      }
+
       // Send the OTP
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      const { error: sendError } = await signUp.verifications.sendEmailCode();
+      if (sendError) {
+        console.error(sendError);
+        toast.error(sendError.longMessage || "Failed to send verification code.");
+        return;
+      }
+      
       setPendingVerification(true);
       toast.success("Verification code sent to your email.");
     } catch (err: unknown) {
       console.error(err);
-      const error = err as { errors?: { longMessage?: string }[] };
-      toast.error(error.errors?.[0]?.longMessage || "An error occurred during sign up.");
+      toast.error("An unexpected error occurred during sign up.");
     } finally {
       setIsLoading(false);
     }
@@ -52,25 +63,29 @@ export default function SignUpPage() {
   // Handle OTP verification
   const onPressVerify = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded) return;
+    if (!signUp) return;
     setIsLoading(true);
 
     try {
-      const completeSignUp = await signUp.attemptEmailAddressVerification({
+      const { error } = await signUp.verifications.verifyEmailCode({
         code,
       });
 
-      if (completeSignUp.status !== "complete") {
-        console.log(JSON.stringify(completeSignUp, null, 2));
-        toast.error("Unable to verify. Please check your code.");
-      } else {
-        await setActive({ session: completeSignUp.createdSessionId });
+      if (error) {
+        console.error(error);
+        toast.error(error.longMessage || "Invalid verification code.");
+        return;
+      }
+
+      if (signUp.status === "complete") {
+        await signUp.finalize();
         router.push("/");
+      } else {
+        toast.error("Sign up requires further verification.");
       }
     } catch (err: unknown) {
       console.error(err);
-      const error = err as { errors?: { longMessage?: string }[] };
-      toast.error(error.errors?.[0]?.longMessage || "Invalid verification code.");
+      toast.error("An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -78,17 +93,20 @@ export default function SignUpPage() {
 
   // Handle Google OAuth sign up
   const handleGoogleSignUp = async () => {
-    if (!isLoaded) return;
+    if (!signUp) return;
     try {
-      await signUp.authenticateWithRedirect({
+      const { error } = await signUp.sso({
         strategy: "oauth_google",
-        redirectUrl: "/sso-callback",
-        redirectUrlComplete: "/",
+        redirectUrl: "/",
+        redirectCallbackUrl: "/sso-callback",
       });
+      if (error) {
+        console.error(error);
+        toast.error(error.longMessage || "Failed to authenticate with Google.");
+      }
     } catch (err: unknown) {
       console.error(err);
-      const error = err as { errors?: { longMessage?: string }[] };
-      toast.error(error.errors?.[0]?.longMessage || "Failed to authenticate with Google.");
+      toast.error("An unexpected error occurred.");
     }
   };
 
@@ -172,7 +190,7 @@ export default function SignUpPage() {
                   variant="outline" 
                   className="w-full h-12 bg-background hover:bg-muted text-foreground font-medium rounded-xl border-border"
                   onClick={handleGoogleSignUp}
-                  disabled={!isLoaded || isLoading}
+                  disabled={!signUp || isLoading}
                 >
                   <svg className="mr-3 h-5 w-5" viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -252,7 +270,7 @@ export default function SignUpPage() {
                   <Button 
                     type="submit" 
                     className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl transition-all mt-2"
-                    disabled={!isLoaded || isLoading}
+                    disabled={!signUp || isLoading}
                   >
                     {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Continue"}
                   </Button>
@@ -295,7 +313,7 @@ export default function SignUpPage() {
                   <Button 
                     type="submit" 
                     className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl transition-all"
-                    disabled={!isLoaded || isLoading || code.length !== 6}
+                    disabled={!signUp || isLoading || code.length !== 6}
                   >
                     {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Verify Email"}
                   </Button>
