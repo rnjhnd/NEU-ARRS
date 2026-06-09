@@ -12,29 +12,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="absolute -bottom-[500px] -left-[500px] w-[1000px] h-[1000px] rounded-full bg-primary/5 blur-[120px] opacity-50"></div>
       </div>
 
-      <div className="relative z-10 flex h-full w-full p-4 gap-4">
-        <div className="h-full rounded-2xl bg-background/60 backdrop-blur-xl border border-emerald-500/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
-          <Sidebar />
-        </div>
+      <div className="relative z-10 flex h-full w-full">
+        <Sidebar />
 
         {/* Admin Main Content */}
-        <div className="flex-1 flex flex-col min-w-0 h-full gap-4">
-          <header className="flex h-16 shrink-0 items-center justify-between px-6 rounded-2xl bg-background/60 backdrop-blur-xl border border-emerald-500/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] supports-[backdrop-filter]:bg-background/40">
-            <div className="flex items-center gap-3">
-              <MobileNav />
-              <h1 className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-                Admin <span className="font-medium text-emerald-600 dark:text-emerald-400">Dashboard</span>
-              </h1>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3 bg-muted/50 p-1.5 rounded-full border border-border/50">
-                <ThemeToggle />
+        <div className="flex-1 flex flex-col min-w-0 h-full">
+          <div className="p-4 md:p-6 pb-0">
+            <header className="flex h-16 shrink-0 items-center justify-between px-6 rounded-2xl bg-background/60 backdrop-blur-xl border border-emerald-500/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] supports-[backdrop-filter]:bg-background/40">
+              <div className="flex items-center gap-3">
+                <MobileNav />
+                <h1 className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+                  Admin <span className="font-medium text-emerald-600 dark:text-emerald-400">Dashboard</span>
+                </h1>
               </div>
-            </div>
-          </header>
+              
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 bg-muted/50 p-1.5 rounded-full border border-border/50">
+                  <ThemeToggle />
+                </div>
+              </div>
+            </header>
+          </div>
           
-          <main className="flex-1 p-2 md:p-6 overflow-y-auto rounded-2xl bg-background/40 backdrop-blur-md border border-emerald-500/5 shadow-inner">
+          <main className="flex-1 p-4 md:p-6 overflow-y-auto">
             <div className="max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
               {children}
             </div>

@@ -17,7 +17,7 @@ export function Sidebar() {
       initial={false}
       animate={{ width: isCollapsed ? 80 : 280 }}
       transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-      className="flex-col bg-transparent hidden md:flex relative overflow-visible z-20 h-full"
+      className="flex-col border-r border-emerald-500/10 bg-background/60 backdrop-blur-xl hidden md:flex relative overflow-visible z-20 h-full"
     >
       <Button
         variant="outline"
