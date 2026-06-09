@@ -94,10 +94,9 @@ export default function SignUpPage() {
 
   // Handle Google OAuth sign up
   const handleGoogleSignUp = async () => {
-    if (!signUp) return;
     setIsLoading(true);
     try {
-      await clerk.client.signUp.authenticateWithRedirect({
+      await clerk.client.signIn.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/sso-callback",
         redirectUrlComplete: "/",
