@@ -12,7 +12,7 @@ export default function SignUpPage() {
         <Link href="/" className="flex items-center gap-2 z-10 w-fit hover:opacity-80 transition-opacity">
           <GraduationCap className="h-8 w-8 text-primary" />
           <span className="text-xl font-bold tracking-tight">
-            NEU <span className="font-normal text-muted-foreground">Registrar</span>
+            NEU <span className="font-normal text-muted-foreground">ARRS</span>
           </span>
         </Link>
 

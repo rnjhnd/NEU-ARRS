@@ -25,7 +25,7 @@ export default async function Home() {
         <div className="flex items-center gap-2">
           <GraduationCap className="h-8 w-8 text-primary" />
           <span className="text-xl font-bold tracking-tight">
-            NEU <span className="font-normal text-muted-foreground">Registrar</span>
+            NEU <span className="font-normal text-muted-foreground">ARRS</span>
           </span>
         </div>
         <div className="flex items-center gap-4">

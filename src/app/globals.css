@@ -122,3 +122,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide Clerk Watermark */
+.cl-watermark {
+  display: none !important;
+}
