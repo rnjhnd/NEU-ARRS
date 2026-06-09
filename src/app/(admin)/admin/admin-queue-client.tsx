@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, CheckCircle2, Package, Activity, Search } from "lucide-react";
+import { Clock, CheckCircle2, Package, Activity, Search, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import useSWR from "swr";
 
@@ -110,6 +110,30 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
     }
   };
 
+  const exportToCSV = () => {
+    if (requests.length === 0) return toast.error("No data to export.");
+    const headers = ["Reference ID", "Student Name", "Student Email", "Document", "Purpose", "Payment Method", "Payment Status", "Date", "Status", "Cancel Reason"];
+    const rows = requests.map(r => [
+      r.id,
+      r.studentName || "Unknown",
+      r.studentEmail || "No email",
+      r.documentType,
+      r.purpose,
+      r.paymentMethod,
+      r.paymentStatus,
+      new Date(r.createdAt).toISOString(),
+      r.status,
+      r.cancelReason || ""
+    ]);
+    const csvContent = [headers.join(","), ...rows.map(row => row.map(cell => `"${cell}"`).join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `neu_requests_export_${format(new Date(), "yyyyMMdd")}.csv`);
+    link.click();
+  };
+
   return (
     <div className="space-y-8">
       {/* At-A-Glance Stats */}
@@ -191,7 +215,12 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 Live
               </span>
             </CardTitle>
-            <CardDescription className="mt-1 text-base text-muted-foreground">Automatically syncing with database.</CardDescription>
+            <div className="flex items-center gap-4 mt-1">
+              <CardDescription className="text-base text-muted-foreground">Automatically syncing with database.</CardDescription>
+              <Button variant="outline" size="sm" onClick={exportToCSV} className="h-7 text-xs bg-background">
+                <Download className="w-3 h-3 mr-1" /> Export CSV
+              </Button>
+            </div>
           </div>
           
           <AnimatePresence>
@@ -269,24 +298,23 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <AnimatePresence mode="popLayout">
+                <AnimatePresence>
                   {filteredRequests.length === 0 && (
-                    <TableRow>
+                    <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                       <TableCell colSpan={6} className="h-48 text-center text-muted-foreground">
                         <div className="flex flex-col items-center justify-center">
                           <CheckCircle2 className="w-8 h-8 text-muted mb-2" />
                           <p>No active requests in this queue.</p>
                         </div>
                       </TableCell>
-                    </TableRow>
+                    </motion.tr>
                   )}
                   {paginatedRequests.map((req, i) => (
                     <motion.tr 
-                      layout
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ delay: i * 0.05 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
                       key={req.id}
                       className={`cursor-pointer border-b border-border/50 transition-colors ${selectedIds.has(req.id) ? "bg-emerald-500/10" : "hover:bg-emerald-500/5"}`}
                       onClick={(e) => {
@@ -332,6 +360,11 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       <TableCell>
                         <div className="flex flex-col items-start gap-1">
                           {getStatusBadge(req.status)}
+                          {req.cancelReason && (
+                            <span className="text-[10px] text-red-500 truncate max-w-[150px]" title={req.cancelReason}>
+                              Reason: {req.cancelReason}
+                            </span>
+                          )}
                           {req.status === "COMPLETED" && (
                             <a href={`/receipt/${req.id}`} target="_blank" rel="noreferrer" className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:underline">
                               View Receipt
