@@ -1,171 +1,239 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { format, startOfWeek, endOfWeek, isWithinInterval, isSameMonth } from "date-fns";
-import { useMemo, useState } from "react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { DollarSign, CreditCard, Landmark, TrendingUp } from "lucide-react";
 import { Request } from "@prisma/client";
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, PieChart, Pie, Cell, Legend
+} from "recharts";
+import { format, subDays, isAfter } from "date-fns";
+import { DollarSign, CreditCard, Banknote, TrendingUp } from "lucide-react";
 
-type FinanceDataItem = Pick<Request, "id" | "amountPaid" | "paymentMethod" | "createdAt">;
+const COLORS = ['#10b981', '#3b82f6', '#6366f1', '#8b5cf6'];
 
-export function FinanceClient({ data }: { data: FinanceDataItem[] }) {
-  const [timeframe, setTimeframe] = useState<"ALL" | "MONTH" | "WEEK">("ALL");
+export function FinanceClient({ requests }: { requests: Request[] }) {
+  // Constants for pricing since cash doesn't have amountPaid saved directly yet
+  const getAmount = (req: Request) => {
+    if (req.amountPaid) return req.amountPaid / 100; // Centavos to PHP
+    if (req.paymentMethod === 'cash') return 150; // Hardcoded 150 PHP for cash
+    return 0;
+  };
 
-  const filteredData = useMemo(() => {
-    const now = new Date();
-    if (timeframe === "WEEK") {
-      const start = startOfWeek(now);
-      const end = endOfWeek(now);
-      return data.filter(r => isWithinInterval(new Date(r.createdAt), { start, end }));
-    }
-    if (timeframe === "MONTH") {
-      return data.filter(r => isSameMonth(new Date(r.createdAt), now));
-    }
-    return data;
-  }, [data, timeframe]);
+  const isCompletedOrPaid = (req: Request) => 
+    req.paymentStatus === 'PAID' || req.paymentStatus === 'CASH_ON_PICKUP';
 
-  const totalRevenue = filteredData.reduce((acc, curr) => acc + (curr.amountPaid || 0), 0);
-  const totalInPesos = totalRevenue / 100;
+  // 1. Top Level KPIs
+  const totalRevenue = requests.filter(isCompletedOrPaid).reduce((sum, req) => sum + getAmount(req), 0);
+  
+  const onlineRequests = requests.filter(r => r.paymentMethod === 'online' && r.paymentStatus === 'PAID');
+  const onlineRevenue = onlineRequests.reduce((sum, req) => sum + getAmount(req), 0);
+  
+  const cashRequests = requests.filter(r => r.paymentMethod === 'cash');
+  const cashRevenue = cashRequests.reduce((sum, req) => sum + getAmount(req), 0);
 
-  const onlineRevenue = filteredData.filter(r => r.paymentMethod === "online").reduce((acc, curr) => acc + (curr.amountPaid || 0), 0) / 100;
-  const cashRevenue = filteredData.filter(r => r.paymentMethod === "cash").reduce((acc, curr) => acc + (curr.amountPaid || 0), 0) / 100;
+  // 2. Revenue Over Time (Last 7 Days)
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = subDays(new Date(), 6 - i);
+    return format(d, 'MMM dd');
+  });
 
-  // Chart data formatting
-  const chartData = useMemo(() => {
-    const map = new Map<string, number>();
-    filteredData.forEach(r => {
-      const dateStr = format(new Date(r.createdAt), "MMM dd");
-      map.set(dateStr, (map.get(dateStr) || 0) + ((r.amountPaid || 0) / 100));
-    });
-    return Array.from(map.entries()).map(([date, amount]) => ({ date, amount }));
-  }, [filteredData]);
+  const revenueOverTime = last7Days.map(dateStr => {
+    const dailyRevenue = requests.filter(isCompletedOrPaid).reduce((sum, req) => {
+      if (format(new Date(req.createdAt), 'MMM dd') === dateStr) {
+        return sum + getAmount(req);
+      }
+      return sum;
+    }, 0);
+    return { name: dateStr, revenue: dailyRevenue };
+  });
 
-  const pieData = [
-    { name: "Online Payment", value: onlineRevenue, color: "var(--color-primary)" },
-    { name: "Cash Payment", value: cashRevenue, color: "#10b981" }
-  ];
+  // 3. Payment Method Distribution
+  const paymentMethodData = [
+    { name: 'Online (PayMongo)', value: onlineRevenue },
+    { name: 'Cash on Pickup', value: cashRevenue },
+  ].filter(d => d.value > 0);
+
+  // 4. Document Type Revenue
+  const documentTypes = [...new Set(requests.map(r => r.documentType))];
+  const documentData = documentTypes.map(type => {
+    const typeRevenue = requests
+      .filter(r => r.documentType === type && isCompletedOrPaid(r))
+      .reduce((sum, req) => sum + getAmount(req), 0);
+    return { name: type.replace("_", " "), revenue: typeRevenue };
+  }).sort((a, b) => b.revenue - a.revenue);
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Financial Analytics</h2>
-          <p className="text-muted-foreground">Monitor document request revenue.</p>
-        </div>
-        <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg">
-          {["ALL", "MONTH", "WEEK"].map(t => (
-            <button
-              key={t}
-              onClick={() => setTimeframe(t as "ALL" | "MONTH" | "WEEK")}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                timeframe === t 
-                  ? "bg-background text-foreground shadow-sm" 
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {t === "ALL" ? "All Time" : `This ${t.charAt(0) + t.slice(1).toLowerCase()}`}
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-background/60 backdrop-blur-md rounded-2xl border border-border/50 shadow-sm transition-all hover:bg-background/80">
+          <CardContent className="p-6 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
+              <h3 className="text-2xl font-bold mt-1">₱{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+            </div>
+            <div className="p-3 bg-emerald-500/10 text-emerald-600 rounded-xl">
+              <DollarSign className="w-6 h-6" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-background/60 backdrop-blur-md rounded-2xl border border-border/50 shadow-sm transition-all hover:bg-background/80">
+          <CardContent className="p-6 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Online Payments</p>
+              <h3 className="text-2xl font-bold mt-1">₱{onlineRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+            </div>
+            <div className="p-3 bg-blue-500/10 text-blue-600 rounded-xl">
+              <CreditCard className="w-6 h-6" />
+            </div>
+          </CardContent>
+        </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="shadow-sm border-border">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-medium text-muted-foreground">Total Revenue</h3>
-              <div className="p-2 bg-primary/10 text-primary rounded-lg"><DollarSign className="w-5 h-5" /></div>
+        <Card className="bg-background/60 backdrop-blur-md rounded-2xl border border-border/50 shadow-sm transition-all hover:bg-background/80">
+          <CardContent className="p-6 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Cash on Pickup</p>
+              <h3 className="text-2xl font-bold mt-1">₱{cashRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
-            <p className="text-4xl font-bold">₱{totalInPesos.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+            <div className="p-3 bg-amber-500/10 text-amber-600 rounded-xl">
+              <Banknote className="w-6 h-6" />
+            </div>
           </CardContent>
         </Card>
-        <Card className="shadow-sm border-border">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-medium text-muted-foreground">Online Payments</h3>
-              <div className="p-2 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-lg"><CreditCard className="w-5 h-5" /></div>
+
+        <Card className="bg-background/60 backdrop-blur-md rounded-2xl border border-border/50 shadow-sm transition-all hover:bg-background/80">
+          <CardContent className="p-6 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Total Paid Requests</p>
+              <h3 className="text-2xl font-bold mt-1">{requests.filter(isCompletedOrPaid).length}</h3>
             </div>
-            <p className="text-3xl font-bold">₱{onlineRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm border-border">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-medium text-muted-foreground">Cash Payments</h3>
-              <div className="p-2 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-lg"><Landmark className="w-5 h-5" /></div>
+            <div className="p-3 bg-indigo-500/10 text-indigo-600 rounded-xl">
+              <TrendingUp className="w-6 h-6" />
             </div>
-            <p className="text-3xl font-bold">₱{cashRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
           </CardContent>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="shadow-sm border-border lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Revenue Trend</CardTitle>
-            <CardDescription>Daily revenue generated from document requests.</CardDescription>
+        {/* Revenue Trends */}
+        <Card className="lg:col-span-2 shadow-lg border-blue-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl">
+          <CardHeader className="bg-gradient-to-r from-blue-500/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
+            <CardTitle className="text-xl font-bold tracking-tight text-foreground">7-Day Revenue Trend</CardTitle>
+            <CardDescription>Daily revenue from both online and cash payments.</CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px]">
-            {chartData.length === 0 ? (
-              <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
-                <TrendingUp className="w-8 h-8 mb-2 opacity-20" />
-                <p>No revenue data for this period.</p>
-              </div>
-            ) : (
+          <CardContent className="p-6 h-[350px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={revenueOverTime}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="opacity-10" />
+                <XAxis dataKey="name" stroke="currentColor" className="opacity-50 text-xs" tickLine={false} axisLine={false} />
+                <YAxis 
+                  stroke="currentColor" 
+                  className="opacity-50 text-xs" 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tickFormatter={(value) => `₱${value}`}
+                />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
+                  itemStyle={{ color: 'hsl(var(--foreground))' }}
+                  formatter={(value: any) => [`₱${Number(value).toLocaleString()}`, 'Revenue']}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="revenue" 
+                  stroke="#3b82f6" 
+                  strokeWidth={3}
+                  dot={{ r: 4, strokeWidth: 2 }}
+                  activeDot={{ r: 6, strokeWidth: 0 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Payment Methods Pie */}
+        <Card className="shadow-lg border-indigo-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl">
+          <CardHeader className="bg-gradient-to-r from-indigo-500/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
+            <CardTitle className="text-xl font-bold tracking-tight text-foreground">Payment Methods</CardTitle>
+            <CardDescription>Online vs Cash collection.</CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 h-[350px] flex items-center justify-center">
+            {paymentMethodData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
-                  <XAxis dataKey="date" stroke="var(--color-muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="var(--color-muted-foreground)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `₱${v}`} />
+                <PieChart>
+                  <Pie
+                    data={paymentMethodData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={5}
+                    dataKey="value"
+                    stroke="none"
+                  >
+                    {paymentMethodData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
                   <Tooltip 
-                    contentStyle={{ backgroundColor: "var(--color-card)", borderColor: "var(--color-border)", borderRadius: "8px" }}
-                    itemStyle={{ color: "var(--color-foreground)" }}
-                    formatter={(val) => [`₱${val}`, "Revenue"]}
+                    contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
+                    formatter={(value: any) => [`₱${Number(value).toLocaleString()}`, 'Revenue']}
                   />
-                  <Area type="monotone" dataKey="amount" stroke="var(--color-primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorAmount)" />
-                </AreaChart>
+                  <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
               </ResponsiveContainer>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-muted-foreground h-full">
+                <p>No payment data yet.</p>
+              </div>
             )}
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-border">
-          <CardHeader>
-            <CardTitle>Payment Method</CardTitle>
-            <CardDescription>Distribution of revenue.</CardDescription>
+        {/* Document Performance Bar Chart */}
+        <Card className="lg:col-span-3 shadow-lg border-emerald-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl">
+          <CardHeader className="bg-gradient-to-r from-emerald-500/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
+            <CardTitle className="text-xl font-bold tracking-tight text-foreground">Revenue by Document Type</CardTitle>
+            <CardDescription>Which documents generate the most value.</CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px] flex items-center justify-center">
-            {totalInPesos === 0 ? (
-              <p className="text-muted-foreground">No data.</p>
-            ) : (
+          <CardContent className="p-6 h-[350px]">
+            {documentData.length > 0 && documentData.some(d => d.revenue > 0) ? (
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(val) => [`₱${Number(val).toLocaleString()}`, "Amount"]}
-                    contentStyle={{ backgroundColor: "var(--color-card)", borderRadius: "8px" }}
+                <BarChart data={documentData} layout="vertical" margin={{ left: 50 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="currentColor" className="opacity-10" />
+                  <XAxis 
+                    type="number" 
+                    stroke="currentColor" 
+                    className="opacity-50 text-xs" 
+                    tickLine={false} 
+                    axisLine={false}
+                    tickFormatter={(value) => `₱${value}`}
                   />
-                </PieChart>
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    stroke="currentColor" 
+                    className="opacity-50 text-xs font-medium" 
+                    tickLine={false} 
+                    axisLine={false} 
+                  />
+                  <Tooltip 
+                    cursor={{ fill: 'currentColor', opacity: 0.05 }}
+                    contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
+                    formatter={(value: any) => [`₱${Number(value).toLocaleString()}`, 'Revenue']}
+                  />
+                  <Bar dataKey="revenue" fill="#10b981" radius={[0, 4, 4, 0]} barSize={32}>
+                    {documentData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
               </ResponsiveContainer>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-muted-foreground h-full">
+                <p>No document revenue data yet.</p>
+              </div>
             )}
           </CardContent>
         </Card>
