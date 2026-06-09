@@ -8,6 +8,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { Request } from "@prisma/client";
+import { useState } from "react";
+import React from "react";
+import { useRouter } from "next/navigation";
+import { RequestTracker } from "@/components/request-tracker";
+import { cancelStudentRequest } from "@/app/actions/request.actions";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -29,6 +36,24 @@ const getStatusBadge = (status: string) => {
 };
 
 export function RequestList({ requests }: { requests: Request[] }) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleCancel = async (id: string) => {
+    const reason = prompt("Please provide a reason for cancelling this request:");
+    if (!reason) return;
+    setCancellingId(id);
+    const result = await cancelStudentRequest(id, reason);
+    if (result.success) {
+      toast.success("Request cancelled successfully.");
+      router.refresh();
+    } else {
+      toast.error(result.error);
+    }
+    setCancellingId(null);
+  };
+
   if (requests.length === 0) {
     return (
       <motion.div 
@@ -78,40 +103,77 @@ export function RequestList({ requests }: { requests: Request[] }) {
             <TableBody>
               <AnimatePresence>
                 {requests.map((req, i) => (
-                  <motion.tr 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    key={req.id}
-                    className="border-b border-border/50 hover:bg-emerald-500/5 transition-colors"
-                  >
-                    <TableCell className="pl-8 font-mono text-xs text-muted-foreground font-medium">
-                      {req.id.slice(0, 8).toUpperCase()}
-                    </TableCell>
-                    <TableCell className="font-medium text-foreground">
-                      {req.documentType.replace("_", " ")}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {req.purpose.replace("_", " ")}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
-                      {format(new Date(req.createdAt), "MMM d, yyyy")}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-0.5">
-                        <span className="capitalize text-sm font-medium">{req.paymentMethod}</span>
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{req.paymentStatus.replace(/_/g, " ")}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right pr-8">
-                      <div className="flex flex-col items-end justify-center">
-                        {getStatusBadge(req.status)}
-                        {req.cancelReason && (
-                          <p className="text-[10px] text-red-500 mt-1.5 max-w-[150px] truncate">Reason: {req.cancelReason}</p>
-                        )}
-                      </div>
-                    </TableCell>
-                  </motion.tr>
+                  <React.Fragment key={req.id}>
+                    <motion.tr 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      onClick={() => setExpandedId(expandedId === req.id ? null : req.id)}
+                      className={`border-b border-border/50 hover:bg-emerald-500/5 transition-colors cursor-pointer ${expandedId === req.id ? "bg-emerald-500/5" : ""}`}
+                    >
+                      <TableCell className="pl-8 font-mono text-xs text-muted-foreground font-medium">
+                        {req.id.slice(0, 8).toUpperCase()}
+                      </TableCell>
+                      <TableCell className="font-medium text-foreground">
+                        {req.documentType.replace("_", " ")}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {req.purpose.replace("_", " ")}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-sm">
+                        {format(new Date(req.createdAt), "MMM d, yyyy")}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="capitalize text-sm font-medium">{req.paymentMethod}</span>
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{req.paymentStatus.replace(/_/g, " ")}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right pr-8">
+                        <div className="flex flex-col items-end justify-center">
+                          {getStatusBadge(req.status)}
+                          {req.cancelReason && (
+                            <p className="text-[10px] text-red-500 mt-1.5 max-w-[150px] truncate">Reason: {req.cancelReason}</p>
+                          )}
+                        </div>
+                      </TableCell>
+                    </motion.tr>
+                    <AnimatePresence>
+                      {expandedId === req.id && (
+                        <motion.tr
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="bg-emerald-500/5 overflow-hidden border-b border-border/50"
+                        >
+                          <TableCell colSpan={6} className="p-0 border-0">
+                            <motion.div 
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              className="px-6 py-4"
+                            >
+                              <RequestTracker status={req.status} cancelReason={req.cancelReason} />
+                              {(req.status === "PENDING" || req.status === "PENDING_PAYMENT") && (
+                                <div className="flex justify-end mt-2 px-8">
+                                  <Button 
+                                    variant="destructive" 
+                                    size="sm" 
+                                    onClick={() => handleCancel(req.id)}
+                                    disabled={cancellingId === req.id}
+                                    className="shadow-sm"
+                                  >
+                                    {cancellingId === req.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                                    Cancel Request
+                                  </Button>
+                                </div>
+                              )}
+                            </motion.div>
+                          </TableCell>
+                        </motion.tr>
+                      )}
+                    </AnimatePresence>
+                  </React.Fragment>
                 ))}
               </AnimatePresence>
             </TableBody>

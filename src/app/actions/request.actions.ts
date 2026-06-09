@@ -123,3 +123,35 @@ export async function createRequest(formData: FormData) {
     return { success: false, error: error instanceof Error ? error.message : "Failed to submit request." };
   }
 }
+
+export async function cancelStudentRequest(requestId: string, reason: string) {
+  try {
+    const studentId = await requireAuth();
+
+    // Verify the request belongs to the student and is cancellable
+    const request = await prisma.request.findUnique({
+      where: { id: requestId },
+    });
+
+    if (!request || request.studentId !== studentId) {
+      return { success: false, error: "Request not found or unauthorized." };
+    }
+
+    if (request.status !== RequestStatus.PENDING && request.status !== RequestStatus.PENDING_PAYMENT) {
+      return { success: false, error: "Only pending requests can be cancelled." };
+    }
+
+    const updatedRequest = await prisma.request.update({
+      where: { id: requestId },
+      data: {
+        status: RequestStatus.CANCELLED,
+        cancelReason: reason,
+      },
+    });
+
+    return { success: true, request: updatedRequest };
+  } catch (error: unknown) {
+    console.error("Failed to cancel request:", error);
+    return { success: false, error: "Failed to cancel request." };
+  }
+}
