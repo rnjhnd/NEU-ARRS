@@ -124,6 +124,15 @@
 }
 
 /* Hide Clerk Watermark */
-.cl-watermark {
+.cl-watermark,
+[class*="cl-internal-"] > a[href*="clerk.com"],
+div.cl-internal-b3al4t,
+div.cl-internal-1tcxgw3,
+div.cl-internal-180wb59,
+div:has(> a[href*="clerk.com"]) {
   display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  pointer-events: none !important;
 }

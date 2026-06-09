@@ -56,6 +56,16 @@ export default function SignInPage() {
             routing="path" 
             signUpUrl="/sign-up" 
             appearance={{
+              variables: {
+                colorBackground: "#ffffff",
+                colorText: "#0f172a",
+                colorPrimary: "#0A5C36",
+                colorTextSecondary: "#64748b",
+                colorInputBackground: "#ffffff",
+                colorInputText: "#0f172a",
+                colorDanger: "#ef4444",
+                colorSuccess: "#10b981",
+              },
               elements: {
                 rootBox: "w-full",
                 card: "w-full shadow-lg border border-slate-200 bg-white rounded-2xl p-8",
