@@ -1,0 +1,339 @@
+"use client";
+
+import { useState } from "react";
+import { Request, RequestStatus } from "@prisma/client";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { updateRequestStatus } from "@/app/actions/admin.actions";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
+import { Clock, CheckCircle2, Package, Activity, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+
+export function AdminQueueClient({ initialRequests }: { initialRequests: Request[] }) {
+  const [requests, setRequests] = useState<Request[]>(initialRequests);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [filter, setFilter] = useState<string>("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  const filteredRequests = requests.filter((req) => {
+    if (filter !== "ALL" && req.status !== filter) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      if (!req.id.toLowerCase().includes(q) && !req.documentType.toLowerCase().includes(q)) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
+  const paginatedRequests = filteredRequests.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  // Calculate Stats
+  const pendingCount = requests.filter(r => r.status === "PENDING" || r.status === "PENDING_PAYMENT").length;
+  const processingCount = requests.filter(r => r.status === "PROCESSING").length;
+  const readyCount = requests.filter(r => r.status === "READY_FOR_PICKUP").length;
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredRequests.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(filteredRequests.map((r) => r.id)));
+  };
+
+  const toggleSelectRow = (id: string) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const handleBulkUpdate = async (newStatus: RequestStatus, cancelReason?: string) => {
+    if (selectedIds.size === 0) return;
+    setIsUpdating(true);
+
+    const formData = new FormData();
+    selectedIds.forEach((id) => formData.append("requestIds", id));
+    formData.append("newStatus", newStatus);
+    if (cancelReason) formData.append("cancelReason", cancelReason);
+
+    const res = await updateRequestStatus(formData);
+
+    if (res.success) {
+      toast.success(`Updated ${selectedIds.size} requests to ${newStatus}.`);
+      setSelectedIds(new Set());
+      setRequests((prev) =>
+        prev.map((r) =>
+          selectedIds.has(r.id) ? { ...r, status: newStatus, cancelReason: cancelReason || r.cancelReason } : r
+        )
+      );
+    } else {
+      toast.error(res.error);
+    }
+    setIsUpdating(false);
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "PENDING_PAYMENT": 
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Payment</span>;
+      case "PENDING": 
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">Pending</span>;
+      case "PROCESSING": 
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">Processing</span>;
+      case "READY_FOR_PICKUP": 
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Ready</span>;
+      case "COMPLETED": 
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300">Completed</span>;
+      case "CANCELLED": 
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-500">Cancelled</span>;
+      default: 
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-800">{status}</span>;
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* At-A-Glance Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="shadow-sm border-border bg-card">
+          <CardContent className="p-6 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Pending Action</p>
+              <h3 className="text-3xl font-bold mt-1 text-foreground">{pendingCount}</h3>
+            </div>
+            <div className="p-3 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded-xl">
+              <Clock className="w-6 h-6" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="shadow-sm border-border bg-card">
+          <CardContent className="p-6 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">In Processing</p>
+              <h3 className="text-3xl font-bold mt-1 text-foreground">{processingCount}</h3>
+            </div>
+            <div className="p-3 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-xl">
+              <Activity className="w-6 h-6" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border bg-card">
+          <CardContent className="p-6 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Ready for Pickup</p>
+              <h3 className="text-3xl font-bold mt-1 text-foreground">{readyCount}</h3>
+            </div>
+            <div className="p-3 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-xl">
+              <Package className="w-6 h-6" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 no-scrollbar max-w-full">
+          {["ALL", "PENDING", "PROCESSING", "READY_FOR_PICKUP", "COMPLETED"].map((f) => (
+            <button
+              key={f}
+              onClick={() => { setFilter(f); setCurrentPage(1); }}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                filter === f 
+                  ? "bg-foreground text-background shadow-sm" 
+                  : "bg-card text-muted-foreground hover:bg-muted border border-transparent"
+              }`}
+            >
+              {f.replace(/_/g, " ")}
+            </button>
+          ))}
+        </div>
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input 
+            placeholder="Search ID or Document..." 
+            className="pl-9 bg-card border-border shadow-sm rounded-full"
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+          />
+        </div>
+      </div>
+
+      <Card className="shadow-sm border-border">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-4 mb-4">
+          <div>
+            <CardTitle className="text-lg">Request Queue</CardTitle>
+            <CardDescription>Manage and update student document requests.</CardDescription>
+          </div>
+          
+          <AnimatePresence>
+            {selectedIds.size > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                exit={{ opacity: 0, y: -10 }}
+                className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg"
+              >
+                <span className="text-sm font-semibold text-primary px-3">
+                  {selectedIds.size} selected
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="bg-background shadow-sm hover:text-blue-600"
+                  disabled={isUpdating}
+                  onClick={() => handleBulkUpdate(RequestStatus.PROCESSING)}
+                >
+                  Process
+                </Button>
+                <Button 
+                  variant="default" 
+                  size="sm"
+                  className="shadow-[0_2px_10px_rgba(10,92,54,0.2)]"
+                  disabled={isUpdating}
+                  onClick={() => handleBulkUpdate(RequestStatus.READY_FOR_PICKUP)}
+                >
+                  Mark Ready
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  size="sm"
+                  disabled={isUpdating}
+                  onClick={() => handleBulkUpdate(RequestStatus.COMPLETED)}
+                >
+                  Complete
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                  disabled={isUpdating}
+                  onClick={() => {
+                    const reason = prompt("Enter cancellation reason:");
+                    if (reason) handleBulkUpdate(RequestStatus.CANCELLED, reason);
+                  }}
+                >
+                  Cancel
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="w-full">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b border-border bg-muted/30">
+                  <TableHead className="w-[50px] px-6">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.size === filteredRequests.length && filteredRequests.length > 0}
+                      onChange={toggleSelectAll}
+                      className="rounded border-input text-primary focus:ring-primary h-4 w-4 transition-all"
+                    />
+                  </TableHead>
+                  <TableHead className="font-semibold">Reference ID</TableHead>
+                  <TableHead className="font-semibold">Document</TableHead>
+                  <TableHead className="font-semibold">Payment</TableHead>
+                  <TableHead className="font-semibold">Date</TableHead>
+                  <TableHead className="font-semibold">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <AnimatePresence mode="popLayout">
+                  {filteredRequests.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="h-48 text-center text-muted-foreground">
+                        <div className="flex flex-col items-center justify-center">
+                          <CheckCircle2 className="w-8 h-8 text-muted mb-2" />
+                          <p>No active requests in this queue.</p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {paginatedRequests.map((req, i) => (
+                    <motion.tr 
+                      layout
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ delay: i * 0.05 }}
+                      key={req.id}
+                      className={`cursor-pointer border-b border-border transition-colors ${selectedIds.has(req.id) ? "bg-primary/5" : "hover:bg-muted/40"}`}
+                      onClick={(e) => {
+                        if ((e.target as HTMLElement).tagName !== "INPUT") toggleSelectRow(req.id);
+                      }}
+                    >
+                      <TableCell className="px-6">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(req.id)}
+                          onChange={() => toggleSelectRow(req.id)}
+                          className="rounded border-input text-primary focus:ring-primary h-4 w-4 transition-all"
+                        />
+                      </TableCell>
+                      <TableCell className="font-mono text-xs text-muted-foreground">
+                        {req.id.slice(0, 8).toUpperCase()}
+                      </TableCell>
+                      <TableCell className="font-medium text-foreground">
+                        {req.documentType.replace("_", " ")}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="capitalize text-sm font-medium">{req.paymentMethod}</span>
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                            {req.paymentStatus.replace(/_/g, " ")}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {format(new Date(req.createdAt), "MMM d, yyyy")}
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(req.status)}
+                      </TableCell>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
+              </TableBody>
+            </Table>
+          </div>
+          {/* Pagination Footer */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-border px-6 py-4 bg-muted/10">
+              <span className="text-sm text-muted-foreground">
+                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredRequests.length)} of {filteredRequests.length} requests
+              </span>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                <div className="text-sm font-medium px-2">
+                  Page {currentPage} of {totalPages}
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

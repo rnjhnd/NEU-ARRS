@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum DocumentType {
+  TOR
+  GOOD_MORAL
+  DIPLOMA
+  ENROLLMENT
+}
+
+enum RequestStatus {
+  PENDING_PAYMENT
+  PENDING
+  PROCESSING
+  READY_FOR_PICKUP
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  CASH_ON_PICKUP
+}
+
+enum Purpose {
+  EMPLOYMENT
+  BOARD_EXAM
+  TRANSFER
+  SCHOLARSHIP
+  PERSONAL
+  OTHER
+}
+
+model Request {
+  id                  String         @id @default(cuid())
+  studentId           String         // Clerk userId
+  documentType        DocumentType
+  purpose             Purpose
+  paymentMethod       String         // "online" | "cash"
+  paymentStatus       PaymentStatus  @default(UNPAID)
+  paymongoCheckoutId  String?        // PayMongo checkout session ID
+  paymongoPaymentId   String?        // PayMongo payment ID (from webhook)
+  paymongoPaymentType String?        // e.g., "gcash", "maya", "card", "qrph"
+  amountPaid          Int?           // Amount in centavos (e.g., 15000 = ₱150.00)
+  status              RequestStatus  @default(PENDING_PAYMENT)
+  cancelReason        String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  @@index([studentId])
+  @@index([status])
+  @@index([paymentStatus])
+}
+
+model DocumentConfig {
+  id          String   @id @default(cuid())
+  typeId      String   @unique // e.g., "TOR", "DIPLOMA", "GOOD_MORAL"
+  label       String   // e.g., "Transcript of Records"
+  description String   // e.g., "Official academic history"
+  price       Int      @default(0) // Price in centavos (e.g., 15000 = ₱150.00)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
