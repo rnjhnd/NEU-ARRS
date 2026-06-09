@@ -1,6 +1,6 @@
 "use client";
 
-import { useSignIn } from "@clerk/nextjs";
+import { useSignIn, useClerk } from "@clerk/nextjs";
 import { GraduationCap, ArrowLeft, CheckCircle2, Loader2, KeyRound, Mail } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -11,11 +11,12 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export default function SignInPage() {
-  const { signIn } = useSignIn();
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { signIn } = useSignIn();
+  const clerk = useClerk();
 
   // Handle standard email/password login
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,8 +68,10 @@ export default function SignInPage() {
         return;
       }
 
-      if (signIn.firstFactorVerification?.externalVerificationRedirectURL) {
-        window.location.href = signIn.firstFactorVerification.externalVerificationRedirectURL.href;
+      // Read from the mutable clerk client object to avoid stale closure state
+      const redirectUrl = clerk.client.signIn.firstFactorVerification?.externalVerificationRedirectURL?.href;
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
       }
     } catch (err: unknown) {
       console.error(err);

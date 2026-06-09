@@ -1,6 +1,6 @@
 "use client";
 
-import { useSignUp } from "@clerk/nextjs";
+import { useSignUp, useClerk } from "@clerk/nextjs";
 import { GraduationCap, ArrowLeft, Loader2, KeyRound, Mail, User, ShieldCheck, Zap, Clock } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -21,6 +21,7 @@ export default function SignUpPage() {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const clerk = useClerk();
 
   // Handle standard registration
   const handleSubmit = async (e: React.FormEvent) => {
@@ -109,8 +110,10 @@ export default function SignUpPage() {
         return;
       }
 
-      if (signUp.verifications.externalAccount?.externalVerificationRedirectURL) {
-        window.location.href = signUp.verifications.externalAccount.externalVerificationRedirectURL.href;
+      // Read from the mutable clerk client object to avoid stale closure state
+      const redirectUrl = clerk.client.signUp.verifications.externalAccount?.externalVerificationRedirectURL?.href;
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
       }
     } catch (err: unknown) {
       console.error(err);
