@@ -7,6 +7,7 @@ import { DocumentType, Purpose, PaymentStatus, RequestStatus } from "@prisma/cli
 
 import { clerkClient } from "@clerk/nextjs/server";
 import { sendStatusUpdateEmail } from "@/lib/email";
+import { refundPayment } from "@/lib/paymongo";
 const CreateRequestSchema = z.object({
   documentType: z.nativeEnum(DocumentType),
   purpose: z.nativeEnum(Purpose),
@@ -151,10 +152,19 @@ export async function cancelStudentRequest(requestId: string, reason: string) {
       return { success: false, error: "Only pending requests can be cancelled." };
     }
 
+    let finalPaymentStatus = request.paymentStatus;
+    if (request.paymentStatus === "PAID" && request.paymentMethod === "online" && request.amountPaid) {
+      const refundSuccess = await refundPayment(requestId, request.amountPaid, reason);
+      if (refundSuccess) {
+        finalPaymentStatus = PaymentStatus.REFUNDED;
+      }
+    }
+
     const updatedRequest = await prisma.request.update({
       where: { id: requestId },
       data: {
         status: RequestStatus.CANCELLED,
+        paymentStatus: finalPaymentStatus,
         cancelReason: reason,
       },
     });

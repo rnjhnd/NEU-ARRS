@@ -29,6 +29,7 @@ enum PaymentStatus {
   UNPAID
   PAID
   CASH_ON_PICKUP
+  REFUNDED
 }
 
 enum Purpose {

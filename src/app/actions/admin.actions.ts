@@ -3,10 +3,11 @@
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
-import { RequestStatus } from "@prisma/client";
+import { RequestStatus, PaymentStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { clerkClient } from "@clerk/nextjs/server";
 import { sendStatusUpdateEmail } from "@/lib/email";
+import { refundPayment } from "@/lib/paymongo";
 
 const UpdateStatusSchema = z.object({
   requestIds: z.array(z.string().cuid()),
@@ -52,7 +53,7 @@ export async function updateRequestStatus(formData: FormData) {
     // 3. Fetch current requests to validate state transitions
     const requestsToUpdate = await prisma.request.findMany({
       where: { id: { in: requestIds } },
-      select: { id: true, status: true },
+      select: { id: true, status: true, paymentStatus: true, paymentMethod: true, amountPaid: true },
     });
 
     // 4. Validate allowed status transitions
@@ -67,13 +68,31 @@ export async function updateRequestStatus(formData: FormData) {
     }
 
     // 5. Execute Bulk Update
-    await prisma.request.updateMany({
-      where: { id: { in: requestIds } },
-      data: {
-        status: newStatus,
-        ...(newStatus === RequestStatus.CANCELLED ? { cancelReason: reason } : {}),
-      },
-    });
+    // Process refunds individually before updating if moving to CANCELLED
+    if (newStatus === RequestStatus.CANCELLED) {
+      for (const req of requestsToUpdate) {
+        let finalPaymentStatus = req.paymentStatus;
+        if (req.paymentStatus === "PAID" && req.paymentMethod === "online" && req.amountPaid) {
+          const refundSuccess = await refundPayment(req.id, req.amountPaid, reason || "cancelled_by_admin");
+          if (refundSuccess) {
+            finalPaymentStatus = PaymentStatus.REFUNDED;
+          }
+        }
+        await prisma.request.update({
+          where: { id: req.id },
+          data: {
+            status: newStatus,
+            paymentStatus: finalPaymentStatus as any, // type workaround
+            cancelReason: reason,
+          },
+        });
+      }
+    } else {
+      await prisma.request.updateMany({
+        where: { id: { in: requestIds } },
+        data: { status: newStatus },
+      });
+    }
 
     // 5.5 Send Email Notifications
     const client = await clerkClient();
