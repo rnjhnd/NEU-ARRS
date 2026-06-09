@@ -129,8 +129,8 @@ export async function updateDocumentConfig(formData: FormData) {
     revalidatePath("/admin/documents");
     revalidatePath("/dashboard/new");
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
 
@@ -160,8 +160,8 @@ export async function createDocumentConfig(formData: FormData) {
     revalidatePath("/admin/documents");
     revalidatePath("/dashboard/new");
     return { success: true, config: newConfig };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
 
@@ -179,7 +179,7 @@ export async function grantAdminRole(userId: string, grant: boolean) {
     revalidatePath("/admin/settings");
     revalidatePath("/admin/students");
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }

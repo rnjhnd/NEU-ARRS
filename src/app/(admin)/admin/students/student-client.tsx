@@ -6,8 +6,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { User, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import Image from "next/image";
 
-export function StudentClient({ users, countMap }: { users: any[], countMap: Record<string, number> }) {
+export type SerializedUser = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  emailAddresses: { emailAddress: string }[];
+  imageUrl: string;
+  publicMetadata: Record<string, unknown>;
+};
+
+export function StudentClient({ users, countMap }: { users: SerializedUser[], countMap: Record<string, number> }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const ITEMS_PER_PAGE = 10;
@@ -79,7 +89,7 @@ export function StudentClient({ users, countMap }: { users: any[], countMap: Rec
                       <TableCell className="pl-6">
                         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                           {user.imageUrl ? (
-                            <img src={user.imageUrl} alt={name} className="h-8 w-8 rounded-full" />
+                            <Image src={user.imageUrl} alt={name} width={32} height={32} className="h-8 w-8 rounded-full" />
                           ) : (
                             <User className="h-4 w-4" />
                           )}

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { createRequest } from "@/app/actions/request.actions";
 import { toast } from "sonner";
-import { DocumentType, Purpose } from "@prisma/client";
+import { DocumentType, Purpose, DocumentConfig } from "@prisma/client";
 import { motion } from "framer-motion";
 import { Check, FileText, CreditCard, Landmark, Loader2 } from "lucide-react";
 
@@ -18,7 +18,7 @@ const PurposeOptions = [
   { id: "OTHER", label: "Other Reason" }
 ];
 
-export function RequestForm({ documentConfigs }: { documentConfigs: any[] }) {
+export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConfig[] }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   

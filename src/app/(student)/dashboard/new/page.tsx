@@ -1,12 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RequestForm } from "./request-form";
 import { getDocumentConfigs } from "@/app/actions/admin.actions";
+import { DocumentConfig } from "@prisma/client";
 
 export const metadata = { title: "New Document Request" };
 
 export default async function NewRequestPage() {
   const configs = await getDocumentConfigs();
-  const activeConfigs = configs.filter((c: any) => c.isActive);
+  const activeConfigs = configs.filter((c: DocumentConfig) => c.isActive);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">

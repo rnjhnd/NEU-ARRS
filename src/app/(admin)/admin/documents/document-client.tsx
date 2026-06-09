@@ -7,18 +7,19 @@ import { Button } from "@/components/ui/button";
 import { FileText, Edit2, Check, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { updateDocumentConfig, createDocumentConfig } from "@/app/actions/admin.actions";
+import { DocumentConfig } from "@prisma/client";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
-export function DocumentClient({ initialConfigs }: { initialConfigs: any[] }) {
-  const [configs, setConfigs] = useState(initialConfigs);
+export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentConfig[] }) {
+  const [configs, setConfigs] = useState<DocumentConfig[]>(initialConfigs);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Edit State
   const [editForm, setEditForm] = useState({ typeId: "", label: "", description: "", price: "0", isActive: "true" });
 
-  const startEdit = (config: any) => {
+  const startEdit = (config: DocumentConfig) => {
     setEditingId(config.id);
     setEditForm({
       typeId: config.typeId,

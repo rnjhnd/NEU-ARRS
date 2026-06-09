@@ -1,12 +1,13 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { format, startOfWeek, endOfWeek, isWithinInterval, startOfMonth, endOfMonth, isSameMonth } from "date-fns";
+import { format, startOfWeek, endOfWeek, isWithinInterval, isSameMonth } from "date-fns";
 import { useMemo, useState } from "react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { DollarSign, CreditCard, Landmark, TrendingUp } from "lucide-react";
+import { Request } from "@prisma/client";
 
-export function FinanceClient({ data }: { data: any[] }) {
+export function FinanceClient({ data }: { data: Request[] }) {
   const [timeframe, setTimeframe] = useState<"ALL" | "MONTH" | "WEEK">("ALL");
 
   const filteredData = useMemo(() => {
@@ -54,7 +55,7 @@ export function FinanceClient({ data }: { data: any[] }) {
           {["ALL", "MONTH", "WEEK"].map(t => (
             <button
               key={t}
-              onClick={() => setTimeframe(t as any)}
+              onClick={() => setTimeframe(t as "ALL" | "MONTH" | "WEEK")}
               className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
                 timeframe === t 
                   ? "bg-background text-foreground shadow-sm" 

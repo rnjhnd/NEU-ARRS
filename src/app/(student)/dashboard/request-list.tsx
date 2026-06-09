@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
+import { Request } from "@prisma/client";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -27,7 +28,7 @@ const getStatusBadge = (status: string) => {
   }
 };
 
-export function RequestList({ requests }: { requests: any[] }) {
+export function RequestList({ requests }: { requests: Request[] }) {
   if (requests.length === 0) {
     return (
       <motion.div 
