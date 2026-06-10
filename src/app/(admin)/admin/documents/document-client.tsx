@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { FileText, Edit2, Check, X, Loader2, Plus } from "lucide-react";
+import { FileText, Edit2, Check, X, Loader2, Plus, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { updateDocumentConfig, createDocumentConfig } from "@/app/actions/admin.actions";
 import { DocumentConfig } from "@prisma/client";
