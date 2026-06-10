@@ -342,7 +342,6 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   <SortableHeader title="Payment" sortKey="paymentStatus" />
                   <SortableHeader title="Date" sortKey="createdAt" />
                   <SortableHeader title="Status" sortKey="status" />
-                  <TableHead className="text-right w-[100px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -412,22 +411,20 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-col items-start gap-1">
+                        <div className="flex flex-col items-start gap-2">
                           {getStatusBadge(req.status)}
                           {req.cancelReason && (
                             <span className="text-[10px] text-red-500 truncate max-w-[150px]" title={req.cancelReason}>
                               Reason: {req.cancelReason}
                             </span>
                           )}
+                          {req.status === "COMPLETED" && (
+                            <a href={`/receipt/${req.id}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-semibold border border-emerald-200 text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100 hover:text-emerald-800 transition-colors shadow-sm">
+                              <FileText className="w-3.5 h-3.5" />
+                              View Receipt
+                            </a>
+                          )}
                         </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {req.status === "COMPLETED" && (
-                          <a href={`/receipt/${req.id}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold border border-emerald-200 text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100 hover:text-emerald-800 transition-colors shadow-sm">
-                            <FileText className="w-3.5 h-3.5" />
-                            Receipt
-                          </a>
-                        )}
                       </TableCell>
                     </motion.tr>
                   ))}
