@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, CheckCircle2, Package, Activity, Search, Download, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Clock, CheckCircle2, Package, Activity, Search, Download, ArrowUpDown, ArrowUp, ArrowDown, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import useSWR from "swr";
 
@@ -342,6 +342,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   <SortableHeader title="Payment" sortKey="paymentStatus" />
                   <SortableHeader title="Date" sortKey="createdAt" />
                   <SortableHeader title="Status" sortKey="status" />
+                  <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -418,12 +419,14 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                               Reason: {req.cancelReason}
                             </span>
                           )}
-                          {req.status === "COMPLETED" && (
-                            <a href={`/receipt/${req.id}`} target="_blank" rel="noreferrer" className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:underline">
-                              View Receipt
-                            </a>
-                          )}
                         </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {req.status === "COMPLETED" && (
+                          <a href={`/receipt/${req.id}`} target="_blank" rel="noreferrer" title="View Receipt" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-emerald-50 hover:text-emerald-600 h-8 w-8 text-muted-foreground">
+                            <FileText className="w-4 h-4" />
+                          </a>
+                        )}
                       </TableCell>
                     </motion.tr>
                   ))}
