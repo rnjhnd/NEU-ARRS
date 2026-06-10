@@ -150,7 +150,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                       </TableCell>
                       <TableCell className="py-4">
                         <select 
-                          className="h-9 rounded-lg border border-border/50 bg-background px-3 py-1 text-sm shadow-sm"
+                          className="h-9 rounded-lg border border-border/50 bg-background pl-3 pr-8 py-1 text-sm shadow-sm appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:1em_1em] bg-[right_0.5rem_center] bg-no-repeat"
                           value={editForm.isActive}
                           onChange={(e) => setEditForm({...editForm, isActive: e.target.value})}
                         >
@@ -166,7 +166,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                               type="number"
                               value={editForm.price} 
                               onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
-                              className="h-9 pl-7 bg-background border-border/50 rounded-lg text-right"
+                              className="h-9 pl-7 pr-6 bg-background border-border/50 rounded-lg text-right"
                             />
                           </div>
                         </div>
@@ -190,7 +190,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         key={config.id}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="border-b border-border/40 hover:bg-amber-500/5 transition-colors group"
+                        className="border-b border-border/40 hover:bg-amber-500/5 group"
                       >
                         <TableCell className="pl-8 py-4">
                           {isEditing ? (
@@ -220,7 +220,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         <TableCell className="py-4">
                           {isEditing ? (
                             <select 
-                              className="h-9 rounded-lg border border-border/50 bg-background px-3 py-1 text-sm shadow-sm"
+                              className="h-9 rounded-lg border border-border/50 bg-background pl-3 pr-8 py-1 text-sm shadow-sm appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:1em_1em] bg-[right_0.5rem_center] bg-no-repeat"
                               value={editForm.isActive}
                               onChange={(e) => setEditForm({...editForm, isActive: e.target.value})}
                             >
@@ -248,7 +248,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                                   type="number"
                                   value={editForm.price} 
                                   onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
-                                  className="h-9 pl-7 bg-background border-border/50 rounded-lg text-right"
+                                  className="h-9 pl-7 pr-6 bg-background border-border/50 rounded-lg text-right"
                                 />
                               </div>
                             </div>
