@@ -82,11 +82,10 @@ export function StudentClient({
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-border/50 hover:bg-transparent">
-                  <TableHead className="pl-8 w-[80px] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase"></TableHead>
-                  <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Student Name</TableHead>
-                  <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Email Address</TableHead>
-                  <TableHead className="text-right h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Total Requests</TableHead>
-                  <TableHead className="text-right pr-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Lifetime Value</TableHead>
+                  <TableHead className="pl-[88px] w-[35%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Student Name</TableHead>
+                  <TableHead className="w-[30%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Email Address</TableHead>
+                  <TableHead className="w-[15%] text-right h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Total Requests</TableHead>
+                  <TableHead className="w-[20%] text-right pr-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Lifetime Value</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -106,16 +105,18 @@ export function StudentClient({
                   return (
                     <TableRow key={user.id} className="border-b border-border/40 hover:bg-purple-500/5 transition-colors group">
                       <TableCell className="pl-8 py-4">
-                        <div className="h-10 w-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-600 shadow-sm border border-purple-500/20 group-hover:border-purple-500/40 transition-colors">
-                          {user.imageUrl ? (
-                            <Image src={user.imageUrl} alt={name} width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
-                          ) : (
-                            <User className="h-5 w-5" />
-                          )}
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 shrink-0 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-600 shadow-sm border border-purple-500/20 group-hover:border-purple-500/40 transition-colors overflow-hidden">
+                            {user.imageUrl ? (
+                              <img src={user.imageUrl} alt={name} className="h-full w-full object-cover" />
+                            ) : (
+                              <User className="h-5 w-5" />
+                            )}
+                          </div>
+                          <span className="font-semibold text-foreground truncate">
+                            {name}
+                          </span>
                         </div>
-                      </TableCell>
-                      <TableCell className="font-semibold text-foreground py-4">
-                        {name}
                       </TableCell>
                       <TableCell className="text-muted-foreground py-4">
                         {email}
