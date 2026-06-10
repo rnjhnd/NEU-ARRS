@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Menu, X, GraduationCap, LayoutDashboard, Settings, Users, PieChart, FileText } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
+import { ProfileMenu } from "@/components/profile-menu";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
@@ -94,7 +94,7 @@ export function MobileNav() {
 
               <div className="p-6 border-t mt-auto">
                 <div className="flex items-center gap-3">
-                  <UserButton />
+                  <ProfileMenu />
                   <div className="flex flex-col">
                     <span className="text-sm font-semibold">Administrator</span>
                     <span className="text-xs text-muted-foreground">Registrar Office</span>

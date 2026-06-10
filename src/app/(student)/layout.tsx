@@ -1,4 +1,4 @@
-import { UserButton } from "@clerk/nextjs";
+import { ProfileMenu } from "@/components/profile-menu";
 import { GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -35,9 +35,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             <div className="h-4 w-px bg-border/50 hidden sm:block"></div>
             <div className="flex items-center gap-3 bg-muted/50 p-1.5 rounded-full border border-border/50">
               <ThemeToggle />
-              <div className="pr-1">
-                <UserButton appearance={{ elements: { avatarBox: "h-8 w-8 shadow-sm ring-1 ring-border" } }} />
-              </div>
+                <ProfileMenu />
             </div>
           </nav>
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { UserButton } from "@clerk/nextjs";
+import { ProfileMenu } from "@/components/profile-menu";
 import { GraduationCap, LayoutDashboard, Settings, ChevronLeft, ChevronRight, Users, PieChart, FileText } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -122,7 +122,7 @@ export function Sidebar() {
       {/* User profile at bottom of sidebar */}
       <div className={`p-6 border-t flex ${isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between"}`}>
         <div className={`flex ${isCollapsed ? "justify-center" : "items-center gap-3"} overflow-hidden`}>
-          <UserButton />
+          <ProfileMenu />
           {!isCollapsed && (
             <div className="flex flex-col whitespace-nowrap overflow-hidden">
               <span className="text-sm font-semibold truncate">Administrator</span>
