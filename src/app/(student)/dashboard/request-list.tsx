@@ -130,10 +130,22 @@ export function RequestList({ requests }: { requests: Request[] }) {
                         </div>
                       </TableCell>
                       <TableCell className="text-right pr-8">
-                        <div className="flex flex-col items-end justify-center">
+                        <div className="flex flex-col items-end justify-center gap-2">
                           {getStatusBadge(req.status)}
                           {req.cancelReason && (
-                            <p className="text-[10px] text-red-500 mt-1.5 max-w-[150px] truncate">Reason: {req.cancelReason}</p>
+                            <p className="text-[10px] text-red-500 max-w-[150px] truncate">Reason: {req.cancelReason}</p>
+                          )}
+                          {req.status === "COMPLETED" && (
+                            <a 
+                              href={`/receipt/${req.id}`} 
+                              target="_blank" 
+                              rel="noreferrer" 
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-semibold border border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100 hover:text-blue-800 transition-colors shadow-sm"
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                              Download Receipt
+                            </a>
                           )}
                         </div>
                       </TableCell>
@@ -166,15 +178,6 @@ export function RequestList({ requests }: { requests: Request[] }) {
                                     {cancellingId === req.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                                     Cancel Request
                                   </Button>
-                                </div>
-                              )}
-                              {req.status === "COMPLETED" && (
-                                <div className="flex justify-end mt-2 px-8">
-                                  <Link href={`/receipt/${req.id}`} target="_blank">
-                                    <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
-                                      Download Receipt
-                                    </Button>
-                                  </Link>
                                 </div>
                               )}
                             </motion.div>
