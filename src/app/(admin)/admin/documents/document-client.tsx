@@ -159,14 +159,16 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         </select>
                       </TableCell>
                       <TableCell className="py-4 text-right">
-                        <div className="relative inline-block w-28 ml-auto">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
-                          <Input 
-                            type="number"
-                            value={editForm.price} 
-                            onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
-                            className="h-9 pl-7 bg-background border-border/50 rounded-lg text-right"
-                          />
+                        <div className="flex w-full justify-end">
+                          <div className="relative w-28">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
+                            <Input 
+                              type="number"
+                              value={editForm.price} 
+                              onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
+                              className="h-9 pl-7 bg-background border-border/50 rounded-lg text-right"
+                            />
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-right pr-8 py-4">
@@ -239,14 +241,16 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         </TableCell>
                         <TableCell className="py-4 text-right">
                           {isEditing ? (
-                            <div className="relative inline-block w-28 ml-auto">
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
-                              <Input 
-                                type="number"
-                                value={editForm.price} 
-                                onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
-                                className="h-9 pl-7 bg-background border-border/50 rounded-lg text-right"
-                              />
+                            <div className="flex w-full justify-end">
+                              <div className="relative w-28">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
+                                <Input 
+                                  type="number"
+                                  value={editForm.price} 
+                                  onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
+                                  className="h-9 pl-7 bg-background border-border/50 rounded-lg text-right"
+                                />
+                              </div>
                             </div>
                           ) : (
                             <span className="font-semibold text-foreground">
