@@ -168,18 +168,23 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
 
   const SortableHeader = ({ title, sortKey, alignRight = false, className = "" }: { title: string, sortKey: keyof MappedRequest, alignRight?: boolean, className?: string }) => {
     const isActive = sortConfig?.key === sortKey;
+    
+    const renderIcon = () => {
+      if (isActive) {
+        return sortConfig.direction === "asc" ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />;
+      }
+      return <ArrowUpDown className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />;
+    };
+
     return (
       <TableHead className={`font-semibold text-emerald-800 dark:text-emerald-400 ${alignRight ? "text-right" : ""} ${className}`}>
         <button 
           onClick={() => handleSort(sortKey)}
           className={`flex items-center gap-1.5 hover:text-emerald-950 dark:hover:text-emerald-300 transition-colors py-2 group ${alignRight ? "ml-auto justify-end" : ""}`}
         >
+          {alignRight && renderIcon()}
           {title}
-          {isActive ? (
-            sortConfig.direction === "asc" ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
-          ) : (
-            <ArrowUpDown className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />
-          )}
+          {!alignRight && renderIcon()}
         </button>
       </TableHead>
     );
