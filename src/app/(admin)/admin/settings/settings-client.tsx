@@ -34,10 +34,22 @@ export function SettingsClient({ users }: { users: UserType[] }) {
   };
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Admin Settings</h2>
-        <p className="text-muted-foreground">Manage roles and portal configuration.</p>
+    <div className="space-y-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+      {/* Premium Hero Banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-800 to-slate-900 p-8 sm:p-10 text-white shadow-xl">
+        <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 rounded-full bg-white/10 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-48 h-48 rounded-full bg-indigo-400/20 blur-2xl"></div>
+        
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight drop-shadow-sm">
+              System Settings
+            </h1>
+            <p className="text-indigo-100/90 text-lg font-medium max-w-xl">
+              Manage system configuration, role assignments, and global application parameters.
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -79,10 +91,10 @@ export function SettingsClient({ users }: { users: UserType[] }) {
           <CardContent className="p-0">
             <Table>
               <TableHeader>
-                <TableRow className="border-b border-border bg-muted/30">
-                  <TableHead className="pl-6 font-semibold">User</TableHead>
-                  <TableHead className="font-semibold">Current Role</TableHead>
-                  <TableHead className="text-right pr-6 font-semibold">Action</TableHead>
+                <TableRow className="border-b border-border hover:bg-transparent">
+                  <TableHead className="pl-6 h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">User</TableHead>
+                  <TableHead className="h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Current Role</TableHead>
+                  <TableHead className="text-right pr-6 h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
