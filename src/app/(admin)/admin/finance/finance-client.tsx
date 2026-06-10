@@ -30,6 +30,20 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
     }
     return null;
   };
+  const CustomLegend = (props: any) => {
+    const { payload } = props;
+    return (
+      <div className="flex flex-wrap justify-center items-center gap-6 pt-5">
+        {payload.map((entry: any, index: number) => (
+          <div key={`item-${index}`} className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }}></div>
+            <span className="text-sm font-medium text-muted-foreground">{entry.value}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   // Constants for pricing since cash doesn't have amountPaid saved directly yet
   const getAmount = (req: Request) => {
     if (req.amountPaid) return req.amountPaid / 100; // Centavos to PHP
@@ -192,7 +206,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     ))}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
-                  <Legend verticalAlign="bottom" height={36} wrapperStyle={{ paddingTop: "20px" }} />
+                  <Legend content={<CustomLegend />} verticalAlign="bottom" height={36} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
