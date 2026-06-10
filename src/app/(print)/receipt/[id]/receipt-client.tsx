@@ -34,8 +34,11 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
       <style dangerouslySetInnerHTML={{__html: `
         @media print {
           @page {
-            size: 5.5in 8.5in;
-            margin: 0.3in;
+            margin: 0.5in;
+          }
+          body {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
           }
         }
       `}} />
@@ -123,7 +126,7 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
         </div>
 
         {/* Footer */}
-        <div className="mt-16 pt-6 border-t border-slate-100 text-center text-slate-400 text-xs">
+        <div className="mt-16 print:mt-8 pt-6 border-t border-slate-100 text-center text-slate-400 text-xs" style={{ pageBreakInside: 'avoid' }}>
           <p>This is a computer-generated receipt. No signature is required.</p>
           <p className="mt-1">Thank you for using the NEU Automated Request and Release System.</p>
         </div>
