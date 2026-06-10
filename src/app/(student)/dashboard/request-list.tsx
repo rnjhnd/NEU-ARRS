@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { FileText, Plus } from "lucide-react";
+import { FileText, Plus, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -42,7 +42,50 @@ export function RequestList({ requests }: { requests: Request[] }) {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelReasonInput, setCancelReasonInput] = useState("");
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Request; direction: "asc" | "desc" } | null>({ key: "createdAt", direction: "desc" });
   const router = useRouter();
+
+  const handleSort = (key: keyof Request) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedRequests = [...requests].sort((a, b) => {
+    if (!sortConfig) return 0;
+    const { key, direction } = sortConfig;
+    const valA = a[key];
+    const valB = b[key];
+    if (valA === null) return 1;
+    if (valB === null) return -1;
+    if (valA < valB) return direction === "asc" ? -1 : 1;
+    if (valA > valB) return direction === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  const SortableHeader = ({ title, sortKey, alignRight = false, className = "" }: { title: string, sortKey: keyof Request, alignRight?: boolean, className?: string }) => {
+    const isActive = sortConfig?.key === sortKey;
+    const renderIcon = () => {
+      if (isActive) {
+        return sortConfig.direction === "asc" ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />;
+      }
+      return <ArrowUpDown className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />;
+    };
+    return (
+      <TableHead className={`font-semibold text-emerald-800 dark:text-emerald-400 ${alignRight ? "text-right" : ""} ${className}`}>
+        <button 
+          onClick={() => handleSort(sortKey)}
+          className={`flex items-center gap-1.5 hover:text-emerald-950 dark:hover:text-emerald-300 transition-colors py-2 group ${alignRight ? "ml-auto justify-end" : ""}`}
+        >
+          {alignRight && renderIcon()}
+          {title}
+          {!alignRight && renderIcon()}
+        </button>
+      </TableHead>
+    );
+  };
 
   const handleCancelConfirm = async () => {
     if (!cancellingId || !cancelReasonInput.trim()) return;
@@ -100,17 +143,17 @@ export function RequestList({ requests }: { requests: Request[] }) {
           <Table>
             <TableHeader>
               <TableRow className="border-b border-border/50 bg-emerald-500/5">
-                <TableHead className="pl-8 font-semibold text-emerald-800 dark:text-emerald-400">Reference ID</TableHead>
-                <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Document Type</TableHead>
-                <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Purpose</TableHead>
-                <TableHead className="text-right font-semibold text-emerald-800 dark:text-emerald-400">Date</TableHead>
-                <TableHead className="text-right font-semibold text-emerald-800 dark:text-emerald-400">Payment</TableHead>
-                <TableHead className="text-right pr-8 font-semibold text-emerald-800 dark:text-emerald-400">Status</TableHead>
+                <SortableHeader title="Reference ID" sortKey="id" className="pl-8" />
+                <SortableHeader title="Document Type" sortKey="documentType" />
+                <SortableHeader title="Purpose" sortKey="purpose" />
+                <SortableHeader title="Date" sortKey="createdAt" alignRight />
+                <SortableHeader title="Payment" sortKey="paymentStatus" alignRight />
+                <SortableHeader title="Status" sortKey="status" alignRight className="pr-8" />
               </TableRow>
             </TableHeader>
             <TableBody>
               <AnimatePresence>
-                {requests.map((req, i) => (
+                {sortedRequests.map((req, i) => (
                   <React.Fragment key={req.id}>
                     <motion.tr 
                       initial={{ opacity: 0, y: 10 }}
