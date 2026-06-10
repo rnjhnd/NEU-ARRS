@@ -109,7 +109,7 @@ export const StatusUpdateEmail = ({
             {/* Header Banner */}
             <Section className="bg-slate-900 py-[28px] px-[32px] text-center">
               <Img
-                src={`${appUrl}/neu-logo.png`}
+                src="https://i.imgur.com/hmapMRX.png"
                 width="64"
                 height="64"
                 alt="New Era University"
