@@ -67,27 +67,30 @@ export function ProfileMenu() {
         <DropdownMenuSeparator className="bg-border/50" />
         <DropdownMenuGroup>
           {isAdmin ? (
-            <Link href="/admin">
-              <DropdownMenuItem className="cursor-pointer rounded-xl focus:bg-emerald-500/10 focus:text-emerald-600 dark:focus:text-emerald-400 transition-colors">
-                <LayoutDashboard className="mr-2 h-4 w-4" />
-                <span>Admin Dashboard</span>
-              </DropdownMenuItem>
-            </Link>
+            <DropdownMenuItem 
+              className="cursor-pointer rounded-xl focus:bg-emerald-500/10 focus:text-emerald-600 dark:focus:text-emerald-400 transition-colors"
+              onClick={() => router.push("/admin")}
+            >
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              <span>Admin Dashboard</span>
+            </DropdownMenuItem>
           ) : (
-            <Link href="/dashboard">
-              <DropdownMenuItem className="cursor-pointer rounded-xl focus:bg-emerald-500/10 focus:text-emerald-600 dark:focus:text-emerald-400 transition-colors">
-                <LayoutDashboard className="mr-2 h-4 w-4" />
-                <span>Student Portal</span>
-              </DropdownMenuItem>
-            </Link>
+            <DropdownMenuItem 
+              className="cursor-pointer rounded-xl focus:bg-emerald-500/10 focus:text-emerald-600 dark:focus:text-emerald-400 transition-colors"
+              onClick={() => router.push("/dashboard")}
+            >
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              <span>Student Portal</span>
+            </DropdownMenuItem>
           )}
           {isAdmin && (
-            <Link href="/admin/settings">
-              <DropdownMenuItem className="cursor-pointer rounded-xl focus:bg-emerald-500/10 focus:text-emerald-600 dark:focus:text-emerald-400 transition-colors">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>System Settings</span>
-              </DropdownMenuItem>
-            </Link>
+            <DropdownMenuItem 
+              className="cursor-pointer rounded-xl focus:bg-emerald-500/10 focus:text-emerald-600 dark:focus:text-emerald-400 transition-colors"
+              onClick={() => router.push("/admin/settings")}
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              <span>System Settings</span>
+            </DropdownMenuItem>
           )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator className="bg-border/50" />
