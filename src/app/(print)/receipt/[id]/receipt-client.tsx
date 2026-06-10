@@ -56,7 +56,7 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
       <div className="border border-slate-200 rounded-lg p-6 shadow-sm print:shadow-none print:border-none print:p-0">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 print:mb-4 pb-6 print:pb-4 border-b border-slate-200">
+        <div className="flex flex-col md:flex-row print:flex-row justify-between items-start md:items-end print:items-end mb-8 print:mb-4 pb-6 print:pb-4 border-b border-slate-200">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-slate-900 mb-1 uppercase">
               Official Receipt
@@ -64,20 +64,20 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
             <p className="text-slate-500 text-sm font-medium">New Era University</p>
             <p className="text-slate-400 text-xs mt-0.5">Document Request System</p>
           </div>
-          <div className="text-left md:text-right mt-4 md:mt-0">
+          <div className="text-left md:text-right print:text-right mt-4 md:mt-0 print:mt-0">
             <div className="text-xs text-slate-500 uppercase tracking-widest font-semibold mb-1">Receipt No.</div>
             <div className="text-base font-mono text-slate-800">{receipt.transactionId.toUpperCase()}</div>
           </div>
         </div>
 
         {/* Details Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 print:mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-6 mb-8 print:mb-4">
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Billed To</h3>
             <p className="font-semibold text-slate-800 text-base">{receipt.studentName}</p>
             <p className="text-slate-500 text-sm">{receipt.studentEmail}</p>
           </div>
-          <div className="md:text-right">
+          <div className="md:text-right print:text-right">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Payment Details</h3>
             <p className="text-slate-800 text-sm"><span className="text-slate-500 mr-2">Method:</span> <span className="font-semibold uppercase">{receipt.paymentMethod}</span></p>
             <p className="text-slate-800 mt-1 text-sm"><span className="text-slate-500 mr-2">Date:</span> <span className="font-semibold">{formattedDate}</span></p>
@@ -109,7 +109,7 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
 
         {/* Totals */}
         <div className="flex justify-end pt-4 border-t-2 border-slate-800">
-          <div className="w-full md:w-2/3 lg:w-1/2">
+          <div className="w-full md:w-2/3 lg:w-1/2 print:w-2/3">
             <div className="flex justify-between items-center mb-1">
               <span className="text-slate-500 text-sm font-medium">Subtotal</span>
               <span className="font-mono text-sm text-slate-800">{priceFormatted}</span>
