@@ -53,12 +53,12 @@ export function SettingsClient({ users }: { users: UserType[] }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="shadow-sm border-border md:col-span-1 h-fit">
-          <CardHeader>
-            <CardTitle>Configuration</CardTitle>
-            <CardDescription>Global system variables.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden md:col-span-1 h-fit">
+          <div className="p-6 border-b border-border/50 bg-muted/20">
+            <h2 className="text-xl font-bold tracking-tight">Configuration</h2>
+            <p className="text-sm text-muted-foreground mt-1">Global system variables.</p>
+          </div>
+          <div className="p-6 space-y-4">
             <div className="p-4 bg-muted/50 rounded-xl border border-border">
               <p className="text-sm font-semibold mb-1">Email Templates</p>
               <p className="text-xs text-muted-foreground mb-3">Customize the automated emails sent to students when their document is ready.</p>
@@ -69,26 +69,26 @@ export function SettingsClient({ users }: { users: UserType[] }) {
               <p className="text-xs text-muted-foreground mb-3">Configure PayMongo API keys and active payment methods.</p>
               <Button variant="outline" size="sm" className="w-full" disabled>Coming Soon</Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="shadow-sm border-border md:col-span-2">
-          <CardHeader className="border-b pb-4 mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden md:col-span-2">
+          <div className="p-6 border-b border-border/50 bg-muted/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <CardTitle>Role Management</CardTitle>
-              <CardDescription>Grant or revoke administrator privileges.</CardDescription>
+              <h2 className="text-xl font-bold tracking-tight">Role Management</h2>
+              <p className="text-sm text-muted-foreground mt-1">Grant or revoke administrator privileges.</p>
             </div>
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
                 placeholder="Search users..." 
-                className="pl-9"
+                className="pl-9 bg-background"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-          </CardHeader>
-          <CardContent className="p-0">
+          </div>
+          <div className="p-0">
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-border hover:bg-transparent">
@@ -159,8 +159,8 @@ export function SettingsClient({ users }: { users: UserType[] }) {
                 </AnimatePresence>
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
