@@ -103,8 +103,8 @@ export function RequestList({ requests }: { requests: Request[] }) {
                 <TableHead className="pl-8 font-semibold text-emerald-800 dark:text-emerald-400">Reference ID</TableHead>
                 <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Document Type</TableHead>
                 <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Purpose</TableHead>
-                <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Date</TableHead>
-                <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">Payment</TableHead>
+                <TableHead className="text-right font-semibold text-emerald-800 dark:text-emerald-400">Date</TableHead>
+                <TableHead className="text-right font-semibold text-emerald-800 dark:text-emerald-400">Payment</TableHead>
                 <TableHead className="text-right pr-8 font-semibold text-emerald-800 dark:text-emerald-400">Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -128,11 +128,11 @@ export function RequestList({ requests }: { requests: Request[] }) {
                       <TableCell className="text-muted-foreground">
                         {req.purpose.replace("_", " ")}
                       </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
+                      <TableCell className="text-right text-muted-foreground text-sm">
                         {format(new Date(req.createdAt), "MMM d, yyyy")}
                       </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-0.5">
+                      <TableCell className="text-right">
+                        <div className="flex flex-col gap-0.5 items-end">
                           <span className="capitalize text-sm font-medium">{req.paymentMethod}</span>
                           <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{req.paymentStatus.replace(/_/g, " ")}</span>
                         </div>

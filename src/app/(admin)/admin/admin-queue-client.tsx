@@ -339,8 +339,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   </TableHead>
                   <SortableHeader title="Student" sortKey="studentName" />
                   <SortableHeader title="Document" sortKey="documentType" />
-                  <SortableHeader title="Payment" sortKey="paymentStatus" />
-                  <SortableHeader title="Date" sortKey="createdAt" />
+                  <SortableHeader title="Payment" sortKey="paymentStatus" alignRight />
+                  <SortableHeader title="Date" sortKey="createdAt" alignRight />
                   <SortableHeader title="Status" sortKey="status" alignRight className="pr-8" />
                 </TableRow>
               </TableHeader>
@@ -396,16 +396,16 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-0.5">
+                      <TableCell className="text-right">
+                        <div className="flex flex-col gap-0.5 items-end">
                           <span className="capitalize text-sm font-medium">{req.paymentMethod}</span>
                           <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
                             {req.paymentStatus.replace(/_/g, " ")}
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-0.5">
+                      <TableCell className="text-right">
+                        <div className="flex flex-col gap-0.5 items-end">
                           <span className="text-sm font-medium text-foreground">{format(new Date(req.createdAt), "MMM d, yyyy")}</span>
                           <span className="text-[10px] text-muted-foreground">{format(new Date(req.createdAt), "h:mm a")}</span>
                         </div>
