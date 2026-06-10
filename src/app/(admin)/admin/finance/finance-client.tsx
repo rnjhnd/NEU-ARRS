@@ -144,13 +144,14 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={revenueOverTime}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="opacity-10" />
-                <XAxis dataKey="name" stroke="currentColor" className="opacity-50 text-xs" tickLine={false} axisLine={false} />
+                <XAxis dataKey="name" stroke="currentColor" className="opacity-50 text-xs" tickLine={false} axisLine={false} tickMargin={12} />
                 <YAxis 
                   stroke="currentColor" 
                   className="opacity-50 text-xs" 
                   tickLine={false} 
                   axisLine={false} 
                   tickFormatter={(value) => `₱${value}`}
+                  tickMargin={12}
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'currentColor', strokeWidth: 1, strokeDasharray: '3 3', opacity: 0.2 }} />
                 <Line 
@@ -175,7 +176,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
           <CardContent className="p-6 h-[350px] flex items-center justify-center">
             {paymentMethodData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <PieChart margin={{ top: 30, bottom: 0 }}>
                   <Pie
                     data={paymentMethodData}
                     cx="50%"
@@ -220,6 +221,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     tickLine={false} 
                     axisLine={false}
                     tickFormatter={(value) => `₱${value}`}
+                    tickMargin={12}
                   />
                   <YAxis 
                     dataKey="name" 
@@ -228,6 +230,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     className="opacity-50 text-xs font-medium" 
                     tickLine={false} 
                     axisLine={false} 
+                    tickMargin={12}
                   />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: 'currentColor', opacity: 0.05 }} />
                   <Bar dataKey="revenue" fill="#10b981" radius={[0, 4, 4, 0]} barSize={32}>
