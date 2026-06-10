@@ -34,7 +34,8 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
       <style dangerouslySetInnerHTML={{__html: `
         @media print {
           @page {
-            margin: 0.5in;
+            size: 5.5in 8.5in;
+            margin: 0.3in;
           }
           body {
             -webkit-print-color-adjust: exact;
