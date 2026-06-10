@@ -141,10 +141,10 @@ export function RequestList({ requests }: { requests: Request[] }) {
                               target="_blank" 
                               rel="noreferrer" 
                               onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center gap-1 mt-0.5 text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline transition-all"
+                              className="inline-flex items-center gap-1 mt-0.5 text-xs leading-none font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline transition-all"
                             >
-                              <FileText className="w-3.5 h-3.5" />
-                              Download Receipt
+                              <FileText className="w-3 h-3" />
+                              <span>Download Receipt</span>
                             </a>
                           )}
                         </div>
