@@ -339,7 +339,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       type="checkbox"
                       checked={selectedIds.size === sortedRequests.length && sortedRequests.length > 0}
                       onChange={toggleSelectAll}
-                      className="rounded border-input text-primary focus:ring-primary h-4 w-4 transition-all"
+                      className="rounded border-input text-primary focus:ring-primary h-4 w-4 transition-all align-middle"
                     />
                   </TableHead>
                   <SortableHeader title="Student" sortKey="studentName" />
@@ -384,7 +384,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                           type="checkbox"
                           checked={selectedIds.has(req.id)}
                           onChange={() => toggleSelectRow(req.id)}
-                          className="rounded border-input text-primary focus:ring-primary h-4 w-4 transition-all"
+                          className="rounded border-input text-primary focus:ring-primary h-4 w-4 transition-all align-middle"
                         />
                       </TableCell>
                       <TableCell>
