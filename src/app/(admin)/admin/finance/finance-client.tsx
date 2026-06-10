@@ -176,11 +176,11 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
           <CardContent className="p-6 h-[350px] flex items-center justify-center">
             {paymentMethodData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart margin={{ top: 30, bottom: 0 }}>
+                <PieChart>
                   <Pie
                     data={paymentMethodData}
                     cx="50%"
-                    cy="50%"
+                    cy="42%"
                     innerRadius={60}
                     outerRadius={100}
                     paddingAngle={5}
