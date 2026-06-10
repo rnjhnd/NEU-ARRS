@@ -175,7 +175,7 @@ export function RequestList({ requests }: { requests: Request[] }) {
                             >
                               <RequestTracker status={req.status} cancelReason={req.cancelReason} />
                               {(req.status === "PENDING" || req.status === "PENDING_PAYMENT") && (
-                                <div className="flex justify-end mt-2 px-8">
+                                <div className="flex justify-end mt-2">
                                   <Button 
                                     variant="destructive" 
                                     size="sm" 
