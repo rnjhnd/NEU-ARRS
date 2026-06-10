@@ -162,8 +162,10 @@ export function RequestList({ requests }: { requests: Request[] }) {
                       onClick={() => setExpandedId(expandedId === req.id ? null : req.id)}
                       className={`border-b border-border/50 hover:bg-emerald-500/5 transition-colors cursor-pointer ${expandedId === req.id ? "bg-emerald-500/5" : ""}`}
                     >
-                      <TableCell className="pl-8 font-mono text-xs text-muted-foreground font-medium">
-                        {req.id.slice(0, 8).toUpperCase()}
+                      <TableCell className="pl-8">
+                        <span className="inline-flex items-center rounded-md bg-secondary px-2 py-1 font-mono text-xs font-semibold text-secondary-foreground ring-1 ring-inset ring-border/50 shadow-sm transition-colors hover:bg-secondary/80">
+                          #{req.id.slice(0, 8).toUpperCase()}
+                        </span>
                       </TableCell>
                       <TableCell className="font-medium text-foreground">
                         {req.documentType.replace("_", " ")}
