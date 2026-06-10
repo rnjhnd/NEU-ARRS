@@ -18,18 +18,18 @@ export function Sidebar() {
       initial={false}
       animate={{ width: isCollapsed ? 80 : 280 }}
       transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-      className="flex-col border-r border-emerald-500/10 bg-background/60 backdrop-blur-xl hidden md:flex relative overflow-visible z-20 h-full pt-6"
+      className="flex-col border-r border-emerald-500/10 bg-background/60 backdrop-blur-xl hidden md:flex relative overflow-visible z-20 h-full"
     >
       <Button
         variant="outline"
         size="icon"
-        className="absolute -right-4 top-[40px] h-8 w-8 rounded-full border bg-background shadow-sm z-50 hover:bg-muted"
+        className="absolute -right-4 top-[22px] h-8 w-8 rounded-full border bg-background shadow-sm z-50 hover:bg-muted"
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </Button>
 
-      <div className="flex h-16 items-center px-6 border-b overflow-hidden whitespace-nowrap">
+      <div className="flex pt-6 pb-4 items-start px-6 border-b overflow-hidden whitespace-nowrap">
         <Link href="/admin" className="flex items-center gap-2">
           <GraduationCap className="h-6 w-6 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
           {!isCollapsed && (
