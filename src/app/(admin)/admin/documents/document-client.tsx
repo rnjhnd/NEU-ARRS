@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { FileText, Edit2, Check, X, Loader2, Plus, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { updateDocumentConfig, createDocumentConfig } from "@/app/actions/admin.actions";
 import { DocumentConfig } from "@prisma/client";
 import { toast } from "sonner";
@@ -149,17 +150,15 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         />
                       </TableCell>
                       <TableCell className="py-4">
-                        <div className="relative w-min">
-                          <select 
-                            className="h-9 rounded-lg border border-border/50 bg-background pl-3 pr-8 py-1 text-sm shadow-sm appearance-none cursor-pointer"
-                            value={editForm.isActive}
-                            onChange={(e) => setEditForm({...editForm, isActive: e.target.value})}
-                          >
-                            <option value="true">Active</option>
-                            <option value="false">Inactive</option>
-                          </select>
-                          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                        </div>
+                        <Select value={editForm.isActive} onValueChange={(v) => setEditForm({...editForm, isActive: v})}>
+                          <SelectTrigger className="h-9 w-[110px] rounded-lg border-border/50 bg-background shadow-sm">
+                            <SelectValue placeholder="Status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="true">Active</SelectItem>
+                            <SelectItem value="false">Inactive</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell className="py-4 text-right">
                         <div className="flex w-full justify-end">
@@ -222,17 +221,15 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         </TableCell>
                         <TableCell className="py-4">
                           {isEditing ? (
-                            <div className="relative w-min">
-                              <select 
-                                className="h-9 rounded-lg border border-border/50 bg-background pl-3 pr-8 py-1 text-sm shadow-sm appearance-none cursor-pointer"
-                                value={editForm.isActive}
-                                onChange={(e) => setEditForm({...editForm, isActive: e.target.value})}
-                              >
-                                <option value="true">Active</option>
-                                <option value="false">Inactive</option>
-                              </select>
-                              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                            </div>
+                            <Select value={editForm.isActive} onValueChange={(v) => setEditForm({...editForm, isActive: v})}>
+                              <SelectTrigger className="h-9 w-[110px] rounded-lg border-border/50 bg-background shadow-sm">
+                                <SelectValue placeholder="Status" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="true">Active</SelectItem>
+                                <SelectItem value="false">Inactive</SelectItem>
+                              </SelectContent>
+                            </Select>
                           ) : (
                             config.isActive ? (
                               <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
