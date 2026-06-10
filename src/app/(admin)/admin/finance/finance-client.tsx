@@ -197,9 +197,9 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     cy="42%"
                     innerRadius={60}
                     outerRadius={100}
+                    paddingAngle={5}
                     dataKey="value"
-                    stroke="hsl(var(--background))"
-                    strokeWidth={4}
+                    stroke="none"
                   >
                     {paymentMethodData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
