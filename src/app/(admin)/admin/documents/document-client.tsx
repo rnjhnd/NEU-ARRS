@@ -116,11 +116,11 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-border/50 hover:bg-transparent">
-                  <TableHead className="pl-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Document</TableHead>
-                  <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Description</TableHead>
-                  <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase text-right">Price</TableHead>
-                  <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase text-center">Status</TableHead>
-                  <TableHead className="text-right pr-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Action</TableHead>
+                  <TableHead className="w-[25%] pl-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Document</TableHead>
+                  <TableHead className="w-[35%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Description</TableHead>
+                  <TableHead className="w-[15%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase text-right">Price</TableHead>
+                  <TableHead className="w-[15%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase text-center">Status</TableHead>
+                  <TableHead className="w-[10%] text-right pr-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
