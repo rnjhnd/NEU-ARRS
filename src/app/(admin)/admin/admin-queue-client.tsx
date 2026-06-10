@@ -496,7 +496,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
             }}>Back</Button>
             <Button 
               variant="destructive" 
-              className="w-full sm:w-auto bg-red-600 text-white hover:bg-red-700 shadow-sm"
+              className="w-full sm:w-auto shadow-sm"
               disabled={!cancelReasonInput.trim() || isUpdating}
               onClick={() => {
                 if (!cancelReasonInput.trim()) return toast.error("Reason is required");
