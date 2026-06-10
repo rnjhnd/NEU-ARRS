@@ -163,10 +163,10 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
     setSortConfig({ key, direction });
   };
 
-  const SortableHeader = ({ title, sortKey, alignRight = false }: { title: string, sortKey: keyof MappedRequest, alignRight?: boolean }) => {
+  const SortableHeader = ({ title, sortKey, alignRight = false, className = "" }: { title: string, sortKey: keyof MappedRequest, alignRight?: boolean, className?: string }) => {
     const isActive = sortConfig?.key === sortKey;
     return (
-      <TableHead className={`font-semibold text-emerald-800 dark:text-emerald-400 ${alignRight ? "text-right" : ""}`}>
+      <TableHead className={`font-semibold text-emerald-800 dark:text-emerald-400 ${alignRight ? "text-right" : ""} ${className}`}>
         <button 
           onClick={() => handleSort(sortKey)}
           className={`flex items-center gap-1.5 hover:text-emerald-950 dark:hover:text-emerald-300 transition-colors py-2 group ${alignRight ? "ml-auto justify-end" : ""}`}
@@ -341,7 +341,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   <SortableHeader title="Document" sortKey="documentType" />
                   <SortableHeader title="Payment" sortKey="paymentStatus" />
                   <SortableHeader title="Date" sortKey="createdAt" />
-                  <SortableHeader title="Status" sortKey="status" alignRight />
+                  <SortableHeader title="Status" sortKey="status" alignRight className="pr-8" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -410,7 +410,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                           <span className="text-[10px] text-muted-foreground">{format(new Date(req.createdAt), "h:mm a")}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right pr-8">
                         <div className="flex flex-col items-end gap-2">
                           {getStatusBadge(req.status)}
                           {req.cancelReason && (
