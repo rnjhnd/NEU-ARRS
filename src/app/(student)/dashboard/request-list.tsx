@@ -11,6 +11,8 @@ import { Request } from "@prisma/client";
 import { useState } from "react";
 import React from "react";
 import { useRouter } from "next/navigation";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { RequestTracker } from "@/components/request-tracker";
 import { cancelStudentRequest } from "@/app/actions/request.actions";
 import { toast } from "sonner";
@@ -38,12 +40,18 @@ const getStatusBadge = (status: string) => {
 export function RequestList({ requests }: { requests: Request[] }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [cancelReasonInput, setCancelReasonInput] = useState("");
   const router = useRouter();
 
-  const handleCancel = async (id: string) => {
-    const reason = prompt("Please provide a reason for cancelling this request:");
-    if (!reason) return;
-    setCancellingId(id);
+  const handleCancelConfirm = async () => {
+    if (!cancellingId || !cancelReasonInput.trim()) return;
+    const id = cancellingId;
+    const reason = cancelReasonInput;
+    
+    setCancelDialogOpen(false);
+    setCancelReasonInput("");
+    
     const result = await cancelStudentRequest(id, reason);
     if (result.success) {
       toast.success("Request cancelled successfully.");
@@ -171,11 +179,14 @@ export function RequestList({ requests }: { requests: Request[] }) {
                                   <Button 
                                     variant="destructive" 
                                     size="sm" 
-                                    onClick={() => handleCancel(req.id)}
-                                    disabled={cancellingId === req.id}
+                                    onClick={() => {
+                                      setCancellingId(req.id);
+                                      setCancelDialogOpen(true);
+                                    }}
+                                    disabled={cancellingId === req.id && !cancelDialogOpen}
                                     className="shadow-sm"
                                   >
-                                    {cancellingId === req.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                                    {(cancellingId === req.id && !cancelDialogOpen) ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                                     Cancel Request
                                   </Button>
                                 </div>
@@ -192,6 +203,43 @@ export function RequestList({ requests }: { requests: Request[] }) {
           </Table>
         </div>
       </CardContent>
+
+      <Dialog open={cancelDialogOpen} onOpenChange={(open) => {
+        setCancelDialogOpen(open);
+        if (!open) setCancellingId(null);
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancel Request</DialogTitle>
+            <DialogDescription>
+              Please provide a reason for cancelling this request.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input 
+              placeholder="e.g. Requested the wrong document" 
+              value={cancelReasonInput}
+              onChange={(e) => setCancelReasonInput(e.target.value)}
+              className="w-full border-red-200 focus-visible:ring-red-500"
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setCancelDialogOpen(false);
+              setCancelReasonInput("");
+              setCancellingId(null);
+            }}>Back</Button>
+            <Button 
+              variant="destructive" 
+              disabled={!cancelReasonInput.trim()}
+              onClick={handleCancelConfirm}
+            >
+              Confirm Cancellation
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

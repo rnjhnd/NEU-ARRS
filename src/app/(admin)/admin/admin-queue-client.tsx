@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Request, RequestStatus } from "@prisma/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { updateRequestStatus } from "@/app/actions/admin.actions";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -28,6 +29,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
   const [searchQuery, setSearchQuery] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [cancelReasonInput, setCancelReasonInput] = useState("");
   const ITEMS_PER_PAGE = 10;
 
   const filteredRequests = requests.filter((req) => {
@@ -313,10 +316,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   size="sm"
                   className="text-red-500 hover:text-red-600 hover:bg-red-50"
                   disabled={isUpdating}
-                  onClick={() => {
-                    const reason = prompt("Enter cancellation reason:");
-                    if (reason) handleBulkUpdate(RequestStatus.CANCELLED, reason);
-                  }}
+                  onClick={() => setCancelDialogOpen(true)}
                 >
                   Cancel
                 </Button>
@@ -468,6 +468,44 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancel Request</DialogTitle>
+            <DialogDescription>
+              Please provide a reason for cancelling. This will be visible to the student.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input 
+              placeholder="e.g. Invalid document requested, incorrect payment" 
+              value={cancelReasonInput}
+              onChange={(e) => setCancelReasonInput(e.target.value)}
+              className="w-full border-red-200 focus-visible:ring-red-500"
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setCancelDialogOpen(false);
+              setCancelReasonInput("");
+            }}>Close</Button>
+            <Button 
+              variant="destructive" 
+              disabled={!cancelReasonInput.trim() || isUpdating}
+              onClick={() => {
+                if (!cancelReasonInput.trim()) return toast.error("Reason is required");
+                handleBulkUpdate(RequestStatus.CANCELLED, cancelReasonInput);
+                setCancelDialogOpen(false);
+                setCancelReasonInput("");
+              }}
+            >
+              Confirm Cancellation
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
