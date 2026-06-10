@@ -6,6 +6,7 @@ import {
   Heading,
   Hr,
   Html,
+  Img,
   Link,
   Preview,
   Section,
@@ -108,6 +109,13 @@ export const StatusUpdateEmail = ({
           <Container className="bg-white border border-solid border-[#e5e7eb] rounded-xl my-[20px] mx-auto w-[480px] overflow-hidden shadow-sm">
             {/* Header Banner */}
             <Section className="bg-slate-900 py-[28px] px-[32px] text-center">
+              <Img
+                src="https://upload.wikimedia.org/wikipedia/commons/e/ee/NEU_Logo.png"
+                width="64"
+                height="64"
+                alt="New Era University"
+                className="mx-auto mb-[16px]"
+              />
               <Text className="text-white text-[22px] m-0 font-bold tracking-wider">
                 NEU REGISTRAR
               </Text>
