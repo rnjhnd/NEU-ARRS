@@ -116,7 +116,7 @@ export const StatusUpdateEmail = ({
                 className="mx-auto mb-[16px]"
               />
               <Text className="text-white text-[22px] m-0 font-bold tracking-wider">
-                NEU REGISTRAR
+                NEU ARRS
               </Text>
               <Text className="text-slate-400 text-[13px] m-0 mt-1 uppercase tracking-widest font-medium">
                 Academic Record Request System

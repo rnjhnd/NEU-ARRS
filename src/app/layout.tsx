@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NEU Academic Record Request System",
+  title: "NEU-ARRS | Academic Record Request System",
   description: "Request official documents from the NEU Registrar's Office",
 };
 

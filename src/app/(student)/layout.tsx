@@ -20,8 +20,8 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             <div className="p-2 rounded-xl bg-emerald-500/10 group-hover:bg-emerald-500/20 transition-colors">
               <GraduationCap className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <span className="text-lg font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-              NEU <span className="font-medium text-emerald-600 dark:text-emerald-400">Portal</span>
+            <span className="font-bold text-xl tracking-tight hidden sm:inline-block">
+              NEU <span className="font-medium text-emerald-600 dark:text-emerald-400">ARRS</span>
             </span>
           </Link>
 
