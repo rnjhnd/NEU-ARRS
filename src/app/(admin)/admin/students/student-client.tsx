@@ -82,7 +82,7 @@ export function StudentClient({
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-border/50 hover:bg-transparent">
-                  <TableHead className="pl-[88px] w-[35%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Student Name</TableHead>
+                  <TableHead className="pl-8 w-[35%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Student</TableHead>
                   <TableHead className="w-[30%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Email Address</TableHead>
                   <TableHead className="w-[15%] text-right h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Total Requests</TableHead>
                   <TableHead className="w-[20%] text-right pr-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Lifetime Value</TableHead>
