@@ -67,7 +67,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
 
   // 3. Payment Method Distribution
   const paymentMethodData = [
-    { name: 'Online (PayMongo)', value: onlineRevenue },
+    { name: 'Online', value: onlineRevenue },
     { name: 'Cash on Pickup', value: cashRevenue },
   ].filter(d => d.value > 0);
 
@@ -191,7 +191,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     ))}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
-                  <Legend verticalAlign="bottom" height={36} />
+                  <Legend verticalAlign="bottom" height={36} wrapperStyle={{ paddingTop: "20px" }} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
