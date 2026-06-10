@@ -22,9 +22,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <header className="flex h-14 shrink-0 items-center justify-between px-4 rounded-xl bg-background/60 backdrop-blur-xl border border-emerald-500/10 shadow-sm supports-[backdrop-filter]:bg-background/40">
               <div className="flex items-center gap-3">
                 <MobileNav />
-                <h1 className="text-lg font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-                  NEU <span className="font-medium text-emerald-600 dark:text-emerald-400">Registrar</span>
-                </h1>
+                <span className="font-bold text-xl tracking-tight ml-2">
+                  NEU <span className="font-medium text-emerald-600 dark:text-emerald-400">ARRS</span>
+                </span>
               </div>
               <ThemeToggle />
             </header>

@@ -39,7 +39,7 @@ export function Sidebar() {
               exit={{ opacity: 0 }}
               className="text-lg font-bold tracking-tight"
             >
-              NEU <span className="font-normal text-muted-foreground">Registrar</span>
+              NEU <span className="font-normal text-muted-foreground">ARRS</span>
             </motion.span>
           )}
         </Link>

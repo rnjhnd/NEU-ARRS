@@ -39,8 +39,8 @@ export function MobileNav() {
               <div className="flex h-16 items-center justify-between px-6 border-b">
                 <Link href="/admin" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
                   <GraduationCap className="h-6 w-6 text-primary" />
-                  <span className="text-lg font-bold tracking-tight">
-                    NEU <span className="font-normal text-muted-foreground">Registrar</span>
+                  <span className="font-bold text-xl tracking-tight ml-2">
+                    NEU <span className="font-normal text-muted-foreground">ARRS</span>
                   </span>
                 </Link>
                 <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
