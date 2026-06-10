@@ -49,9 +49,9 @@ export function RequestTracker({ status, cancelReason }: RequestTrackerProps) {
         ></div>
 
         {steps.map((step, index) => {
-          const isCompleted = index < activeIndex;
-          const isCurrent = index === activeIndex;
-          const isPending = index > activeIndex;
+          const isCompleted = status === "COMPLETED" ? true : index < activeIndex;
+          const isCurrent = status !== "COMPLETED" && index === activeIndex;
+          const isPending = status !== "COMPLETED" && index > activeIndex;
 
           const Icon = step.icon;
 
@@ -59,12 +59,12 @@ export function RequestTracker({ status, cancelReason }: RequestTrackerProps) {
             <div key={step.id} className="relative z-10 flex flex-col items-center">
               {/* Icon Circle */}
               <div 
-                className={`w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center border-4 border-background transition-all duration-500 shadow-sm ${
+                className={`w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center border-4 transition-all duration-500 shadow-sm ${
                   isCompleted 
-                    ? "bg-emerald-500 text-white" 
+                    ? "bg-emerald-500 border-background text-white" 
                     : isCurrent 
-                      ? "bg-emerald-100 text-emerald-600 ring-4 ring-emerald-500/20 dark:bg-emerald-900/40 dark:text-emerald-400" 
-                      : "bg-muted text-muted-foreground"
+                      ? "bg-background border-emerald-500 text-emerald-600 ring-4 ring-emerald-500/20" 
+                      : "bg-background border-muted text-muted-foreground"
                 }`}
               >
                 {isCompleted ? <Check className="w-5 h-5 sm:w-6 sm:h-6" /> : <Icon className="w-5 h-5 sm:w-6 sm:h-6" />}
