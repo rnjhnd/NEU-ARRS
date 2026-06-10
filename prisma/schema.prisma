@@ -72,3 +72,10 @@ model DocumentConfig {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model SystemSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique // e.g., "EMAIL_TEMPLATES"
+  value     String   // JSON stringified configuration
+  updatedAt DateTime @updatedAt
+}

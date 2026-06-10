@@ -16,6 +16,7 @@ interface StatusUpdateEmailProps {
   documentType: string;
   status: string;
   cancelReason?: string | null;
+  customMessage?: string;
 }
 
 export const StatusUpdateEmail = ({
@@ -23,6 +24,7 @@ export const StatusUpdateEmail = ({
   documentType = 'Document',
   status = 'PROCESSING',
   cancelReason,
+  customMessage,
 }: StatusUpdateEmailProps) => {
   const isCancelled = status === "CANCELLED";
   const previewText = `Update on your ${documentType} request: ${status.replace(/_/g, " ")}`;
@@ -59,6 +61,14 @@ export const StatusUpdateEmail = ({
                 </Text>
               )}
             </Section>
+
+            {customMessage && (
+              <Section className="bg-[#f5f5f5] rounded p-[16px] mb-[32px] border-l-4 border-emerald-500">
+                <Text className="text-black text-[14px] leading-[24px] m-0 whitespace-pre-wrap">
+                  {customMessage}
+                </Text>
+              </Section>
+            )}
 
             <Text className="text-black text-[14px] leading-[24px]">
               You can track the full progress of your request at any time by logging into the NEU Academic Record Request System.

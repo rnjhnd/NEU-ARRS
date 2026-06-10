@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/auth";
 import { clerkClient } from "@clerk/nextjs/server";
+import { getSystemSetting } from "@/app/actions/admin.actions";
 import { SettingsClient } from "./settings-client";
 
 export const metadata = { title: "Admin Settings" };
@@ -16,6 +17,8 @@ export default async function SettingsPage() {
     email: u.emailAddresses[0]?.emailAddress || "No email",
     isAdmin: u.publicMetadata?.role === "admin"
   }));
-  
-  return <SettingsClient users={users} />;
+  const emailSetting = await getSystemSetting("EMAIL_TEMPLATES");
+  const initialEmailTemplates = emailSetting.success && emailSetting.value ? JSON.parse(emailSetting.value) : {};
+
+  return <SettingsClient users={users} initialEmailTemplates={initialEmailTemplates} />;
 }

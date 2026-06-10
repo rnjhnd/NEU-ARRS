@@ -6,15 +6,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Search, ShieldAlert, ShieldCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { grantAdminRole } from "@/app/actions/admin.actions";
+import { grantAdminRole, updateSystemSetting } from "@/app/actions/admin.actions";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 type UserType = { id: string; name: string; email: string; isAdmin: boolean };
 
-export function SettingsClient({ users }: { users: UserType[] }) {
+export function SettingsClient({ users, initialEmailTemplates }: { users: UserType[], initialEmailTemplates: Record<string, string> }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
+  const [emailTemplates, setEmailTemplates] = useState<Record<string, string>>(initialEmailTemplates);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("PENDING_PAYMENT");
+  const [isSavingEmail, setIsSavingEmail] = useState(false);
 
   const filteredUsers = users.filter((u) => {
     if (!searchQuery) return true;
@@ -32,6 +37,27 @@ export function SettingsClient({ users }: { users: UserType[] }) {
     }
     setIsUpdating(null);
   };
+
+  const handleSaveEmailTemplates = async () => {
+    setIsSavingEmail(true);
+    const res = await updateSystemSetting("EMAIL_TEMPLATES", JSON.stringify(emailTemplates));
+    if (res.success) {
+      toast.success("Email templates updated successfully.");
+      setIsEmailModalOpen(false);
+    } else {
+      toast.error(res.error);
+    }
+    setIsSavingEmail(false);
+  };
+
+  const statuses = [
+    { id: "PENDING_PAYMENT", label: "Pending Payment" },
+    { id: "PENDING", label: "Pending" },
+    { id: "PROCESSING", label: "Processing" },
+    { id: "READY_FOR_PICKUP", label: "Ready for Pickup" },
+    { id: "COMPLETED", label: "Completed" },
+    { id: "CANCELLED", label: "Cancelled" },
+  ];
 
   return (
     <div className="space-y-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
@@ -62,7 +88,14 @@ export function SettingsClient({ users }: { users: UserType[] }) {
             <div className="p-4 bg-muted/50 rounded-xl border border-border">
               <p className="text-sm font-semibold mb-1">Email Templates</p>
               <p className="text-xs text-muted-foreground mb-3">Customize the automated emails sent to students when their document is ready.</p>
-              <Button variant="outline" size="sm" className="w-full" disabled>Coming Soon</Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                onClick={() => setIsEmailModalOpen(true)}
+              >
+                Edit Templates
+              </Button>
             </div>
             <div className="p-4 bg-muted/50 rounded-xl border border-border">
               <p className="text-sm font-semibold mb-1">Payment Gateways</p>
@@ -162,6 +195,58 @@ export function SettingsClient({ users }: { users: UserType[] }) {
           </div>
         </div>
       </div>
+
+      <Dialog open={isEmailModalOpen} onOpenChange={setIsEmailModalOpen}>
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col p-0 overflow-hidden bg-background border-border/50 shadow-2xl rounded-2xl">
+          <DialogHeader className="p-6 pb-4 border-b border-border/50 bg-muted/20">
+            <DialogTitle className="text-2xl font-bold tracking-tight">Email Templates</DialogTitle>
+            <DialogDescription>
+              Customize the text inserted into automated emails sent to students for each request status.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col md:flex-row flex-1 overflow-hidden min-h-[400px]">
+            {/* Custom Tabs Sidebar */}
+            <div className="w-full md:w-48 border-b md:border-b-0 md:border-r border-border/50 bg-muted/10 overflow-y-auto">
+              {statuses.map((status) => (
+                <button
+                  key={status.id}
+                  onClick={() => setActiveTab(status.id)}
+                  className={`w-full text-left px-4 py-3 text-sm transition-colors ${
+                    activeTab === status.id 
+                      ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 font-medium border-l-4 border-indigo-600' 
+                      : 'text-muted-foreground hover:bg-muted/50 border-l-4 border-transparent'
+                  }`}
+                >
+                  {status.label}
+                </button>
+              ))}
+            </div>
+            
+            {/* Tab Content */}
+            <div className="flex-1 p-6 flex flex-col overflow-y-auto">
+              <h3 className="text-lg font-semibold mb-2">{statuses.find(s => s.id === activeTab)?.label} Email Text</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                This message will be injected prominently in the status update email just below the greeting.
+              </p>
+              
+              <textarea 
+                className="flex flex-1 w-full rounded-xl border border-input bg-transparent px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 min-h-[200px] resize-none"
+                placeholder={`E.g., We have started processing your document. Please allow 3-5 business days...`}
+                value={emailTemplates[activeTab] || ""}
+                onChange={(e) => setEmailTemplates({ ...emailTemplates, [activeTab]: e.target.value })}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter className="p-6 border-t border-border/50 bg-muted/10">
+            <Button variant="outline" onClick={() => setIsEmailModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveEmailTemplates} disabled={isSavingEmail} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              {isSavingEmail ? "Saving..." : "Save Templates"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

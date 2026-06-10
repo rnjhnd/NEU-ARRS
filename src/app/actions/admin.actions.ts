@@ -226,3 +226,29 @@ export async function grantAdminRole(userId: string, grant: boolean) {
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
+
+export async function getSystemSetting(key: string) {
+  try {
+    const setting = await prisma.systemSettings.findUnique({ where: { key } });
+    return { success: true, value: setting ? setting.value : null };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+export async function updateSystemSetting(key: string, value: string) {
+  try {
+    await requireAdmin();
+    
+    await prisma.systemSettings.upsert({
+      where: { key },
+      update: { value },
+      create: { key, value }
+    });
+    
+    revalidatePath("/admin/settings");
+    return { success: true };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
