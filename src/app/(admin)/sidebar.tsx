@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -119,14 +120,19 @@ export function Sidebar() {
       </nav>
 
       {/* User profile at bottom of sidebar */}
-      <div className={`p-4 border-t flex ${isCollapsed ? "justify-center" : "items-center gap-3"}`}>
-        <UserButton />
-        {!isCollapsed && (
-          <div className="flex flex-col whitespace-nowrap overflow-hidden">
-            <span className="text-sm font-semibold truncate">Administrator</span>
-            <span className="text-xs text-muted-foreground truncate">Registrar Office</span>
-          </div>
-        )}
+      <div className={`p-4 border-t flex ${isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between"}`}>
+        <div className={`flex ${isCollapsed ? "justify-center" : "items-center gap-3"} overflow-hidden`}>
+          <UserButton />
+          {!isCollapsed && (
+            <div className="flex flex-col whitespace-nowrap overflow-hidden">
+              <span className="text-sm font-semibold truncate">Administrator</span>
+              <span className="text-xs text-muted-foreground truncate">Registrar Office</span>
+            </div>
+          )}
+        </div>
+        <div className="flex-shrink-0">
+          <ThemeToggle />
+        </div>
       </div>
     </motion.aside>
   );

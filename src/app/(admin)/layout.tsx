@@ -17,20 +17,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Admin Main Content */}
         <div className="flex-1 flex flex-col min-w-0 h-full">
-          <div className="p-4 md:p-6 pb-0">
-            <header className="flex h-16 shrink-0 items-center justify-between px-6 rounded-2xl bg-background/60 backdrop-blur-xl border border-emerald-500/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] supports-[backdrop-filter]:bg-background/40">
+          {/* Mobile Header (Hidden on Desktop) */}
+          <div className="md:hidden p-4 pb-0">
+            <header className="flex h-14 shrink-0 items-center justify-between px-4 rounded-xl bg-background/60 backdrop-blur-xl border border-emerald-500/10 shadow-sm supports-[backdrop-filter]:bg-background/40">
               <div className="flex items-center gap-3">
                 <MobileNav />
-                <h1 className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-                  Admin <span className="font-medium text-emerald-600 dark:text-emerald-400">Dashboard</span>
+                <h1 className="text-lg font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+                  NEU <span className="font-medium text-emerald-600 dark:text-emerald-400">Registrar</span>
                 </h1>
               </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-3 bg-muted/50 p-1.5 rounded-full border border-border/50">
-                  <ThemeToggle />
-                </div>
-              </div>
+              <ThemeToggle />
             </header>
           </div>
           
