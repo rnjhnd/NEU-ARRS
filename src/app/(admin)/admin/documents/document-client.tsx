@@ -249,7 +249,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                               />
                             </div>
                           ) : (
-                            <span className="font-semibold text-foreground bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full text-sm">
+                            <span className="font-semibold text-foreground">
                               ₱{(config.price / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}
                             </span>
                           )}
