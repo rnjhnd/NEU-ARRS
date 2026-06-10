@@ -118,8 +118,8 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                 <TableRow className="border-b border-border/50 hover:bg-transparent">
                   <TableHead className="pl-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Document</TableHead>
                   <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Description</TableHead>
-                  <TableHead className="pl-3 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Price</TableHead>
                   <TableHead className="pl-2.5 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Status</TableHead>
+                  <TableHead className="text-right h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Price</TableHead>
                   <TableHead className="text-right pr-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Action</TableHead>
                 </TableRow>
               </TableHeader>
@@ -149,17 +149,6 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         />
                       </TableCell>
                       <TableCell className="py-4">
-                        <div className="relative inline-block w-28">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
-                          <Input 
-                            type="number"
-                            value={editForm.price} 
-                            onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
-                            className="h-9 pl-7 bg-background border-border/50 rounded-lg"
-                          />
-                        </div>
-                      </TableCell>
-                      <TableCell className="py-4">
                         <select 
                           className="h-9 rounded-lg border border-border/50 bg-background px-3 py-1 text-sm shadow-sm"
                           value={editForm.isActive}
@@ -168,6 +157,17 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                           <option value="true">Active</option>
                           <option value="false">Inactive</option>
                         </select>
+                      </TableCell>
+                      <TableCell className="py-4 text-right">
+                        <div className="relative inline-block w-28 ml-auto">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
+                          <Input 
+                            type="number"
+                            value={editForm.price} 
+                            onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
+                            className="h-9 pl-7 bg-background border-border/50 rounded-lg text-right"
+                          />
+                        </div>
                       </TableCell>
                       <TableCell className="text-right pr-8 py-4">
                         <div className="flex items-center justify-end gap-2">
@@ -217,23 +217,6 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         </TableCell>
                         <TableCell className="py-4">
                           {isEditing ? (
-                            <div className="relative inline-block w-28">
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
-                              <Input 
-                                type="number"
-                                value={editForm.price} 
-                                onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
-                                className="h-9 pl-7 bg-background border-border/50 rounded-lg"
-                              />
-                            </div>
-                          ) : (
-                            <span className="font-semibold text-foreground bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full text-sm">
-                              ₱{(config.price / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell className="py-4">
-                          {isEditing ? (
                             <select 
                               className="h-9 rounded-lg border border-border/50 bg-background px-3 py-1 text-sm shadow-sm"
                               value={editForm.isActive}
@@ -252,6 +235,23 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                                 Inactive
                               </span>
                             )
+                          )}
+                        </TableCell>
+                        <TableCell className="py-4 text-right">
+                          {isEditing ? (
+                            <div className="relative inline-block w-28 ml-auto">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
+                              <Input 
+                                type="number"
+                                value={editForm.price} 
+                                onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
+                                className="h-9 pl-7 bg-background border-border/50 rounded-lg text-right"
+                              />
+                            </div>
+                          ) : (
+                            <span className="font-semibold text-foreground bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full text-sm">
+                              ₱{(config.price / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}
+                            </span>
                           )}
                         </TableCell>
                         <TableCell className="text-right pr-8 py-4">
