@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, CheckCircle2, Package, Activity, Search, Download, ArrowUpDown, ArrowUp, ArrowDown, FileText } from "lucide-react";
+import { Clock, CheckCircle2, Package, Activity, Search, Download, ArrowUpDown, ArrowUp, ArrowDown, FileText, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import useSWR from "swr";
 
@@ -470,29 +470,33 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
       </Card>
 
       <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Cancel Request</DialogTitle>
-            <DialogDescription>
-              Please provide a reason for cancelling. This will be visible to the student.
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
+              <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-500" />
+            </div>
+            <DialogTitle className="text-center text-xl">Cancel Request</DialogTitle>
+            <DialogDescription className="text-center mt-2">
+              Are you sure you want to cancel this request? Please provide a reason below. This action cannot be undone and the student will be notified.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <Input 
-              placeholder="e.g. Invalid document requested, incorrect payment" 
+          <div className="py-2">
+            <textarea 
+              placeholder="e.g. Invalid document requested, incorrect payment amount..." 
               value={cancelReasonInput}
               onChange={(e) => setCancelReasonInput(e.target.value)}
-              className="w-full border-red-200 focus-visible:ring-red-500"
+              className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-none transition-all"
               autoFocus
             />
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
+          <DialogFooter className="sm:justify-between sm:space-x-2 pt-2">
+            <Button variant="ghost" className="w-full sm:w-auto" onClick={() => {
               setCancelDialogOpen(false);
               setCancelReasonInput("");
-            }}>Close</Button>
+            }}>Back</Button>
             <Button 
               variant="destructive" 
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 shadow-sm"
               disabled={!cancelReasonInput.trim() || isUpdating}
               onClick={() => {
                 if (!cancelReasonInput.trim()) return toast.error("Reason is required");
