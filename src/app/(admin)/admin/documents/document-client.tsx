@@ -153,12 +153,25 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         <Select value={editForm.isActive} onValueChange={(v) => setEditForm({...editForm, isActive: v || ""})}>
                           <SelectTrigger className="h-9 w-[110px] rounded-lg border-border/50 bg-background shadow-sm">
                             <SelectValue placeholder="Status">
-                              {editForm.isActive === "true" ? "Active" : "Inactive"}
+                              <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-emerald-500" : "bg-slate-400"}`} />
+                                {editForm.isActive === "true" ? "Active" : "Inactive"}
+                              </div>
                             </SelectValue>
                           </SelectTrigger>
-                          <SelectContent alignItemWithTrigger={false}>
-                            <SelectItem value="true">Active</SelectItem>
-                            <SelectItem value="false">Inactive</SelectItem>
+                          <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95">
+                            <SelectItem value="true" className="cursor-pointer">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                Active
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="false" className="cursor-pointer">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-slate-400" />
+                                Inactive
+                              </div>
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </TableCell>
@@ -226,12 +239,25 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             <Select value={editForm.isActive} onValueChange={(v) => setEditForm({...editForm, isActive: v || ""})}>
                               <SelectTrigger className="h-9 w-[110px] rounded-lg border-border/50 bg-background shadow-sm">
                                 <SelectValue placeholder="Status">
-                                  {editForm.isActive === "true" ? "Active" : "Inactive"}
+                                  <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-emerald-500" : "bg-slate-400"}`} />
+                                    {editForm.isActive === "true" ? "Active" : "Inactive"}
+                                  </div>
                                 </SelectValue>
                               </SelectTrigger>
-                              <SelectContent alignItemWithTrigger={false}>
-                                <SelectItem value="true">Active</SelectItem>
-                                <SelectItem value="false">Inactive</SelectItem>
+                              <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95">
+                                <SelectItem value="true" className="cursor-pointer">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                    Active
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="false" className="cursor-pointer">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-slate-400" />
+                                    Inactive
+                                  </div>
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                           ) : (
