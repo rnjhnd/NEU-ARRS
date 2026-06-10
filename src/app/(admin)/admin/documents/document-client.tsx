@@ -149,14 +149,17 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         />
                       </TableCell>
                       <TableCell className="py-4">
-                        <select 
-                          className="h-9 rounded-lg border border-border/50 bg-background pl-3 pr-8 py-1 text-sm shadow-sm appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:1em_1em] bg-[right_0.5rem_center] bg-no-repeat"
-                          value={editForm.isActive}
-                          onChange={(e) => setEditForm({...editForm, isActive: e.target.value})}
-                        >
-                          <option value="true">Active</option>
-                          <option value="false">Inactive</option>
-                        </select>
+                        <div className="relative w-min">
+                          <select 
+                            className="h-9 rounded-lg border border-border/50 bg-background pl-3 pr-8 py-1 text-sm shadow-sm appearance-none cursor-pointer"
+                            value={editForm.isActive}
+                            onChange={(e) => setEditForm({...editForm, isActive: e.target.value})}
+                          >
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                          </select>
+                          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                        </div>
                       </TableCell>
                       <TableCell className="py-4 text-right">
                         <div className="flex w-full justify-end">
@@ -166,7 +169,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                               type="number"
                               value={editForm.price} 
                               onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
-                              className="h-9 pl-7 pr-6 bg-background border-border/50 rounded-lg text-right"
+                              className="h-9 pl-7 pr-3 bg-background border-border/50 rounded-lg text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                           </div>
                         </div>
@@ -219,14 +222,17 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         </TableCell>
                         <TableCell className="py-4">
                           {isEditing ? (
-                            <select 
-                              className="h-9 rounded-lg border border-border/50 bg-background pl-3 pr-8 py-1 text-sm shadow-sm appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:1em_1em] bg-[right_0.5rem_center] bg-no-repeat"
-                              value={editForm.isActive}
-                              onChange={(e) => setEditForm({...editForm, isActive: e.target.value})}
-                            >
-                              <option value="true">Active</option>
-                              <option value="false">Inactive</option>
-                            </select>
+                            <div className="relative w-min">
+                              <select 
+                                className="h-9 rounded-lg border border-border/50 bg-background pl-3 pr-8 py-1 text-sm shadow-sm appearance-none cursor-pointer"
+                                value={editForm.isActive}
+                                onChange={(e) => setEditForm({...editForm, isActive: e.target.value})}
+                              >
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                              </select>
+                              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                            </div>
                           ) : (
                             config.isActive ? (
                               <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
@@ -248,7 +254,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                                   type="number"
                                   value={editForm.price} 
                                   onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
-                                  className="h-9 pl-7 pr-6 bg-background border-border/50 rounded-lg text-right"
+                                  className="h-9 pl-7 pr-3 bg-background border-border/50 rounded-lg text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 />
                               </div>
                             </div>
