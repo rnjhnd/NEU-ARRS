@@ -5,6 +5,7 @@ import { GraduationCap, ArrowLeft, CheckCircle2, Loader2, KeyRound, Mail } from 
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { isRedirectError } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,12 +56,15 @@ export default function SignInPage() {
     if (!signIn) return;
     setIsLoading(true);
     try {
-      await clerk.client.signIn.authenticateWithRedirect({
+      await signIn.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/sso-callback",
         redirectUrlComplete: "/",
       });
     } catch (err: unknown) {
+      if (isRedirectError(err)) {
+        throw err;
+      }
       console.error(err);
       toast.error("An unexpected error occurred.");
       setIsLoading(false);
