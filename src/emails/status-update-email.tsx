@@ -76,8 +76,7 @@ export const StatusUpdateEmail = ({
   const styles = getStatusStyles(status);
   const previewText = `Update on your ${documentType} request: ${status.replace(/_/g, " ")}`;
 
-  // Default to a fallback URL if env is not present
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://neu-arrs.vercel.app";
+  const appUrl = "https://neu-arrs.vercel.app";
 
   return (
     <Html>
@@ -110,7 +109,7 @@ export const StatusUpdateEmail = ({
             {/* Header Banner */}
             <Section className="bg-slate-900 py-[28px] px-[32px] text-center">
               <Img
-                src="https://neu.edu.ph/main/assets/images/webp/neulogo.webp"
+                src={`${appUrl}/neu-logo.png`}
                 width="64"
                 height="64"
                 alt="New Era University"
