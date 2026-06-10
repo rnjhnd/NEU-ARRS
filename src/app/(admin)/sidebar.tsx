@@ -121,7 +121,7 @@ export function Sidebar() {
 
       {/* User profile at bottom of sidebar */}
       <div className={`p-6 border-t flex ${isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between"}`}>
-        <div className={`flex ${isCollapsed ? "justify-center" : "items-center gap-3"} overflow-hidden`}>
+        <div className={`flex ${isCollapsed ? "justify-center" : "items-center gap-3"}`}>
           <ProfileMenu />
           {!isCollapsed && (
             <div className="flex flex-col whitespace-nowrap overflow-hidden">

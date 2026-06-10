@@ -46,7 +46,7 @@ export function ProfileMenu() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="relative h-8 w-8 rounded-full shadow-sm ring-1 ring-border hover:ring-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all">
+      <DropdownMenuTrigger className="relative h-8 w-8 rounded-full shadow-sm ring-2 ring-border hover:ring-emerald-500/60 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all">
           <Avatar className="h-full w-full">
             <AvatarImage src={user.imageUrl} alt={name} />
             <AvatarFallback className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold text-xs">
@@ -55,8 +55,10 @@ export function ProfileMenu() {
           </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
-        className="w-56 mt-2 rounded-2xl bg-background/80 backdrop-blur-xl border border-border shadow-xl z-50" 
+        className="w-56 rounded-2xl bg-background/80 backdrop-blur-xl border border-border shadow-xl z-50 mb-2" 
         align="end"
+        side="top"
+        sideOffset={8}
       >
         <DropdownMenuGroup>
           <DropdownMenuLabel className="font-normal">
