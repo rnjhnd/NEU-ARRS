@@ -30,7 +30,7 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
   });
 
   return (
-    <div className="mx-auto max-w-3xl p-8 bg-white min-h-screen text-slate-900 font-sans">
+    <div className="mx-auto max-w-3xl p-8 print:p-0 bg-white min-h-screen text-slate-900 font-sans">
       <style dangerouslySetInnerHTML={{__html: `
         @media print {
           @page {
@@ -57,7 +57,7 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
       <div className="border border-slate-200 rounded-lg p-6 shadow-sm print:shadow-none print:border-none print:p-0">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 pb-6 border-b border-slate-200">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 print:mb-4 pb-6 print:pb-4 border-b border-slate-200">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-slate-900 mb-1 uppercase">
               Official Receipt
@@ -72,7 +72,7 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
         </div>
 
         {/* Details Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 print:mb-4">
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Billed To</h3>
             <p className="font-semibold text-slate-800 text-base">{receipt.studentName}</p>
@@ -86,7 +86,7 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
         </div>
 
         {/* Line Items */}
-        <div className="mb-8">
+        <div className="mb-8 print:mb-4">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b-2 border-slate-800">
@@ -127,7 +127,7 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
         </div>
 
         {/* Footer */}
-        <div className="mt-16 print:mt-8 pt-6 border-t border-slate-100 text-center text-slate-400 text-xs" style={{ pageBreakInside: 'avoid' }}>
+        <div className="mt-16 print:mt-6 pt-6 print:pt-4 border-t border-slate-100 text-center text-slate-400 text-xs" style={{ pageBreakInside: 'avoid' }}>
           <p>This is a computer-generated receipt. No signature is required.</p>
           <p className="mt-1">Thank you for using the NEU Automated Request and Release System.</p>
         </div>
