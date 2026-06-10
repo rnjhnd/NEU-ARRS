@@ -234,8 +234,8 @@ export function RequestList({ requests }: { requests: Request[] }) {
               setCancellingId(null);
             }}>Back</Button>
             <Button 
-              variant="destructive" 
-              className="w-full sm:w-auto shadow-sm"
+              variant="default" 
+              className="w-full sm:w-auto bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 shadow-sm border-0"
               disabled={!cancelReasonInput.trim()}
               onClick={handleCancelConfirm}
             >
