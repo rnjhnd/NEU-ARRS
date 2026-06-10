@@ -118,8 +118,8 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                 <TableRow className="border-b border-border/50 hover:bg-transparent">
                   <TableHead className="pl-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Document</TableHead>
                   <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Description</TableHead>
-                  <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Price</TableHead>
-                  <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Status</TableHead>
+                  <TableHead className="pl-3 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Price</TableHead>
+                  <TableHead className="pl-2.5 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Status</TableHead>
                   <TableHead className="text-right pr-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Action</TableHead>
                 </TableRow>
               </TableHeader>
