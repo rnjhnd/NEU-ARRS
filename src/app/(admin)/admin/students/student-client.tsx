@@ -122,14 +122,14 @@ export function StudentClient({
                         {email}
                       </TableCell>
                       <TableCell className="text-right py-4">
-                        <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-medium text-sm">
+                        <span className="font-medium text-foreground">
                           {reqCount} {reqCount === 1 ? 'Request' : 'Requests'}
-                        </div>
+                        </span>
                       </TableCell>
                       <TableCell className="text-right pr-8 py-4">
-                        <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-semibold text-sm">
+                        <span className="font-semibold text-emerald-600 dark:text-emerald-400">
                           ₱{ltv.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                        </div>
+                        </span>
                       </TableCell>
                     </TableRow>
                   );

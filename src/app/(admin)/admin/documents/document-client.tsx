@@ -150,7 +150,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         />
                       </TableCell>
                       <TableCell className="py-4">
-                        <Select value={editForm.isActive} onValueChange={(v) => setEditForm({...editForm, isActive: v})}>
+                        <Select value={editForm.isActive} onValueChange={(v) => setEditForm({...editForm, isActive: v || ""})}>
                           <SelectTrigger className="h-9 w-[110px] rounded-lg border-border/50 bg-background shadow-sm">
                             <SelectValue placeholder="Status" />
                           </SelectTrigger>
@@ -221,7 +221,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         </TableCell>
                         <TableCell className="py-4">
                           {isEditing ? (
-                            <Select value={editForm.isActive} onValueChange={(v) => setEditForm({...editForm, isActive: v})}>
+                            <Select value={editForm.isActive} onValueChange={(v) => setEditForm({...editForm, isActive: v || ""})}>
                               <SelectTrigger className="h-9 w-[110px] rounded-lg border-border/50 bg-background shadow-sm">
                                 <SelectValue placeholder="Status" />
                               </SelectTrigger>
