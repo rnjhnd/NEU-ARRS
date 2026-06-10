@@ -58,12 +58,14 @@ export function ProfileMenu() {
         className="w-56 mt-2 rounded-2xl bg-background/80 backdrop-blur-xl border border-border shadow-xl z-50" 
         align="end"
       >
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1 p-1">
-            <p className="text-sm font-semibold leading-none text-foreground">{name}</p>
-            <p className="text-xs leading-none text-muted-foreground truncate">{email}</p>
-          </div>
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1 p-1">
+              <p className="text-sm font-semibold leading-none text-foreground">{name}</p>
+              <p className="text-xs leading-none text-muted-foreground truncate">{email}</p>
+            </div>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator className="bg-border/50" />
         <DropdownMenuGroup>
           {isAdmin ? (
