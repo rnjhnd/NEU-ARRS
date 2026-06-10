@@ -12,6 +12,24 @@ import { DollarSign, CreditCard, Banknote, TrendingUp } from "lucide-react";
 const COLORS = ['#10b981', '#3b82f6', '#6366f1', '#8b5cf6'];
 
 export function FinanceClient({ requests }: { requests: Request[] }) {
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-background/95 backdrop-blur-md border border-border shadow-lg rounded-xl p-3">
+          <p className="font-semibold text-foreground mb-1">{label || "Revenue"}</p>
+          {payload.map((entry: any, index: number) => (
+            <div key={index} className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }}></div>
+              <p className="text-sm text-muted-foreground font-medium">
+                <span className="text-foreground font-bold font-mono">₱{Number(entry.value).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+              </p>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
   // Constants for pricing since cash doesn't have amountPaid saved directly yet
   const getAmount = (req: Request) => {
     if (req.amountPaid) return req.amountPaid / 100; // Centavos to PHP
@@ -134,11 +152,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                   axisLine={false} 
                   tickFormatter={(value) => `₱${value}`}
                 />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
-                  itemStyle={{ color: 'hsl(var(--foreground))' }}
-                  formatter={(value: any) => [`₱${Number(value).toLocaleString()}`, 'Revenue']}
-                />
+                <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'currentColor', strokeWidth: 1, strokeDasharray: '3 3', opacity: 0.2 }} />
                 <Line 
                   type="monotone" 
                   dataKey="revenue" 
@@ -176,10 +190,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
-                    formatter={(value: any) => [`₱${Number(value).toLocaleString()}`, 'Revenue']}
-                  />
+                  <Tooltip content={<CustomTooltip />} />
                   <Legend verticalAlign="bottom" height={36} />
                 </PieChart>
               </ResponsiveContainer>
@@ -218,11 +229,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     tickLine={false} 
                     axisLine={false} 
                   />
-                  <Tooltip 
-                    cursor={{ fill: 'currentColor', opacity: 0.05 }}
-                    contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
-                    formatter={(value: any) => [`₱${Number(value).toLocaleString()}`, 'Revenue']}
-                  />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'currentColor', opacity: 0.05 }} />
                   <Bar dataKey="revenue" fill="#10b981" radius={[0, 4, 4, 0]} barSize={32}>
                     {documentData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
