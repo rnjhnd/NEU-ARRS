@@ -120,7 +120,7 @@ export function Sidebar() {
       </nav>
 
       {/* User profile at bottom of sidebar */}
-      <div className={`p-4 border-t flex ${isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between"}`}>
+      <div className={`p-6 border-t flex ${isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between"}`}>
         <div className={`flex ${isCollapsed ? "justify-center" : "items-center gap-3"} overflow-hidden`}>
           <UserButton />
           {!isCollapsed && (
