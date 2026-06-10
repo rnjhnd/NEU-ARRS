@@ -177,14 +177,14 @@ export function RequestList({ requests }: { requests: Request[] }) {
                               {(req.status === "PENDING" || req.status === "PENDING_PAYMENT") && (
                                 <div className="flex justify-end mt-2 pr-2">
                                   <Button 
-                                    variant="destructive" 
+                                    variant="outline" 
                                     size="sm" 
                                     onClick={() => {
                                       setCancellingId(req.id);
                                       setCancelDialogOpen(true);
                                     }}
                                     disabled={cancellingId === req.id && !cancelDialogOpen}
-                                    className="shadow-sm"
+                                    className="shadow-sm text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 dark:text-red-500 dark:border-red-900/50 dark:hover:bg-red-900/30"
                                   >
                                     {(cancellingId === req.id && !cancelDialogOpen) ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                                     Cancel Request
