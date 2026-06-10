@@ -66,7 +66,7 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
           </div>
           <div className="text-left md:text-right print:text-right mt-4 md:mt-0 print:mt-0">
             <div className="text-xs text-slate-500 uppercase tracking-widest font-semibold mb-1">Receipt No.</div>
-            <div className="text-base font-mono text-slate-800">{receipt.transactionId.toUpperCase()}</div>
+            <div className="text-base font-mono text-slate-800">#{receipt.transactionId.slice(0, 8).toUpperCase()}</div>
           </div>
         </div>
 
