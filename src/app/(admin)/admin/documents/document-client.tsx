@@ -116,11 +116,11 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-border/50 hover:bg-transparent">
-                  <TableHead className="w-[25%] pl-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Document</TableHead>
-                  <TableHead className="w-[35%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Description</TableHead>
-                  <TableHead className="w-[15%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase text-right">Price</TableHead>
-                  <TableHead className="w-[15%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase text-center">Status</TableHead>
-                  <TableHead className="w-[10%] text-right pr-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Action</TableHead>
+                  <TableHead className="pl-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Document</TableHead>
+                  <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Description</TableHead>
+                  <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Price</TableHead>
+                  <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Status</TableHead>
+                  <TableHead className="text-right pr-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -148,18 +148,18 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                           className="h-9 w-64 bg-background border-border/50 rounded-lg"
                         />
                       </TableCell>
-                      <TableCell className="py-4 text-right">
+                      <TableCell className="py-4">
                         <div className="relative inline-block w-28">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
                           <Input 
                             type="number"
                             value={editForm.price} 
                             onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
-                            className="h-9 pl-7 bg-background border-border/50 rounded-lg text-right"
+                            className="h-9 pl-7 bg-background border-border/50 rounded-lg"
                           />
                         </div>
                       </TableCell>
-                      <TableCell className="py-4 text-center">
+                      <TableCell className="py-4">
                         <select 
                           className="h-9 rounded-lg border border-border/50 bg-background px-3 py-1 text-sm shadow-sm"
                           value={editForm.isActive}
@@ -215,15 +215,15 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             <span className="text-muted-foreground text-sm">{config.description}</span>
                           )}
                         </TableCell>
-                        <TableCell className="py-4 text-right">
+                        <TableCell className="py-4">
                           {isEditing ? (
-                            <div className="relative inline-block w-28 ml-auto">
+                            <div className="relative inline-block w-28">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
                               <Input 
                                 type="number"
                                 value={editForm.price} 
                                 onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
-                                className="h-9 pl-7 bg-background border-border/50 rounded-lg text-right"
+                                className="h-9 pl-7 bg-background border-border/50 rounded-lg"
                               />
                             </div>
                           ) : (
@@ -232,7 +232,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             </span>
                           )}
                         </TableCell>
-                        <TableCell className="py-4 text-center">
+                        <TableCell className="py-4">
                           {isEditing ? (
                             <select 
                               className="h-9 rounded-lg border border-border/50 bg-background px-3 py-1 text-sm shadow-sm"
