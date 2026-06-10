@@ -198,12 +198,9 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                               className="h-9 w-48 bg-background border-border/50 rounded-lg"
                             />
                           ) : (
-                            <div className="flex flex-col gap-1">
-                              <div className="flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-amber-600" />
-                                <span className="font-bold text-foreground">{config.label}</span>
-                              </div>
-                              <span className="text-xs text-muted-foreground font-mono bg-muted/50 w-max px-1.5 py-0.5 rounded">{config.typeId}</span>
+                            <div className="flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-amber-600" />
+                              <span className="font-bold text-foreground">{config.label}</span>
                             </div>
                           )}
                         </TableCell>
