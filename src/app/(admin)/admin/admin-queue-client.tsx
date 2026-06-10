@@ -163,13 +163,13 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
     setSortConfig({ key, direction });
   };
 
-  const SortableHeader = ({ title, sortKey }: { title: string, sortKey: keyof MappedRequest }) => {
+  const SortableHeader = ({ title, sortKey, alignRight = false }: { title: string, sortKey: keyof MappedRequest, alignRight?: boolean }) => {
     const isActive = sortConfig?.key === sortKey;
     return (
-      <TableHead className="font-semibold text-emerald-800 dark:text-emerald-400">
+      <TableHead className={`font-semibold text-emerald-800 dark:text-emerald-400 ${alignRight ? "text-right" : ""}`}>
         <button 
           onClick={() => handleSort(sortKey)}
-          className="flex items-center gap-1.5 hover:text-emerald-950 dark:hover:text-emerald-300 transition-colors py-2 group"
+          className={`flex items-center gap-1.5 hover:text-emerald-950 dark:hover:text-emerald-300 transition-colors py-2 group ${alignRight ? "ml-auto justify-end" : ""}`}
         >
           {title}
           {isActive ? (
@@ -341,7 +341,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   <SortableHeader title="Document" sortKey="documentType" />
                   <SortableHeader title="Payment" sortKey="paymentStatus" />
                   <SortableHeader title="Date" sortKey="createdAt" />
-                  <SortableHeader title="Status" sortKey="status" />
+                  <SortableHeader title="Status" sortKey="status" alignRight />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -410,8 +410,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                           <span className="text-[10px] text-muted-foreground">{format(new Date(req.createdAt), "h:mm a")}</span>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col items-start gap-2">
+                      <TableCell className="text-right">
+                        <div className="flex flex-col items-end gap-2">
                           {getStatusBadge(req.status)}
                           {req.cancelReason && (
                             <span className="text-[10px] text-red-500 truncate max-w-[150px]" title={req.cancelReason}>
@@ -419,7 +419,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                             </span>
                           )}
                           {req.status === "COMPLETED" && (
-                            <a href={`/receipt/${req.id}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-semibold border border-emerald-200 text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100 hover:text-emerald-800 transition-colors shadow-sm">
+                            <a href={`/receipt/${req.id}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-semibold border border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100 hover:text-blue-800 transition-colors shadow-sm">
                               <FileText className="w-3.5 h-3.5" />
                               View Receipt
                             </a>
