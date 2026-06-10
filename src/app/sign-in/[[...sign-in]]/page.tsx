@@ -5,7 +5,7 @@ import { GraduationCap, ArrowLeft, CheckCircle2, Loader2, KeyRound, Mail } from 
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { isRedirectError } from "next/navigation";
+import { isClerkAPIResponseError } from "@clerk/nextjs/errors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,13 +56,13 @@ export default function SignInPage() {
     if (!signIn) return;
     setIsLoading(true);
     try {
-      await signIn.authenticateWithRedirect({
+      await clerk.client.signIn.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/sso-callback",
         redirectUrlComplete: "/",
       });
     } catch (err: unknown) {
-      if (isRedirectError(err)) {
+      if (err && typeof err === 'object' && 'digest' in err && typeof (err as any).digest === 'string' && (err as any).digest.includes("NEXT_REDIRECT")) {
         throw err;
       }
       console.error(err);
