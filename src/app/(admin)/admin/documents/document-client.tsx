@@ -152,9 +152,11 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                       <TableCell className="py-4">
                         <Select value={editForm.isActive} onValueChange={(v) => setEditForm({...editForm, isActive: v || ""})}>
                           <SelectTrigger className="h-9 w-[110px] rounded-lg border-border/50 bg-background shadow-sm">
-                            <SelectValue placeholder="Status" />
+                            <SelectValue placeholder="Status">
+                              {editForm.isActive === "true" ? "Active" : "Inactive"}
+                            </SelectValue>
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent alignItemWithTrigger={false}>
                             <SelectItem value="true">Active</SelectItem>
                             <SelectItem value="false">Inactive</SelectItem>
                           </SelectContent>
@@ -223,9 +225,11 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                           {isEditing ? (
                             <Select value={editForm.isActive} onValueChange={(v) => setEditForm({...editForm, isActive: v || ""})}>
                               <SelectTrigger className="h-9 w-[110px] rounded-lg border-border/50 bg-background shadow-sm">
-                                <SelectValue placeholder="Status" />
+                                <SelectValue placeholder="Status">
+                                  {editForm.isActive === "true" ? "Active" : "Inactive"}
+                                </SelectValue>
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent alignItemWithTrigger={false}>
                                 <SelectItem value="true">Active</SelectItem>
                                 <SelectItem value="false">Inactive</SelectItem>
                               </SelectContent>
