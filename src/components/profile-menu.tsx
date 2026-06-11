@@ -1,7 +1,7 @@
 "use client";
 
 import { useUser, useClerk } from "@clerk/nextjs";
-import { LogOut, UserCircle, LifeBuoy } from "lucide-react";
+import { LogOut, LifeBuoy } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 
 export function ProfileMenu() {
   const { user, isLoaded } = useUser();
-  const { signOut, openUserProfile } = useClerk();
+  const { signOut } = useClerk();
   const router = useRouter();
 
   if (!isLoaded) {
@@ -69,13 +69,6 @@ export function ProfileMenu() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator className="bg-border/50" />
         <DropdownMenuGroup>
-          <DropdownMenuItem 
-            className="cursor-pointer rounded-xl focus:bg-emerald-500/10 focus:text-emerald-600 dark:focus:text-emerald-400 transition-colors"
-            onClick={() => openUserProfile()}
-          >
-            <UserCircle className="mr-2 h-4 w-4" />
-            <span>Manage Account</span>
-          </DropdownMenuItem>
           <DropdownMenuItem 
             className="cursor-pointer rounded-xl focus:bg-emerald-500/10 focus:text-emerald-600 dark:focus:text-emerald-400 transition-colors"
             onClick={() => window.location.href = "mailto:support@neu.edu.ph"}
