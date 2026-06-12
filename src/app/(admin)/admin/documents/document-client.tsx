@@ -98,11 +98,11 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
           </div>
           
           <Button 
-            className="rounded-full bg-white/20 hover:bg-white/30 text-white border-none shadow-sm backdrop-blur-md" 
+            className="rounded-full px-6 bg-white/20 hover:bg-white/30 text-white border-none shadow-sm backdrop-blur-md" 
             onClick={startNew} 
             disabled={editingId === "new"}
           >
-            <Plus className="w-5 h-5 mr-2" /> Add New Document
+            <Plus className="w-5 h-5 -ml-1 mr-2" /> Add New Document
           </Button>
         </div>
       </div>

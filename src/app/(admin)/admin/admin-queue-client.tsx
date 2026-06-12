@@ -248,13 +248,13 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
           ))}
         </div>
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
-            placeholder="Search ID, Document, or Student..." 
+            placeholder="Search ID, document, or student..." 
             className="pl-9 bg-background/50 backdrop-blur-xl border-emerald-500/20 shadow-[0_2px_10px_rgb(0,0,0,0.02)] rounded-full"
             value={searchQuery}
             onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
           />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         </div>
       </div>
 
