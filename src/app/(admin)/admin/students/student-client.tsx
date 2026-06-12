@@ -46,25 +46,25 @@ export function StudentClient({
     <div className="space-y-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
       
       {/* Premium Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-600 via-fuchsia-700 to-pink-800 p-8 sm:p-10 text-white shadow-xl">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-8 sm:p-10 text-white shadow-xl">
         <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 rounded-full bg-white/10 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-48 h-48 rounded-full bg-fuchsia-400/20 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-48 h-48 rounded-full bg-primary/20 blur-2xl"></div>
         
         <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="space-y-2">
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight drop-shadow-sm">
               Student Directory
             </h1>
-            <p className="text-purple-100/90 text-lg font-medium max-w-xl">
+            <p className="text-white/90 text-lg font-medium max-w-xl">
               View all registered students, their request history, and lifetime value.
             </p>
           </div>
           
           <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-200/70" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
             <Input 
               placeholder="Search students by name or email..." 
-              className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-purple-200/70 shadow-inner rounded-full h-11 focus-visible:ring-white/30"
+              className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/70 shadow-inner rounded-full h-11 focus-visible:ring-white/30"
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
             />
@@ -72,8 +72,8 @@ export function StudentClient({
         </div>
       </div>
 
-      <Card className="shadow-lg border-purple-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
-        <CardHeader className="bg-gradient-to-r from-purple-500/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
+      <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
+        <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
           <CardTitle className="text-xl font-bold tracking-tight text-foreground">Registered Students</CardTitle>
           <CardDescription>A complete list of students who have signed up via the portal.</CardDescription>
         </CardHeader>
@@ -106,10 +106,10 @@ export function StudentClient({
                   const ltv = ltvMap[user.id] || 0;
                   
                   return (
-                    <TableRow key={user.id} className="border-b border-border/40 hover:bg-purple-500/5 transition-colors group">
+                    <TableRow key={user.id} className="border-b border-border/40 hover:bg-primary/5 transition-colors group">
                       <TableCell className="pl-8 py-4">
                         <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 shrink-0 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-600 shadow-sm border border-purple-500/20 group-hover:border-purple-500/40 transition-colors overflow-hidden">
+                          <div className="h-10 w-10 shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-sm border border-primary/20 group-hover:border-primary/40 transition-colors overflow-hidden">
                             {user.imageUrl ? (
                               <img src={user.imageUrl} alt={name} className="h-full w-full object-cover" />
                             ) : (
