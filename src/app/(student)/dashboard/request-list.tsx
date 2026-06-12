@@ -224,7 +224,7 @@ export function RequestList({ requests }: { requests: Request[] }) {
                                       setCancelDialogOpen(true);
                                     }}
                                     disabled={cancellingId === req.id && !cancelDialogOpen}
-                                    className="shadow-sm text-destructive border-destructive/30 hover:bg-destructive/10 dark:hover:bg-destructive/20"
+                                    className="font-semibold transition-all duration-300 text-destructive border border-destructive/20 bg-destructive/5 hover:bg-destructive hover:text-destructive-foreground hover:border-destructive shadow-sm hover:shadow-md active:scale-95"
                                   >
                                     {(cancellingId === req.id && !cancelDialogOpen) ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                                     Cancel Request
