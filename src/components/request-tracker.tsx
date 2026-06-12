@@ -23,7 +23,7 @@ export function RequestTracker({ status, cancelReason }: RequestTrackerProps) {
           <XCircle className="w-8 h-8" />
         </div>
         <h4 className="font-bold text-lg text-foreground">Request Cancelled</h4>
-        <p className="text-muted-foreground text-sm max-w-md mt-1">
+        <p className="text-muted-foreground text-sm max-w-md mt-1 text-center mx-auto break-words">
           {cancelReason ? `Reason: ${cancelReason}` : "This request was cancelled and will not be processed."}
         </p>
       </div>

@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { Request } from "@prisma/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -37,13 +37,18 @@ const getStatusBadge = (status: string) => {
   }
 };
 
-export function RequestList({ requests }: { requests: Request[] }) {
+export function RequestList({ requests: initialRequests }: { requests: Request[] }) {
+  const [localRequests, setLocalRequests] = useState(initialRequests);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelReasonInput, setCancelReasonInput] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: keyof Request; direction: "asc" | "desc" } | null>({ key: "createdAt", direction: "desc" });
   const router = useRouter();
+
+  useEffect(() => {
+    setLocalRequests(initialRequests);
+  }, [initialRequests]);
 
   const handleSort = (key: keyof Request) => {
     let direction: "asc" | "desc" = "asc";
@@ -53,7 +58,7 @@ export function RequestList({ requests }: { requests: Request[] }) {
     setSortConfig({ key, direction });
   };
 
-  const sortedRequests = [...requests].sort((a, b) => {
+  const sortedRequests = [...localRequests].sort((a, b) => {
     if (!sortConfig) return 0;
     const { key, direction } = sortConfig;
     const valA = a[key];
@@ -98,14 +103,16 @@ export function RequestList({ requests }: { requests: Request[] }) {
     const result = await cancelStudentRequest(id, reason);
     if (result.success) {
       toast.success("Request cancelled successfully.");
-      router.refresh();
+      setLocalRequests(prev => prev.map(req => 
+        req.id === id ? { ...req, status: "CANCELLED", cancelReason: reason } : req
+      ));
     } else {
       toast.error(result.error);
     }
     setCancellingId(null);
   };
 
-  if (requests.length === 0) {
+  if (localRequests.length === 0) {
     return (
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }} 
