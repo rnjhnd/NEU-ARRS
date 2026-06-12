@@ -107,7 +107,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
         </div>
       </div>
 
-      <Card className="shadow-lg border-amber-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl">
+      <Card className="shadow-lg border-amber-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
         <CardHeader className="bg-gradient-to-r from-amber-500/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
           <CardTitle className="text-xl font-bold tracking-tight text-foreground">Available Documents</CardTitle>
           <CardDescription>Manage descriptions, pricing, and active status.</CardDescription>

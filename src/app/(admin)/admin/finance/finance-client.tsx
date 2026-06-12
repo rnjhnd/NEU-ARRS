@@ -149,7 +149,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Revenue Trends */}
-        <Card className="lg:col-span-2 shadow-lg border-blue-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl">
+        <Card className="lg:col-span-2 shadow-lg border-blue-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
           <CardHeader className="bg-gradient-to-r from-blue-500/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
             <CardTitle className="text-xl font-bold tracking-tight text-foreground">7-Day Revenue Trend</CardTitle>
             <CardDescription>Daily revenue from both online and cash payments.</CardDescription>
@@ -182,7 +182,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
         </Card>
 
         {/* Payment Methods Pie */}
-        <Card className="shadow-lg border-indigo-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl">
+        <Card className="shadow-lg border-indigo-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
           <CardHeader className="bg-gradient-to-r from-indigo-500/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
             <CardTitle className="text-xl font-bold tracking-tight text-foreground">Payment Methods</CardTitle>
             <CardDescription>Online vs Cash collection.</CardDescription>
@@ -218,7 +218,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
         </Card>
 
         {/* Document Performance Bar Chart */}
-        <Card className="lg:col-span-3 shadow-lg border-emerald-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl">
+        <Card className="lg:col-span-3 shadow-lg border-emerald-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
           <CardHeader className="bg-gradient-to-r from-emerald-500/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
             <CardTitle className="text-xl font-bold tracking-tight text-foreground">Revenue by Document Type</CardTitle>
             <CardDescription>Which documents generate the most value.</CardDescription>

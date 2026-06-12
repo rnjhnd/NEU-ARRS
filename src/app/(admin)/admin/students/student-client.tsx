@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { User, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -72,7 +72,7 @@ export function StudentClient({
         </div>
       </div>
 
-      <Card className="shadow-lg border-purple-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl">
+      <Card className="shadow-lg border-purple-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
         <CardHeader className="bg-gradient-to-r from-purple-500/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
           <CardTitle className="text-xl font-bold tracking-tight text-foreground">Registered Students</CardTitle>
           <CardDescription>A complete list of students who have signed up via the portal.</CardDescription>
@@ -137,38 +137,38 @@ export function StudentClient({
               </TableBody>
             </Table>
           </div>
-          {/* Pagination Footer */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-border/50 px-8 py-4 bg-muted/5">
-              <span className="text-sm font-medium text-muted-foreground">
-                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredUsers.length)} of {filteredUsers.length} students
-              </span>
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="rounded-full border-border/50 hover:bg-background"
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                >
-                  Previous
-                </Button>
-                <div className="text-sm font-semibold text-foreground px-2">
-                  Page {currentPage} of {totalPages}
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="rounded-full border-border/50 hover:bg-background"
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-          )}
         </CardContent>
+        {/* Pagination Footer */}
+        {totalPages > 1 && (
+          <CardFooter className="flex items-center justify-between border-t border-border/50 px-8 py-4 bg-muted/5">
+            <span className="text-sm font-medium text-muted-foreground">
+              Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredUsers.length)} of {filteredUsers.length} students
+            </span>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="rounded-full border-border/50 hover:bg-background"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <div className="text-sm font-semibold text-foreground px-2">
+                Page {currentPage} of {totalPages}
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="rounded-full border-border/50 hover:bg-background"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </CardFooter>
+        )}
       </Card>
     </div>
   );
