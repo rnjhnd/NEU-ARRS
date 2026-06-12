@@ -63,7 +63,7 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
         
         {/* Document Type Section */}
         <div className="space-y-8">
-          <label className="text-base font-bold tracking-tight">1. Document Type <span className="text-red-500">*</span></label>
+          <label className="block text-base font-bold tracking-tight">1. Document Type <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {documentConfigs.map((doc) => (
               <motion.div
@@ -105,7 +105,7 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
 
         {/* Purpose Section */}
         <div className="space-y-8 pt-10 border-t border-border/50">
-          <label className="text-base font-bold tracking-tight">2. Purpose of Request <span className="text-red-500">*</span></label>
+          <label className="block text-base font-bold tracking-tight">2. Purpose of Request <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {PurposeOptions.map((opt) => (
               <motion.div
@@ -127,7 +127,7 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
 
         {/* Payment Method Section */}
         <div className="space-y-8 pt-10 border-t border-border/50">
-          <label className="text-base font-bold tracking-tight">3. Payment Method <span className="text-red-500">*</span></label>
+          <label className="block text-base font-bold tracking-tight">3. Payment Method <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <motion.div
               whileHover={{ scale: 1.01 }}
