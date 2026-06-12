@@ -58,7 +58,7 @@ export function ProfileMenu() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="relative h-8 w-8 rounded-full shadow-sm ring-2 ring-primary focus:outline-none active:scale-95 transition-all">
+      <DropdownMenuTrigger className="relative h-8 w-8 rounded-full shadow-sm ring-2 ring-primary/50 ring-offset-2 ring-offset-background hover:ring-primary focus:outline-none active:scale-95 transition-all">
           <Avatar className="h-full w-full">
             <AvatarImage src={displayUser.imageUrl} alt={name} />
             <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
@@ -75,7 +75,7 @@ export function ProfileMenu() {
         <DropdownMenuGroup>
           <DropdownMenuLabel className="font-normal p-2">
             <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10 shadow-sm border border-border/30">
+              <Avatar className="h-10 w-10 shadow-sm ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
                 <AvatarImage src={displayUser.imageUrl} alt={name} />
                 <AvatarFallback className="bg-primary/10 text-primary font-bold">
                   {fallbackInitials}

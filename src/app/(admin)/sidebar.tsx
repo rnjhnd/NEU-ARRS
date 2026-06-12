@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import { ProfileMenu } from "@/components/profile-menu";
 import { FileBadge, LayoutDashboard, Settings, ChevronLeft, ChevronRight, Users, PieChart, FileText } from "lucide-react";
 import Link from "next/link";
@@ -12,6 +13,10 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
+  const { user } = useUser();
+  
+  const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Administrator";
+  const role = user?.publicMetadata?.role === "admin" ? "Administrator" : "Registrar Office";
 
   return (
     <motion.aside 
@@ -125,8 +130,8 @@ export function Sidebar() {
           <ProfileMenu />
           {!isCollapsed && (
             <div className="flex flex-col whitespace-nowrap overflow-hidden">
-              <span className="text-sm font-semibold truncate">Administrator</span>
-              <span className="text-xs text-muted-foreground truncate">Registrar Office</span>
+              <span className="text-sm font-semibold text-foreground truncate">{name}</span>
+              <span className="text-xs text-primary font-medium uppercase tracking-wide truncate">{role}</span>
             </div>
           )}
         </div>
