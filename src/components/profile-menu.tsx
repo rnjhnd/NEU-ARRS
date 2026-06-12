@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef, useState } from "react";
+
 import { useUser, useClerk } from "@clerk/nextjs";
 import { LogOut, LifeBuoy } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,19 +21,29 @@ export function ProfileMenu() {
   const { user, isLoaded } = useUser();
   const { signOut } = useClerk();
   const router = useRouter();
+  
+  // Cache user to prevent UI flickering/empty circles during sign out
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const cachedUser = useRef<any>(null);
+  
+  if (user) {
+    cachedUser.current = user;
+  }
+  
+  const displayUser = user || cachedUser.current;
 
-  if (!isLoaded) {
+  if (!isLoaded && !displayUser) {
     return <Skeleton className="h-8 w-8 rounded-full" />;
   }
 
-  if (!user) {
+  if (!displayUser) {
     return null;
   }
 
-  const role = user.publicMetadata?.role as string | undefined;
+  const role = displayUser.publicMetadata?.role as string | undefined;
   const isAdmin = role === "admin";
-  const name = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User";
-  const email = user.primaryEmailAddress?.emailAddress || "";
+  const name = `${displayUser.firstName || ""} ${displayUser.lastName || ""}`.trim() || "User";
+  const email = displayUser.primaryEmailAddress?.emailAddress || "";
   const fallbackInitials = name
     .split(" ")
     .map((n) => n[0])
@@ -39,15 +51,16 @@ export function ProfileMenu() {
     .substring(0, 2)
     .toUpperCase();
 
-  const handleSignOut = () => {
-    signOut({ redirectUrl: "/" });
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    await signOut({ redirectUrl: "/" });
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="relative h-8 w-8 rounded-full shadow-sm ring-2 ring-primary focus:outline-none active:scale-95 transition-all">
           <Avatar className="h-full w-full">
-            <AvatarImage src={user.imageUrl} alt={name} />
+            <AvatarImage src={displayUser.imageUrl} alt={name} />
             <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
               {fallbackInitials}
             </AvatarFallback>
@@ -63,7 +76,7 @@ export function ProfileMenu() {
           <DropdownMenuLabel className="font-normal p-2">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 shadow-sm border border-border/30">
-                <AvatarImage src={user.imageUrl} alt={name} />
+                <AvatarImage src={displayUser.imageUrl} alt={name} />
                 <AvatarFallback className="bg-primary/10 text-primary font-bold">
                   {fallbackInitials}
                 </AvatarFallback>
