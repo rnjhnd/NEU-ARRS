@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, Library, LayoutDashboard, Settings, Users, PieChart, FileText } from "lucide-react";
+import { Menu, X, FileBadge, LayoutDashboard, Settings, Users, PieChart, FileText } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ProfileMenu } from "@/components/profile-menu";
@@ -38,7 +38,7 @@ export function MobileNav() {
             >
               <div className="flex h-16 items-center justify-between px-6 border-b">
                 <Link href="/admin" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
-                  <Library className="h-6 w-6 text-primary" />
+                  <FileBadge className="h-6 w-6 text-primary" />
                   <span className="font-bold text-xl tracking-tight ml-2">
                     NEU <span className="font-normal text-muted-foreground">ARRS</span>
                   </span>

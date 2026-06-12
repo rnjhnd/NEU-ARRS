@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Library, ArrowRight, ShieldCheck, Zap, Clock } from "lucide-react";
+import { FileBadge, ArrowRight, ShieldCheck, Zap, Clock } from "lucide-react";
 
 export default async function Home() {
   const { userId, sessionClaims } = await auth();
@@ -23,7 +23,7 @@ export default async function Home() {
       {/* Header */}
       <header className="absolute top-0 w-full flex h-20 items-center justify-between px-6 md:px-12 z-50">
         <div className="flex items-center gap-2">
-          <Library className="h-8 w-8 text-primary" />
+          <FileBadge className="h-8 w-8 text-primary" />
           <span className="text-xl font-bold tracking-tight">
             NEU <span className="font-normal text-muted-foreground">ARRS</span>
           </span>
