@@ -23,7 +23,7 @@ export function Sidebar() {
       <Button
         variant="outline"
         size="icon"
-        className="absolute -right-4 top-[22px] h-8 w-8 rounded-full border bg-background shadow-sm z-50 hover:bg-muted"
+        className="absolute -right-4 top-[22px] h-8 w-8 rounded-full border bg-card dark:bg-muted shadow-sm z-50 hover:bg-muted dark:hover:bg-muted/80"
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
