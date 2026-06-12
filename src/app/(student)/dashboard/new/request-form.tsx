@@ -62,7 +62,7 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
       <div className="lg:col-span-2 space-y-8 bg-background/70 backdrop-blur-xl border border-primary/10 rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)]">
         
         {/* Document Type Section */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           <label className="text-base font-bold tracking-tight">1. Document Type <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {documentConfigs.map((doc) => (
@@ -104,7 +104,7 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
         </div>
 
         {/* Purpose Section */}
-        <div className="space-y-6 pt-8 border-t border-border/50">
+        <div className="space-y-8 pt-10 border-t border-border/50">
           <label className="text-base font-bold tracking-tight">2. Purpose of Request <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {PurposeOptions.map((opt) => (
@@ -126,7 +126,7 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
         </div>
 
         {/* Payment Method Section */}
-        <div className="space-y-6 pt-8 border-t border-border/50">
+        <div className="space-y-8 pt-10 border-t border-border/50">
           <label className="text-base font-bold tracking-tight">3. Payment Method <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <motion.div
