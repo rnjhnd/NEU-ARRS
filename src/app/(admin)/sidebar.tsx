@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ProfileMenu } from "@/components/profile-menu";
-import { GraduationCap, LayoutDashboard, Settings, ChevronLeft, ChevronRight, Users, PieChart, FileText } from "lucide-react";
+import { Library, LayoutDashboard, Settings, ChevronLeft, ChevronRight, Users, PieChart, FileText } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -31,7 +31,7 @@ export function Sidebar() {
 
       <div className="flex pt-6 pb-4 items-start px-6 border-b overflow-hidden whitespace-nowrap">
         <Link href="/admin" className="flex items-center gap-2">
-          <GraduationCap className="h-6 w-6 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+          <Library className="h-6 w-6 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
           {!isCollapsed && (
             <motion.span 
               initial={{ opacity: 0 }}

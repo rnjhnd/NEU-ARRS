@@ -1,7 +1,7 @@
 "use client";
 
 import { useSignUp, useClerk } from "@clerk/nextjs";
-import { GraduationCap, ArrowLeft, Loader2, KeyRound, Mail, User, ShieldCheck, Zap, Clock } from "lucide-react";
+import { Library, ArrowLeft, Loader2, KeyRound, Mail, User, ShieldCheck, Zap, Clock } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -121,7 +121,7 @@ export default function SignUpPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-[#34d399]/30 via-[#0A5C36]/0 to-[#042F1A]/90 animate-pulse" style={{ animationDuration: '5s' }}></div>
         
         <Link href="/" className="flex items-center gap-2 z-10 w-fit hover:opacity-80 transition-opacity">
-          <GraduationCap className="h-10 w-10 text-white" />
+          <Library className="h-10 w-10 text-white" />
           <span className="text-2xl font-bold tracking-tight text-white drop-shadow-md">
             NEU <span className="font-normal text-emerald-100">ARRS</span>
           </span>
