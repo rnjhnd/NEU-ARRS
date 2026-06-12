@@ -42,6 +42,8 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
     });
   };
 
+  const sortedConfigs = [...configs].sort((a, b) => a.label.localeCompare(b.label));
+
   const handleSave = async (id: string) => {
     setIsSubmitting(true);
     const formData = new FormData();
@@ -159,14 +161,14 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                               </div>
                             </SelectValue>
                           </SelectTrigger>
-                          <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95">
-                            <SelectItem value="true" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
+                          <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[130px] p-1">
+                            <SelectItem value="true" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
                               <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-primary" />
                                 Active
                               </div>
                             </SelectItem>
-                            <SelectItem value="false" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
+                            <SelectItem value="false" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
                               <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-gold" />
                                 Inactive
@@ -181,6 +183,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
                             <Input 
                               type="number"
+                              min="0"
                               value={editForm.price} 
                               onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
                               className="h-9 pl-7 pr-3 bg-background border-border/50 rounded-lg text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -200,7 +203,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                       </TableCell>
                     </motion.tr>
                   )}
-                  {configs.map((config) => {
+                  {sortedConfigs.map((config) => {
                     const isEditing = editingId === config.id;
                     return (
                       <motion.tr 
@@ -218,7 +221,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             />
                           ) : (
                             <div className="flex items-center gap-2">
-                              <FileText className="w-4 h-4 text-gold" />
+                              <FileText className="w-4 h-4 text-amber-600" />
                               <span className="font-bold text-foreground">{config.label}</span>
                             </div>
                           )}
@@ -240,21 +243,21 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                               <SelectTrigger className="h-9 w-[130px] rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors">
                                 <SelectValue placeholder="Status">
                                   <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-primary" : "bg-gold"}`} />
+                                    <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-primary" : "bg-amber-500"}`} />
                                     {editForm.isActive === "true" ? "Active" : "Inactive"}
                                   </div>
                                 </SelectValue>
                               </SelectTrigger>
-                              <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95">
-                                <SelectItem value="true" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
+                              <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[130px] p-1">
+                                <SelectItem value="true" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
                                   <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-primary" />
                                     Active
                                   </div>
                                 </SelectItem>
-                                <SelectItem value="false" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
+                                <SelectItem value="false" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
                                   <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-gold" />
+                                    <div className="w-2 h-2 rounded-full bg-amber-500" />
                                     Inactive
                                   </div>
                                 </SelectItem>
@@ -266,7 +269,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                                 Active
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gold/10 text-gold">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-gold/10 dark:text-gold">
                                 Inactive
                               </span>
                             )
@@ -279,6 +282,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₱</span>
                                 <Input 
                                   type="number"
+                                  min="0"
                                   value={editForm.price} 
                                   onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
                                   className="h-9 pl-7 pr-3 bg-background border-border/50 rounded-lg text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
