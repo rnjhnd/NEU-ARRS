@@ -75,7 +75,7 @@ export function ProfileMenu() {
         <DropdownMenuGroup>
           <DropdownMenuLabel className="font-normal p-2">
             <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10 shadow-sm ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+              <Avatar className="h-10 w-10 shadow-sm ring-2 ring-primary/50 ring-offset-2 ring-offset-background">
                 <AvatarImage src={displayUser.imageUrl} alt={name} />
                 <AvatarFallback className="bg-primary/10 text-primary font-bold">
                   {fallbackInitials}
@@ -86,7 +86,7 @@ export function ProfileMenu() {
                 <p className="text-[11px] font-medium leading-none text-primary uppercase tracking-wide">
                   {isAdmin ? "Administrator" : "Student"}
                 </p>
-                <p className="text-xs text-muted-foreground truncate max-w-[150px]">{email}</p>
+                <p className="text-xs text-muted-foreground truncate max-w-[150px]" title={email}>{email}</p>
               </div>
             </div>
           </DropdownMenuLabel>
