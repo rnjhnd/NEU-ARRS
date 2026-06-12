@@ -203,19 +203,16 @@ export function RequestList({ requests }: { requests: Request[] }) {
                     </motion.tr>
                     <AnimatePresence>
                       {expandedId === req.id && (
-                        <motion.tr
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="bg-primary/5 overflow-hidden border-b border-border/50"
-                        >
+                        <tr>
                           <TableCell colSpan={6} className="p-0 border-0">
                             <motion.div 
-                              initial={{ opacity: 0, y: -10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -10 }}
-                              className="px-6 py-4"
+                              initial={{ opacity: 0, height: 0, y: -10 }}
+                              animate={{ opacity: 1, height: "auto", y: 0 }}
+                              exit={{ opacity: 0, height: 0, y: -10 }}
+                              transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
+                              className="bg-primary/5 overflow-hidden border-b border-border/50"
                             >
+                              <div className="px-6 py-4">
                               <RequestTracker status={req.status} cancelReason={req.cancelReason} />
                               {(req.status === "PENDING" || req.status === "PENDING_PAYMENT") && (
                                 <div className="flex justify-end mt-2 pr-2">
@@ -234,9 +231,10 @@ export function RequestList({ requests }: { requests: Request[] }) {
                                   </Button>
                                 </div>
                               )}
+                              </div>
                             </motion.div>
                           </TableCell>
-                        </motion.tr>
+                        </tr>
                       )}
                     </AnimatePresence>
                   </React.Fragment>
