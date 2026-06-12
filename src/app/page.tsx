@@ -50,7 +50,7 @@ export default async function Home() {
           
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-foreground leading-[1.1]">
             Official Documents, <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold">
               Delivered Faster.
             </span>
           </h1>
