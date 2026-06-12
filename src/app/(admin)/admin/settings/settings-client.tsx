@@ -91,7 +91,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="w-full text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                className="w-full text-primary border-primary/20 hover:bg-primary/5"
                 onClick={() => setIsEmailModalOpen(true)}
               >
                 Edit Templates
@@ -155,7 +155,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
                       </TableCell>
                       <TableCell>
                         {user.isAdmin ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary">
                             Administrator
                           </span>
                         ) : (
@@ -214,7 +214,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
                   onClick={() => setActiveTab(status.id)}
                   className={`w-full text-left px-4 py-3 text-sm transition-colors ${
                     activeTab === status.id 
-                      ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 font-medium border-l-4 border-indigo-600' 
+                      ? 'bg-indigo-50 dark:bg-indigo-900/20 text-primary dark:text-indigo-400 font-medium border-l-4 border-primary' 
                       : 'text-muted-foreground hover:bg-muted/50 border-l-4 border-transparent'
                   }`}
                 >

@@ -59,7 +59,7 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
     <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
       
       {/* Left Column: Form Fields */}
-      <div className="lg:col-span-2 space-y-8 bg-background/70 backdrop-blur-xl border border-emerald-500/10 rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)]">
+      <div className="lg:col-span-2 space-y-8 bg-background/70 backdrop-blur-xl border border-primary/10 rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)]">
         
         {/* Document Type Section */}
         <div className="space-y-4">
@@ -73,27 +73,27 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
                 onClick={() => setDocumentType(doc.typeId as DocumentType)}
                 className={`relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 ${
                   documentType === doc.typeId 
-                    ? "border-emerald-500 bg-emerald-500/5 ring-1 ring-emerald-500 shadow-md" 
-                    : "border-border/50 bg-background hover:bg-emerald-500/5 hover:border-emerald-500/30"
+                    ? "border-primary bg-primary/5 ring-1 ring-primary shadow-md" 
+                    : "border-border/50 bg-background hover:bg-primary/5 hover:border-primary/30"
                 }`}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-4">
-                    <div className={`p-2.5 rounded-xl ${documentType === doc.typeId ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+                    <div className={`p-2.5 rounded-xl ${documentType === doc.typeId ? "bg-primary/20 text-primary dark:text-primary" : "bg-muted text-muted-foreground"}`}>
                       <FileText className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className={`font-bold text-sm ${documentType === doc.typeId ? "text-emerald-700 dark:text-emerald-400" : "text-foreground"}`}>
+                      <h4 className={`font-bold text-sm ${documentType === doc.typeId ? "text-primary dark:text-primary" : "text-foreground"}`}>
                         {doc.label}
                       </h4>
                       <p className="text-xs text-muted-foreground mt-0.5 mb-1.5">{doc.description}</p>
-                      <span className={`text-sm font-extrabold ${documentType === doc.typeId ? "text-emerald-700 dark:text-emerald-400" : "text-foreground"}`}>
+                      <span className={`text-sm font-extrabold ${documentType === doc.typeId ? "text-primary dark:text-primary" : "text-foreground"}`}>
                         ₱{(doc.price / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}
                       </span>
                     </div>
                   </div>
                   {documentType === doc.typeId && (
-                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-emerald-600 dark:text-emerald-400">
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-primary dark:text-primary">
                       <Check className="w-5 h-5" />
                     </motion.div>
                   )}
@@ -115,8 +115,8 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
                 onClick={() => setPurpose(opt.id as Purpose)}
                 className={`cursor-pointer rounded-xl border px-4 py-3 text-center text-sm font-semibold transition-all duration-300 ${
                   purpose === opt.id 
-                    ? "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500 shadow-sm" 
-                    : "border-border/50 bg-background hover:bg-emerald-500/5 hover:border-emerald-500/30"
+                    ? "border-primary bg-primary/10 text-primary dark:text-primary ring-1 ring-primary shadow-sm" 
+                    : "border-border/50 bg-background hover:bg-primary/5 hover:border-primary/30"
                 }`}
               >
                 {opt.label}
@@ -135,23 +135,23 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
               onClick={() => setPaymentMethod("online")}
               className={`relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 ${
                 paymentMethod === "online" 
-                  ? "border-emerald-500 bg-emerald-500/5 ring-1 ring-emerald-500 shadow-md" 
-                  : "border-border/50 bg-background hover:bg-emerald-500/5 hover:border-emerald-500/30"
+                  ? "border-primary bg-primary/5 ring-1 ring-primary shadow-md" 
+                  : "border-border/50 bg-background hover:bg-primary/5 hover:border-primary/30"
               }`}
             >
               <div className="flex items-center gap-4">
-                <div className={`p-2.5 rounded-xl ${paymentMethod === "online" ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+                <div className={`p-2.5 rounded-xl ${paymentMethod === "online" ? "bg-primary/20 text-primary dark:text-primary" : "bg-muted text-muted-foreground"}`}>
                   <CreditCard className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className={`font-bold text-sm ${paymentMethod === "online" ? "text-emerald-700 dark:text-emerald-400" : "text-foreground"}`}>
+                  <h4 className={`font-bold text-sm ${paymentMethod === "online" ? "text-primary dark:text-primary" : "text-foreground"}`}>
                     Online Payment
                   </h4>
                   <p className="text-xs text-muted-foreground mt-0.5">GCash, Maya, or Credit Card via PayMongo</p>
                 </div>
               </div>
               {paymentMethod === "online" && (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-emerald-600 dark:text-emerald-400">
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-primary dark:text-primary">
                   <Check className="w-5 h-5" />
                 </motion.div>
               )}
@@ -163,23 +163,23 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
               onClick={() => setPaymentMethod("cash")}
               className={`relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 ${
                 paymentMethod === "cash" 
-                  ? "border-emerald-500 bg-emerald-500/5 ring-1 ring-emerald-500 shadow-md" 
-                  : "border-border/50 bg-background hover:bg-emerald-500/5 hover:border-emerald-500/30"
+                  ? "border-primary bg-primary/5 ring-1 ring-primary shadow-md" 
+                  : "border-border/50 bg-background hover:bg-primary/5 hover:border-primary/30"
               }`}
             >
               <div className="flex items-center gap-4">
-                <div className={`p-2.5 rounded-xl ${paymentMethod === "cash" ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+                <div className={`p-2.5 rounded-xl ${paymentMethod === "cash" ? "bg-primary/20 text-primary dark:text-primary" : "bg-muted text-muted-foreground"}`}>
                   <Landmark className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className={`font-bold text-sm ${paymentMethod === "cash" ? "text-emerald-700 dark:text-emerald-400" : "text-foreground"}`}>
+                  <h4 className={`font-bold text-sm ${paymentMethod === "cash" ? "text-primary dark:text-primary" : "text-foreground"}`}>
                     Cash at Window
                   </h4>
                   <p className="text-xs text-muted-foreground mt-0.5">Pay in person at the Registrar office</p>
                 </div>
               </div>
               {paymentMethod === "cash" && (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-emerald-600 dark:text-emerald-400">
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-primary dark:text-primary">
                   <Check className="w-5 h-5" />
                 </motion.div>
               )}
@@ -191,8 +191,8 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
 
       {/* Right Column: Sticky Order Summary */}
       <div className="lg:col-span-1 lg:sticky lg:top-24 space-y-6">
-        <div className="bg-background/70 backdrop-blur-xl border border-emerald-500/20 rounded-3xl p-6 shadow-lg relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+        <div className="bg-background/70 backdrop-blur-xl border border-primary/20 rounded-3xl p-6 shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
           
           <h4 className="font-extrabold text-lg mb-6 tracking-tight">Order Summary</h4>
           
@@ -216,7 +216,7 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
               
               <div className="border-t border-border/50 pt-4 mt-4 flex justify-between items-center">
                 <span className="font-extrabold text-base">Total Due</span>
-                <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                <span className="text-2xl font-black text-primary dark:text-primary">
                   ₱{((documentConfigs.find(d => d.typeId === documentType)?.price || 0) / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}
                 </span>
               </div>
@@ -233,7 +233,7 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
             type="submit" 
             size="lg"
             disabled={isSubmitting || !documentType || !purpose || !paymentMethod}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] rounded-2xl h-14 text-lg font-bold"
+            className="w-full bg-primary hover:bg-primary/90 text-white shadow-[0_4px_20px_rgba(10,92,54,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] rounded-2xl h-14 text-lg font-bold"
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">

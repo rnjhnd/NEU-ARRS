@@ -193,7 +193,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                           <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-red-500/10 hover:text-red-500" onClick={() => setEditingId(null)} disabled={isSubmitting}>
                             <X className="w-4 h-4" />
                           </Button>
-                          <Button variant="default" size="icon" className="h-8 w-8 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleSave("new")} disabled={isSubmitting}>
+                          <Button variant="default" size="icon" className="h-8 w-8 rounded-full bg-primary hover:bg-primary/90 text-white" onClick={() => handleSave("new")} disabled={isSubmitting}>
                             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                           </Button>
                         </div>
@@ -218,7 +218,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             />
                           ) : (
                             <div className="flex items-center gap-2">
-                              <FileText className="w-4 h-4 text-amber-600" />
+                              <FileText className="w-4 h-4 text-primary" />
                               <span className="font-bold text-foreground">{config.label}</span>
                             </div>
                           )}
@@ -262,7 +262,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             </Select>
                           ) : (
                             config.isActive ? (
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-emerald-700 dark:text-primary">
                                 Active
                               </span>
                             ) : (
@@ -297,12 +297,12 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-red-500/10 hover:text-red-500" onClick={() => setEditingId(null)} disabled={isSubmitting}>
                                 <X className="w-4 h-4" />
                               </Button>
-                              <Button variant="default" size="icon" className="h-8 w-8 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => handleSave(config.id)} disabled={isSubmitting}>
+                              <Button variant="default" size="icon" className="h-8 w-8 rounded-full bg-primary hover:bg-primary/90 text-white" onClick={() => handleSave(config.id)} disabled={isSubmitting}>
                                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                               </Button>
                             </div>
                           ) : (
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-amber-500/10 hover:text-amber-600 transition-colors" onClick={() => startEdit(config)}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => startEdit(config)}>
                               <Edit2 className="w-4 h-4" />
                             </Button>
                           )}

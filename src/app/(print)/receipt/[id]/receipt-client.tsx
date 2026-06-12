@@ -120,7 +120,7 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
             </div>
             <div className="flex justify-between items-center pt-3 border-t border-slate-200">
               <span className="font-black text-lg text-slate-900 uppercase tracking-wide">Total Paid</span>
-              <span className="font-black text-xl font-mono text-emerald-600">{priceFormatted}</span>
+              <span className="font-black text-xl font-mono text-primary">{priceFormatted}</span>
             </div>
           </div>
         </div>

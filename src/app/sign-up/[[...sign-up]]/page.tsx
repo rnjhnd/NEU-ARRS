@@ -123,50 +123,50 @@ export default function SignUpPage() {
         <Link href="/" className="flex items-center gap-2 z-10 w-fit hover:opacity-80 transition-opacity">
           <FileBadge className="h-10 w-10 text-white" />
           <span className="text-2xl font-bold tracking-tight text-white drop-shadow-md">
-            NEU <span className="font-normal text-emerald-100">ARRS</span>
+            NEU <span className="font-normal text-primary-foreground">ARRS</span>
           </span>
         </Link>
 
         <div className="z-10 max-w-md space-y-6">
           <div className="space-y-3">
             <h1 className="text-5xl font-extrabold tracking-tight text-white drop-shadow-sm leading-tight">Join the portal.</h1>
-            <p className="text-lg text-emerald-50/90 leading-relaxed font-medium">
+            <p className="text-lg text-primary-foreground/90 leading-relaxed font-medium">
               Create an account to request your official academic documents in seconds.
             </p>
           </div>
           
           <div className="grid gap-6 pt-8">
             <div className="flex items-start gap-4">
-              <div className="p-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-emerald-300">
+              <div className="p-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-primary-foreground/80">
                 <Zap className="h-6 w-6" />
               </div>
               <div>
                 <h3 className="font-bold text-white text-lg tracking-wide">Lightning Fast</h3>
-                <p className="text-emerald-100/80 font-medium">Skip the line and request your documents online instantly.</p>
+                <p className="text-primary-foreground/80 font-medium">Skip the line and request your documents online instantly.</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
-              <div className="p-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-emerald-300">
+              <div className="p-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-primary-foreground/80">
                 <ShieldCheck className="h-6 w-6" />
               </div>
               <div>
                 <h3 className="font-bold text-white text-lg tracking-wide">100% Secure</h3>
-                <p className="text-emerald-100/80 font-medium">Enterprise-grade security protecting your academic records.</p>
+                <p className="text-primary-foreground/80 font-medium">Enterprise-grade security protecting your academic records.</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
-              <div className="p-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-emerald-300">
+              <div className="p-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-primary-foreground/80">
                 <Clock className="h-6 w-6" />
               </div>
               <div>
                 <h3 className="font-bold text-white text-lg tracking-wide">24/7 Access</h3>
-                <p className="text-emerald-100/80 font-medium">Request documents anytime, anywhere, on any device.</p>
+                <p className="text-primary-foreground/80 font-medium">Request documents anytime, anywhere, on any device.</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="z-10 text-sm font-medium text-emerald-200/80">
+        <div className="z-10 text-sm font-medium text-primary-foreground/80">
           &copy; {new Date().getFullYear()} NEU Automated Registrar Request System
         </div>
       </div>

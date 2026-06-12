@@ -7,8 +7,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="flex h-screen w-full bg-slate-50/50 dark:bg-background overflow-hidden relative">
       {/* Animated Background Gradients */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-500/10 via-background to-background animate-pulse" style={{ animationDuration: '8s' }}></div>
-        <div className="absolute -top-[500px] -right-[500px] w-[1000px] h-[1000px] rounded-full bg-emerald-500/5 blur-[120px] opacity-50"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background animate-pulse" style={{ animationDuration: '8s' }}></div>
+        <div className="absolute -top-[500px] -right-[500px] w-[1000px] h-[1000px] rounded-full bg-primary/5 blur-[120px] opacity-50"></div>
         <div className="absolute -bottom-[500px] -left-[500px] w-[1000px] h-[1000px] rounded-full bg-primary/5 blur-[120px] opacity-50"></div>
       </div>
 
@@ -19,11 +19,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="flex-1 flex flex-col min-w-0 h-full">
           {/* Mobile Header (Hidden on Desktop) */}
           <div className="md:hidden p-4 pb-0">
-            <header className="flex h-14 shrink-0 items-center justify-between px-4 rounded-xl bg-background/60 backdrop-blur-xl border border-emerald-500/10 shadow-sm supports-[backdrop-filter]:bg-background/40">
+            <header className="flex h-14 shrink-0 items-center justify-between px-4 rounded-xl bg-background/60 backdrop-blur-xl border border-primary/10 shadow-sm supports-[backdrop-filter]:bg-background/40">
               <div className="flex items-center gap-3">
                 <MobileNav />
                 <span className="font-bold text-xl tracking-tight ml-2">
-                  NEU <span className="font-medium text-emerald-600 dark:text-emerald-400">ARRS</span>
+                  NEU <span className="font-medium text-primary dark:text-primary">ARRS</span>
                 </span>
               </div>
               <ThemeToggle />

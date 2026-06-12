@@ -9,7 +9,7 @@ import {
 import { format, subDays, isAfter } from "date-fns";
 import { DollarSign, CreditCard, Banknote, TrendingUp } from "lucide-react";
 
-const COLORS = ['#10b981', '#3b82f6', '#6366f1', '#8b5cf6'];
+const COLORS = ['#0A5C36', '#FCD116', '#2E8555', '#043920'];
 
 export function FinanceClient({ requests }: { requests: Request[] }) {
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -104,7 +104,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
               <h3 className="text-2xl font-bold mt-1">₱{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
-            <div className="p-3 bg-emerald-500/10 text-emerald-600 rounded-xl">
+            <div className="p-3 bg-primary/10 text-primary rounded-xl">
               <DollarSign className="w-6 h-6" />
             </div>
           </CardContent>
@@ -116,7 +116,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <p className="text-sm font-medium text-muted-foreground">Online Payments</p>
               <h3 className="text-2xl font-bold mt-1">₱{onlineRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
-            <div className="p-3 bg-blue-500/10 text-blue-600 rounded-xl">
+            <div className="p-3 bg-primary/10 text-primary rounded-xl">
               <CreditCard className="w-6 h-6" />
             </div>
           </CardContent>
@@ -128,7 +128,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <p className="text-sm font-medium text-muted-foreground">Cash on Pickup</p>
               <h3 className="text-2xl font-bold mt-1">₱{cashRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
-            <div className="p-3 bg-amber-500/10 text-amber-600 rounded-xl">
+            <div className="p-3 bg-primary/10 text-primary rounded-xl">
               <Banknote className="w-6 h-6" />
             </div>
           </CardContent>
@@ -140,7 +140,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <p className="text-sm font-medium text-muted-foreground">Total Paid Requests</p>
               <h3 className="text-2xl font-bold mt-1">{requests.filter(isCompletedOrPaid).length}</h3>
             </div>
-            <div className="p-3 bg-indigo-500/10 text-indigo-600 rounded-xl">
+            <div className="p-3 bg-primary/10 text-primary rounded-xl">
               <TrendingUp className="w-6 h-6" />
             </div>
           </CardContent>
@@ -149,8 +149,8 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Revenue Trends */}
-        <Card className="lg:col-span-2 shadow-lg border-blue-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
-          <CardHeader className="bg-gradient-to-r from-blue-500/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
+        <Card className="lg:col-span-2 shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
+          <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
             <CardTitle className="text-xl font-bold tracking-tight text-foreground">7-Day Revenue Trend</CardTitle>
             <CardDescription>Daily revenue from both online and cash payments.</CardDescription>
           </CardHeader>
@@ -171,7 +171,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                 <Line 
                   type="monotone" 
                   dataKey="revenue" 
-                  stroke="#3b82f6" 
+                  stroke="#0A5C36" 
                   strokeWidth={3}
                   dot={{ r: 4, strokeWidth: 2 }}
                   activeDot={{ r: 6, strokeWidth: 0 }}
@@ -182,8 +182,8 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
         </Card>
 
         {/* Payment Methods Pie */}
-        <Card className="shadow-lg border-indigo-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
-          <CardHeader className="bg-gradient-to-r from-indigo-500/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
+        <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
+          <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
             <CardTitle className="text-xl font-bold tracking-tight text-foreground">Payment Methods</CardTitle>
             <CardDescription>Online vs Cash collection.</CardDescription>
           </CardHeader>
@@ -218,8 +218,8 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
         </Card>
 
         {/* Document Performance Bar Chart */}
-        <Card className="lg:col-span-3 shadow-lg border-emerald-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
-          <CardHeader className="bg-gradient-to-r from-emerald-500/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
+        <Card className="lg:col-span-3 shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
+          <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
             <CardTitle className="text-xl font-bold tracking-tight text-foreground">Revenue by Document Type</CardTitle>
             <CardDescription>Which documents generate the most value.</CardDescription>
           </CardHeader>
@@ -247,7 +247,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     tickMargin={12}
                   />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: 'currentColor', opacity: 0.05 }} />
-                  <Bar dataKey="revenue" fill="#10b981" radius={[0, 4, 4, 0]} barSize={32}>
+                  <Bar dataKey="revenue" fill="#0A5C36" radius={[0, 4, 4, 0]} barSize={32}>
                     {documentData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}

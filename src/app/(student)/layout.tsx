@@ -8,27 +8,27 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     <div className="relative flex min-h-screen w-full flex-col bg-background overflow-hidden">
       {/* Animated Background Gradients */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-500/10 via-background to-background animate-pulse" style={{ animationDuration: '8s' }}></div>
-        <div className="absolute -top-[500px] -right-[500px] w-[1000px] h-[1000px] rounded-full bg-emerald-500/5 blur-[120px] opacity-50"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background animate-pulse" style={{ animationDuration: '8s' }}></div>
+        <div className="absolute -top-[500px] -right-[500px] w-[1000px] h-[1000px] rounded-full bg-primary/5 blur-[120px] opacity-50"></div>
         <div className="absolute -bottom-[500px] -left-[500px] w-[1000px] h-[1000px] rounded-full bg-primary/5 blur-[120px] opacity-50"></div>
       </div>
 
       {/* Floating Glassmorphic Header */}
       <header className="sticky top-4 z-50 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
-        <div className="relative flex h-16 items-center justify-between px-6 rounded-2xl bg-background/70 backdrop-blur-xl border border-emerald-500/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] transition-all supports-[backdrop-filter]:bg-background/40">
+        <div className="relative flex h-16 items-center justify-between px-6 rounded-2xl bg-background/70 backdrop-blur-xl border border-primary/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] transition-all supports-[backdrop-filter]:bg-background/40">
           <Link href="/dashboard" className="flex items-center gap-2 group transition-all duration-300">
-            <div className="p-2 rounded-xl bg-emerald-500/10 group-hover:bg-emerald-500/20 transition-colors">
-              <FileBadge className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            <div className="p-2 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
+              <FileBadge className="h-5 w-5 text-primary dark:text-primary" />
             </div>
             <span className="font-bold text-xl tracking-tight hidden sm:inline-block">
-              NEU <span className="font-medium text-emerald-600 dark:text-emerald-400">ARRS</span>
+              NEU <span className="font-medium text-primary dark:text-primary">ARRS</span>
             </span>
           </Link>
 
           <nav className="flex items-center gap-4 sm:gap-6">
             <Link 
               href="/dashboard" 
-              className="text-sm font-semibold text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors hidden sm:block"
+              className="text-sm font-semibold text-muted-foreground hover:text-primary dark:hover:text-primary transition-colors hidden sm:block"
             >
               Dashboard
             </Link>

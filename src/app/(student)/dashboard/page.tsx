@@ -40,7 +40,7 @@ export default async function StudentDashboardPage() {
             </p>
           </div>
           <Link href="/dashboard/new" className="shrink-0">
-            <Button size="lg" className="bg-white text-emerald-800 hover:bg-emerald-50 shadow-lg transition-transform hover:scale-105 rounded-full font-bold px-8">
+            <Button size="lg" className="bg-white text-primary hover:bg-emerald-50 shadow-lg transition-transform hover:scale-105 rounded-full font-bold px-8">
               <Plus className="w-5 h-5 mr-2" />
               New Request
             </Button>
@@ -51,7 +51,7 @@ export default async function StudentDashboardPage() {
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         <div className="bg-background/60 backdrop-blur-md rounded-2xl p-6 border border-border/50 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-blue-500/10 text-blue-600 rounded-xl">
+          <div className="p-3 bg-primary/10 text-primary rounded-xl">
             <Clock className="w-6 h-6" />
           </div>
           <div>
@@ -60,7 +60,7 @@ export default async function StudentDashboardPage() {
           </div>
         </div>
         <div className="bg-background/60 backdrop-blur-md rounded-2xl p-6 border border-border/50 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-emerald-500/10 text-emerald-600 rounded-xl">
+          <div className="p-3 bg-primary/10 text-primary rounded-xl">
             <CheckCircle className="w-6 h-6" />
           </div>
           <div>
