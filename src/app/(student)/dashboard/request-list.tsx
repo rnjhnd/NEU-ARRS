@@ -21,17 +21,17 @@ import { Loader2 } from "lucide-react";
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "PENDING": 
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">Pending Docs</span>;
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 dark:bg-gold/10 dark:text-gold border border-yellow-200 dark:border-gold/20">Pending Docs</span>;
     case "PENDING_PAYMENT": 
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 border border-orange-200">Pending Payment</span>;
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 dark:bg-gold/10 dark:text-gold border border-yellow-200 dark:border-gold/20">Pending Payment</span>;
     case "PROCESSING": 
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">Processing</span>;
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">Processing</span>;
     case "READY_FOR_PICKUP": 
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 border border-primary/20">Ready to Pick-up</span>;
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/20 text-primary border border-primary/30">Ready to Pick-up</span>;
     case "COMPLETED": 
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-primary border border-emerald-200">Completed</span>;
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary text-white border border-primary">Completed</span>;
     case "CANCELLED": 
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200">Cancelled</span>;
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800">Cancelled</span>;
     default: 
       return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-800">{status}</span>;
   }
@@ -194,7 +194,7 @@ export function RequestList({ requests }: { requests: Request[] }) {
                               target="_blank" 
                               rel="noreferrer" 
                               onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center gap-1 mt-0.5 text-xs leading-none font-medium text-primary hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline transition-all"
+                              className="inline-flex items-center gap-1 mt-0.5 text-xs leading-none font-medium text-yellow-600 hover:text-yellow-700 dark:text-gold dark:hover:text-gold/80 hover:underline transition-all"
                             >
                               <FileText className="w-3 h-3" />
                               <span>Download Receipt</span>

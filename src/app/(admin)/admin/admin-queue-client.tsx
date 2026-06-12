@@ -118,17 +118,17 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "PENDING": 
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">Pending Docs</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 dark:bg-gold/10 dark:text-gold border border-yellow-200 dark:border-gold/20">Pending Docs</span>;
       case "PENDING_PAYMENT": 
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 border border-orange-200">Pending Payment</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 dark:bg-gold/10 dark:text-gold border border-yellow-200 dark:border-gold/20">Pending Payment</span>;
       case "PROCESSING": 
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">Processing</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">Processing</span>;
       case "READY_FOR_PICKUP": 
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 border border-indigo-200">Ready to Pick-up</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/20 text-primary border border-primary/30">Ready to Pick-up</span>;
       case "COMPLETED": 
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">Completed</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary text-white border border-primary">Completed</span>;
       case "CANCELLED": 
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200">Cancelled</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800">Cancelled</span>;
       default: 
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-800">{status}</span>;
     }
@@ -200,7 +200,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <p className="text-sm font-medium text-muted-foreground">Pending Action</p>
               <h3 className="text-3xl font-bold mt-1 text-foreground">{pendingCount}</h3>
             </div>
-            <div className="p-3 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded-xl">
+            <div className="p-3 bg-yellow-100 text-yellow-700 dark:bg-gold/10 dark:text-gold rounded-xl">
               <Clock className="w-6 h-6" />
             </div>
           </CardContent>
@@ -428,7 +428,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                               href={`/receipt/${req.id}`} 
                               target="_blank" 
                               rel="noreferrer" 
-                              className="inline-flex items-center gap-1 mt-0.5 text-xs leading-none font-medium text-gold hover:text-gold/80 hover:underline transition-all"
+                              className="inline-flex items-center gap-1 mt-0.5 text-xs leading-none font-medium text-yellow-600 hover:text-yellow-700 dark:text-gold dark:hover:text-gold/80 hover:underline transition-all"
                             >
                               <FileText className="w-3 h-3" />
                               <span>View Receipt</span>
