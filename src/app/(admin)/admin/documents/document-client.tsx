@@ -151,7 +151,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                       </TableCell>
                       <TableCell className="py-4">
                         <Select value={editForm.isActive} onValueChange={(v) => setEditForm({...editForm, isActive: v || ""})}>
-                          <SelectTrigger className="h-9 w-[110px] rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors">
+                          <SelectTrigger className="h-9 w-[130px] rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors">
                             <SelectValue placeholder="Status">
                               <div className="flex items-center gap-2">
                                 <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-primary" : "bg-gold"}`} />
@@ -207,7 +207,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         key={config.id}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="border-b border-border/40 hover:bg-primary/50/5 group"
+                        className="border-b border-border/40 hover:bg-primary/5 group"
                       >
                         <TableCell className="pl-8 py-4">
                           {isEditing ? (
@@ -218,7 +218,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             />
                           ) : (
                             <div className="flex items-center gap-2">
-                              <FileText className="w-4 h-4 text-primary" />
+                              <FileText className="w-4 h-4 text-gold" />
                               <span className="font-bold text-foreground">{config.label}</span>
                             </div>
                           )}
@@ -237,7 +237,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         <TableCell className="py-4">
                           {isEditing ? (
                             <Select value={editForm.isActive} onValueChange={(v) => setEditForm({...editForm, isActive: v || ""})}>
-                              <SelectTrigger className="h-9 w-[110px] rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors">
+                              <SelectTrigger className="h-9 w-[130px] rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors">
                                 <SelectValue placeholder="Status">
                                   <div className="flex items-center gap-2">
                                     <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-primary" : "bg-gold"}`} />
@@ -266,7 +266,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                                 Active
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-500/10 text-slate-700 dark:text-slate-400">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gold/10 text-gold">
                                 Inactive
                               </span>
                             )
