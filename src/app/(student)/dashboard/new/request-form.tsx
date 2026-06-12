@@ -79,21 +79,21 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
               >
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-4">
-                    <div className={`p-2.5 rounded-xl ${documentType === doc.typeId ? "bg-gold/20 text-gold dark:text-gold" : "bg-muted text-muted-foreground"}`}>
+                    <div className={`p-2.5 rounded-xl ${documentType === doc.typeId ? "bg-primary/20 text-primary dark:text-primary" : "bg-muted text-muted-foreground"}`}>
                       <FileText className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className={`font-bold text-sm ${documentType === doc.typeId ? "text-gold dark:text-gold" : "text-foreground"}`}>
+                      <h4 className={`font-bold text-sm ${documentType === doc.typeId ? "text-primary dark:text-primary" : "text-foreground"}`}>
                         {doc.label}
                       </h4>
                       <p className="text-xs text-muted-foreground mt-0.5 mb-1.5">{doc.description}</p>
-                      <span className={`text-sm font-extrabold ${documentType === doc.typeId ? "text-gold dark:text-gold" : "text-foreground"}`}>
+                      <span className={`text-sm font-extrabold ${documentType === doc.typeId ? "text-primary dark:text-primary" : "text-foreground"}`}>
                         ₱{(doc.price / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}
                       </span>
                     </div>
                   </div>
                   {documentType === doc.typeId && (
-                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-gold dark:text-gold">
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-primary dark:text-primary">
                       <Check className="w-5 h-5" />
                     </motion.div>
                   )}
@@ -115,7 +115,7 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
                 onClick={() => setPurpose(opt.id as Purpose)}
                 className={`cursor-pointer rounded-xl border px-4 py-3 text-center text-sm font-semibold transition-all duration-300 ${
                   purpose === opt.id 
-                    ? "border-primary bg-primary/10 text-gold dark:text-gold ring-1 ring-primary shadow-sm" 
+                    ? "border-primary bg-primary/10 text-primary dark:text-primary ring-1 ring-primary shadow-sm" 
                     : "border-border/50 bg-background hover:bg-primary/5 hover:border-primary/30"
                 }`}
               >
@@ -140,18 +140,18 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
               }`}
             >
               <div className="flex items-center gap-4">
-                <div className={`p-2.5 rounded-xl ${paymentMethod === "online" ? "bg-gold/20 text-gold dark:text-gold" : "bg-muted text-muted-foreground"}`}>
+                <div className={`p-2.5 rounded-xl ${paymentMethod === "online" ? "bg-primary/20 text-primary dark:text-primary" : "bg-muted text-muted-foreground"}`}>
                   <CreditCard className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className={`font-bold text-sm ${paymentMethod === "online" ? "text-gold dark:text-gold" : "text-foreground"}`}>
+                  <h4 className={`font-bold text-sm ${paymentMethod === "online" ? "text-primary dark:text-primary" : "text-foreground"}`}>
                     Online Payment
                   </h4>
                   <p className="text-xs text-muted-foreground mt-0.5">GCash, Maya, or Credit Card via PayMongo</p>
                 </div>
               </div>
               {paymentMethod === "online" && (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-gold dark:text-gold">
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-primary dark:text-primary">
                   <Check className="w-5 h-5" />
                 </motion.div>
               )}
@@ -168,18 +168,18 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
               }`}
             >
               <div className="flex items-center gap-4">
-                <div className={`p-2.5 rounded-xl ${paymentMethod === "cash" ? "bg-gold/20 text-gold dark:text-gold" : "bg-muted text-muted-foreground"}`}>
+                <div className={`p-2.5 rounded-xl ${paymentMethod === "cash" ? "bg-primary/20 text-primary dark:text-primary" : "bg-muted text-muted-foreground"}`}>
                   <Landmark className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className={`font-bold text-sm ${paymentMethod === "cash" ? "text-gold dark:text-gold" : "text-foreground"}`}>
+                  <h4 className={`font-bold text-sm ${paymentMethod === "cash" ? "text-primary dark:text-primary" : "text-foreground"}`}>
                     Cash at Window
                   </h4>
                   <p className="text-xs text-muted-foreground mt-0.5">Pay in person at the Registrar office</p>
                 </div>
               </div>
               {paymentMethod === "cash" && (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-gold dark:text-gold">
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-primary dark:text-primary">
                   <Check className="w-5 h-5" />
                 </motion.div>
               )}
@@ -216,7 +216,7 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
               
               <div className="border-t border-border/50 pt-4 mt-4 flex justify-between items-center">
                 <span className="font-extrabold text-base">Total Due</span>
-                <span className="text-2xl font-black text-gold dark:text-gold">
+                <span className="text-2xl font-black text-primary dark:text-primary">
                   ₱{((documentConfigs.find(d => d.typeId === documentType)?.price || 0) / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}
                 </span>
               </div>

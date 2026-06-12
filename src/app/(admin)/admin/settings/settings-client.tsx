@@ -214,7 +214,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
                   onClick={() => setActiveTab(status.id)}
                   className={`w-full text-left px-4 py-3 text-sm transition-colors ${
                     activeTab === status.id 
-                      ? 'bg-indigo-50 dark:bg-indigo-900/20 text-primary dark:text-indigo-400 font-medium border-l-4 border-primary' 
+                      ? 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary font-medium border-l-4 border-primary' 
                       : 'text-muted-foreground hover:bg-muted/50 border-l-4 border-transparent'
                   }`}
                 >
@@ -231,7 +231,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
               </p>
               
               <textarea 
-                className="flex flex-1 w-full rounded-xl border border-input bg-transparent px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 min-h-[200px] resize-none"
+                className="flex flex-1 w-full rounded-xl border border-input bg-transparent px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[200px] resize-none"
                 placeholder={`E.g., We have started processing your document. Please allow 3-5 business days...`}
                 value={emailTemplates[activeTab] || ""}
                 onChange={(e) => setEmailTemplates({ ...emailTemplates, [activeTab]: e.target.value })}
@@ -241,7 +241,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
           
           <DialogFooter className="p-6 border-t border-border/50 bg-muted/10">
             <Button variant="outline" onClick={() => setIsEmailModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleSaveEmailTemplates} disabled={isSavingEmail} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Button onClick={handleSaveEmailTemplates} disabled={isSavingEmail} className="bg-primary hover:bg-primary/90 text-white">
               {isSavingEmail ? "Saving..." : "Save Templates"}
             </Button>
           </DialogFooter>

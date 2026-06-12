@@ -151,24 +151,24 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                       </TableCell>
                       <TableCell className="py-4">
                         <Select value={editForm.isActive} onValueChange={(v) => setEditForm({...editForm, isActive: v || ""})}>
-                          <SelectTrigger className="h-9 w-[110px] rounded-lg border-border/50 bg-background shadow-sm">
+                          <SelectTrigger className="h-9 w-[110px] rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors">
                             <SelectValue placeholder="Status">
                               <div className="flex items-center gap-2">
-                                <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-emerald-500" : "bg-slate-400"}`} />
+                                <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-primary" : "bg-gold"}`} />
                                 {editForm.isActive === "true" ? "Active" : "Inactive"}
                               </div>
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95">
-                            <SelectItem value="true" className="cursor-pointer">
+                            <SelectItem value="true" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
                               <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                <div className="w-2 h-2 rounded-full bg-primary" />
                                 Active
                               </div>
                             </SelectItem>
-                            <SelectItem value="false" className="cursor-pointer">
+                            <SelectItem value="false" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
                               <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-slate-400" />
+                                <div className="w-2 h-2 rounded-full bg-gold" />
                                 Inactive
                               </div>
                             </SelectItem>
@@ -207,7 +207,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         key={config.id}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="border-b border-border/40 hover:bg-amber-500/5 group"
+                        className="border-b border-border/40 hover:bg-primary/50/5 group"
                       >
                         <TableCell className="pl-8 py-4">
                           {isEditing ? (
@@ -237,24 +237,24 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                         <TableCell className="py-4">
                           {isEditing ? (
                             <Select value={editForm.isActive} onValueChange={(v) => setEditForm({...editForm, isActive: v || ""})}>
-                              <SelectTrigger className="h-9 w-[110px] rounded-lg border-border/50 bg-background shadow-sm">
+                              <SelectTrigger className="h-9 w-[110px] rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors">
                                 <SelectValue placeholder="Status">
                                   <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-emerald-500" : "bg-slate-400"}`} />
+                                    <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-primary" : "bg-gold"}`} />
                                     {editForm.isActive === "true" ? "Active" : "Inactive"}
                                   </div>
                                 </SelectValue>
                               </SelectTrigger>
                               <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95">
-                                <SelectItem value="true" className="cursor-pointer">
+                                <SelectItem value="true" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
                                   <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                    <div className="w-2 h-2 rounded-full bg-primary" />
                                     Active
                                   </div>
                                 </SelectItem>
-                                <SelectItem value="false" className="cursor-pointer">
+                                <SelectItem value="false" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
                                   <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-slate-400" />
+                                    <div className="w-2 h-2 rounded-full bg-gold" />
                                     Inactive
                                   </div>
                                 </SelectItem>
