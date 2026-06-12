@@ -185,7 +185,14 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                               type="number"
                               min="0"
                               value={editForm.price} 
-                              onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (val.includes('-')) return;
+                                setEditForm({...editForm, price: val});
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === '-' || e.key === 'e') e.preventDefault();
+                              }}
                               className="h-9 pl-7 pr-3 bg-background border-border/50 rounded-lg text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                           </div>
@@ -221,7 +228,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             />
                           ) : (
                             <div className="flex items-center gap-2">
-                              <FileText className="w-4 h-4 text-amber-600" />
+                              <FileText className="w-4 h-4 text-yellow-600 dark:text-gold" />
                               <span className="font-bold text-foreground">{config.label}</span>
                             </div>
                           )}
@@ -243,7 +250,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                               <SelectTrigger className="h-9 w-[130px] rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors">
                                 <SelectValue placeholder="Status">
                                   <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-primary" : "bg-amber-500"}`} />
+                                    <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-primary" : "bg-yellow-500 dark:bg-gold"}`} />
                                     {editForm.isActive === "true" ? "Active" : "Inactive"}
                                   </div>
                                 </SelectValue>
@@ -257,7 +264,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                                 </SelectItem>
                                 <SelectItem value="false" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
                                   <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-amber-500" />
+                                    <div className="w-2 h-2 rounded-full bg-yellow-500 dark:bg-gold" />
                                     Inactive
                                   </div>
                                 </SelectItem>
@@ -269,7 +276,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                                 Active
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-gold/10 dark:text-gold">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 dark:bg-gold/10 dark:text-gold">
                                 Inactive
                               </span>
                             )
@@ -284,7 +291,14 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                                   type="number"
                                   min="0"
                                   value={editForm.price} 
-                                  onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    if (val.includes('-')) return;
+                                    setEditForm({...editForm, price: val});
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === '-' || e.key === 'e') e.preventDefault();
+                                  }}
                                   className="h-9 pl-7 pr-3 bg-background border-border/50 rounded-lg text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 />
                               </div>
