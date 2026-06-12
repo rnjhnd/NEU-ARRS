@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, CheckCircle2, Package, Activity, Search, Download, ArrowUpDown, ArrowUp, ArrowDown, FileText, AlertTriangle } from "lucide-react";
+import { Clock, CheckCircle2, Package, Activity, Search, Download, ArrowUpDown, ArrowUp, ArrowDown, FileText, AlertTriangle, Inbox } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import useSWR from "swr";
 
@@ -361,7 +361,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                     >
                       <TableCell colSpan={6} className="h-48 text-center text-muted-foreground">
                         <div className="flex flex-col items-center justify-center">
-                          <CheckCircle2 className="w-8 h-8 text-muted mb-2" />
+                          <Inbox className="w-8 h-8 text-muted mb-2" />
                           <p>No active requests in this queue.</p>
                         </div>
                       </TableCell>

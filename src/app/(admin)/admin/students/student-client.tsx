@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Search } from "lucide-react";
+import { User, Search, SearchX } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 
@@ -91,8 +91,11 @@ export function StudentClient({
               <TableBody>
                 {paginatedUsers.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                      No students found matching your search.
+                    <TableCell colSpan={5} className="h-48 text-center text-muted-foreground">
+                      <div className="flex flex-col items-center justify-center">
+                        <SearchX className="w-8 h-8 text-muted mb-2" />
+                        <p>No students found matching your search.</p>
+                      </div>
                     </TableCell>
                   </TableRow>
                 )}
