@@ -428,7 +428,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                               href={`/receipt/${req.id}`} 
                               target="_blank" 
                               rel="noreferrer" 
-                              className="inline-flex items-center gap-1 mt-0.5 text-xs leading-none font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline transition-all"
+                              className="inline-flex items-center gap-1 mt-0.5 text-xs leading-none font-medium text-gold hover:text-gold/80 hover:underline transition-all"
                             >
                               <FileText className="w-3 h-3" />
                               <span>View Receipt</span>

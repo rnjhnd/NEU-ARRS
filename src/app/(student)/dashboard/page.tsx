@@ -69,7 +69,7 @@ export default async function StudentDashboardPage() {
           </div>
         </div>
         <div className="bg-background/60 backdrop-blur-md rounded-2xl p-6 border border-border/50 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-slate-500/10 text-slate-600 rounded-xl">
+          <div className="p-3 bg-gold/10 text-gold rounded-xl">
             <FileText className="w-6 h-6" />
           </div>
           <div>
