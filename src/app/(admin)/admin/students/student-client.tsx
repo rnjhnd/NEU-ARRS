@@ -93,7 +93,7 @@ export function StudentClient({
                   <TableRow>
                     <TableCell colSpan={5} className="h-48 text-center text-muted-foreground">
                       <div className="flex flex-col items-center justify-center">
-                        <SearchX className="w-8 h-8 text-muted mb-2" />
+                        <SearchX className="w-8 h-8 text-muted-foreground/50 mb-2" />
                         <p>No students found matching your search.</p>
                       </div>
                     </TableCell>

@@ -361,7 +361,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                     >
                       <TableCell colSpan={6} className="h-48 text-center text-muted-foreground">
                         <div className="flex flex-col items-center justify-center">
-                          <Inbox className="w-8 h-8 text-muted mb-2" />
+                          <Inbox className="w-8 h-8 text-muted-foreground/50 mb-2" />
                           <p>No active requests in this queue.</p>
                         </div>
                       </TableCell>
