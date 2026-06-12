@@ -418,11 +418,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       <TableCell className="text-right pr-8">
                         <div className="flex flex-col items-end gap-2">
                           {getStatusBadge(req.status)}
-                          {req.cancelReason && (
-                            <span className="text-[10px] text-red-500 truncate max-w-[150px]" title={req.cancelReason}>
-                              Reason: {req.cancelReason}
-                            </span>
-                          )}
+
                           {req.status === "COMPLETED" && (
                             <a 
                               href={`/receipt/${req.id}`} 
@@ -477,8 +473,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
       <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
-              <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-500" />
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 mb-4">
+              <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
             <DialogTitle className="text-center text-xl">Cancel Request</DialogTitle>
             <DialogDescription className="text-center mt-2">
@@ -490,7 +486,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               placeholder="e.g. Invalid document requested, incorrect payment amount..." 
               value={cancelReasonInput}
               onChange={(e) => setCancelReasonInput(e.target.value)}
-              className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-none transition-all"
+              maxLength={200}
+              className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-none transition-all"
               autoFocus
             />
           </div>
@@ -500,8 +497,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               setCancelReasonInput("");
             }}>Back</Button>
             <Button 
-              variant="default" 
-              className="w-full sm:w-auto bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 shadow-sm border-0"
+              variant="destructive"
+              className="w-full sm:w-auto shadow-sm"
               disabled={!cancelReasonInput.trim() || isUpdating}
               onClick={() => {
                 if (!cancelReasonInput.trim()) return toast.error("Reason is required");

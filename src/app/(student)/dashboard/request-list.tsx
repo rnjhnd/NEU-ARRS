@@ -185,9 +185,7 @@ export function RequestList({ requests }: { requests: Request[] }) {
                       <TableCell className="text-right pr-8">
                         <div className="flex flex-col items-end justify-center gap-2">
                           {getStatusBadge(req.status)}
-                          {req.cancelReason && (
-                            <p className="text-[10px] text-red-500 max-w-[150px] truncate">Reason: {req.cancelReason}</p>
-                          )}
+
                           {req.status === "COMPLETED" && (
                             <a 
                               href={`/receipt/${req.id}`} 
@@ -229,7 +227,7 @@ export function RequestList({ requests }: { requests: Request[] }) {
                                       setCancelDialogOpen(true);
                                     }}
                                     disabled={cancellingId === req.id && !cancelDialogOpen}
-                                    className="shadow-sm text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 dark:text-red-500 dark:border-red-900/50 dark:hover:bg-red-900/30"
+                                    className="shadow-sm text-destructive border-destructive/30 hover:bg-destructive/10 dark:hover:bg-destructive/20"
                                   >
                                     {(cancellingId === req.id && !cancelDialogOpen) ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                                     Cancel Request
@@ -255,8 +253,8 @@ export function RequestList({ requests }: { requests: Request[] }) {
       }}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
-              <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-500" />
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 mb-4">
+              <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
             <DialogTitle className="text-center text-xl">Cancel Request</DialogTitle>
             <DialogDescription className="text-center mt-2">
@@ -268,7 +266,8 @@ export function RequestList({ requests }: { requests: Request[] }) {
               placeholder="e.g. Requested the wrong document, no longer needed..." 
               value={cancelReasonInput}
               onChange={(e) => setCancelReasonInput(e.target.value)}
-              className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-none transition-all"
+              maxLength={200}
+              className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-none transition-all"
               autoFocus
             />
           </div>
@@ -279,8 +278,8 @@ export function RequestList({ requests }: { requests: Request[] }) {
               setCancellingId(null);
             }}>Back</Button>
             <Button 
-              variant="default" 
-              className="w-full sm:w-auto bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 shadow-sm border-0"
+              variant="destructive"
+              className="w-full sm:w-auto shadow-sm"
               disabled={!cancelReasonInput.trim()}
               onClick={handleCancelConfirm}
             >
