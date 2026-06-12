@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { createRequest } from "@/app/actions/request.actions";
 import { toast } from "sonner";
-import { DocumentType, Purpose, DocumentConfig } from "@prisma/client";
+import { Purpose, DocumentConfig } from "@prisma/client";
 import { motion } from "framer-motion";
 import { Check, FileText, CreditCard, Landmark, Loader2 } from "lucide-react";
 
@@ -23,7 +23,7 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Form State
-  const [documentType, setDocumentType] = useState<DocumentType | "">("");
+  const [documentType, setDocumentType] = useState<string>("");
   const [purpose, setPurpose] = useState<Purpose | "">("");
   const [paymentMethod, setPaymentMethod] = useState<"online" | "cash" | "">("");
 
@@ -70,7 +70,7 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
                 key={doc.typeId}
-                onClick={() => setDocumentType(doc.typeId as DocumentType)}
+                onClick={() => setDocumentType(doc.typeId)}
                 className={`relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 ${
                   documentType === doc.typeId 
                     ? "border-primary bg-primary/5 ring-1 ring-primary shadow-md" 

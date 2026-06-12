@@ -3,13 +3,13 @@
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
-import { DocumentType, Purpose, PaymentStatus, RequestStatus } from "@prisma/client";
+import { Purpose, PaymentStatus, RequestStatus } from "@prisma/client";
 
 import { clerkClient } from "@clerk/nextjs/server";
 import { sendStatusUpdateEmail } from "@/lib/email";
 import { refundPayment } from "@/lib/paymongo";
 const CreateRequestSchema = z.object({
-  documentType: z.nativeEnum(DocumentType),
+  documentType: z.string().min(1),
   purpose: z.nativeEnum(Purpose),
   paymentMethod: z.enum(["online", "cash"]),
 });

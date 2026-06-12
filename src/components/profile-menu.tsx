@@ -40,15 +40,15 @@ export function ProfileMenu() {
     .toUpperCase();
 
   const handleSignOut = () => {
-    signOut(() => router.push("/"));
+    signOut({ redirectUrl: "/" });
   };
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="relative h-8 w-8 rounded-full shadow-sm ring-2 ring-emerald-500 hover:ring-emerald-600 dark:hover:ring-emerald-400 focus:outline-none active:scale-95 transition-all">
+      <DropdownMenuTrigger className="relative h-8 w-8 rounded-full shadow-sm ring-2 ring-primary focus:outline-none active:scale-95 transition-all">
           <Avatar className="h-full w-full">
             <AvatarImage src={user.imageUrl} alt={name} />
-            <AvatarFallback className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold text-xs">
+            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
               {fallbackInitials}
             </AvatarFallback>
           </Avatar>
@@ -64,13 +64,13 @@ export function ProfileMenu() {
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 shadow-sm border border-border/30">
                 <AvatarImage src={user.imageUrl} alt={name} />
-                <AvatarFallback className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold">
+                <AvatarFallback className="bg-primary/10 text-primary font-bold">
                   {fallbackInitials}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-semibold leading-none text-foreground truncate max-w-[150px]">{name}</p>
-                <p className="text-[11px] font-medium leading-none text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">
+                <p className="text-[11px] font-medium leading-none text-primary uppercase tracking-wide">
                   {isAdmin ? "Administrator" : "Student"}
                 </p>
                 <p className="text-xs text-muted-foreground truncate max-w-[150px]">{email}</p>
@@ -81,10 +81,10 @@ export function ProfileMenu() {
         <DropdownMenuSeparator className="bg-border/40 my-1.5 mx-2" />
         <DropdownMenuGroup>
           <DropdownMenuItem 
-            className="cursor-pointer py-2.5 px-3 rounded-xl focus:bg-emerald-500/10 focus:text-emerald-600 dark:focus:text-emerald-400 transition-colors group"
+            className="cursor-pointer py-2.5 px-3 rounded-xl focus:bg-primary/10 focus:text-primary transition-colors group"
             onClick={() => window.location.href = "mailto:support@neu.edu.ph"}
           >
-            <LifeBuoy className="mr-3 h-4 w-4 text-muted-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors" />
+            <LifeBuoy className="mr-3 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
             <span className="font-medium">Help & Support</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
