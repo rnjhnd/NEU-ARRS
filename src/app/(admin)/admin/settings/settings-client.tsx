@@ -131,7 +131,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <AnimatePresence>
+                <AnimatePresence mode="wait">
                   {filteredUsers.length === 0 && (
                     <motion.tr 
                       initial={{ opacity: 0 }} 
@@ -148,8 +148,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
                   )}
                   {filteredUsers.map((user) => (
                     <motion.tr 
-                      layout
-                      key={user.id}
+                      key={`${user.id}-${searchQuery}`}
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}

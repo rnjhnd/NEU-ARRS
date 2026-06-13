@@ -369,12 +369,11 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   )}
                   {paginatedRequests.map((req, i) => (
                     <motion.tr 
-                      layout
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      key={req.id}
+                      key={`${req.id}-${filter}-${currentPage}-${sortConfig?.key}-${sortConfig?.direction}-${searchQuery}`}
                       className={`cursor-pointer border-b border-border/50 transition-colors ${selectedIds.has(req.id) ? "bg-emerald-500/10" : "hover:bg-emerald-500/5"}`}
                       onClick={(e) => {
                         if ((e.target as HTMLElement).tagName !== "INPUT") toggleSelectRow(req.id);
