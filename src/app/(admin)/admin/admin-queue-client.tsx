@@ -700,7 +700,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                         Completed
                       </div>
                     </SelectItem>
-                    <SelectItem value="CANCELLED" className="cursor-pointer focus:bg-destructive/10 focus:text-destructive transition-colors py-2 rounded-md">
+                    <SelectItem value="CANCELLED" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-destructive" />
                         Cancelled
