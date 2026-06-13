@@ -54,15 +54,11 @@ export function Sidebar() {
       <nav className="flex-1 space-y-2 p-4 overflow-hidden whitespace-nowrap">
         <Link 
           href="/admin" 
-          className={`flex items-center gap-3 py-2.5 transition-all relative ${
+          className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin" 
-              ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
-                  : "px-3 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl before:absolute before:left-0 before:inset-y-1 before:w-1 before:rounded-r-full before:bg-primary")
-              : (isCollapsed 
-                  ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
-                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted")
-          }`}
+              ? "bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/20"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          } ${isCollapsed ? "justify-center" : ""}`}
           title="Request Queue"
         >
           <LayoutDashboard className="w-5 h-5 flex-shrink-0 transition-colors" />
@@ -70,15 +66,11 @@ export function Sidebar() {
         </Link>
         <Link 
           href="/admin/documents" 
-          className={`flex items-center gap-3 py-2.5 transition-all relative ${
+          className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin/documents" 
-              ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
-                  : "px-3 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl before:absolute before:left-0 before:inset-y-1 before:w-1 before:rounded-r-full before:bg-primary")
-              : (isCollapsed 
-                  ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
-                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted")
-          }`}
+              ? "bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/20"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          } ${isCollapsed ? "justify-center" : ""}`}
           title="Document Management"
         >
           <FileText className="w-5 h-5 flex-shrink-0 transition-colors" />
@@ -86,15 +78,11 @@ export function Sidebar() {
         </Link>
         <Link 
           href="/admin/finance" 
-          className={`flex items-center gap-3 py-2.5 transition-all relative ${
+          className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin/finance" 
-              ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
-                  : "px-3 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl before:absolute before:left-0 before:inset-y-1 before:w-1 before:rounded-r-full before:bg-primary")
-              : (isCollapsed 
-                  ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
-                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted")
-          }`}
+              ? "bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/20"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          } ${isCollapsed ? "justify-center" : ""}`}
           title="Financial Analytics"
         >
           <PieChart className="w-5 h-5 flex-shrink-0 transition-colors" />
@@ -102,15 +90,11 @@ export function Sidebar() {
         </Link>
         <Link 
           href="/admin/students" 
-          className={`flex items-center gap-3 py-2.5 transition-all relative ${
+          className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin/students" 
-              ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
-                  : "px-3 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl before:absolute before:left-0 before:inset-y-1 before:w-1 before:rounded-r-full before:bg-primary")
-              : (isCollapsed 
-                  ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
-                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted")
-          }`}
+              ? "bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/20"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          } ${isCollapsed ? "justify-center" : ""}`}
           title="Student Records"
         >
           <Users className="w-5 h-5 flex-shrink-0 transition-colors" />
@@ -121,15 +105,11 @@ export function Sidebar() {
         
         <Link 
           href="/admin/settings" 
-          className={`flex items-center gap-3 py-2.5 transition-all relative ${
+          className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin/settings" 
-              ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
-                  : "px-3 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl before:absolute before:left-0 before:inset-y-1 before:w-1 before:rounded-r-full before:bg-primary")
-              : (isCollapsed 
-                  ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
-                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted")
-          }`}
+              ? "bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/20"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          } ${isCollapsed ? "justify-center" : ""}`}
           title="System Settings"
         >
           <Settings className="w-5 h-5 flex-shrink-0 transition-colors" />

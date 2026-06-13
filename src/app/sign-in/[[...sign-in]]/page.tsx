@@ -82,7 +82,7 @@ export default function SignInPage() {
         <Link href="/" className="flex items-center gap-2 z-10 w-fit hover:opacity-80 transition-opacity">
           <LogoIcon className="h-10 w-10 text-white" sealColor="text-yellow-400" />
           <span className="text-2xl font-bold tracking-tight text-white drop-shadow-md">
-            NEU <span className="font-normal text-primary-foreground">ARRS</span>
+            NEU <span className="font-normal text-white/70">ARRS</span>
           </span>
         </Link>
 

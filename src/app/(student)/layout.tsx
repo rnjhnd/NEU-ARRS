@@ -21,7 +21,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
               <LogoIcon className="h-5 w-5 text-primary dark:text-primary" sealColor="text-yellow-600 dark:text-yellow-500" />
             </div>
             <span className="font-bold text-xl tracking-tight hidden sm:inline-block">
-              NEU <span className="font-medium text-primary dark:text-primary">ARRS</span>
+              NEU <span className="font-normal text-muted-foreground">ARRS</span>
             </span>
           </Link>
 

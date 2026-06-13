@@ -9,7 +9,7 @@ import {
 import { format, subDays, isAfter } from "date-fns";
 import { DollarSign, CreditCard, Banknote, TrendingUp } from "lucide-react";
 
-const COLORS = ['#0A5C36', '#FCD116', '#2E8555', '#043920'];
+const COLORS = ['#0A5C36', '#0f766e', '#10b981', '#064e3b', '#34d399', '#047857'];
 
 export function FinanceClient({ requests }: { requests: Request[] }) {
   const CustomTooltip = ({ active, payload, label }: any) => {
