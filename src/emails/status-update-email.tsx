@@ -36,10 +36,10 @@ const getStatusStyles = (status: string) => {
       };
     case 'PROCESSING':
       return {
-        bg: 'bg-indigo-50',
-        text: 'text-indigo-700',
-        border: 'border-indigo-500',
-        msgBg: 'bg-indigo-50/40',
+        bg: 'bg-amber-50',
+        text: 'text-amber-700',
+        border: 'border-amber-500',
+        msgBg: 'bg-amber-50/40',
       };
     case 'READY_FOR_PICKUP':
     case 'COMPLETED':
@@ -107,7 +107,7 @@ export const StatusUpdateEmail = ({
         <Body className="bg-[#f6f9fc] my-auto mx-auto font-sans pt-8 pb-8">
           <Container className="bg-white border border-solid border-[#e5e7eb] rounded-xl my-[20px] mx-auto w-[480px] overflow-hidden shadow-sm">
             {/* Header Banner */}
-            <Section className="bg-slate-900 py-[28px] px-[32px] text-center">
+            <Section className="bg-emerald-950 py-[28px] px-[32px] text-center border-b border-emerald-900">
               <Img
                 src="https://raw.githubusercontent.com/rnjhnd/NEU-ARRS/main/public/neu-logo.png"
                 width="64"
@@ -159,7 +159,7 @@ export const StatusUpdateEmail = ({
               {/* Call to Action */}
               <Section className="text-center mt-[32px] mb-[32px]">
                 <Button
-                  className="bg-indigo-600 rounded-md text-white text-[15px] font-semibold no-underline text-center px-6 py-3 shadow-sm"
+                  className="bg-emerald-600 rounded-md text-white text-[15px] font-semibold no-underline text-center px-6 py-3 shadow-sm"
                   href={`${appUrl}/dashboard`}
                 >
                   View Request Portal
@@ -178,7 +178,7 @@ export const StatusUpdateEmail = ({
               </Text>
 
               <Text className="text-slate-400 text-[12px] leading-[20px] m-0">
-                For inquiries, please contact <Link href="mailto:registrar@neu.edu.ph" className="text-indigo-600 underline">registrar@neu.edu.ph</Link>.<br/>
+                For inquiries, please contact <Link href="mailto:registrar@neu.edu.ph" className="text-emerald-600 underline">registrar@neu.edu.ph</Link>.<br/>
                 © {new Date().getFullYear()} New Era University. All rights reserved.
               </Text>
               
