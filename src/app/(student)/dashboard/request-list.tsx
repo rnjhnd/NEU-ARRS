@@ -21,7 +21,7 @@ import { Loader2 } from "lucide-react";
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "PENDING": 
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-700 dark:bg-gold/10 dark:text-gold border border-yellow-500/20 dark:border-gold/20">Pending Docs</span>;
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-700 dark:bg-gold/10 dark:text-gold border border-yellow-500/20 dark:border-gold/20">Pending Review</span>;
     case "PENDING_PAYMENT": 
       return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-700 dark:bg-gold/10 dark:text-gold border border-yellow-500/20 dark:border-gold/20">Pending Payment</span>;
     case "PROCESSING": 
