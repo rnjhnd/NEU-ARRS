@@ -5,12 +5,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 export default function StudentDashboardLoading() {
   return (
     <div className="space-y-8 w-full animate-pulse">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <Skeleton className="h-8 w-48 mb-2" />
-          <Skeleton className="h-4 w-64" />
+      {/* Hero Banner Skeleton */}
+      <div className="relative overflow-hidden rounded-3xl bg-muted/40 p-8 sm:p-10 border border-border/50">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div className="space-y-3">
+            <Skeleton className="h-10 w-64 sm:w-80" />
+            <Skeleton className="h-6 w-full sm:w-96" />
+          </div>
+          <Skeleton className="h-14 w-full sm:w-48 rounded-full" />
         </div>
-        <Skeleton className="h-10 w-32 rounded-full" />
+      </div>
+
+      {/* Quick Stats Skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-muted/20 rounded-2xl p-6 border border-border/50 flex items-center gap-4">
+            <Skeleton className="w-12 h-12 rounded-xl shrink-0" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-8 w-16" />
+            </div>
+          </div>
+        ))}
       </div>
 
       <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0 pb-0">

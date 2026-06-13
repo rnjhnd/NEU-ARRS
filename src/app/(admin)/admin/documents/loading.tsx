@@ -5,12 +5,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 export default function Loading() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="space-y-2">
-          <Skeleton className="h-9 w-64" />
-          <Skeleton className="h-5 w-80" />
+      {/* Hero Banner Skeleton */}
+      <div className="relative overflow-hidden rounded-3xl bg-muted/40 p-8 sm:p-10 border border-border/50">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div className="space-y-3">
+            <Skeleton className="h-10 w-64 sm:w-80" />
+            <Skeleton className="h-6 w-full sm:w-96" />
+          </div>
+          <Skeleton className="h-12 w-full sm:w-48 rounded-full" />
         </div>
-        <Skeleton className="h-10 w-48" />
       </div>
 
       <Card className="shadow-sm border-border !pb-0">

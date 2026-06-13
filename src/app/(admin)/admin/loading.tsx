@@ -5,6 +5,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 export default function AdminQueueLoading() {
   return (
     <div className="space-y-8 w-full animate-pulse">
+      {/* Hero Banner Skeleton */}
+      <div className="relative overflow-hidden rounded-3xl bg-muted/40 p-8 sm:p-10 border border-border/50">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          <div className="space-y-3">
+            <Skeleton className="h-10 w-64 sm:w-80" />
+            <Skeleton className="h-6 w-full sm:w-96" />
+          </div>
+          <Skeleton className="h-12 w-full sm:w-64 rounded-full" />
+        </div>
+      </div>
+
       {/* At-A-Glance Stats Skeleton */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
@@ -14,15 +25,15 @@ export default function AdminQueueLoading() {
                 <Skeleton className="h-4 w-24 mb-3" />
                 <Skeleton className="h-8 w-12" />
               </div>
-              <Skeleton className="w-12 h-12 rounded-xl" />
+              <Skeleton className="w-12 h-12 rounded-xl shrink-0" />
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         {[1, 2, 3, 4, 5].map((i) => (
-          <Skeleton key={i} className="h-8 w-20 rounded-full" />
+          <Skeleton key={i} className="h-10 w-24 rounded-full" />
         ))}
       </div>
 
