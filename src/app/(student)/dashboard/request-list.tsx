@@ -71,7 +71,7 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
   });
 
   const SortableHeader = ({ title, sortKey, alignRight = false, className = "" }: { title: string, sortKey: keyof Request, alignRight?: boolean, className?: string }) => {
-    if (filteredRequests.length <= 1) {
+    if (localRequests.length <= 1) {
       return (
         <TableHead className={`font-semibold text-emerald-800 dark:text-emerald-400 ${alignRight ? "text-right" : ""} ${className}`}>
           <div className={`flex items-center gap-1.5 py-2 ${alignRight ? "ml-auto justify-end" : ""}`}>
