@@ -33,7 +33,7 @@ export default function StudentDashboardLoading() {
               </TableHeader>
               <TableBody>
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <TableRow key={i} className="border-b border-border/50">
+                  <TableRow key={i} className="border-b border-border/50 last:border-0">
                     <TableCell className="pl-8 py-4">
                       <Skeleton className="h-6 w-20 rounded-md" />
                     </TableCell>

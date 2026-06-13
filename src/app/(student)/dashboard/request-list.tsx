@@ -188,7 +188,7 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.2 }}
                       onClick={() => setExpandedId(expandedId === req.id ? null : req.id)}
-                      className={`border-b border-border/50 hover:bg-primary/5 transition-colors cursor-pointer ${expandedId === req.id ? "bg-primary/5" : ""}`}
+                      className={`border-b border-border/50 last:border-0 hover:bg-primary/5 transition-colors cursor-pointer ${expandedId === req.id ? "bg-primary/5" : ""}`}
                     >
                       <TableCell className="pl-8">
                         <span className="inline-flex items-center rounded-md bg-secondary px-2 py-1 font-mono text-xs font-semibold text-secondary-foreground ring-1 ring-inset ring-border/50 shadow-sm transition-colors hover:bg-secondary/80">

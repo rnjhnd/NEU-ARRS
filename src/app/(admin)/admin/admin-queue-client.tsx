@@ -454,7 +454,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.2 }}
                       key={req.id}
-                      className={`cursor-pointer border-b border-border/50 transition-colors ${selectedIds.has(req.id) ? "bg-primary/10" : "hover:bg-primary/5"}`}
+                      className={`border-b border-border/50 last:border-0 hover:bg-primary/5 transition-colors cursor-pointer ${selectedIds.has(req.id) ? "bg-primary/10" : ""}`}
                       onClick={(e) => {
                         if ((e.target as HTMLElement).tagName !== "INPUT") {
                           setEditingRequest(req);

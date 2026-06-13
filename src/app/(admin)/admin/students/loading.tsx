@@ -10,7 +10,7 @@ export default function Loading() {
         <Skeleton className="h-5 w-80" />
       </div>
 
-      <Card className="shadow-sm border-border pb-0">
+      <Card className="shadow-sm border-border">
         <CardHeader className="border-b pb-6 px-8 pt-8 bg-gradient-to-r from-primary/5 to-transparent">
           <Skeleton className="h-8 w-48 mb-2" />
           <Skeleton className="h-4 w-72" />
@@ -28,7 +28,7 @@ export default function Loading() {
               </TableHeader>
               <TableBody>
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <TableRow key={i} className="border-b border-border/40">
+                  <TableRow key={i} className="border-b border-border/40 last:border-0">
                     <TableCell className="pl-8 py-4">
                       <div className="flex items-center gap-4">
                         <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
@@ -50,6 +50,14 @@ export default function Loading() {
             </Table>
           </div>
         </CardContent>
+        <div className="flex items-center justify-between border-t border-border/50 px-8 py-4 bg-muted/5">
+          <Skeleton className="h-4 w-64" />
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-8 w-20 rounded-full" />
+            <Skeleton className="h-4 w-24 mx-2" />
+            <Skeleton className="h-8 w-20 rounded-full" />
+          </div>
+        </div>
       </Card>
     </div>
   );

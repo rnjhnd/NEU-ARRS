@@ -183,7 +183,7 @@ export function StudentClient({
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="border-b border-border/40 hover:bg-primary/5 transition-colors group"
+                      className="border-b border-border/40 last:border-0 hover:bg-primary/5 transition-colors group"
                     >
                       <TableCell className="pl-8 py-4">
                         <div className="flex items-center gap-4">
