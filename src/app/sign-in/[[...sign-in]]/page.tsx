@@ -1,7 +1,8 @@
 "use client";
 
 import { useSignIn, useClerk } from "@clerk/nextjs";
-import { FileBadge, ArrowLeft, CheckCircle2, Loader2, KeyRound, Mail } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Loader2, KeyRound, Mail } from "lucide-react";
+import { LogoIcon } from "@/components/logo-icon";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -79,7 +80,7 @@ export default function SignInPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#34d399]/40 via-[#0A5C36]/0 to-[#042F1A]/80 animate-pulse" style={{ animationDuration: '4s' }}></div>
         
         <Link href="/" className="flex items-center gap-2 z-10 w-fit hover:opacity-80 transition-opacity">
-          <FileBadge className="h-10 w-10 text-white" />
+          <LogoIcon className="h-10 w-10 text-white" sealColor="text-yellow-400" />
           <span className="text-2xl font-bold tracking-tight text-white drop-shadow-md">
             NEU <span className="font-normal text-primary-foreground">ARRS</span>
           </span>

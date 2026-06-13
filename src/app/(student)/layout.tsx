@@ -1,5 +1,5 @@
 import { ProfileMenu } from "@/components/profile-menu";
-import { FileBadge } from "lucide-react";
+import { LogoIcon } from "@/components/logo-icon";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -18,7 +18,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         <div className="relative flex h-16 items-center justify-between px-6 rounded-2xl bg-background/70 backdrop-blur-xl border border-primary/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] transition-all supports-[backdrop-filter]:bg-background/40">
           <Link href="/dashboard" className="flex items-center gap-2 group transition-all duration-300">
             <div className="p-2 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
-              <FileBadge className="h-5 w-5 text-primary dark:text-primary" />
+              <LogoIcon className="h-5 w-5 text-primary dark:text-primary" sealColor="text-yellow-600 dark:text-yellow-500" />
             </div>
             <span className="font-bold text-xl tracking-tight hidden sm:inline-block">
               NEU <span className="font-medium text-primary dark:text-primary">ARRS</span>

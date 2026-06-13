@@ -2,7 +2,8 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { FileBadge, ArrowRight, ShieldCheck, Zap, Clock } from "lucide-react";
+import { ArrowRight, ShieldCheck, Zap, Clock } from "lucide-react";
+import { LogoIcon } from "@/components/logo-icon";
 
 export default async function Home() {
   const { userId, sessionClaims } = await auth();
@@ -23,7 +24,7 @@ export default async function Home() {
       {/* Header */}
       <header className="absolute top-0 w-full flex h-20 items-center justify-between px-6 md:px-12 z-50">
         <div className="flex items-center gap-2">
-          <FileBadge className="h-8 w-8 text-primary" />
+          <LogoIcon className="h-8 w-8 text-primary" sealColor="text-yellow-500" />
           <span className="text-xl font-bold tracking-tight">
             NEU <span className="font-normal text-muted-foreground">ARRS</span>
           </span>
