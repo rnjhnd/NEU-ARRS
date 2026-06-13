@@ -625,15 +625,13 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Date Submitted</span>
                   <span className="font-medium text-foreground">{format(new Date(editingRequest.createdAt), "MMM d, yyyy 'at' h:mm a")}</span>
                 </div>
-                <div className="col-span-2 flex flex-row justify-between border-t border-border/50 pt-2">
-                  <div>
-                    <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Student Name</span>
-                    <span className="font-medium text-foreground">{editingRequest.studentName || "Unknown"}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Student Email</span>
-                    <span className="font-medium text-foreground">{editingRequest.studentEmail || "No email"}</span>
-                  </div>
+                <div className="pt-2 border-t border-border/50">
+                  <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Student Name</span>
+                  <span className="font-medium text-foreground">{editingRequest.studentName || "Unknown"}</span>
+                </div>
+                <div className="pt-2 border-t border-border/50">
+                  <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Student Email</span>
+                  <span className="font-medium text-foreground">{editingRequest.studentEmail || "No email"}</span>
                 </div>
                 <div className="col-span-2 pt-2 border-t border-border/50">
                   <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Document Type</span>
@@ -661,7 +659,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       <div className="flex items-center gap-2 capitalize">
                         <div className={`w-2 h-2 rounded-full ${
                           editStatus === 'PENDING' || editStatus === 'PENDING_PAYMENT' ? 'bg-yellow-500 dark:bg-gold' :
-                          editStatus === 'PROCESSING' ? 'bg-blue-500 dark:bg-blue-400' :
+                          editStatus === 'PROCESSING' ? 'bg-emerald-500 dark:bg-emerald-400' :
                           editStatus === 'CANCELLED' ? 'bg-destructive' : 'bg-primary'
                         }`} />
                         {editStatus.replace(/_/g, " ").toLowerCase()}
@@ -683,7 +681,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                     </SelectItem>
                     <SelectItem value="PROCESSING" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400" />
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400" />
                         Processing
                       </div>
                     </SelectItem>
