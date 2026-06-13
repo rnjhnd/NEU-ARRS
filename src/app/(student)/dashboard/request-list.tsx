@@ -8,9 +8,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { Request } from "@prisma/client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import React from "react";
 import { useRouter } from "next/navigation";
+import useSWR from "swr";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertTriangle } from "lucide-react";
 import { RequestTracker } from "@/components/request-tracker";
@@ -35,8 +36,14 @@ const getStatusBadge = (status: string) => {
   }
 };
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export function RequestList({ requests: initialRequests }: { requests: Request[] }) {
-  const [localRequests, setLocalRequests] = useState(initialRequests);
+  const { data: localRequests = initialRequests, mutate } = useSWR<Request[]>("/api/student/requests", fetcher, {
+    fallbackData: initialRequests,
+    refreshInterval: 5000,
+  });
+
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [payingId, setPayingId] = useState<string | null>(null);
@@ -44,10 +51,6 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
   const [cancelReasonInput, setCancelReasonInput] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: keyof Request; direction: "asc" | "desc" } | null>({ key: "updatedAt", direction: "desc" });
   const router = useRouter();
-
-  useEffect(() => {
-    setLocalRequests(initialRequests);
-  }, [initialRequests]);
 
   const handleSort = (key: keyof Request) => {
     let direction: "asc" | "desc" = "asc";
@@ -111,10 +114,8 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
     
     const result = await cancelStudentRequest(id, reason);
     if (result.success) {
-      toast.success("Your request has been successfully cancelled.");
-      setLocalRequests(prev => prev.map(req => 
-        req.id === id ? { ...req, status: "CANCELLED", cancelReason: reason } : req
-      ));
+      toast.success("Request cancelled successfully.");
+      mutate();
     } else {
       toast.error(result.error || "Failed to cancel the request.");
     }
