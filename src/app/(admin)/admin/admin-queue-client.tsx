@@ -350,13 +350,12 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <AnimatePresence mode="wait">
+                <AnimatePresence>
                   {filteredRequests.length === 0 && (
                     <motion.tr 
                       key={`empty-${filter}-${searchQuery}`}
                       initial={{ opacity: 0 }} 
                       animate={{ opacity: 1 }} 
-                      exit={{ opacity: 0 }}
                       transition={{ duration: 0.15 }}
                     >
                       <TableCell colSpan={6} className="h-48 text-center text-muted-foreground">
@@ -371,7 +370,6 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                     <motion.tr 
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
                       key={`${req.id}-${filter}-${currentPage}-${sortConfig?.key}-${sortConfig?.direction}-${searchQuery}`}
                       className={`cursor-pointer border-b border-border/50 transition-colors ${selectedIds.has(req.id) ? "bg-emerald-500/10" : "hover:bg-emerald-500/5"}`}

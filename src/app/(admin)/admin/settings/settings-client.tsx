@@ -131,12 +131,11 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <AnimatePresence mode="wait">
+                <AnimatePresence>
                   {filteredUsers.length === 0 && (
                     <motion.tr 
                       initial={{ opacity: 0 }} 
                       animate={{ opacity: 1 }} 
-                      exit={{ opacity: 0 }}
                     >
                       <TableCell colSpan={3} className="h-32 text-center">
                         <div className="flex flex-col items-center justify-center text-muted-foreground">
@@ -151,7 +150,6 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
                       key={`${user.id}-${searchQuery}`}
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
                       className="border-b border-border"
                     >
