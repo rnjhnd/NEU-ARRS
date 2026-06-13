@@ -51,96 +51,88 @@ export function Sidebar() {
         </Link>
       </div>
       
-      <nav className="flex-1 space-y-1 p-4 overflow-hidden whitespace-nowrap">
+      <nav className="flex-1 space-y-2 p-4 overflow-hidden whitespace-nowrap">
         <Link 
           href="/admin" 
-          className={`flex items-center gap-3 rounded-md py-2 transition-colors relative overflow-hidden ${
+          className={`flex items-center gap-3 py-2.5 transition-all ${
             pathname === "/admin" 
-              ? (isCollapsed ? "px-0 justify-center" : "px-3 bg-primary/10 text-primary dark:text-primary font-medium")
-              : (isCollapsed ? "px-0 justify-center text-muted-foreground hover:bg-muted" : "px-3 text-muted-foreground hover:bg-muted")
+              ? (isCollapsed 
+                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
+                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl")
+              : (isCollapsed 
+                  ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
+                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
           }`}
           title="Request Queue"
         >
-          {pathname === "/admin" && !isCollapsed && (
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500" />
-          )}
-          <div className={isCollapsed && pathname === "/admin" ? "p-2 rounded-md bg-primary/10 text-yellow-600 dark:text-yellow-500 relative" : (isCollapsed ? "p-2 rounded-md" : "")}>
-            {isCollapsed && pathname === "/admin" && <div className="absolute left-0 top-1 bottom-1 w-0.5 bg-yellow-500 rounded-r-full" />}
-            <LayoutDashboard className={`w-5 h-5 flex-shrink-0 ${!isCollapsed && pathname === "/admin" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
-          </div>
+          <LayoutDashboard className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
           {!isCollapsed && <span>Request Queue</span>}
         </Link>
         <Link 
           href="/admin/documents" 
-          className={`flex items-center gap-3 rounded-md py-2 transition-colors relative overflow-hidden ${
+          className={`flex items-center gap-3 py-2.5 transition-all ${
             pathname === "/admin/documents" 
-              ? (isCollapsed ? "px-0 justify-center" : "px-3 bg-primary/10 text-primary dark:text-primary font-medium")
-              : (isCollapsed ? "px-0 justify-center text-muted-foreground hover:bg-muted" : "px-3 text-muted-foreground hover:bg-muted")
+              ? (isCollapsed 
+                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
+                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl")
+              : (isCollapsed 
+                  ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
+                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
           }`}
           title="Document Management"
         >
-          {pathname === "/admin/documents" && !isCollapsed && (
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500" />
-          )}
-          <div className={isCollapsed && pathname === "/admin/documents" ? "p-2 rounded-md bg-primary/10 text-yellow-600 dark:text-yellow-500 relative" : (isCollapsed ? "p-2 rounded-md" : "")}>
-            {isCollapsed && pathname === "/admin/documents" && <div className="absolute left-0 top-1 bottom-1 w-0.5 bg-yellow-500 rounded-r-full" />}
-            <FileText className={`w-5 h-5 flex-shrink-0 ${!isCollapsed && pathname === "/admin/documents" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
-          </div>
+          <FileText className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/documents" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
           {!isCollapsed && <span>Document Management</span>}
         </Link>
         <Link 
           href="/admin/finance" 
-          className={`flex items-center gap-3 rounded-md py-2 transition-colors relative overflow-hidden ${
+          className={`flex items-center gap-3 py-2.5 transition-all ${
             pathname === "/admin/finance" 
-              ? (isCollapsed ? "px-0 justify-center" : "px-3 bg-primary/10 text-primary dark:text-primary font-medium")
-              : (isCollapsed ? "px-0 justify-center text-muted-foreground hover:bg-muted" : "px-3 text-muted-foreground hover:bg-muted")
+              ? (isCollapsed 
+                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
+                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl")
+              : (isCollapsed 
+                  ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
+                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
           }`}
           title="Financial Analytics"
         >
-          {pathname === "/admin/finance" && !isCollapsed && (
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500" />
-          )}
-          <div className={isCollapsed && pathname === "/admin/finance" ? "p-2 rounded-md bg-primary/10 text-yellow-600 dark:text-yellow-500 relative" : (isCollapsed ? "p-2 rounded-md" : "")}>
-            {isCollapsed && pathname === "/admin/finance" && <div className="absolute left-0 top-1 bottom-1 w-0.5 bg-yellow-500 rounded-r-full" />}
-            <PieChart className={`w-5 h-5 flex-shrink-0 ${!isCollapsed && pathname === "/admin/finance" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
-          </div>
+          <PieChart className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/finance" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
           {!isCollapsed && <span>Financial Analytics</span>}
         </Link>
         <Link 
           href="/admin/students" 
-          className={`flex items-center gap-3 rounded-md py-2 transition-colors relative overflow-hidden ${
+          className={`flex items-center gap-3 py-2.5 transition-all ${
             pathname === "/admin/students" 
-              ? (isCollapsed ? "px-0 justify-center" : "px-3 bg-primary/10 text-primary dark:text-primary font-medium")
-              : (isCollapsed ? "px-0 justify-center text-muted-foreground hover:bg-muted" : "px-3 text-muted-foreground hover:bg-muted")
+              ? (isCollapsed 
+                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
+                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl")
+              : (isCollapsed 
+                  ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
+                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
           }`}
           title="Student Records"
         >
-          {pathname === "/admin/students" && !isCollapsed && (
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500" />
-          )}
-          <div className={isCollapsed && pathname === "/admin/students" ? "p-2 rounded-md bg-primary/10 text-yellow-600 dark:text-yellow-500 relative" : (isCollapsed ? "p-2 rounded-md" : "")}>
-            {isCollapsed && pathname === "/admin/students" && <div className="absolute left-0 top-1 bottom-1 w-0.5 bg-yellow-500 rounded-r-full" />}
-            <Users className={`w-5 h-5 flex-shrink-0 ${!isCollapsed && pathname === "/admin/students" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
-          </div>
+          <Users className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/students" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
           {!isCollapsed && <span>Student Records</span>}
         </Link>
+        
         <div className="pt-4 mt-4 border-t border-border/50" />
+        
         <Link 
           href="/admin/settings" 
-          className={`flex items-center gap-3 rounded-md py-2 transition-colors relative overflow-hidden ${
+          className={`flex items-center gap-3 py-2.5 transition-all ${
             pathname === "/admin/settings" 
-              ? (isCollapsed ? "px-0 justify-center" : "px-3 bg-primary/10 text-primary dark:text-primary font-medium")
-              : (isCollapsed ? "px-0 justify-center text-muted-foreground hover:bg-muted" : "px-3 text-muted-foreground hover:bg-muted")
+              ? (isCollapsed 
+                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
+                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl")
+              : (isCollapsed 
+                  ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
+                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
           }`}
           title="System Settings"
         >
-          {pathname === "/admin/settings" && !isCollapsed && (
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500" />
-          )}
-          <div className={isCollapsed && pathname === "/admin/settings" ? "p-2 rounded-md bg-primary/10 text-yellow-600 dark:text-yellow-500 relative" : (isCollapsed ? "p-2 rounded-md" : "")}>
-            {isCollapsed && pathname === "/admin/settings" && <div className="absolute left-0 top-1 bottom-1 w-0.5 bg-yellow-500 rounded-r-full" />}
-            <Settings className={`w-5 h-5 flex-shrink-0 ${!isCollapsed && pathname === "/admin/settings" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
-          </div>
+          <Settings className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/settings" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
           {!isCollapsed && <span>System Settings</span>}
         </Link>
       </nav>
