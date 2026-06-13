@@ -598,8 +598,9 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
 
           {editingRequest && (
             <div className="space-y-6 py-4">
-              <div className="flex flex-col items-center justify-center p-4 bg-muted/30 rounded-xl border border-border/50">
-                <div className="mb-2">
+              <div className="flex flex-row items-center justify-between py-2.5 px-4 bg-muted/30 rounded-xl border border-border/50">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Current Status</span>
                   {getStatusBadge(editingRequest.status)}
                 </div>
                 {editingRequest.status === "COMPLETED" && (
@@ -607,9 +608,9 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                     href={`/receipt/${editingRequest.id}`} 
                     target="_blank" 
                     rel="noreferrer" 
-                    className="inline-flex items-center gap-1.5 mt-2 px-4 py-1.5 rounded-full text-sm font-medium bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/20 dark:bg-gold/10 dark:text-gold dark:hover:bg-gold/20 transition-all border border-yellow-500/20 dark:border-gold/20"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/20 dark:bg-gold/10 dark:text-gold dark:hover:bg-gold/20 transition-all border border-yellow-500/20 dark:border-gold/20 shadow-sm"
                   >
-                    <FileText className="w-4 h-4" />
+                    <FileText className="w-3.5 h-3.5" />
                     <span>View Official Receipt</span>
                   </a>
                 )}
