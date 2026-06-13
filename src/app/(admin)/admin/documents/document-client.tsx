@@ -116,14 +116,14 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
         </CardHeader>
         <CardContent className="p-0">
           <div className="w-full overflow-x-auto">
-            <Table>
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow className="border-b border-border/50 hover:bg-transparent">
-                  <TableHead className="pl-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Document</TableHead>
-                  <TableHead className="h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Description</TableHead>
-                  <TableHead className="pl-2.5 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Status</TableHead>
-                  <TableHead className="text-right h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Price</TableHead>
-                  <TableHead className="text-right pr-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Action</TableHead>
+                  <TableHead className="pl-8 w-[25%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Document</TableHead>
+                  <TableHead className="w-[35%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Description</TableHead>
+                  <TableHead className="pl-2.5 w-[15%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Status</TableHead>
+                  <TableHead className="text-right w-[15%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Price</TableHead>
+                  <TableHead className="text-right pr-8 w-[10%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

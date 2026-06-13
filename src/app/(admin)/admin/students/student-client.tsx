@@ -80,7 +80,7 @@ export function StudentClient({
         </CardHeader>
         <CardContent className="p-0">
           <div className="w-full">
-            <Table>
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow className="border-b border-border/50 hover:bg-transparent">
                   <TableHead className="pl-8 w-[35%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Student</TableHead>

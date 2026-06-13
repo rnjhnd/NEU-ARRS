@@ -122,12 +122,12 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
             </div>
           </div>
           <div className="p-0">
-            <Table>
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow className="border-b border-border hover:bg-transparent">
-                  <TableHead className="pl-6 h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">User</TableHead>
-                  <TableHead className="h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Current Role</TableHead>
-                  <TableHead className="text-right pr-6 h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Action</TableHead>
+                  <TableHead className="pl-6 w-[40%] h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">User</TableHead>
+                  <TableHead className="w-[30%] h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Current Role</TableHead>
+                  <TableHead className="text-right pr-6 w-[30%] h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

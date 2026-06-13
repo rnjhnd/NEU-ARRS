@@ -331,7 +331,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
         </CardHeader>
         <CardContent className="p-0">
           <div className="w-full">
-            <Table>
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow className="border-b border-border/50 bg-emerald-500/5">
                   <TableHead className="w-[50px] pl-8">
@@ -342,11 +342,11 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       className="block rounded border-input text-primary focus:ring-primary h-4 w-4 transition-all"
                     />
                   </TableHead>
-                  <SortableHeader title="Student" sortKey="studentName" />
-                  <SortableHeader title="Document" sortKey="documentType" />
-                  <SortableHeader title="Payment" sortKey="paymentStatus" alignRight />
-                  <SortableHeader title="Date" sortKey="createdAt" alignRight />
-                  <SortableHeader title="Status" sortKey="status" alignRight className="pr-8" />
+                  <SortableHeader title="Student" sortKey="studentName" className="w-[20%]" />
+                  <SortableHeader title="Document" sortKey="documentType" className="w-[25%]" />
+                  <SortableHeader title="Payment" sortKey="paymentStatus" alignRight className="w-[15%]" />
+                  <SortableHeader title="Date" sortKey="createdAt" alignRight className="w-[15%]" />
+                  <SortableHeader title="Status" sortKey="status" alignRight className="pr-8 w-[20%]" />
                 </TableRow>
               </TableHeader>
               <TableBody>

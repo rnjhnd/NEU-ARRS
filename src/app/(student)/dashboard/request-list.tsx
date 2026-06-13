@@ -147,15 +147,15 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
       </CardHeader>
       <CardContent className="p-0">
         <div className="w-full overflow-x-auto">
-          <Table>
+          <Table className="table-fixed">
             <TableHeader>
               <TableRow className="border-b border-border/50 bg-primary/5">
-                <SortableHeader title="Reference ID" sortKey="id" className="pl-8" />
-                <SortableHeader title="Document Type" sortKey="documentType" />
-                <SortableHeader title="Purpose" sortKey="purpose" />
-                <SortableHeader title="Date" sortKey="createdAt" alignRight />
-                <SortableHeader title="Payment" sortKey="paymentStatus" alignRight />
-                <SortableHeader title="Status" sortKey="status" alignRight className="pr-8" />
+                <SortableHeader title="Reference ID" sortKey="id" className="pl-8 w-[15%]" />
+                <SortableHeader title="Document Type" sortKey="documentType" className="w-[25%]" />
+                <SortableHeader title="Purpose" sortKey="purpose" className="w-[20%]" />
+                <SortableHeader title="Date" sortKey="createdAt" alignRight className="w-[15%]" />
+                <SortableHeader title="Payment" sortKey="paymentStatus" alignRight className="w-[10%]" />
+                <SortableHeader title="Status" sortKey="status" alignRight className="pr-8 w-[15%]" />
               </TableRow>
             </TableHeader>
             <TableBody>
