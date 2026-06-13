@@ -656,18 +656,55 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <div className="space-y-3 pt-3 border-t border-border/50">
                 <span className="text-sm font-semibold text-foreground block mb-3">Update Status</span>
                 <Select value={editStatus} onValueChange={(val) => { if (val) setEditStatus(val); }} disabled={isUpdating}>
-                  <SelectTrigger className="w-full capitalize">
+                  <SelectTrigger className="w-full h-10 rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors">
                     <SelectValue placeholder="Select status">
-                      {editStatus.replace(/_/g, " ").toLowerCase()}
+                      <div className="flex items-center gap-2 capitalize">
+                        <div className={`w-2 h-2 rounded-full ${
+                          editStatus === 'PENDING' || editStatus === 'PENDING_PAYMENT' ? 'bg-yellow-500 dark:bg-gold' :
+                          editStatus === 'PROCESSING' ? 'bg-blue-500 dark:bg-blue-400' :
+                          editStatus === 'CANCELLED' ? 'bg-destructive' : 'bg-primary'
+                        }`} />
+                        {editStatus.replace(/_/g, " ").toLowerCase()}
+                      </div>
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="PENDING" disabled={editingRequest.paymentMethod !== "CASHIER"}>Pending Review</SelectItem>
-                    <SelectItem value="PENDING_PAYMENT" disabled={editingRequest.paymentMethod !== "CASHIER"}>Pending Payment</SelectItem>
-                    <SelectItem value="PROCESSING">Processing</SelectItem>
-                    <SelectItem value="READY_FOR_PICKUP">Ready to Pick-up</SelectItem>
-                    <SelectItem value="COMPLETED">Completed</SelectItem>
-                    <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                  <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[200px] p-1">
+                    <SelectItem value="PENDING" disabled={editingRequest.paymentMethod !== "CASHIER"} className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-yellow-500 dark:bg-gold" />
+                        Pending Review
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="PENDING_PAYMENT" disabled={editingRequest.paymentMethod !== "CASHIER"} className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-yellow-500 dark:bg-gold" />
+                        Pending Payment
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="PROCESSING" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400" />
+                        Processing
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="READY_FOR_PICKUP" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-primary" />
+                        Ready to Pick-up
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="COMPLETED" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-primary" />
+                        Completed
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="CANCELLED" className="cursor-pointer focus:bg-destructive/10 focus:text-destructive transition-colors py-2 rounded-md">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-destructive" />
+                        Cancelled
+                      </div>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 
