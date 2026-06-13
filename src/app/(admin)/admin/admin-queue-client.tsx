@@ -54,7 +54,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
       if (
         !req.id.toLowerCase().includes(q) && 
         !req.documentType.toLowerCase().includes(q) &&
-        !req.studentName?.toLowerCase().includes(q)
+        !req.studentName?.toLowerCase().includes(q) &&
+        !req.studentEmail?.toLowerCase().includes(q)
       ) {
         return false;
       }
@@ -333,7 +334,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
         </div>
         <div className="relative w-full sm:w-72 group">
           <Input 
-            placeholder="Search ID, document, or student..." 
+            placeholder="Search name, email, or ID..." 
             className="pl-9 bg-muted/30 hover:bg-muted/50 focus:bg-background backdrop-blur-xl border-border/50 shadow-sm rounded-full transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/50"
             value={searchQuery}
             onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
