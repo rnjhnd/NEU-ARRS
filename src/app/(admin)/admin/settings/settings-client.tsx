@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Search, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Search, ShieldAlert, ShieldCheck, UserX } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { grantAdminRole, updateSystemSetting } from "@/app/actions/admin.actions";
 import { toast } from "sonner";
@@ -133,18 +133,27 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
               <TableBody>
                 <AnimatePresence>
                   {filteredUsers.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
-                        No users found.
+                    <motion.tr 
+                      initial={{ opacity: 0 }} 
+                      animate={{ opacity: 1 }} 
+                      exit={{ opacity: 0 }}
+                    >
+                      <TableCell colSpan={3} className="h-32 text-center">
+                        <div className="flex flex-col items-center justify-center text-muted-foreground">
+                          <UserX className="h-8 w-8 mb-2 text-primary/40" />
+                          <p>No users found matching your search.</p>
+                        </div>
                       </TableCell>
-                    </TableRow>
+                    </motion.tr>
                   )}
                   {filteredUsers.map((user) => (
                     <motion.tr 
+                      layout
                       key={user.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
                       className="border-b border-border"
                     >
                       <TableCell className="pl-6">
@@ -239,7 +248,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
             </div>
           </div>
           
-          <DialogFooter className="p-6 border-t border-border/50 bg-muted/10 sm:justify-center items-center">
+          <DialogFooter className="p-6 border-t border-border/50 bg-muted/10 sm:justify-end items-center">
             <Button variant="outline" onClick={() => setIsEmailModalOpen(false)}>Cancel</Button>
             <Button onClick={handleSaveEmailTemplates} disabled={isSavingEmail} className="bg-primary hover:bg-primary/90 text-white">
               {isSavingEmail ? "Saving..." : "Save Templates"}
