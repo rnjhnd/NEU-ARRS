@@ -54,14 +54,14 @@ export function Sidebar() {
       <nav className="flex-1 space-y-2 p-4 overflow-hidden whitespace-nowrap">
         <Link 
           href="/admin" 
-          className={`flex items-center gap-3 py-2.5 transition-all ${
+          className={`flex items-center gap-3 py-2.5 transition-all relative ${
             pathname === "/admin" 
               ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-500" 
-                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-yellow-500/10 to-transparent text-yellow-700 dark:text-yellow-500 font-bold rounded-r-xl")
+                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
+                  : "px-3 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl before:absolute before:left-0 before:inset-y-1 before:w-1 before:rounded-r-full before:bg-primary")
               : (isCollapsed 
                   ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
-                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
+                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted")
           }`}
           title="Request Queue"
         >
@@ -70,14 +70,14 @@ export function Sidebar() {
         </Link>
         <Link 
           href="/admin/documents" 
-          className={`flex items-center gap-3 py-2.5 transition-all ${
+          className={`flex items-center gap-3 py-2.5 transition-all relative ${
             pathname === "/admin/documents" 
               ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-500" 
-                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-yellow-500/10 to-transparent text-yellow-700 dark:text-yellow-500 font-bold rounded-r-xl")
+                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
+                  : "px-3 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl before:absolute before:left-0 before:inset-y-1 before:w-1 before:rounded-r-full before:bg-primary")
               : (isCollapsed 
                   ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
-                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
+                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted")
           }`}
           title="Document Management"
         >
@@ -86,14 +86,14 @@ export function Sidebar() {
         </Link>
         <Link 
           href="/admin/finance" 
-          className={`flex items-center gap-3 py-2.5 transition-all ${
+          className={`flex items-center gap-3 py-2.5 transition-all relative ${
             pathname === "/admin/finance" 
               ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-500" 
-                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-yellow-500/10 to-transparent text-yellow-700 dark:text-yellow-500 font-bold rounded-r-xl")
+                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
+                  : "px-3 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl before:absolute before:left-0 before:inset-y-1 before:w-1 before:rounded-r-full before:bg-primary")
               : (isCollapsed 
                   ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
-                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
+                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted")
           }`}
           title="Financial Analytics"
         >
@@ -102,14 +102,14 @@ export function Sidebar() {
         </Link>
         <Link 
           href="/admin/students" 
-          className={`flex items-center gap-3 py-2.5 transition-all ${
+          className={`flex items-center gap-3 py-2.5 transition-all relative ${
             pathname === "/admin/students" 
               ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-500" 
-                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-yellow-500/10 to-transparent text-yellow-700 dark:text-yellow-500 font-bold rounded-r-xl")
+                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
+                  : "px-3 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl before:absolute before:left-0 before:inset-y-1 before:w-1 before:rounded-r-full before:bg-primary")
               : (isCollapsed 
                   ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
-                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
+                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted")
           }`}
           title="Student Records"
         >
@@ -121,14 +121,14 @@ export function Sidebar() {
         
         <Link 
           href="/admin/settings" 
-          className={`flex items-center gap-3 py-2.5 transition-all ${
+          className={`flex items-center gap-3 py-2.5 transition-all relative ${
             pathname === "/admin/settings" 
               ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-500" 
-                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-yellow-500/10 to-transparent text-yellow-700 dark:text-yellow-500 font-bold rounded-r-xl")
+                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
+                  : "px-3 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl before:absolute before:left-0 before:inset-y-1 before:w-1 before:rounded-r-full before:bg-primary")
               : (isCollapsed 
                   ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
-                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
+                  : "px-3 rounded-xl text-muted-foreground hover:bg-muted")
           }`}
           title="System Settings"
         >
