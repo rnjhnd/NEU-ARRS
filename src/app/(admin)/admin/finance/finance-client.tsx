@@ -245,7 +245,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     tickLine={false} 
                     axisLine={false} 
                     tickMargin={12}
-                    width={150}
+                    width={180}
                   />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: 'currentColor', opacity: 0.05 }} />
                   <Bar dataKey="revenue" fill="#0A5C36" radius={[0, 4, 4, 0]} barSize={32}>
