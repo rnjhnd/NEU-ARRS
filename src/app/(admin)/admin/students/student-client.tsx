@@ -73,7 +73,7 @@ export function StudentClient({
         </div>
       </div>
 
-      <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
+      <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0">
         <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
           <CardTitle className="text-xl font-bold tracking-tight text-foreground">Registered Students</CardTitle>
           <CardDescription>A complete list of students who have signed up via the portal.</CardDescription>
