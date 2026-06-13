@@ -24,7 +24,7 @@ export default function AdminQueueLoading() {
         ))}
       </div>
 
-      <Card className="shadow-sm border-border overflow-hidden">
+      <Card className="shadow-sm border-border overflow-hidden pb-0">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-4 mb-4">
           <div>
             <div className="h-6 w-32 bg-muted rounded-md mb-2"></div>

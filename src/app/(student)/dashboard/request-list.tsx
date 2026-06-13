@@ -161,7 +161,7 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
   }
 
   return (
-    <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0">
+    <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0 pb-0">
       <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
         <CardTitle className="text-2xl font-bold tracking-tight text-foreground">Request History</CardTitle>
         <CardDescription className="text-base text-muted-foreground">A complete log of your academic document requests.</CardDescription>

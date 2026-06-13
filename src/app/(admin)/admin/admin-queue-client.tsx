@@ -346,7 +346,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
         </div>
       </div>
 
-      <Card className="shadow-lg border-emerald-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0">
+      <Card className="shadow-lg border-emerald-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0 pb-0">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent pb-6 px-8 pt-8">
           <div>
             <CardTitle className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">

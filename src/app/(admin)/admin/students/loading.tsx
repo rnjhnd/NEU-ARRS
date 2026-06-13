@@ -9,7 +9,7 @@ export default function Loading() {
         <Skeleton className="h-5 w-80" />
       </div>
 
-      <Card className="shadow-sm border-border">
+      <Card className="shadow-sm border-border pb-0">
         <CardHeader className="border-b pb-6">
           <Skeleton className="h-6 w-48 mb-2" />
           <Skeleton className="h-4 w-72" />

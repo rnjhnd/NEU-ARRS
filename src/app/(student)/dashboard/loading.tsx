@@ -11,7 +11,7 @@ export default function StudentDashboardLoading() {
         <div className="h-10 w-32 bg-muted rounded-md"></div>
       </div>
 
-      <Card className="shadow-sm border-border overflow-hidden">
+      <Card className="shadow-sm border-border overflow-hidden pb-0">
         <CardHeader className="bg-muted/10 border-b border-border pb-6">
           <div className="h-6 w-40 bg-muted rounded-md mb-2"></div>
           <div className="h-4 w-72 bg-muted/60 rounded-md"></div>
