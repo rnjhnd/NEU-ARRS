@@ -103,7 +103,8 @@ export function ProfileMenu() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator className="bg-border/40 my-1.5 mx-2" />
         <DropdownMenuItem 
-          className="cursor-pointer py-2.5 px-3 rounded-xl text-red-600 focus:bg-red-500/10 focus:text-red-600 transition-colors group"
+          variant="destructive"
+          className="cursor-pointer py-2.5 px-3 rounded-xl focus:bg-red-500/10 transition-colors group"
           onClick={handleSignOut}
         >
           <LogOut className="mr-3 h-4 w-4 text-red-500/70 group-hover:text-red-600 transition-colors" />

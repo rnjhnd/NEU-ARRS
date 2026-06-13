@@ -212,7 +212,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <p className="text-sm font-medium text-muted-foreground">In Processing</p>
               <h3 className="text-3xl font-bold mt-1 text-foreground">{processingCount}</h3>
             </div>
-            <div className="p-3 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-xl">
+            <div className="p-3 bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 rounded-xl">
               <Activity className="w-6 h-6" />
             </div>
           </CardContent>

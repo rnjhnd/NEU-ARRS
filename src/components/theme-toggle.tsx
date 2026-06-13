@@ -24,7 +24,7 @@ export function ThemeToggle() {
       aria-label="Toggle theme"
     >
       <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-gold" />
-      <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-blue-200 drop-shadow-[0_0_5px_rgba(191,219,254,0.5)]" />
+      <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-emerald-200 drop-shadow-[0_0_5px_rgba(167,243,208,0.5)]" />
     </button>
   );
 }
