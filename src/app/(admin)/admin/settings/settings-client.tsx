@@ -161,11 +161,11 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
                       </TableCell>
                       <TableCell>
                         {user.isAdmin ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary border border-primary/20 dark:border-primary/30">
                             Administrator
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-600">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-600 border border-yellow-500/20 dark:border-yellow-900/50">
                             Student
                           </span>
                         )}
