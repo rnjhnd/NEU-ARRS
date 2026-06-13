@@ -56,48 +56,48 @@ export function Sidebar() {
           href="/admin" 
           className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin" 
-              ? "bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/20"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              ? "bg-primary/10 text-primary font-bold shadow-sm"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
           } ${isCollapsed ? "justify-center" : ""}`}
           title="Request Queue"
         >
-          <LayoutDashboard className="w-5 h-5 flex-shrink-0 transition-colors" />
+          <LayoutDashboard className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin" ? "text-primary" : ""}`} />
           {!isCollapsed && <span>Request Queue</span>}
         </Link>
         <Link 
           href="/admin/documents" 
           className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin/documents" 
-              ? "bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/20"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              ? "bg-primary/10 text-primary font-bold shadow-sm"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
           } ${isCollapsed ? "justify-center" : ""}`}
           title="Document Management"
         >
-          <FileText className="w-5 h-5 flex-shrink-0 transition-colors" />
+          <FileText className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/documents" ? "text-primary" : ""}`} />
           {!isCollapsed && <span>Document Management</span>}
         </Link>
         <Link 
           href="/admin/finance" 
           className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin/finance" 
-              ? "bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/20"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              ? "bg-primary/10 text-primary font-bold shadow-sm"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
           } ${isCollapsed ? "justify-center" : ""}`}
           title="Financial Analytics"
         >
-          <PieChart className="w-5 h-5 flex-shrink-0 transition-colors" />
+          <PieChart className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/finance" ? "text-primary" : ""}`} />
           {!isCollapsed && <span>Financial Analytics</span>}
         </Link>
         <Link 
           href="/admin/students" 
           className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin/students" 
-              ? "bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/20"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              ? "bg-primary/10 text-primary font-bold shadow-sm"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
           } ${isCollapsed ? "justify-center" : ""}`}
           title="Student Records"
         >
-          <Users className="w-5 h-5 flex-shrink-0 transition-colors" />
+          <Users className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/students" ? "text-primary" : ""}`} />
           {!isCollapsed && <span>Student Records</span>}
         </Link>
         
@@ -107,12 +107,12 @@ export function Sidebar() {
           href="/admin/settings" 
           className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin/settings" 
-              ? "bg-primary text-primary-foreground font-semibold shadow-md shadow-primary/20"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              ? "bg-primary/10 text-primary font-bold shadow-sm"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
           } ${isCollapsed ? "justify-center" : ""}`}
           title="System Settings"
         >
-          <Settings className="w-5 h-5 flex-shrink-0 transition-colors" />
+          <Settings className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/settings" ? "text-primary" : ""}`} />
           {!isCollapsed && <span>System Settings</span>}
         </Link>
       </nav>

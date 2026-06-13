@@ -100,7 +100,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
           </div>
           
           <Button 
-            className="rounded-full px-6 bg-white/20 hover:bg-white/30 text-white border-none shadow-sm backdrop-blur-md" 
+            size="lg" className="rounded-full px-6 shadow-[0_4px_20px_rgba(10,92,54,0.2)] hover:shadow-lg transition-all hover:scale-105 active:scale-95 bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md" 
             onClick={startNew} 
             disabled={editingId === "new"}
           >
