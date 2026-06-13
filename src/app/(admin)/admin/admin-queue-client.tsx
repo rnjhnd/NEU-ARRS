@@ -644,8 +644,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="PENDING">Pending Review</SelectItem>
-                    <SelectItem value="PENDING_PAYMENT">Pending Payment</SelectItem>
+                    <SelectItem value="PENDING" disabled={editingRequest.paymentMethod !== "CASHIER"}>Pending Review</SelectItem>
+                    <SelectItem value="PENDING_PAYMENT" disabled={editingRequest.paymentMethod !== "CASHIER"}>Pending Payment</SelectItem>
                     <SelectItem value="PROCESSING">Processing</SelectItem>
                     <SelectItem value="READY_FOR_PICKUP">Ready to Pick-up</SelectItem>
                     <SelectItem value="COMPLETED">Completed</SelectItem>
