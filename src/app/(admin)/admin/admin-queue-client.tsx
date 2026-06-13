@@ -285,15 +285,15 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 initial={{ opacity: 0, y: -10 }} 
                 animate={{ opacity: 1, y: 0 }} 
                 exit={{ opacity: 0, y: -10 }}
-                className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg"
+                className="flex items-center gap-1 bg-background/95 backdrop-blur-md border border-border/50 p-1.5 rounded-full shadow-md"
               >
-                <span className="text-sm font-semibold text-primary px-3">
-                  {selectedIds.size} selected
+                <span className="text-sm font-medium text-muted-foreground px-3 border-r border-border/50 mr-1">
+                  <span className="font-semibold text-foreground">{selectedIds.size}</span> selected
                 </span>
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm"
-                  className="bg-background shadow-sm hover:text-blue-600"
+                  className="rounded-full h-8 px-4 text-xs font-medium hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   disabled={isUpdating}
                   onClick={() => handleBulkUpdate(RequestStatus.PROCESSING)}
                 >
@@ -302,15 +302,16 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 <Button 
                   variant="default" 
                   size="sm"
-                  className="shadow-[0_2px_10px_rgba(10,92,54,0.2)]"
+                  className="rounded-full h-8 px-4 text-xs font-medium shadow-[0_2px_10px_rgba(10,92,54,0.2)] transition-colors"
                   disabled={isUpdating}
                   onClick={() => handleBulkUpdate(RequestStatus.READY_FOR_PICKUP)}
                 >
                   Mark Ready
                 </Button>
                 <Button 
-                  variant="secondary" 
+                  variant="ghost" 
                   size="sm"
+                  className="rounded-full h-8 px-4 text-xs font-medium hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                   disabled={isUpdating}
                   onClick={() => handleBulkUpdate(RequestStatus.COMPLETED)}
                 >
@@ -319,7 +320,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                  className="rounded-full h-8 px-4 text-xs font-medium text-red-500 hover:text-red-600 hover:bg-red-500/10 dark:hover:text-red-400 transition-colors"
                   disabled={isUpdating}
                   onClick={() => setCancelDialogOpen(true)}
                 >
