@@ -1,44 +1,97 @@
-import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
-import { clerkClient } from "@clerk/nextjs/server";
-import { AdminQueueClient } from "./admin-queue-client";
+import { Suspense } from "react";
+import { AdminQueueData } from "./admin-queue-data";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+function AdminQueueSkeleton() {
+  return (
+    <div className="space-y-8 w-full animate-pulse">
+      {/* At-A-Glance Stats Skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="shadow-sm border-border bg-card">
+            <CardContent className="p-6 flex items-center justify-between">
+              <div>
+                <Skeleton className="h-4 w-24 mb-3" />
+                <Skeleton className="h-8 w-12" />
+              </div>
+              <Skeleton className="w-12 h-12 rounded-xl shrink-0" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="flex gap-2 flex-wrap">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <Skeleton key={i} className="h-10 w-24 rounded-full" />
+        ))}
+      </div>
+
+      <Card className="shadow-sm border-border overflow-hidden !pb-0">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent pb-6 px-8 pt-8">
+          <div>
+            <Skeleton className="h-6 w-32 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="w-full">
+            <Table className="table-fixed">
+              <TableHeader>
+                <TableRow className="border-b border-border/50 bg-transparent hover:bg-transparent">
+                  <TableHead className="w-[50px] pl-8"><Skeleton className="h-4 w-4 rounded" /></TableHead>
+                  <TableHead className="w-[20%]"><Skeleton className="h-4 w-16" /></TableHead>
+                  <TableHead className="w-[25%]"><Skeleton className="h-4 w-24" /></TableHead>
+                  <TableHead className="w-[15%] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-16" /></div></TableHead>
+                  <TableHead className="w-[15%] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-20" /></div></TableHead>
+                  <TableHead className="pr-8 w-[20%] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-16" /></div></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                  <TableRow key={i} className="border-b border-border/40 last:border-0">
+                    <TableCell className="pl-8 py-4">
+                      <Skeleton className="h-4 w-4 rounded" />
+                    </TableCell>
+                    <TableCell className="py-4">
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-24" />
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-4">
+                      <Skeleton className="h-4 w-48" />
+                    </TableCell>
+                    <TableCell className="text-right py-4">
+                      <div className="flex justify-end"><Skeleton className="h-5 w-20 rounded-full" /></div>
+                    </TableCell>
+                    <TableCell className="text-right py-4">
+                      <div className="flex justify-end">
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-20 ml-auto" />
+                          <Skeleton className="h-3 w-16 ml-auto" />
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right pr-8 py-4">
+                      <div className="flex justify-end"><Skeleton className="h-6 w-24 rounded-full" /></div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export default async function AdminPage() {
   // Ensure the user is an admin before rendering or fetching data
   await requireAdmin();
-
-  const requests = await prisma.request.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-
-  const client = await clerkClient();
-  const { data: users } = await client.users.getUserList();
-  const userMap = new Map(users.map(u => [
-    u.id, 
-    {
-      name: `${u.firstName || ""} ${u.lastName || ""}`.trim() || "Unknown Student",
-      email: u.emailAddresses[0]?.emailAddress || "No email"
-    }
-  ]));
-
-  const docConfigs = await prisma.documentConfig.findMany();
-  const docMap = new Map(docConfigs.map(c => [c.typeId, c.label]));
-
-  const LEGACY_DOC_MAP: Record<string, string> = {
-    "TRANSCRIPT_OF_RECORDS": "Transcript of Records",
-    "GOOD_MORAL": "Good Moral Certificate",
-    "LEAVE_OF_ABSENCE": "Leave of Absence",
-    "TRUE_COPY_OF_GRADES": "True Copy of Grades",
-    "CERTIFICATE_OF_ENROLLMENT": "Certificate of Enrollment",
-    "DIPLOMA": "Diploma"
-  };
-
-  const mappedRequests = requests.map(req => ({
-    ...req,
-    studentName: userMap.get(req.studentId)?.name || "Unknown Student",
-    studentEmail: userMap.get(req.studentId)?.email || "No email",
-    documentType: docMap.get(req.documentType) || LEGACY_DOC_MAP[req.documentType] || req.documentType.replace(/_/g, " ")
-  }));
 
   return (
     <div className="space-y-8 w-full">
@@ -59,7 +112,9 @@ export default async function AdminPage() {
         </div>
       </div>
       
-      <AdminQueueClient initialRequests={mappedRequests as any} />
+      <Suspense fallback={<AdminQueueSkeleton />}>
+        <AdminQueueData />
+      </Suspense>
     </div>
   );
 }

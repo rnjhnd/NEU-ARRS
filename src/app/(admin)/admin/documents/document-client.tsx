@@ -83,36 +83,19 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
 
   return (
     <div className="space-y-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-      
-      {/* Premium Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-900 p-8 sm:p-10 text-white shadow-xl">
-        <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 rounded-full bg-white/10 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-48 h-48 rounded-full bg-primary/20 blur-2xl"></div>
-        
-        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight drop-shadow-sm">
-              Document Management
-            </h1>
-            <p className="text-white/90 text-lg font-medium max-w-xl">
-              Configure dynamic pricing and availability for official university documents.
-            </p>
+      <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0 !pb-0">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
+          <div>
+            <CardTitle className="text-xl font-bold tracking-tight text-foreground">Available Documents</CardTitle>
+            <CardDescription>Manage descriptions, pricing, and active status.</CardDescription>
           </div>
-          
           <Button 
-            size="lg" className="rounded-full px-6 shadow-[0_4px_20px_rgba(10,92,54,0.2)] hover:shadow-lg transition-all hover:scale-105 active:scale-95 bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md" 
+            size="sm" className="rounded-full px-6" 
             onClick={startNew} 
             disabled={editingId === "new"}
           >
-            <Plus className="w-5 h-5 -ml-1 mr-2" /> Add New Document
+            <Plus className="w-4 h-4 mr-2" /> Add New Document
           </Button>
-        </div>
-      </div>
-
-      <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0 !pb-0">
-        <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
-          <CardTitle className="text-xl font-bold tracking-tight text-foreground">Available Documents</CardTitle>
-          <CardDescription>Manage descriptions, pricing, and active status.</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="w-full overflow-x-auto">

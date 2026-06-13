@@ -1,10 +1,84 @@
-import prisma from "@/lib/prisma";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { RequestList } from "./request-list";
-import { Plus, FileText, CheckCircle, Clock } from "lucide-react";
+import { Plus } from "lucide-react";
+import { Suspense } from "react";
+import { DashboardData } from "./dashboard-data";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-8 w-full animate-pulse">
+      {/* Quick Stats Skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-muted/20 rounded-2xl p-6 border border-border/50 flex items-center gap-4">
+            <Skeleton className="w-12 h-12 rounded-xl shrink-0" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-8 w-16" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0 !pb-0">
+        <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
+          <Skeleton className="h-6 w-40 mb-2" />
+          <Skeleton className="h-4 w-72" />
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="w-full overflow-x-auto">
+            <Table className="table-fixed">
+              <TableHeader>
+                <TableRow className="border-b border-border/50 bg-transparent hover:bg-transparent">
+                  <TableHead className="pl-8 w-[15%]"><Skeleton className="h-4 w-20" /></TableHead>
+                  <TableHead className="w-[22%]"><Skeleton className="h-4 w-24" /></TableHead>
+                  <TableHead className="w-[15%]"><Skeleton className="h-4 w-16" /></TableHead>
+                  <TableHead className="w-[15%] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-16" /></div></TableHead>
+                  <TableHead className="w-[15%] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-20" /></div></TableHead>
+                  <TableHead className="pr-8 w-[18%] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-24" /></div></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <TableRow key={i} className="border-b border-border/50 last:border-0">
+                    <TableCell className="pl-8 py-4">
+                      <Skeleton className="h-6 w-20 rounded-md" />
+                    </TableCell>
+                    <TableCell className="py-4">
+                      <Skeleton className="h-4 w-40" />
+                    </TableCell>
+                    <TableCell className="py-4">
+                      <Skeleton className="h-4 w-24" />
+                    </TableCell>
+                    <TableCell className="text-right py-4">
+                      <div className="flex justify-end">
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-16 ml-auto" />
+                          <Skeleton className="h-3 w-12 ml-auto" />
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right py-4">
+                      <div className="flex justify-end"><Skeleton className="h-5 w-20 rounded-full" /></div>
+                    </TableCell>
+                    <TableCell className="text-right pr-8 py-4">
+                      <div className="flex justify-end"><Skeleton className="h-6 w-24 rounded-full" /></div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export default async function StudentDashboardPage() {
   const { userId } = await auth();
@@ -13,32 +87,6 @@ export default async function StudentDashboardPage() {
   if (!userId) {
     redirect("/sign-in");
   }
-
-  const requests = await prisma.request.findMany({
-    where: { studentId: userId },
-    orderBy: { createdAt: "desc" },
-  });
-
-  const activeRequests = requests.filter(r => r.status !== 'COMPLETED' && r.status !== 'CANCELLED').length;
-  const completedRequests = requests.filter(r => r.status === 'COMPLETED').length;
-  const totalRequests = requests.length;
-
-  const docConfigs = await prisma.documentConfig.findMany();
-  const docMap = new Map(docConfigs.map(c => [c.typeId, c.label]));
-
-  const LEGACY_DOC_MAP: Record<string, string> = {
-    "TRANSCRIPT_OF_RECORDS": "Transcript of Records",
-    "GOOD_MORAL": "Good Moral Certificate",
-    "LEAVE_OF_ABSENCE": "Leave of Absence",
-    "TRUE_COPY_OF_GRADES": "True Copy of Grades",
-    "CERTIFICATE_OF_ENROLLMENT": "Certificate of Enrollment",
-    "DIPLOMA": "Diploma"
-  };
-
-  const mappedRequests = requests.map(req => ({
-    ...req,
-    documentType: docMap.get(req.documentType) || LEGACY_DOC_MAP[req.documentType] || req.documentType.replace(/_/g, " ")
-  }));
 
   return (
     <div className="space-y-8 w-full">
@@ -65,38 +113,9 @@ export default async function StudentDashboardPage() {
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-        <div className="bg-background/60 backdrop-blur-md rounded-2xl p-6 border border-border/50 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-yellow-500/10 text-yellow-600 dark:bg-gold/10 dark:text-gold rounded-xl">
-            <Clock className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Active Requests</p>
-            <h3 className="text-2xl font-bold">{activeRequests}</h3>
-          </div>
-        </div>
-        <div className="bg-background/60 backdrop-blur-md rounded-2xl p-6 border border-border/50 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-primary/10 text-primary rounded-xl">
-            <CheckCircle className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Completed</p>
-            <h3 className="text-2xl font-bold">{completedRequests}</h3>
-          </div>
-        </div>
-        <div className="bg-background/60 backdrop-blur-md rounded-2xl p-6 border border-border/50 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-primary/10 text-primary rounded-xl">
-            <FileText className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Total Processed</p>
-            <h3 className="text-2xl font-bold">{totalRequests}</h3>
-          </div>
-        </div>
-      </div>
-
-      <RequestList requests={mappedRequests as any} />
+      <Suspense fallback={<DashboardSkeleton />}>
+        <DashboardData userId={userId} />
+      </Suspense>
     </div>
   );
 }

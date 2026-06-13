@@ -1,31 +1,56 @@
-import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
-import { FinanceClient } from "./finance-client";
+import { Suspense } from "react";
+import { FinanceData } from "./finance-data";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+
+function FinanceSkeleton() {
+  return (
+    <div className="space-y-8 mt-8 animate-pulse">
+      {/* KPI Cards Skeleton */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Card key={i}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-4" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-32 mb-1" />
+              <Skeleton className="h-3 w-20" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Charts Skeleton */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4">
+          <CardHeader>
+            <Skeleton className="h-6 w-32 mb-2" />
+            <Skeleton className="h-4 w-48" />
+          </CardHeader>
+          <CardContent className="pl-2">
+            <Skeleton className="h-[350px] w-full" />
+          </CardContent>
+        </Card>
+        
+        <Card className="col-span-3">
+          <CardHeader>
+            <Skeleton className="h-6 w-32 mb-2" />
+            <Skeleton className="h-4 w-48" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-[350px] w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
 
 export default async function FinancePage() {
   await requireAdmin();
-
-  // Fetch all requests
-  const requests = await prisma.request.findMany({
-    orderBy: { createdAt: "asc" },
-  });
-
-  const docConfigs = await prisma.documentConfig.findMany();
-  const docMap = new Map(docConfigs.map(c => [c.typeId, c.label]));
-
-  const LEGACY_DOC_MAP: Record<string, string> = {
-    "TRANSCRIPT_OF_RECORDS": "Transcript of Records",
-    "GOOD_MORAL": "Good Moral Certificate",
-    "LEAVE_OF_ABSENCE": "Leave of Absence",
-    "TRUE_COPY_OF_GRADES": "True Copy of Grades",
-    "CERTIFICATE_OF_ENROLLMENT": "Certificate of Enrollment",
-    "DIPLOMA": "Diploma"
-  };
-
-  const mappedRequests = requests.map(req => ({
-    ...req,
-    documentType: docMap.get(req.documentType) || LEGACY_DOC_MAP[req.documentType] || req.documentType.replace(/_/g, " ")
-  }));
 
   return (
     <div className="space-y-8 w-full">
@@ -46,7 +71,9 @@ export default async function FinancePage() {
         </div>
       </div>
       
-      <FinanceClient requests={mappedRequests as any} />
+      <Suspense fallback={<FinanceSkeleton />}>
+        <FinanceData />
+      </Suspense>
     </div>
   );
 }

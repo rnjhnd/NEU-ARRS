@@ -112,38 +112,21 @@ export function StudentClient({
 
   return (
     <div className="space-y-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-      
-      {/* Premium Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-900 p-8 sm:p-10 text-white shadow-xl">
-        <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 rounded-full bg-white/10 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-48 h-48 rounded-full bg-primary/20 blur-2xl"></div>
-        
-        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight drop-shadow-sm">
-              Student Directory
-            </h1>
-            <p className="text-white/90 text-lg font-medium max-w-xl">
-              View all registered students, their request history, and lifetime value.
-            </p>
+      <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0 !pb-0">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
+          <div>
+            <CardTitle className="text-xl font-bold tracking-tight text-foreground">Registered Students</CardTitle>
+            <CardDescription>A complete list of students who have signed up via the portal.</CardDescription>
           </div>
-          
           <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
               placeholder="Search students by name or email..." 
-              className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/70 shadow-inner rounded-full h-11 focus-visible:ring-white/30"
+              className="pl-9 bg-background/50 border-border/50 shadow-sm rounded-full h-10"
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
             />
           </div>
-        </div>
-      </div>
-
-      <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0 !pb-0">
-        <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
-          <CardTitle className="text-xl font-bold tracking-tight text-foreground">Registered Students</CardTitle>
-          <CardDescription>A complete list of students who have signed up via the portal.</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="w-full">
