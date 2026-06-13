@@ -44,7 +44,7 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
   const [payingId, setPayingId] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelReasonInput, setCancelReasonInput] = useState("");
-  const [sortConfig, setSortConfig] = useState<{ key: keyof Request; direction: "asc" | "desc" } | null>({ key: "createdAt", direction: "desc" });
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Request; direction: "asc" | "desc" } | null>({ key: "updatedAt", direction: "desc" });
   const router = useRouter();
 
   useEffect(() => {
@@ -175,7 +175,7 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
                 <SortableHeader title="Reference ID" sortKey="id" className="pl-8 w-[15%]" />
                 <SortableHeader title="Document Type" sortKey="documentType" className="w-[22%]" />
                 <SortableHeader title="Purpose" sortKey="purpose" className="w-[15%]" />
-                <SortableHeader title="Date" sortKey="createdAt" alignRight className="w-[15%]" />
+                <SortableHeader title="Last Updated" sortKey="updatedAt" alignRight className="w-[15%]" />
                 <SortableHeader title="Payment" sortKey="paymentStatus" alignRight className="w-[15%]" />
                 <SortableHeader title="Status" sortKey="status" alignRight className="pr-8 w-[18%]" />
               </TableRow>
@@ -202,8 +202,8 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
                       <TableCell className="text-muted-foreground">
                         {req.purpose.replace("_", " ")}
                       </TableCell>
-                      <TableCell className="text-right text-muted-foreground text-sm">
-                        {format(new Date(req.createdAt), "MMM d, yyyy")}
+                      <TableCell className="text-right text-muted-foreground font-medium">
+                        {format(new Date(req.updatedAt), "MMM d, yyyy")}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex flex-col gap-0.5 items-end">

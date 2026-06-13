@@ -64,7 +64,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
   });
 
   type SortConfig = { key: keyof MappedRequest; direction: "asc" | "desc" } | null;
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "createdAt", direction: "desc" });
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "updatedAt", direction: "desc" });
 
   const sortedRequests = [...filteredRequests].sort((a, b) => {
     if (!sortConfig) return 0;
@@ -426,7 +426,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   <SortableHeader title="Student" sortKey="studentName" className="w-[20%]" />
                   <SortableHeader title="Document" sortKey="documentType" className="w-[25%]" />
                   <SortableHeader title="Payment" sortKey="paymentStatus" alignRight className="w-[15%]" />
-                  <SortableHeader title="Date" sortKey="createdAt" alignRight className="w-[15%]" />
+                  <SortableHeader title="Last Updated" sortKey="updatedAt" alignRight className="w-[15%]" />
                   <SortableHeader title="Status" sortKey="status" alignRight className="pr-8 w-[20%]" />
                 </TableRow>
               </TableHeader>
@@ -493,8 +493,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex flex-col gap-0.5 items-end">
-                          <span className="text-sm font-medium text-foreground">{format(new Date(req.createdAt), "MMM d, yyyy")}</span>
-                          <span className="text-[10px] text-muted-foreground">{format(new Date(req.createdAt), "h:mm a")}</span>
+                          <span className="text-sm font-medium text-foreground">{format(new Date(req.updatedAt), "MMM d, yyyy")}</span>
+                          <span className="text-[10px] text-muted-foreground">{format(new Date(req.updatedAt), "h:mm a")}</span>
                         </div>
                       </TableCell>
                       <TableCell className="text-right pr-8">
@@ -624,6 +624,10 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 <div>
                   <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Date Submitted</span>
                   <span className="font-medium text-foreground">{format(new Date(editingRequest.createdAt), "MMM d, yyyy 'at' h:mm a")}</span>
+                </div>
+                <div className="pt-2 border-t border-border/50">
+                  <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Last Updated</span>
+                  <span className="font-medium text-foreground">{format(new Date(editingRequest.updatedAt), "MMM d, yyyy 'at' h:mm a")}</span>
                 </div>
                 <div className="pt-2 border-t border-border/50">
                   <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Student Name</span>
