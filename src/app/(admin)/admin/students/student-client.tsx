@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { User, Search, SearchX } from "lucide-react";
+import { User, Search, SearchX, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 
@@ -29,6 +29,7 @@ export function StudentClient({
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const ITEMS_PER_PAGE = 10;
+  const [sortConfig, setSortConfig] = useState<{ key: string, direction: "asc" | "desc" } | null>(null);
 
   // Filter
   const filteredUsers = users.filter((user) => {
@@ -39,9 +40,75 @@ export function StudentClient({
     return name.includes(q) || email.includes(q);
   });
 
+  // Sort
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    if (!sortConfig) return 0;
+    
+    let aVal: any = "";
+    let bVal: any = "";
+
+    if (sortConfig.key === "name") {
+      aVal = `${a.firstName || ""} ${a.lastName || ""}`.toLowerCase();
+      bVal = `${b.firstName || ""} ${b.lastName || ""}`.toLowerCase();
+    } else if (sortConfig.key === "email") {
+      aVal = a.emailAddresses?.[0]?.emailAddress?.toLowerCase() || "";
+      bVal = b.emailAddresses?.[0]?.emailAddress?.toLowerCase() || "";
+    } else if (sortConfig.key === "count") {
+      aVal = countMap[a.id] || 0;
+      bVal = countMap[b.id] || 0;
+    } else if (sortConfig.key === "ltv") {
+      aVal = ltvMap[a.id] || 0;
+      bVal = ltvMap[b.id] || 0;
+    }
+
+    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+
   // Paginate
-  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
-  const paginatedUsers = filteredUsers.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(sortedUsers.length / ITEMS_PER_PAGE);
+  const paginatedUsers = sortedUsers.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  const handleSort = (key: string) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const SortableHeader = ({ title, sortKey, alignRight = false, className = "" }: { title: string, sortKey: string, alignRight?: boolean, className?: string }) => {
+    if (filteredUsers.length <= 1) {
+      return (
+        <TableHead className={`font-semibold tracking-wider text-muted-foreground uppercase text-xs h-12 ${alignRight ? "text-right" : ""} ${className}`}>
+          {title}
+        </TableHead>
+      );
+    }
+
+    const isActive = sortConfig?.key === sortKey;
+    
+    const renderIcon = () => {
+      if (isActive) {
+        return sortConfig.direction === "asc" ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />;
+      }
+      return <ArrowUpDown className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />;
+    };
+
+    return (
+      <TableHead className={`font-semibold tracking-wider text-emerald-800 dark:text-emerald-400 uppercase text-xs h-12 ${alignRight ? "text-right" : ""} ${className}`}>
+        <button 
+          onClick={() => handleSort(sortKey)}
+          className={`flex items-center gap-1.5 hover:text-emerald-950 dark:hover:text-emerald-300 transition-colors py-2 group ${alignRight ? "ml-auto justify-end" : ""}`}
+        >
+          {alignRight && renderIcon()}
+          {title}
+          {!alignRight && renderIcon()}
+        </button>
+      </TableHead>
+    );
+  };
 
   return (
     <div className="space-y-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
@@ -83,10 +150,10 @@ export function StudentClient({
             <Table className="table-fixed">
               <TableHeader>
                 <TableRow className="border-b border-border/50 hover:bg-transparent">
-                  <TableHead className="pl-8 w-[35%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Student</TableHead>
-                  <TableHead className="w-[30%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Email Address</TableHead>
-                  <TableHead className="w-[15%] text-right h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Total Requests</TableHead>
-                  <TableHead className="w-[20%] text-right pr-8 h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Lifetime Value</TableHead>
+                  <SortableHeader title="Student" sortKey="name" className="pl-8 w-[35%]" />
+                  <SortableHeader title="Email Address" sortKey="email" className="w-[30%]" />
+                  <SortableHeader title="Total Requests" sortKey="count" alignRight className="w-[15%]" />
+                  <SortableHeader title="Lifetime Value" sortKey="ltv" alignRight className="pr-8 w-[20%]" />
                 </TableRow>
               </TableHeader>
               <TableBody>

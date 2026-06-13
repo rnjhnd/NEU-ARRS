@@ -172,6 +172,16 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
   };
 
   const SortableHeader = ({ title, sortKey, alignRight = false, className = "" }: { title: string, sortKey: keyof MappedRequest, alignRight?: boolean, className?: string }) => {
+    if (filteredRequests.length <= 1) {
+      return (
+        <TableHead className={`font-semibold text-emerald-800 dark:text-emerald-400 ${alignRight ? "text-right" : ""} ${className}`}>
+          <div className={`flex items-center gap-1.5 py-2 ${alignRight ? "ml-auto justify-end" : ""}`}>
+            {title}
+          </div>
+        </TableHead>
+      );
+    }
+
     const isActive = sortConfig?.key === sortKey;
     
     const renderIcon = () => {
