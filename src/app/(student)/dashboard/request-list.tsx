@@ -151,11 +151,11 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
             <TableHeader>
               <TableRow className="border-b border-border/50 bg-transparent hover:bg-transparent">
                 <SortableHeader title="Reference ID" sortKey="id" className="pl-8 w-[15%]" />
-                <SortableHeader title="Document Type" sortKey="documentType" className="w-[25%]" />
-                <SortableHeader title="Purpose" sortKey="purpose" className="w-[20%]" />
+                <SortableHeader title="Document Type" sortKey="documentType" className="w-[22%]" />
+                <SortableHeader title="Purpose" sortKey="purpose" className="w-[15%]" />
                 <SortableHeader title="Date" sortKey="createdAt" alignRight className="w-[15%]" />
-                <SortableHeader title="Payment" sortKey="paymentStatus" alignRight className="w-[10%]" />
-                <SortableHeader title="Status" sortKey="status" alignRight className="pr-8 w-[15%]" />
+                <SortableHeader title="Payment" sortKey="paymentStatus" alignRight className="w-[15%]" />
+                <SortableHeader title="Status" sortKey="status" alignRight className="pr-8 w-[18%]" />
               </TableRow>
             </TableHeader>
             <TableBody>
