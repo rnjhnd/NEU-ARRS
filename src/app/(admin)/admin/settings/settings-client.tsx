@@ -213,7 +213,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
           
           <div className="flex flex-col md:flex-row flex-1 overflow-hidden min-h-[400px]">
             {/* Custom Tabs Sidebar */}
-            <div className="w-full md:w-48 border-b md:border-b-0 md:border-r border-border/50 bg-muted/10 overflow-y-auto">
+            <div className="w-full md:w-48 border-b md:border-b-0 md:border-r border-border/50 bg-muted/10 overflow-y-auto pt-3">
               {statuses.map((status) => (
                 <button
                   key={status.id}
