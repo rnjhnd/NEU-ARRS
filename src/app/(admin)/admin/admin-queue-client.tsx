@@ -615,43 +615,45 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-y-5 gap-x-4 text-sm bg-card p-5 rounded-xl border border-border shadow-sm">
+              <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm bg-card p-4 rounded-xl border border-border shadow-sm">
                 <div>
-                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Reference ID</span>
-                  <span className="font-mono font-semibold text-foreground text-base">#{editingRequest.id.slice(0, 8).toUpperCase()}</span>
+                  <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Reference ID</span>
+                  <span className="font-mono font-semibold text-foreground">#{editingRequest.id.slice(0, 8).toUpperCase()}</span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Date Submitted</span>
+                  <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Date Submitted</span>
                   <span className="font-medium text-foreground">{format(new Date(editingRequest.createdAt), "MMM d, yyyy 'at' h:mm a")}</span>
                 </div>
-                <div>
-                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Student Name</span>
-                  <span className="font-medium text-foreground">{editingRequest.studentName || "Unknown"}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Student Email</span>
-                  <span className="font-medium text-foreground">{editingRequest.studentEmail || "No email"}</span>
+                <div className="col-span-2 flex flex-row justify-between border-t border-border/50 pt-2">
+                  <div>
+                    <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Student Name</span>
+                    <span className="font-medium text-foreground">{editingRequest.studentName || "Unknown"}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Student Email</span>
+                    <span className="font-medium text-foreground">{editingRequest.studentEmail || "No email"}</span>
+                  </div>
                 </div>
                 <div className="col-span-2 pt-2 border-t border-border/50">
-                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Document Type</span>
+                  <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Document Type</span>
                   <span className="font-semibold text-foreground text-base">{editingRequest.documentType}</span>
                 </div>
                 <div className="col-span-2">
-                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Purpose</span>
-                  <span className="font-medium text-foreground">{editingRequest.purpose.replace("_", " ")}</span>
+                  <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Purpose</span>
+                  <span className="font-medium text-foreground capitalize">{editingRequest.purpose.replace(/_/g, " ").toLowerCase()}</span>
                 </div>
                 <div className="pt-2 border-t border-border/50">
-                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Payment Method</span>
-                  <span className="font-medium text-foreground capitalize">{editingRequest.paymentMethod}</span>
+                  <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Payment Method</span>
+                  <span className="font-medium text-foreground capitalize">{editingRequest.paymentMethod.replace(/_/g, " ").toLowerCase()}</span>
                 </div>
                 <div className="pt-2 border-t border-border/50">
-                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Payment Status</span>
-                  <span className="font-medium text-foreground uppercase">{editingRequest.paymentStatus.replace(/_/g, " ")}</span>
+                  <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Payment Status</span>
+                  <span className="font-medium text-foreground capitalize">{editingRequest.paymentStatus.replace(/_/g, " ").toLowerCase()}</span>
                 </div>
               </div>
 
-              <div className="space-y-2 pt-4 border-t border-border/50">
-                <span className="text-sm font-semibold text-foreground">Update Status</span>
+              <div className="space-y-3 pt-3 border-t border-border/50">
+                <span className="text-sm font-semibold text-foreground block mb-3">Update Status</span>
                 <Select value={editStatus} onValueChange={(val) => { if (val) setEditStatus(val); }} disabled={isUpdating}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select status" />
