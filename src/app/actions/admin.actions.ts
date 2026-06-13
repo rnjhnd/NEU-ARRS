@@ -6,7 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 import { RequestStatus, PaymentStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { clerkClient } from "@clerk/nextjs/server";
-import { sendStatusUpdateEmail } from "@/lib/email";
+import { sendStatusUpdateEmail, sendCorrectionEmail } from "@/lib/email";
 import { refundPayment } from "@/lib/paymongo";
 
 const UpdateStatusSchema = z.object({
@@ -14,6 +14,7 @@ const UpdateStatusSchema = z.object({
   newStatus: z.nativeEnum(RequestStatus),
   cancelReason: z.string().optional(),
   isOverride: z.boolean().optional(),
+  sendCorrectionEmail: z.boolean().optional(),
 });
 
 const ALLOWED_TRANSITIONS: Record<RequestStatus, RequestStatus[]> = {
@@ -40,13 +41,14 @@ export async function updateRequestStatus(formData: FormData) {
       newStatus: rawStatus,
       cancelReason,
       isOverride: formData.get("isOverride") === "true",
+      sendCorrectionEmail: formData.get("sendCorrectionEmail") === "true",
     });
 
     if (!validatedFields.success) {
       return { success: false, error: "Invalid input provided." };
     }
 
-    const { requestIds, newStatus, cancelReason: reason, isOverride } = validatedFields.data;
+    const { requestIds, newStatus, cancelReason: reason, isOverride, sendCorrectionEmail: shouldSendCorrection } = validatedFields.data;
 
     if (newStatus === RequestStatus.CANCELLED && (!reason || reason.trim() === "")) {
       return { success: false, error: "A cancellation reason is required." };
@@ -107,13 +109,22 @@ export async function updateRequestStatus(formData: FormData) {
           const user = await client.users.getUser(fullReq.studentId);
           const primaryEmail = user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress;
           if (primaryEmail) {
-            await sendStatusUpdateEmail(
-              primaryEmail,
-              user.firstName || "Student",
-              fullReq.documentType,
-              newStatus,
-              reason
-            );
+            if (shouldSendCorrection) {
+              await sendCorrectionEmail(
+                primaryEmail,
+                user.firstName || "Student",
+                fullReq.documentType,
+                newStatus
+              );
+            } else {
+              await sendStatusUpdateEmail(
+                primaryEmail,
+                user.firstName || "Student",
+                fullReq.documentType,
+                newStatus,
+                reason
+              );
+            }
           }
         }
       } catch (err) {

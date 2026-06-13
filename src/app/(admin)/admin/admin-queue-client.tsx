@@ -13,6 +13,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Clock, CheckCircle2, Package, Activity, Search, Download, ArrowUpDown, ArrowUp, ArrowDown, FileText, AlertTriangle, Inbox } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import useSWR from "swr";
 
 export type MappedRequest = Request & { studentName?: string; studentEmail?: string };
@@ -34,6 +36,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
   const [cancelReasonInput, setCancelReasonInput] = useState("");
   const [editingRequest, setEditingRequest] = useState<MappedRequest | null>(null);
   const [editStatus, setEditStatus] = useState<string>("");
+  const [sendCorrection, setSendCorrection] = useState(false);
   const ITEMS_PER_PAGE = 10;
 
   const filteredRequests = requests.filter((req) => {
@@ -146,6 +149,9 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
     formData.append("requestIds", editingRequest.id);
     formData.append("newStatus", editStatus);
     formData.append("isOverride", "true");
+    if (sendCorrection) {
+      formData.append("sendCorrectionEmail", "true");
+    }
     
     const res = await updateRequestStatus(formData);
     if (res.success) {
@@ -631,6 +637,19 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                     <SelectItem value="CANCELLED">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
+                
+                <div className="flex items-center space-x-2 mt-4">
+                  <Checkbox 
+                    id="send-correction" 
+                    checked={sendCorrection} 
+                    onCheckedChange={(checked) => setSendCorrection(checked === true)} 
+                    disabled={isUpdating}
+                  />
+                  <Label htmlFor="send-correction" className="text-sm cursor-pointer">
+                    Send automated correction email to student
+                  </Label>
+                </div>
+
                 <p className="text-xs text-muted-foreground mt-2">
                   Warning: Manually overriding a status will skip automated validation. Use only when necessary to fix mistakes.
                 </p>

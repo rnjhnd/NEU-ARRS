@@ -56,3 +56,31 @@ export async function sendStatusUpdateEmail(
     return { success: false, error };
   }
 }
+
+export async function sendCorrectionEmail(
+  to: string,
+  studentName: string,
+  documentType: string,
+  status: string,
+) {
+  try {
+    const customMessage = `There has been an administrative update to your request. Please note that the current true status of your document is actually: ${status.replace(/_/g, " ")}. We apologize for any confusion caused by our previous automated message.`;
+
+    const data = await resend.emails.send({
+      from: 'Registrar <onboarding@resend.dev>',
+      to: [to],
+      subject: `Correction: Document Request Update - ${documentType.replace("_", " ")}`,
+      react: StatusUpdateEmail({
+        studentName,
+        documentType: documentType.replace("_", " "),
+        status,
+        customMessage,
+      }),
+    });
+
+    return { success: true, data };
+  } catch (error) {
+    console.error("Failed to send correction email", error);
+    return { success: false, error };
+  }
+}
