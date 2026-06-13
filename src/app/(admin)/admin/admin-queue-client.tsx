@@ -602,7 +602,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
 
               <div className="space-y-2 pt-4 border-t border-border/50">
                 <span className="text-sm font-semibold text-foreground">Override Status</span>
-                <Select value={editStatus} onValueChange={setEditStatus} disabled={isUpdating}>
+                <Select value={editStatus} onValueChange={(val) => { if (val) setEditStatus(val); }} disabled={isUpdating}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
