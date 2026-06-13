@@ -26,7 +26,7 @@ export default function AdminQueueLoading() {
         ))}
       </div>
 
-      <Card className="shadow-sm border-border overflow-hidden">
+      <Card className="shadow-sm border-border overflow-hidden !pb-0">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent pb-6 px-8 pt-8">
           <div>
             <Skeleton className="h-6 w-32 mb-2" />
@@ -81,14 +81,6 @@ export default function AdminQueueLoading() {
             </Table>
           </div>
         </CardContent>
-        <div className="flex items-center justify-between border-t border-border/50 px-8 py-4 bg-muted/5">
-          <Skeleton className="h-4 w-64" />
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-20 rounded-full" />
-            <Skeleton className="h-4 w-24 mx-2" />
-            <Skeleton className="h-8 w-20 rounded-full" />
-          </div>
-        </div>
       </Card>
     </div>
   );

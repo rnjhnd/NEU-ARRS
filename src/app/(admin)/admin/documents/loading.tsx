@@ -13,7 +13,7 @@ export default function Loading() {
         <Skeleton className="h-10 w-48" />
       </div>
 
-      <Card className="shadow-sm border-border">
+      <Card className="shadow-sm border-border !pb-0">
         <CardHeader className="border-b pb-6 px-8 pt-8 bg-gradient-to-r from-primary/5 to-transparent">
           <Skeleton className="h-8 w-48 mb-2" />
           <Skeleton className="h-4 w-72" />
@@ -56,14 +56,6 @@ export default function Loading() {
             </Table>
           </div>
         </CardContent>
-        <div className="flex items-center justify-between border-t border-border/50 px-8 py-4 bg-muted/5">
-          <Skeleton className="h-4 w-64" />
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-20 rounded-full" />
-            <Skeleton className="h-4 w-24 mx-2" />
-            <Skeleton className="h-8 w-20 rounded-full" />
-          </div>
-        </div>
       </Card>
     </div>
   );
