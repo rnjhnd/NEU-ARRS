@@ -109,14 +109,14 @@ export const StatusUpdateEmail = ({
             {/* Header Banner */}
             <Section className="bg-slate-900 py-[28px] px-[32px] text-center">
               <Img
-                src={`${appUrl}/neu-logo.png`}
+                src="https://raw.githubusercontent.com/rnjhnd/NEU-ARRS/main/public/neu-logo.png"
                 width="64"
                 height="64"
                 alt="New Era University"
                 className="mx-auto mb-[16px]"
               />
               <Text className="text-white text-[22px] m-0 font-bold tracking-wider">
-                NEU ARRS
+                NEU-ARRS
               </Text>
               <Text className="text-slate-400 text-[13px] m-0 mt-1 uppercase tracking-widest font-medium">
                 Academic Record Request System
