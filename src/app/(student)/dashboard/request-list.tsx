@@ -149,7 +149,7 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
         <div className="w-full overflow-x-auto">
           <Table className="table-fixed">
             <TableHeader>
-              <TableRow className="border-b border-border/50 bg-primary/5">
+              <TableRow className="border-b border-border/50 bg-transparent hover:bg-transparent">
                 <SortableHeader title="Reference ID" sortKey="id" className="pl-8 w-[15%]" />
                 <SortableHeader title="Document Type" sortKey="documentType" className="w-[25%]" />
                 <SortableHeader title="Purpose" sortKey="purpose" className="w-[20%]" />

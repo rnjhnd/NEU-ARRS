@@ -344,7 +344,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
           <div className="w-full">
             <Table className="table-fixed">
               <TableHeader>
-                <TableRow className="border-b border-border/50 bg-emerald-500/5">
+                <TableRow className="border-b border-border/50 bg-transparent hover:bg-transparent">
                   <TableHead className="w-[50px] pl-8">
                     <input
                       type="checkbox"
