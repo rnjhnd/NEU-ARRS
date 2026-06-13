@@ -156,7 +156,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
           </CardHeader>
           <CardContent className="p-6 h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={revenueOverTime} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
+              <LineChart data={revenueOverTime} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="opacity-10" />
                 <XAxis dataKey="name" stroke="currentColor" className="opacity-50 text-xs" tickLine={false} axisLine={false} tickMargin={12} />
                 <YAxis 
