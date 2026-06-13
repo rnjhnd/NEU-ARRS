@@ -636,7 +636,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 </div>
                 <div className="pt-2 border-t border-border/50">
                   <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Document Type</span>
-                  <span className="font-semibold text-foreground text-base">{editingRequest.documentType}</span>
+                  <span className="font-semibold text-foreground">{editingRequest.documentType}</span>
                 </div>
                 <div className="pt-2 border-t border-border/50">
                   <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Purpose</span>
