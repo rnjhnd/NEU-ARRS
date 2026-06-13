@@ -154,9 +154,9 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
             <CardTitle className="text-xl font-bold tracking-tight text-foreground">7-Day Revenue Trend</CardTitle>
             <CardDescription>Daily revenue from both online and cash payments.</CardDescription>
           </CardHeader>
-          <CardContent className="p-6 h-[350px]">
+          <CardContent className="px-8 pb-8 pt-6 h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={revenueOverTime} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+              <LineChart data={revenueOverTime} margin={{ top: 10, right: 40, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="opacity-10" />
                 <XAxis dataKey="name" stroke="currentColor" className="opacity-50 text-xs" tickLine={false} axisLine={false} tickMargin={12} />
                 <YAxis 
@@ -187,7 +187,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
             <CardTitle className="text-xl font-bold tracking-tight text-foreground">Payment Methods</CardTitle>
             <CardDescription>Online vs Cash collection.</CardDescription>
           </CardHeader>
-          <CardContent className="p-6 h-[350px] flex items-center justify-center">
+          <CardContent className="px-8 pb-8 pt-6 h-[350px] flex items-center justify-center">
             {paymentMethodData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
@@ -223,10 +223,10 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
             <CardTitle className="text-xl font-bold tracking-tight text-foreground">Revenue by Document Type</CardTitle>
             <CardDescription>Which documents generate the most value.</CardDescription>
           </CardHeader>
-          <CardContent className="p-6 h-[350px]">
+          <CardContent className="px-8 pb-8 pt-6 h-[350px]">
             {documentData.length > 0 && documentData.some(d => d.revenue > 0) ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={documentData} layout="vertical" margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
+                <BarChart data={documentData} layout="vertical" margin={{ top: 0, right: 60, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="currentColor" className="opacity-10" />
                   <XAxis 
                     type="number" 
