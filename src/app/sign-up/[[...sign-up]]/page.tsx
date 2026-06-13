@@ -40,7 +40,7 @@ export default function SignUpPage() {
 
       if (createError) {
         console.error(createError);
-        toast.error(createError.longMessage || "An error occurred during sign up.");
+        toast.error(createError.longMessage || "An error occurred during sign-up. Please try again.");
         return;
       }
 
@@ -48,15 +48,15 @@ export default function SignUpPage() {
       const { error: sendError } = await signUp.verifications.sendEmailCode();
       if (sendError) {
         console.error(sendError);
-        toast.error(sendError.longMessage || "Failed to send verification code.");
+        toast.error(sendError.longMessage || "Failed to send the verification code. Please check your email address.");
         return;
       }
       
       setPendingVerification(true);
-      toast.success("Verification code sent to your email.");
+      toast.success("Verification code sent. Please check your inbox.");
     } catch (err: unknown) {
       console.error(err);
-      toast.error("An unexpected error occurred during sign up.");
+      toast.error("An unexpected error occurred during sign-up.");
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +75,7 @@ export default function SignUpPage() {
 
       if (error) {
         console.error(error);
-        toast.error(error.longMessage || "Invalid verification code.");
+        toast.error(error.longMessage || "Invalid verification code. Please try again.");
         return;
       }
 
@@ -83,11 +83,11 @@ export default function SignUpPage() {
         await signUp.finalize();
         router.push("/");
       } else {
-        toast.error("Sign up requires further verification.");
+        toast.error("Additional verification is required to complete sign-up.");
       }
     } catch (err: unknown) {
       console.error(err);
-      toast.error("An unexpected error occurred.");
+      toast.error("An unexpected error occurred. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -108,7 +108,7 @@ export default function SignUpPage() {
         throw err;
       }
       console.error(err);
-      toast.error("An unexpected error occurred.");
+      toast.error("An unexpected error occurred. Please try again later.");
       setIsLoading(false);
     }
   };

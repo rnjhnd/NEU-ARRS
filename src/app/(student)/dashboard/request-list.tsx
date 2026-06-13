@@ -112,12 +112,12 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
     
     const result = await cancelStudentRequest(id, reason);
     if (result.success) {
-      toast.success("Request cancelled successfully.");
+      toast.success("Your request has been successfully cancelled.");
       setLocalRequests(prev => prev.map(req => 
         req.id === id ? { ...req, status: "CANCELLED", cancelReason: reason } : req
       ));
     } else {
-      toast.error(result.error);
+      toast.error(result.error || "Failed to cancel the request.");
     }
     setCancellingId(null);
   };

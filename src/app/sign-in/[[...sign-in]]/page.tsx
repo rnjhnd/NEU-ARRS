@@ -33,7 +33,7 @@ export default function SignInPage() {
 
       if (error) {
         console.error(error);
-        toast.error(error.longMessage || error.message || "Sign in failed. Please check your credentials.");
+        toast.error(error.longMessage || error.message || "Sign-in failed. Please verify your credentials.");
         return;
       }
 
@@ -41,11 +41,11 @@ export default function SignInPage() {
         await signIn.finalize();
         router.push("/");
       } else {
-        toast.error("Sign in requires further verification.");
+        toast.error("Additional verification is required to complete sign-in.");
       }
     } catch (err: unknown) {
       console.error(err);
-      toast.error("An unexpected error occurred during sign in.");
+      toast.error("An unexpected error occurred during sign-in.");
     } finally {
       setIsLoading(false);
     }
@@ -66,7 +66,7 @@ export default function SignInPage() {
         throw err;
       }
       console.error(err);
-      toast.error("An unexpected error occurred.");
+      toast.error("An unexpected error occurred. Please try again later.");
       setIsLoading(false);
     }
   };

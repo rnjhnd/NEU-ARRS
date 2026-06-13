@@ -31,9 +31,9 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
     setIsUpdating(userId);
     const res = await grantAdminRole(userId, !currentIsAdmin);
     if (res.success) {
-      toast.success(`Role updated successfully.`);
+      toast.success(`User role updated successfully.`);
     } else {
-      toast.error(res.error);
+      toast.error(res.error || "Failed to update user role.");
     }
     setIsUpdating(null);
   };
@@ -42,10 +42,10 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
     setIsSavingEmail(true);
     const res = await updateSystemSetting("EMAIL_TEMPLATES", JSON.stringify(emailTemplates));
     if (res.success) {
-      toast.success("Email templates updated successfully.");
+      toast.success("Email templates have been updated successfully.");
       setIsEmailModalOpen(false);
     } else {
-      toast.error(res.error);
+      toast.error(res.error || "Failed to update email templates.");
     }
     setIsSavingEmail(false);
   };

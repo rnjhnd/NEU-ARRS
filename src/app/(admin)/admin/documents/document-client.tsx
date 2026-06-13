@@ -56,16 +56,16 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
     if (id === "new") {
       const res = await createDocumentConfig(formData);
       if (res.success && res.config) {
-        toast.success("New document created.");
+        toast.success("New document configuration created successfully.");
         setConfigs([...configs, res.config]);
         setEditingId(null);
       } else {
-        toast.error(res.error);
+        toast.error(res.error || "Failed to create document.");
       }
     } else {
       const res = await updateDocumentConfig(formData);
       if (res.success) {
-        toast.success("Document configuration updated.");
+        toast.success("Document configuration updated successfully.");
         setConfigs(configs.map(c => c.id === id ? { 
           ...c, 
           label: editForm.label, 
@@ -75,7 +75,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
         } : c));
         setEditingId(null);
       } else {
-        toast.error(res.error);
+        toast.error(res.error || "Failed to update document configuration.");
       }
     }
     setIsSubmitting(false);

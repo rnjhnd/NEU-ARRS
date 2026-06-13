@@ -30,7 +30,7 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!documentType || !purpose || !paymentMethod) {
-      toast.error("Please fill out all required fields.");
+      toast.error("Please complete all required fields before submitting.");
       return;
     }
 
@@ -43,14 +43,14 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
     const result = await createRequest(formData);
 
     if (result.success) {
-      toast.success("Request submitted successfully.");
+      toast.success("Your document request has been successfully submitted.");
       if (result.redirectUrl) {
         router.push(result.redirectUrl);
       } else {
         router.push("/dashboard");
       }
     } else {
-      toast.error(result.error);
+      toast.error(result.error || "Failed to submit your request.");
       setIsSubmitting(false);
     }
   };

@@ -136,7 +136,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
     const res = await updateRequestStatus(formData);
 
     if (res.success) {
-      toast.success(`Updated ${selectedIds.size} requests to ${newStatus}.`);
+      toast.success(`Successfully updated ${selectedIds.size} request(s) to ${newStatus.replace(/_/g, " ")}.`);
       setSelectedIds(new Set());
       mutate(
         (prev) => prev?.map((r) =>
@@ -145,7 +145,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
         { revalidate: false }
       );
     } else {
-      toast.error(res.error);
+      toast.error(res.error || "Failed to process the bulk update.");
     }
     setIsUpdating(false);
   };
@@ -177,7 +177,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
       );
       setEditingRequest(null);
     } else {
-      toast.error(res.error);
+      toast.error(res.error || "Failed to process the update.");
     }
     setIsUpdating(false);
   };
@@ -202,7 +202,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
   };
 
   const exportToCSV = () => {
-    if (requests.length === 0) return toast.error("No data to export.");
+    if (requests.length === 0) return toast.error("There is no data available to export.");
     const headers = ["Reference ID", "Student Name", "Student Email", "Document", "Purpose", "Payment Method", "Payment Status", "Date", "Status", "Cancel Reason"];
     const rows = requests.map(r => [
       r.id,
@@ -583,7 +583,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               className="w-full sm:w-auto shadow-sm"
               disabled={!cancelReasonInput.trim() || isUpdating}
               onClick={() => {
-                if (!cancelReasonInput.trim()) return toast.error("Reason is required");
+                if (!cancelReasonInput.trim()) return toast.error("A cancellation reason is required to proceed.");
                 handleBulkUpdate(RequestStatus.CANCELLED, cancelReasonInput);
                 setCancelDialogOpen(false);
                 setCancelReasonInput("");
