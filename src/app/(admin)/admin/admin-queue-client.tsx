@@ -658,8 +658,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                     <SelectValue placeholder="Select status">
                       <div className="flex items-center gap-2 capitalize">
                         <div className={`w-2 h-2 rounded-full ${
-                          editStatus === 'PENDING' || editStatus === 'PENDING_PAYMENT' ? 'bg-yellow-500 dark:bg-gold' :
-                          editStatus === 'PROCESSING' ? 'bg-emerald-500 dark:bg-emerald-400' :
+                          editStatus === 'PENDING' || editStatus === 'PENDING_PAYMENT' || editStatus === 'PROCESSING' ? 'bg-yellow-500 dark:bg-gold' :
                           editStatus === 'CANCELLED' ? 'bg-destructive' : 'bg-primary'
                         }`} />
                         {editStatus.replace(/_/g, " ").toLowerCase()}
@@ -681,7 +680,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                     </SelectItem>
                     <SelectItem value="PROCESSING" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400" />
+                        <div className="w-2 h-2 rounded-full bg-yellow-500 dark:bg-gold" />
                         Processing
                       </div>
                     </SelectItem>
