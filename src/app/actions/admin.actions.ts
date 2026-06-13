@@ -109,6 +109,17 @@ export async function updateRequestStatus(formData: FormData) {
           const user = await client.users.getUser(fullReq.studentId);
           const primaryEmail = user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress;
           if (primaryEmail) {
+            const STATUS_ORDER: Record<string, number> = {
+              PENDING_PAYMENT: 0, PENDING: 1, PROCESSING: 2, 
+              READY_FOR_PICKUP: 3, COMPLETED: 4, CANCELLED: 5,
+            };
+            const isReversal = STATUS_ORDER[newStatus] < STATUS_ORDER[fullReq.status];
+
+            if (isReversal && !shouldSendCorrection) {
+              // Silent reversal: user moved status backwards but didn't check the correction email box
+              continue;
+            }
+
             if (shouldSendCorrection) {
               await sendCorrectionEmail(
                 primaryEmail,
