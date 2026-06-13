@@ -200,7 +200,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <p className="text-sm font-medium text-muted-foreground">Pending Action</p>
               <h3 className="text-3xl font-bold mt-1 text-foreground">{pendingCount}</h3>
             </div>
-            <div className="p-3 bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400 rounded-xl">
+            <div className="p-3 bg-yellow-500/10 text-yellow-600 dark:bg-gold/10 dark:text-gold rounded-xl">
               <Clock className="w-6 h-6" />
             </div>
           </CardContent>
