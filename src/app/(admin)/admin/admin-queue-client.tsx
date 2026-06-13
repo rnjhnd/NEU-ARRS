@@ -269,7 +269,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
       </div>
 
       <Card className="shadow-lg border-emerald-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 bg-gradient-to-r from-emerald-500/5 to-transparent pb-6 px-8 pt-8">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent pb-6 px-8 pt-8">
           <div>
             <CardTitle className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
               Request Queue
@@ -303,7 +303,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="rounded-full h-8 px-4 text-xs font-medium hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  className="rounded-full h-8 px-4 text-xs font-medium hover:bg-yellow-500/10 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
                   disabled={isUpdating}
                   onClick={() => handleBulkUpdate(RequestStatus.PROCESSING)}
                 >
