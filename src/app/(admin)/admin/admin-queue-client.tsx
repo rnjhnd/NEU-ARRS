@@ -324,7 +324,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <button
                 key={f}
                 onClick={() => { setFilter(f); setCurrentPage(1); }}
-                className={`px-5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
                   filter === f 
                     ? "bg-background text-foreground shadow-[0_2px_10px_rgb(0,0,0,0.05)] dark:shadow-[0_2px_10px_rgb(0,0,0,0.2)]" 
                     : "text-muted-foreground hover:text-foreground hover:bg-background/50"
