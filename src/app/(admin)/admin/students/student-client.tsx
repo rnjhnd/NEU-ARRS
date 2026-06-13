@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { User, Search, SearchX } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -89,16 +90,20 @@ export function StudentClient({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedUsers.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-48 text-center text-muted-foreground">
-                      <div className="flex flex-col items-center justify-center">
-                        <SearchX className="w-8 h-8 text-muted-foreground/50 mb-2" />
-                        <p>No students found matching your search.</p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
+                <AnimatePresence>
+                  {paginatedUsers.length === 0 && (
+                    <motion.tr
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                    >
+                      <TableCell colSpan={5} className="h-48 text-center text-muted-foreground">
+                        <div className="flex flex-col items-center justify-center">
+                          <SearchX className="w-8 h-8 text-muted-foreground/50 mb-2" />
+                          <p>No students found matching your search.</p>
+                        </div>
+                      </TableCell>
+                    </motion.tr>
+                  )}
                 {paginatedUsers.map((user) => {
                   const email = user.emailAddresses?.[0]?.emailAddress || "No email";
                   const name = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Unnamed User";
@@ -106,7 +111,13 @@ export function StudentClient({
                   const ltv = ltvMap[user.id] || 0;
                   
                   return (
-                    <TableRow key={user.id} className="border-b border-border/40 hover:bg-primary/5 transition-colors group">
+                    <motion.tr 
+                      key={`${user.id}-${searchQuery}`}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="border-b border-border/40 hover:bg-primary/5 transition-colors group"
+                    >
                       <TableCell className="pl-8 py-4">
                         <div className="flex items-center gap-4">
                           <div className="h-10 w-10 shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-sm border border-primary/20 group-hover:border-primary/40 transition-colors overflow-hidden">
@@ -134,9 +145,10 @@ export function StudentClient({
                           ₱{ltv.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </span>
                       </TableCell>
-                    </TableRow>
+                    </motion.tr>
                   );
                 })}
+                </AnimatePresence>
               </TableBody>
             </Table>
           </div>

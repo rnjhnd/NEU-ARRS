@@ -163,10 +163,8 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
                 {sortedRequests.map((req, i) => (
                   <React.Fragment key={req.id}>
                     <motion.tr 
-                      layout
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
                       onClick={() => setExpandedId(expandedId === req.id ? null : req.id)}
                       className={`border-b border-border/50 hover:bg-primary/5 transition-colors cursor-pointer ${expandedId === req.id ? "bg-primary/5" : ""}`}
