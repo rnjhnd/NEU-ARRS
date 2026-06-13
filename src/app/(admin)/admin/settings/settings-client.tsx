@@ -52,7 +52,6 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
 
   const statuses = [
     { id: "PENDING_PAYMENT", label: "Pending Payment" },
-    { id: "PENDING", label: "Pending" },
     { id: "PROCESSING", label: "Processing" },
     { id: "READY_FOR_PICKUP", label: "Ready for Pickup" },
     { id: "COMPLETED", label: "Completed" },

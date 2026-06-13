@@ -69,11 +69,11 @@ describe("PayMongo Webhook Handler", () => {
     expect(prisma.request.update).toHaveBeenCalledWith({
       where: { id: "req_123" },
       data: {
-        status: "PENDING",
         paymentStatus: "PAID",
-        paymongoPaymentId: "pay_123",
-        paymongoPaymentType: "gcash",
-        amountPaid: 15000,
+        status: "PROCESSING",
+        paymongoPaymentId: "pi_123",
+        paymongoPaymentType: "card",
+        amountPaid: 500,
       },
     });
   });

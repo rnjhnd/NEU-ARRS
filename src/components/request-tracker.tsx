@@ -9,7 +9,7 @@ interface RequestTrackerProps {
 }
 
 const steps = [
-  { id: "PENDING", label: "Request Received", icon: FileText },
+  { id: "PENDING_PAYMENT", label: "Payment & Review", icon: FileText },
   { id: "PROCESSING", label: "Processing", icon: Activity },
   { id: "READY_FOR_PICKUP", label: "Ready for Pickup", icon: Package },
   { id: "COMPLETED", label: "Completed", icon: CheckCircle2 },
@@ -30,10 +30,7 @@ export function RequestTracker({ status, cancelReason }: RequestTrackerProps) {
     );
   }
 
-  // Treat PENDING_PAYMENT as PENDING visually in the tracker
-  const normalizedStatus = status === "PENDING_PAYMENT" ? "PENDING" : status;
-  
-  const currentStepIndex = steps.findIndex(s => s.id === normalizedStatus);
+  const currentStepIndex = steps.findIndex(s => s.id === status);
   const activeIndex = currentStepIndex === -1 ? 0 : currentStepIndex;
 
   return (

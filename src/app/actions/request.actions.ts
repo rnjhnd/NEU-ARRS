@@ -38,7 +38,7 @@ export async function createRequest(formData: FormData) {
 
     if (paymentMethod === "cash") {
       paymentStatus = PaymentStatus.CASH_ON_PICKUP;
-      status = RequestStatus.PENDING;
+      status = RequestStatus.PENDING_PAYMENT;
     }
 
     // 3.5 Fetch Document Config for Dynamic Pricing
@@ -148,7 +148,7 @@ export async function cancelStudentRequest(requestId: string, reason: string) {
       return { success: false, error: "Request not found or unauthorized." };
     }
 
-    if (request.status !== RequestStatus.PENDING && request.status !== RequestStatus.PENDING_PAYMENT) {
+    if (request.status !== RequestStatus.PENDING_PAYMENT) {
       return { success: false, error: "Only pending requests can be cancelled." };
     }
 

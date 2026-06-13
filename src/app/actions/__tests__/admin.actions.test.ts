@@ -42,7 +42,7 @@ describe("Admin Server Actions", () => {
   it("should succeed for valid status transitions", async () => {
     // Mock DB: request is PENDING
     vi.mocked(prisma.request.findMany).mockResolvedValueOnce([
-      { id: "cm0x2a3bc000008mia76m2p2g", status: RequestStatus.PENDING } as unknown as Request
+      { id: "cm0x2a3bc000008mia76m2p2g", status: RequestStatus.PENDING_PAYMENT } as unknown as Request
     ]);
 
     const formData = new FormData();

@@ -41,11 +41,10 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
 
   const STATUS_ORDER: Record<string, number> = {
     PENDING_PAYMENT: 0,
-    PENDING: 1,
-    PROCESSING: 2,
-    READY_FOR_PICKUP: 3,
-    COMPLETED: 4,
-    CANCELLED: 5,
+    PROCESSING: 1,
+    READY_FOR_PICKUP: 2,
+    COMPLETED: 3,
+    CANCELLED: 4,
   };
 
   const filteredRequests = requests.filter((req) => {
@@ -88,13 +87,13 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
   const paginatedRequests = sortedRequests.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   // Calculate Stats
-  const pendingCount = requests.filter(r => r.status === "PENDING" || r.status === "PENDING_PAYMENT").length;
+  const pendingCount = requests.filter(r => r.status === "PENDING_PAYMENT").length;
   const processingCount = requests.filter(r => r.status === "PROCESSING").length;
   const readyCount = requests.filter(r => r.status === "READY_FOR_PICKUP").length;
 
   const canProcess = selectedIds.size > 0 && Array.from(selectedIds).every((id) => {
     const req = requests.find((r) => r.id === id);
-    return req && (req.status === "PENDING" || req.status === "PENDING_PAYMENT");
+    return req && req.status === "PENDING_PAYMENT";
   });
 
   const canMarkReady = selectedIds.size > 0 && Array.from(selectedIds).every((id) => {
@@ -184,8 +183,6 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "PENDING": 
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-700 dark:bg-gold/10 dark:text-gold border border-yellow-500/20 dark:border-gold/20">Pending Review</span>;
       case "PENDING_PAYMENT": 
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-700 dark:bg-gold/10 dark:text-gold border border-yellow-500/20 dark:border-gold/20">Pending Payment</span>;
       case "PROCESSING": 
@@ -310,10 +307,10 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-1 bg-muted/50 p-1.5 rounded-full overflow-x-auto no-scrollbar max-w-full shadow-sm border border-border/50">
-          {["ALL", "PENDING", "PROCESSING", "READY_FOR_PICKUP", "COMPLETED"].map((f) => {
+          {["ALL", "PENDING_PAYMENT", "PROCESSING", "READY_FOR_PICKUP", "COMPLETED"].map((f) => {
             const getLabel = (filterName: string) => {
               if (filterName === "ALL") return "All";
-              if (filterName === "PENDING") return "Pending";
+              if (filterName === "PENDING_PAYMENT") return "Pending Payment";
               if (filterName === "PROCESSING") return "Processing";
               if (filterName === "READY_FOR_PICKUP") return "Ready for Pickup";
               if (filterName === "COMPLETED") return "Completed";
@@ -670,14 +667,6 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[200px] p-1">
-                    {editStatus === "PENDING" && (
-                      <SelectItem value="PENDING" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-yellow-500 dark:bg-gold" />
-                          Pending Review
-                        </div>
-                      </SelectItem>
-                    )}
                     {(editingRequest.paymentMethod === "CASHIER" || editStatus === "PENDING_PAYMENT") && (
                       <SelectItem value="PENDING_PAYMENT" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
                         <div className="flex items-center gap-2">

@@ -12,7 +12,6 @@ datasource db {
 
 enum RequestStatus {
   PENDING_PAYMENT
-  PENDING
   PROCESSING
   READY_FOR_PICKUP
   COMPLETED

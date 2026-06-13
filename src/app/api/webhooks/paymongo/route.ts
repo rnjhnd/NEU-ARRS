@@ -58,18 +58,18 @@ export async function POST(req: NextRequest) {
 
       if (successfulPayment || paymentIntent) {
         const paymentId = successfulPayment ? successfulPayment.id : paymentIntent?.id;
-        const amountPaid = successfulPayment ? successfulPayment.attributes.amount : paymentIntent?.attributes.amount;
-        const paymentType = successfulPayment ? successfulPayment.attributes.source?.type : sessionData.attributes.payment_method_used;
+        const amount = successfulPayment ? successfulPayment.attributes.amount : paymentIntent?.attributes.amount;
+        const paymentMethod = successfulPayment ? successfulPayment.attributes.source?.type : sessionData.attributes.payment_method_used;
 
-        // 3. Update the Prisma record securely
+        // 3. Update Request Status to PROCESSING and Payment Status to PAID
         await prisma.request.update({
           where: { id: requestId },
           data: {
-            status: "PENDING", // Moved from PENDING_PAYMENT to PENDING
             paymentStatus: "PAID",
+            status: "PROCESSING", // Moved straight to PROCESSING
             paymongoPaymentId: paymentId || "unknown",
-            paymongoPaymentType: paymentType || "online",
-            amountPaid: amountPaid || 0,
+            paymongoPaymentType: paymentMethod || "online",
+            amountPaid: Math.round(amount / 100) || 0,
           },
         });
         console.log(`Successfully confirmed payment for Request ID: ${requestId}`);

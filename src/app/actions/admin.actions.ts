@@ -18,8 +18,7 @@ const UpdateStatusSchema = z.object({
 });
 
 const ALLOWED_TRANSITIONS: Record<RequestStatus, RequestStatus[]> = {
-  PENDING_PAYMENT: [RequestStatus.CANCELLED],
-  PENDING: [RequestStatus.PROCESSING, RequestStatus.CANCELLED],
+  PENDING_PAYMENT: [RequestStatus.PROCESSING, RequestStatus.CANCELLED],
   PROCESSING: [RequestStatus.READY_FOR_PICKUP, RequestStatus.CANCELLED],
   READY_FOR_PICKUP: [RequestStatus.COMPLETED],
   COMPLETED: [],
@@ -110,8 +109,8 @@ export async function updateRequestStatus(formData: FormData) {
           const primaryEmail = user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress;
           if (primaryEmail) {
             const STATUS_ORDER: Record<string, number> = {
-              PENDING_PAYMENT: 0, PENDING: 1, PROCESSING: 2, 
-              READY_FOR_PICKUP: 3, COMPLETED: 4, CANCELLED: 5,
+              PENDING_PAYMENT: 0, PROCESSING: 1, 
+              READY_FOR_PICKUP: 2, COMPLETED: 3, CANCELLED: 4,
             };
             const isReversal = STATUS_ORDER[newStatus] < STATUS_ORDER[fullReq.status];
 

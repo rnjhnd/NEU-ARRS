@@ -20,8 +20,6 @@ import { Loader2 } from "lucide-react";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
-    case "PENDING": 
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-700 dark:bg-gold/10 dark:text-gold border border-yellow-500/20 dark:border-gold/20">Pending Review</span>;
     case "PENDING_PAYMENT": 
       return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-700 dark:bg-gold/10 dark:text-gold border border-yellow-500/20 dark:border-gold/20">Pending Payment</span>;
     case "PROCESSING": 
@@ -243,7 +241,7 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
                             >
                               <div className="px-6 py-4">
                               <RequestTracker status={req.status} cancelReason={req.cancelReason} />
-                              {(req.status === "PENDING" || req.status === "PENDING_PAYMENT") && (
+                              {req.status === "PENDING_PAYMENT" && (
                                 <div className="flex justify-end mt-2 pr-2 gap-2">
                                   {req.status === "PENDING_PAYMENT" && req.paymentMethod === "online" && (
                                     <Button 
