@@ -147,7 +147,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
                   )}
                   {filteredUsers.map((user) => (
                     <motion.tr 
-                      key={`${user.id}-${searchQuery}`}
+                      key={user.id}
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.2 }}
