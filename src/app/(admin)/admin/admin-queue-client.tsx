@@ -616,7 +616,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm bg-card p-4 rounded-xl border border-border shadow-sm">
                 <div className="col-span-2">
                   <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Reference ID</span>
-                  <span className="font-mono font-semibold text-foreground">#{editingRequest.id.slice(0, 8).toUpperCase()}</span>
+                  <span className="font-mono font-medium text-foreground">#{editingRequest.id.slice(0, 8).toUpperCase()}</span>
                 </div>
                 <div className="pt-2 border-t border-border/50">
                   <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Date Submitted</span>
@@ -636,7 +636,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 </div>
                 <div className="pt-2 border-t border-border/50">
                   <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Document Type</span>
-                  <span className="font-semibold text-foreground">{editingRequest.documentType}</span>
+                  <span className="font-medium text-foreground">{editingRequest.documentType}</span>
                 </div>
                 <div className="pt-2 border-t border-border/50">
                   <span className="text-muted-foreground block mb-0.5 text-[11px] uppercase tracking-wider font-semibold">Purpose</span>
