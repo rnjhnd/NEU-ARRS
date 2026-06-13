@@ -156,7 +156,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
           </CardHeader>
           <CardContent className="p-6 h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={revenueOverTime}>
+              <LineChart data={revenueOverTime} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="opacity-10" />
                 <XAxis dataKey="name" stroke="currentColor" className="opacity-50 text-xs" tickLine={false} axisLine={false} tickMargin={12} />
                 <YAxis 
@@ -190,7 +190,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
           <CardContent className="p-6 h-[350px] flex items-center justify-center">
             {paymentMethodData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                   <Pie
                     data={paymentMethodData}
                     cx="50%"
@@ -226,7 +226,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
           <CardContent className="p-6 h-[350px]">
             {documentData.length > 0 && documentData.some(d => d.revenue > 0) ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={documentData} layout="vertical" margin={{ left: 50 }}>
+                <BarChart data={documentData} layout="vertical" margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="currentColor" className="opacity-10" />
                   <XAxis 
                     type="number" 
@@ -245,6 +245,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     tickLine={false} 
                     axisLine={false} 
                     tickMargin={12}
+                    width={150}
                   />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: 'currentColor', opacity: 0.05 }} />
                   <Bar dataKey="revenue" fill="#0A5C36" radius={[0, 4, 4, 0]} barSize={32}>
