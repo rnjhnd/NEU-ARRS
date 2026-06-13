@@ -39,6 +39,15 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
   const [sendCorrection, setSendCorrection] = useState(false);
   const ITEMS_PER_PAGE = 10;
 
+  const STATUS_ORDER: Record<string, number> = {
+    PENDING_PAYMENT: 0,
+    PENDING: 1,
+    PROCESSING: 2,
+    READY_FOR_PICKUP: 3,
+    COMPLETED: 4,
+    CANCELLED: 5,
+  };
+
   const filteredRequests = requests.filter((req) => {
     if (filter !== "ALL" && req.status !== filter) return false;
     if (searchQuery) {
@@ -638,17 +647,19 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   </SelectContent>
                 </Select>
                 
-                <div className="flex items-center space-x-2 mt-4">
-                  <Checkbox 
-                    id="send-correction" 
-                    checked={sendCorrection} 
-                    onCheckedChange={(checked) => setSendCorrection(checked === true)} 
-                    disabled={isUpdating}
-                  />
-                  <Label htmlFor="send-correction" className="text-sm cursor-pointer">
-                    Send automated correction email to student
-                  </Label>
-                </div>
+                {STATUS_ORDER[editStatus] < STATUS_ORDER[editingRequest.status] && (
+                  <div className="flex items-center space-x-2 mt-4">
+                    <Checkbox 
+                      id="send-correction" 
+                      checked={sendCorrection} 
+                      onCheckedChange={(checked) => setSendCorrection(checked === true)} 
+                      disabled={isUpdating}
+                    />
+                    <Label htmlFor="send-correction" className="text-sm cursor-pointer text-amber-600 dark:text-amber-500 font-medium">
+                      Send automated correction email for status reversal
+                    </Label>
+                  </div>
+                )}
 
                 <p className="text-xs text-muted-foreground mt-2">
                   You can manage the status directly from this view. If you are fixing a mistake and moving the status backward, consider sending a correction email.
