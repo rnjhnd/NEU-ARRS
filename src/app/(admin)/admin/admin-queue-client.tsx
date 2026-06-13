@@ -164,7 +164,13 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
     
     const res = await updateRequestStatus(formData);
     if (res.success) {
-      toast.success(`Request status forcefully overridden to ${editStatus}.`);
+      const isOverride = STATUS_ORDER[editStatus] < STATUS_ORDER[editingRequest.status];
+      if (isOverride) {
+        toast.success(`Request status manually reversed to ${editStatus.replace(/_/g, " ")}.`);
+      } else {
+        toast.success(`Request status successfully updated to ${editStatus.replace(/_/g, " ")}.`);
+      }
+      
       mutate(
         (prev) => prev?.map((r) => r.id === editingRequest.id ? { ...r, status: editStatus as RequestStatus } : r),
         { revalidate: false }
