@@ -13,6 +13,7 @@ const UpdateStatusSchema = z.object({
   requestIds: z.array(z.string().cuid()),
   newStatus: z.nativeEnum(RequestStatus),
   cancelReason: z.string().optional(),
+  isOverride: z.boolean().optional(),
 });
 
 const ALLOWED_TRANSITIONS: Record<RequestStatus, RequestStatus[]> = {
@@ -38,13 +39,14 @@ export async function updateRequestStatus(formData: FormData) {
       requestIds: rawIds,
       newStatus: rawStatus,
       cancelReason,
+      isOverride: formData.get("isOverride") === "true",
     });
 
     if (!validatedFields.success) {
       return { success: false, error: "Invalid input provided." };
     }
 
-    const { requestIds, newStatus, cancelReason: reason } = validatedFields.data;
+    const { requestIds, newStatus, cancelReason: reason, isOverride } = validatedFields.data;
 
     if (newStatus === RequestStatus.CANCELLED && (!reason || reason.trim() === "")) {
       return { success: false, error: "A cancellation reason is required." };
@@ -56,14 +58,16 @@ export async function updateRequestStatus(formData: FormData) {
       select: { id: true, status: true, paymentStatus: true, paymentMethod: true, amountPaid: true },
     });
 
-    // 4. Validate allowed status transitions
-    for (const req of requestsToUpdate) {
-      const allowedNextStates = ALLOWED_TRANSITIONS[req.status];
-      if (!allowedNextStates.includes(newStatus)) {
-        return { 
-          success: false, 
-          error: `Illegal state transition for request ${req.id}. Cannot move from ${req.status} to ${newStatus}.` 
-        };
+    // 4. Validate allowed status transitions (unless isOverride is true)
+    if (!isOverride) {
+      for (const req of requestsToUpdate) {
+        const allowedNextStates = ALLOWED_TRANSITIONS[req.status];
+        if (!allowedNextStates.includes(newStatus)) {
+          return { 
+            success: false, 
+            error: `Illegal state transition for request ${req.id}. Cannot move from ${req.status} to ${newStatus}.` 
+          };
+        }
       }
     }
 

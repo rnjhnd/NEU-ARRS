@@ -80,9 +80,24 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
   const processingCount = requests.filter(r => r.status === "PROCESSING").length;
   const readyCount = requests.filter(r => r.status === "READY_FOR_PICKUP").length;
 
-  const isTerminalSelected = Array.from(selectedIds).some((id) => {
+  const canProcess = selectedIds.size > 0 && Array.from(selectedIds).every((id) => {
     const req = requests.find((r) => r.id === id);
-    return req && (req.status === "COMPLETED" || req.status === "CANCELLED");
+    return req && req.status === "PENDING";
+  });
+
+  const canMarkReady = selectedIds.size > 0 && Array.from(selectedIds).every((id) => {
+    const req = requests.find((r) => r.id === id);
+    return req && req.status === "PROCESSING";
+  });
+
+  const canComplete = selectedIds.size > 0 && Array.from(selectedIds).every((id) => {
+    const req = requests.find((r) => r.id === id);
+    return req && req.status === "READY_FOR_PICKUP";
+  });
+
+  const canCancel = selectedIds.size > 0 && Array.from(selectedIds).every((id) => {
+    const req = requests.find((r) => r.id === id);
+    return req && req.status !== "COMPLETED" && req.status !== "CANCELLED";
   });
 
   const toggleSelectAll = () => {
@@ -130,6 +145,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
     const formData = new FormData();
     formData.append("requestIds", editingRequest.id);
     formData.append("newStatus", editStatus);
+    formData.append("isOverride", "true");
     
     const res = await updateRequestStatus(formData);
     if (res.success) {
@@ -337,7 +353,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   variant="ghost" 
                   size="sm"
                   className="rounded-full h-8 px-4 text-xs font-medium hover:bg-yellow-500/10 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
-                  disabled={isUpdating || isTerminalSelected}
+                  disabled={isUpdating || !canProcess}
                   onClick={() => handleBulkUpdate(RequestStatus.PROCESSING)}
                 >
                   Process
@@ -346,7 +362,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   variant="default" 
                   size="sm"
                   className="rounded-full h-8 px-4 text-xs font-medium shadow-[0_2px_10px_rgba(10,92,54,0.2)] transition-colors"
-                  disabled={isUpdating || isTerminalSelected}
+                  disabled={isUpdating || !canMarkReady}
                   onClick={() => handleBulkUpdate(RequestStatus.READY_FOR_PICKUP)}
                 >
                   Mark Ready
@@ -355,7 +371,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   variant="ghost" 
                   size="sm"
                   className="rounded-full h-8 px-4 text-xs font-medium hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-                  disabled={isUpdating || isTerminalSelected}
+                  disabled={isUpdating || !canComplete}
                   onClick={() => handleBulkUpdate(RequestStatus.COMPLETED)}
                 >
                   Complete
@@ -364,7 +380,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   variant="ghost" 
                   size="sm"
                   className="rounded-full h-8 px-4 text-xs font-medium text-red-500 hover:text-red-600 hover:bg-red-500/10 dark:hover:text-red-400 transition-colors"
-                  disabled={isUpdating || isTerminalSelected}
+                  disabled={isUpdating || !canCancel}
                   onClick={() => setCancelDialogOpen(true)}
                 >
                   Cancel
