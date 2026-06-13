@@ -666,18 +666,22 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[200px] p-1">
-                    <SelectItem value="PENDING" disabled={editingRequest.paymentMethod !== "CASHIER"} className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-yellow-500 dark:bg-gold" />
-                        Pending Review
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="PENDING_PAYMENT" disabled={editingRequest.paymentMethod !== "CASHIER"} className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-yellow-500 dark:bg-gold" />
-                        Pending Payment
-                      </div>
-                    </SelectItem>
+                    {(editingRequest.paymentMethod === "CASHIER" || editStatus === "PENDING") && (
+                      <SelectItem value="PENDING" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-yellow-500 dark:bg-gold" />
+                          Pending Review
+                        </div>
+                      </SelectItem>
+                    )}
+                    {(editingRequest.paymentMethod === "CASHIER" || editStatus === "PENDING_PAYMENT") && (
+                      <SelectItem value="PENDING_PAYMENT" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-yellow-500 dark:bg-gold" />
+                          Pending Payment
+                        </div>
+                      </SelectItem>
+                    )}
                     <SelectItem value="PROCESSING" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-yellow-500 dark:bg-gold" />
