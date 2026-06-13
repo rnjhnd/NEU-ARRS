@@ -80,7 +80,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden md:col-span-1 h-fit">
-          <div className="p-6 border-b border-border/50 bg-muted/20">
+          <div className="p-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
             <h2 className="text-xl font-bold tracking-tight">Configuration</h2>
             <p className="text-sm text-muted-foreground mt-1">Global system variables.</p>
           </div>
@@ -91,7 +91,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="w-full text-primary border-primary/20 hover:bg-primary/5"
+                className="w-full text-primary border-primary/20 hover:bg-primary/5 hover:text-primary"
                 onClick={() => setIsEmailModalOpen(true)}
               >
                 Edit Templates
@@ -106,7 +106,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
         </div>
 
         <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden md:col-span-2">
-          <div className="p-6 border-b border-border/50 bg-muted/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="p-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-bold tracking-tight">Role Management</h2>
               <p className="text-sm text-muted-foreground mt-1">Grant or revoke administrator privileges.</p>
@@ -159,7 +159,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
                             Administrator
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-600">
                             Student
                           </span>
                         )}
@@ -198,7 +198,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
 
       <Dialog open={isEmailModalOpen} onOpenChange={setIsEmailModalOpen}>
         <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col p-0 overflow-hidden bg-background border-border/50 shadow-2xl rounded-2xl">
-          <DialogHeader className="p-6 pb-4 border-b border-border/50 bg-muted/20">
+          <DialogHeader className="p-6 pb-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
             <DialogTitle className="text-2xl font-bold tracking-tight">Email Templates</DialogTitle>
             <DialogDescription>
               Customize the text inserted into automated emails sent to students for each request status.
@@ -239,7 +239,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
             </div>
           </div>
           
-          <DialogFooter className="p-6 border-t border-border/50 bg-muted/10">
+          <DialogFooter className="p-6 border-t border-border/50 bg-muted/10 sm:justify-center items-center">
             <Button variant="outline" onClick={() => setIsEmailModalOpen(false)}>Cancel</Button>
             <Button onClick={handleSaveEmailTemplates} disabled={isSavingEmail} className="bg-primary hover:bg-primary/90 text-white">
               {isSavingEmail ? "Saving..." : "Save Templates"}
