@@ -57,15 +57,15 @@ export function Sidebar() {
           className={`flex items-center gap-3 py-2.5 transition-all ${
             pathname === "/admin" 
               ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
-                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl")
+                  ? "justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-500" 
+                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-yellow-500/10 to-transparent text-yellow-700 dark:text-yellow-500 font-bold rounded-r-xl")
               : (isCollapsed 
                   ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
                   : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
           }`}
           title="Request Queue"
         >
-          <LayoutDashboard className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
+          <LayoutDashboard className="w-5 h-5 flex-shrink-0 transition-colors" />
           {!isCollapsed && <span>Request Queue</span>}
         </Link>
         <Link 
@@ -73,15 +73,15 @@ export function Sidebar() {
           className={`flex items-center gap-3 py-2.5 transition-all ${
             pathname === "/admin/documents" 
               ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
-                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl")
+                  ? "justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-500" 
+                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-yellow-500/10 to-transparent text-yellow-700 dark:text-yellow-500 font-bold rounded-r-xl")
               : (isCollapsed 
                   ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
                   : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
           }`}
           title="Document Management"
         >
-          <FileText className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/documents" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
+          <FileText className="w-5 h-5 flex-shrink-0 transition-colors" />
           {!isCollapsed && <span>Document Management</span>}
         </Link>
         <Link 
@@ -89,15 +89,15 @@ export function Sidebar() {
           className={`flex items-center gap-3 py-2.5 transition-all ${
             pathname === "/admin/finance" 
               ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
-                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl")
+                  ? "justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-500" 
+                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-yellow-500/10 to-transparent text-yellow-700 dark:text-yellow-500 font-bold rounded-r-xl")
               : (isCollapsed 
                   ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
                   : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
           }`}
           title="Financial Analytics"
         >
-          <PieChart className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/finance" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
+          <PieChart className="w-5 h-5 flex-shrink-0 transition-colors" />
           {!isCollapsed && <span>Financial Analytics</span>}
         </Link>
         <Link 
@@ -105,15 +105,15 @@ export function Sidebar() {
           className={`flex items-center gap-3 py-2.5 transition-all ${
             pathname === "/admin/students" 
               ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
-                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl")
+                  ? "justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-500" 
+                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-yellow-500/10 to-transparent text-yellow-700 dark:text-yellow-500 font-bold rounded-r-xl")
               : (isCollapsed 
                   ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
                   : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
           }`}
           title="Student Records"
         >
-          <Users className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/students" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
+          <Users className="w-5 h-5 flex-shrink-0 transition-colors" />
           {!isCollapsed && <span>Student Records</span>}
         </Link>
         
@@ -124,15 +124,15 @@ export function Sidebar() {
           className={`flex items-center gap-3 py-2.5 transition-all ${
             pathname === "/admin/settings" 
               ? (isCollapsed 
-                  ? "justify-center rounded-xl bg-primary/10 text-primary" 
-                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-primary/10 to-transparent text-primary font-bold rounded-r-xl")
+                  ? "justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-500" 
+                  : "px-3 border-l-4 border-yellow-500 bg-gradient-to-r from-yellow-500/10 to-transparent text-yellow-700 dark:text-yellow-500 font-bold rounded-r-xl")
               : (isCollapsed 
                   ? "justify-center rounded-xl text-muted-foreground hover:bg-muted" 
                   : "px-3 rounded-xl text-muted-foreground hover:bg-muted border-l-4 border-transparent")
           }`}
           title="System Settings"
         >
-          <Settings className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/settings" ? "text-yellow-600 dark:text-yellow-500" : ""}`} />
+          <Settings className="w-5 h-5 flex-shrink-0 transition-colors" />
           {!isCollapsed && <span>System Settings</span>}
         </Link>
       </nav>
