@@ -589,7 +589,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
             </div>
             <DialogTitle className="text-center text-xl">Request Details</DialogTitle>
             <DialogDescription className="text-center mt-2">
-              View full details or manually override the status for this specific request.
+              View full details or manually update the status for this specific request.
             </DialogDescription>
           </DialogHeader>
 
@@ -623,7 +623,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               </div>
 
               <div className="space-y-2 pt-4 border-t border-border/50">
-                <span className="text-sm font-semibold text-foreground">Override Status</span>
+                <span className="text-sm font-semibold text-foreground">Update Status</span>
                 <Select value={editStatus} onValueChange={(val) => { if (val) setEditStatus(val); }} disabled={isUpdating}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select status" />
@@ -651,7 +651,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 </div>
 
                 <p className="text-xs text-muted-foreground mt-2">
-                  Warning: Manually overriding a status will skip automated validation. Use only when necessary to fix mistakes.
+                  You can manage the status directly from this view. If you are fixing a mistake and moving the status backward, consider sending a correction email.
                 </p>
               </div>
             </div>
