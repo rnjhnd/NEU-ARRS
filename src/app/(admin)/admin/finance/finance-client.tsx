@@ -116,7 +116,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <p className="text-sm font-medium text-muted-foreground">Online Payments</p>
               <h3 className="text-2xl font-bold mt-1">₱{onlineRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
-            <div className="p-3 bg-primary/10 text-primary rounded-xl">
+            <div className="p-3 bg-sky-500/10 text-sky-600 dark:bg-sky-500/20 dark:text-sky-400 rounded-xl">
               <CreditCard className="w-6 h-6" />
             </div>
           </CardContent>
@@ -128,7 +128,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <p className="text-sm font-medium text-muted-foreground">Cash on Pickup</p>
               <h3 className="text-2xl font-bold mt-1">₱{cashRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
-            <div className="p-3 bg-primary/10 text-primary rounded-xl">
+            <div className="p-3 bg-yellow-500/10 text-yellow-600 dark:bg-gold/10 dark:text-gold rounded-xl">
               <Banknote className="w-6 h-6" />
             </div>
           </CardContent>
@@ -140,7 +140,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <p className="text-sm font-medium text-muted-foreground">Total Paid Requests</p>
               <h3 className="text-2xl font-bold mt-1">{requests.filter(isCompletedOrPaid).length}</h3>
             </div>
-            <div className="p-3 bg-primary/10 text-primary rounded-xl">
+            <div className="p-3 bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400 rounded-xl">
               <TrendingUp className="w-6 h-6" />
             </div>
           </CardContent>

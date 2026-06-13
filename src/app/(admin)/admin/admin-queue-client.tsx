@@ -200,7 +200,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <p className="text-sm font-medium text-muted-foreground">Pending Action</p>
               <h3 className="text-3xl font-bold mt-1 text-foreground">{pendingCount}</h3>
             </div>
-            <div className="p-3 bg-yellow-100 text-yellow-700 dark:bg-gold/10 dark:text-gold rounded-xl">
+            <div className="p-3 bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400 rounded-xl">
               <Clock className="w-6 h-6" />
             </div>
           </CardContent>
@@ -212,7 +212,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <p className="text-sm font-medium text-muted-foreground">In Processing</p>
               <h3 className="text-3xl font-bold mt-1 text-foreground">{processingCount}</h3>
             </div>
-            <div className="p-3 bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 rounded-xl">
+            <div className="p-3 bg-yellow-500/10 text-yellow-600 dark:bg-gold/10 dark:text-gold rounded-xl">
               <Activity className="w-6 h-6" />
             </div>
           </CardContent>
@@ -224,7 +224,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <p className="text-sm font-medium text-muted-foreground">Ready for Pickup</p>
               <h3 className="text-3xl font-bold mt-1 text-foreground">{readyCount}</h3>
             </div>
-            <div className="p-3 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-xl">
+            <div className="p-3 bg-primary/10 text-primary rounded-xl">
               <Package className="w-6 h-6" />
             </div>
           </CardContent>
@@ -339,7 +339,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       type="checkbox"
                       checked={selectedIds.size === sortedRequests.length && sortedRequests.length > 0}
                       onChange={toggleSelectAll}
-                      className="block rounded border-input text-primary focus:ring-primary h-4 w-4 transition-all"
+                      className="block rounded border-input accent-primary focus:ring-primary h-4 w-4 transition-all cursor-pointer"
                     />
                   </TableHead>
                   <SortableHeader title="Student" sortKey="studentName" className="w-[20%]" />
@@ -382,7 +382,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                           type="checkbox"
                           checked={selectedIds.has(req.id)}
                           onChange={() => toggleSelectRow(req.id)}
-                          className="block rounded border-input text-primary focus:ring-primary h-4 w-4 transition-all"
+                          className="block rounded border-input accent-primary focus:ring-primary h-4 w-4 transition-all cursor-pointer"
                         />
                       </TableCell>
                       <TableCell>
