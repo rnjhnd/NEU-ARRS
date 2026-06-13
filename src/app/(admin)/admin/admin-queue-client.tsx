@@ -55,7 +55,10 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
         !req.id.toLowerCase().includes(q) && 
         !req.documentType.toLowerCase().includes(q) &&
         !req.studentName?.toLowerCase().includes(q) &&
-        !req.studentEmail?.toLowerCase().includes(q)
+        !req.studentEmail?.toLowerCase().includes(q) &&
+        !req.purpose.toLowerCase().replace(/_/g, " ").includes(q) &&
+        !req.paymentMethod.toLowerCase().includes(q) &&
+        !req.paymentStatus.toLowerCase().replace(/_/g, " ").includes(q)
       ) {
         return false;
       }
