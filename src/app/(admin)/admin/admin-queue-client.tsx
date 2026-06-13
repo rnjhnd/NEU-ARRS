@@ -94,7 +94,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
 
   const canProcess = selectedIds.size > 0 && Array.from(selectedIds).every((id) => {
     const req = requests.find((r) => r.id === id);
-    return req && req.status === "PENDING";
+    return req && (req.status === "PENDING" || req.status === "PENDING_PAYMENT");
   });
 
   const canMarkReady = selectedIds.size > 0 && Array.from(selectedIds).every((id) => {
@@ -666,7 +666,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[200px] p-1">
-                    {(editingRequest.paymentMethod === "CASHIER" || editStatus === "PENDING") && (
+                    {editStatus === "PENDING" && (
                       <SelectItem value="PENDING" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full bg-yellow-500 dark:bg-gold" />
