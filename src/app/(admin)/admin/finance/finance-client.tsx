@@ -44,10 +44,9 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
     );
   };
 
-  // Constants for pricing since cash doesn't have amountPaid saved directly yet
   const getAmount = (req: Request) => {
-    if (req.amountPaid) return req.amountPaid / 100; // Centavos to PHP
-    if (req.paymentMethod === 'cash') return 150; // Hardcoded 150 PHP for cash
+    if (req.amountPaid) return req.amountPaid; // amountPaid is stored in PHP
+    if (req.paymentMethod === 'cash') return 150; // Fallback hardcoded PHP for legacy cash
     return 0;
   };
 

@@ -58,7 +58,7 @@ export async function createRequest(formData: FormData) {
         paymentMethod,
         paymentStatus,
         status,
-        amountPaid: paymentMethod === "cash" ? dynamicPrice : null, // Store cash price immediately for LTV tracking
+        amountPaid: paymentMethod === "cash" ? Math.round(dynamicPrice / 100) : null, // Store cash price immediately for LTV tracking in PHP
       },
     });
 
