@@ -383,7 +383,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.2 }}
                       key={req.id}
-                      className={`cursor-pointer border-b border-border/50 transition-colors ${selectedIds.has(req.id) ? "bg-emerald-500/10" : "hover:bg-emerald-500/5"}`}
+                      className={`cursor-pointer border-b border-border/50 transition-colors ${selectedIds.has(req.id) ? "bg-primary/10" : "hover:bg-primary/5"}`}
                       onClick={(e) => {
                         if ((e.target as HTMLElement).tagName !== "INPUT") toggleSelectRow(req.id);
                       }}
