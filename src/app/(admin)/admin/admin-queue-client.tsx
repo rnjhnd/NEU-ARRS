@@ -655,8 +655,10 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <div className="space-y-3 pt-3 border-t border-border/50">
                 <span className="text-sm font-semibold text-foreground block mb-3">Update Status</span>
                 <Select value={editStatus} onValueChange={(val) => { if (val) setEditStatus(val); }} disabled={isUpdating}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select status" />
+                  <SelectTrigger className="w-full capitalize">
+                    <SelectValue placeholder="Select status">
+                      {editStatus.replace(/_/g, " ").toLowerCase()}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="PENDING" disabled={editingRequest.paymentMethod !== "CASHIER"}>Pending Review</SelectItem>
