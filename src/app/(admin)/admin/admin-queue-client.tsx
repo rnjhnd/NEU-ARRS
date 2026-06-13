@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { Clock, CheckCircle2, Package, Activity, Search, Download, ArrowUpDown, ArrowUp, ArrowDown, FileText, AlertTriangle, Inbox } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import useSWR from "swr";
 
 export type MappedRequest = Request & { studentName?: string; studentEmail?: string };
@@ -31,6 +32,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
   const [currentPage, setCurrentPage] = useState(1);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelReasonInput, setCancelReasonInput] = useState("");
+  const [editingRequest, setEditingRequest] = useState<MappedRequest | null>(null);
+  const [editStatus, setEditStatus] = useState<string>("");
   const ITEMS_PER_PAGE = 10;
 
   const filteredRequests = requests.filter((req) => {
@@ -114,6 +117,28 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
         ),
         { revalidate: false }
       );
+    } else {
+      toast.error(res.error);
+    }
+    setIsUpdating(false);
+  };
+
+  const handleEditSave = async () => {
+    if (!editingRequest || !editStatus) return;
+    setIsUpdating(true);
+    
+    const formData = new FormData();
+    formData.append("requestIds", editingRequest.id);
+    formData.append("newStatus", editStatus);
+    
+    const res = await updateRequestStatus(formData);
+    if (res.success) {
+      toast.success(`Request status forcefully overridden to ${editStatus}.`);
+      mutate(
+        (prev) => prev?.map((r) => r.id === editingRequest.id ? { ...r, status: editStatus as RequestStatus } : r),
+        { revalidate: false }
+      );
+      setEditingRequest(null);
     } else {
       toast.error(res.error);
     }
@@ -393,7 +418,10 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       key={req.id}
                       className={`cursor-pointer border-b border-border/50 transition-colors ${selectedIds.has(req.id) ? "bg-primary/10" : "hover:bg-primary/5"}`}
                       onClick={(e) => {
-                        if ((e.target as HTMLElement).tagName !== "INPUT") toggleSelectRow(req.id);
+                        if ((e.target as HTMLElement).tagName !== "INPUT") {
+                          setEditingRequest(req);
+                          setEditStatus(req.status);
+                        }
                       }}
                     >
                       <TableCell className="pl-8">
@@ -525,6 +553,83 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               }}
             >
               Confirm Cancellation
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Details Modal */}
+      <Dialog open={!!editingRequest} onOpenChange={(open) => { if (!open) setEditingRequest(null); }}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
+              <FileText className="h-6 w-6 text-primary" />
+            </div>
+            <DialogTitle className="text-center text-xl">Request Details</DialogTitle>
+            <DialogDescription className="text-center mt-2">
+              View full details or manually override the status for this specific request.
+            </DialogDescription>
+          </DialogHeader>
+
+          {editingRequest && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground block mb-1">Reference ID</span>
+                  <span className="font-mono font-medium text-foreground">#{editingRequest.id.slice(0, 8).toUpperCase()}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block mb-1">Date Submitted</span>
+                  <span className="font-medium text-foreground">{format(new Date(editingRequest.createdAt), "MMM d, yyyy")}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block mb-1">Student</span>
+                  <span className="font-medium text-foreground">{editingRequest.studentName || "Unknown"}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block mb-1">Email</span>
+                  <span className="font-medium text-foreground">{editingRequest.studentEmail || "No email"}</span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-muted-foreground block mb-1">Document Type</span>
+                  <span className="font-medium text-foreground">{editingRequest.documentType}</span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-muted-foreground block mb-1">Purpose</span>
+                  <span className="font-medium text-foreground">{editingRequest.purpose}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-4 border-t border-border/50">
+                <span className="text-sm font-semibold text-foreground">Override Status</span>
+                <Select value={editStatus} onValueChange={setEditStatus} disabled={isUpdating}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PENDING">Pending Review</SelectItem>
+                    <SelectItem value="PENDING_PAYMENT">Pending Payment</SelectItem>
+                    <SelectItem value="PROCESSING">Processing</SelectItem>
+                    <SelectItem value="READY_FOR_PICKUP">Ready to Pick-up</SelectItem>
+                    <SelectItem value="COMPLETED">Completed</SelectItem>
+                    <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Warning: Manually overriding a status will skip automated validation. Use only when necessary to fix mistakes.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="sm:justify-between sm:space-x-2">
+            <Button variant="ghost" className="w-full sm:w-auto" onClick={() => setEditingRequest(null)}>Close</Button>
+            <Button 
+              className="w-full sm:w-auto"
+              disabled={isUpdating || !editingRequest || editingRequest.status === editStatus}
+              onClick={handleEditSave}
+            >
+              Save Changes
             </Button>
           </DialogFooter>
         </DialogContent>
