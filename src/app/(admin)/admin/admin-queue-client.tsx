@@ -500,18 +500,6 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       <TableCell className="text-right pr-8">
                         <div className="flex flex-col items-end gap-2">
                           {getStatusBadge(req.status)}
-
-                          {req.status === "COMPLETED" && (
-                            <a 
-                              href={`/receipt/${req.id}`} 
-                              target="_blank" 
-                              rel="noreferrer" 
-                              className="inline-flex items-center gap-1 mt-0.5 text-xs leading-none font-medium text-yellow-600 hover:text-yellow-700 dark:text-gold dark:hover:text-gold/80 hover:underline transition-all"
-                            >
-                              <FileText className="w-3 h-3" />
-                              <span>View Receipt</span>
-                            </a>
-                          )}
                         </div>
                       </TableCell>
                     </motion.tr>
@@ -609,31 +597,56 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
           </DialogHeader>
 
           {editingRequest && (
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="space-y-6 py-4">
+              <div className="flex flex-col items-center justify-center p-4 bg-muted/30 rounded-xl border border-border/50">
+                <div className="mb-2">
+                  {getStatusBadge(editingRequest.status)}
+                </div>
+                {editingRequest.status === "COMPLETED" && (
+                  <a 
+                    href={`/receipt/${editingRequest.id}`} 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    className="inline-flex items-center gap-1.5 mt-2 px-4 py-1.5 rounded-full text-sm font-medium bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/20 dark:bg-gold/10 dark:text-gold dark:hover:bg-gold/20 transition-all border border-yellow-500/20 dark:border-gold/20"
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>View Official Receipt</span>
+                  </a>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-y-5 gap-x-4 text-sm bg-card p-5 rounded-xl border border-border shadow-sm">
                 <div>
-                  <span className="text-muted-foreground block mb-1">Reference ID</span>
-                  <span className="font-mono font-medium text-foreground">#{editingRequest.id.slice(0, 8).toUpperCase()}</span>
+                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Reference ID</span>
+                  <span className="font-mono font-semibold text-foreground text-base">#{editingRequest.id.slice(0, 8).toUpperCase()}</span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground block mb-1">Date Submitted</span>
-                  <span className="font-medium text-foreground">{format(new Date(editingRequest.createdAt), "MMM d, yyyy")}</span>
+                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Date Submitted</span>
+                  <span className="font-medium text-foreground">{format(new Date(editingRequest.createdAt), "MMM d, yyyy 'at' h:mm a")}</span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground block mb-1">Student</span>
+                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Student Name</span>
                   <span className="font-medium text-foreground">{editingRequest.studentName || "Unknown"}</span>
                 </div>
                 <div>
-                  <span className="text-muted-foreground block mb-1">Email</span>
+                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Student Email</span>
                   <span className="font-medium text-foreground">{editingRequest.studentEmail || "No email"}</span>
                 </div>
-                <div className="col-span-2">
-                  <span className="text-muted-foreground block mb-1">Document Type</span>
-                  <span className="font-medium text-foreground">{editingRequest.documentType}</span>
+                <div className="col-span-2 pt-2 border-t border-border/50">
+                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Document Type</span>
+                  <span className="font-semibold text-foreground text-base">{editingRequest.documentType}</span>
                 </div>
                 <div className="col-span-2">
-                  <span className="text-muted-foreground block mb-1">Purpose</span>
-                  <span className="font-medium text-foreground">{editingRequest.purpose}</span>
+                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Purpose</span>
+                  <span className="font-medium text-foreground">{editingRequest.purpose.replace("_", " ")}</span>
+                </div>
+                <div className="pt-2 border-t border-border/50">
+                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Payment Method</span>
+                  <span className="font-medium text-foreground capitalize">{editingRequest.paymentMethod}</span>
+                </div>
+                <div className="pt-2 border-t border-border/50">
+                  <span className="text-muted-foreground block mb-1 text-xs uppercase tracking-wider font-semibold">Payment Status</span>
+                  <span className="font-medium text-foreground uppercase">{editingRequest.paymentStatus.replace(/_/g, " ")}</span>
                 </div>
               </div>
 
