@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertTriangle } from "lucide-react";
 import { RequestTracker } from "@/components/request-tracker";
-import { cancelStudentRequest } from "@/app/actions/request.actions";
+import { cancelStudentRequest, createRepaymentSession } from "@/app/actions/request.actions";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -41,6 +41,7 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
   const [localRequests, setLocalRequests] = useState(initialRequests);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [payingId, setPayingId] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelReasonInput, setCancelReasonInput] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: keyof Request; direction: "asc" | "desc" } | null>({ key: "createdAt", direction: "desc" });
@@ -120,6 +121,17 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
       toast.error(result.error || "Failed to cancel the request.");
     }
     setCancellingId(null);
+  };
+
+  const handlePayNow = async (id: string) => {
+    setPayingId(id);
+    const result = await createRepaymentSession(id);
+    if (result.success && result.redirectUrl) {
+      window.location.href = result.redirectUrl;
+    } else {
+      toast.error(result.error || "Failed to initialize payment session.");
+      setPayingId(null);
+    }
   };
 
   if (localRequests.length === 0) {
@@ -232,7 +244,19 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
                               <div className="px-6 py-4">
                               <RequestTracker status={req.status} cancelReason={req.cancelReason} />
                               {(req.status === "PENDING" || req.status === "PENDING_PAYMENT") && (
-                                <div className="flex justify-end mt-2 pr-2">
+                                <div className="flex justify-end mt-2 pr-2 gap-2">
+                                  {req.status === "PENDING_PAYMENT" && req.paymentMethod === "online" && (
+                                    <Button 
+                                      variant="default" 
+                                      size="sm" 
+                                      onClick={() => handlePayNow(req.id)}
+                                      disabled={payingId === req.id || cancellingId === req.id}
+                                      className="font-semibold transition-all duration-300 shadow-sm hover:shadow-md active:scale-95"
+                                    >
+                                      {payingId === req.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                                      Pay Now
+                                    </Button>
+                                  )}
                                   <Button 
                                     variant="outline" 
                                     size="sm" 
@@ -240,7 +264,7 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
                                       setCancellingId(req.id);
                                       setCancelDialogOpen(true);
                                     }}
-                                    disabled={cancellingId === req.id && !cancelDialogOpen}
+                                    disabled={(cancellingId === req.id && !cancelDialogOpen) || payingId === req.id}
                                     className="font-semibold transition-all duration-300 text-destructive border border-destructive/20 bg-destructive/5 hover:bg-destructive hover:text-destructive-foreground hover:border-destructive shadow-sm hover:shadow-md active:scale-95"
                                   >
                                     {(cancellingId === req.id && !cancelDialogOpen) ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}

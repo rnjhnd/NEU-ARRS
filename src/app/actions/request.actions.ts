@@ -192,3 +192,90 @@ export async function cancelStudentRequest(requestId: string, reason: string) {
     return { success: false, error: "Failed to cancel request." };
   }
 }
+
+export async function createRepaymentSession(requestId: string) {
+  try {
+    const studentId = await requireAuth();
+
+    const request = await prisma.request.findUnique({
+      where: { id: requestId },
+    });
+
+    if (!request || request.studentId !== studentId) {
+      return { success: false, error: "Request not found or unauthorized." };
+    }
+
+    if (request.status !== RequestStatus.PENDING_PAYMENT || request.paymentMethod !== "online") {
+      return { success: false, error: "This request is not eligible for online repayment." };
+    }
+
+    const config = await prisma.documentConfig.findUnique({
+      where: { typeId: request.documentType }
+    });
+
+    const dynamicPrice = config?.price || 15000;
+
+    const paymongoSecretKey = process.env.PAYMONGO_SECRET_KEY;
+    if (!paymongoSecretKey) throw new Error("PayMongo secret key is missing.");
+
+    const authHeader = `Basic ${Buffer.from(`${paymongoSecretKey}:`).toString("base64")}`;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+    const payload = {
+      data: {
+        attributes: {
+          send_email_receipt: false,
+          show_description: true,
+          show_line_items: true,
+          description: `NEU Document Repayment - ${request.documentType.replace(/_/g, " ")}`,
+          payment_method_types: ["gcash", "paymaya", "card", "dob"],
+          line_items: [
+            {
+              currency: "PHP",
+              amount: dynamicPrice,
+              description: `Purpose: ${request.purpose.replace(/_/g, " ")}`,
+              name: config?.label || request.documentType.replace(/_/g, " "),
+              quantity: 1,
+            },
+          ],
+          success_url: `${baseUrl}/dashboard?payment=success`,
+          cancel_url: `${baseUrl}/dashboard?payment=cancelled`,
+          metadata: {
+            requestId: request.id,
+            studentId: studentId,
+          },
+        },
+      },
+    };
+
+    const response = await fetch("https://api.paymongo.com/v1/checkout_sessions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authHeader,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("PayMongo API Error:", errorData);
+      throw new Error("Failed to initialize payment session.");
+    }
+
+    const responseData = await response.json();
+    const checkoutUrl = responseData.data.attributes.checkout_url;
+    const checkoutId = responseData.data.id;
+
+    await prisma.request.update({
+      where: { id: request.id },
+      data: { paymongoCheckoutId: checkoutId },
+    });
+
+    return { success: true, redirectUrl: checkoutUrl };
+  } catch (error: unknown) {
+    console.error("Failed to create repayment session:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Failed to initialize repayment." };
+  }
+}
+
