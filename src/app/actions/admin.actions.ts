@@ -132,8 +132,8 @@ export async function updateRequestStatus(formData: FormData) {
       }
     }
 
-    // 6. Revalidate cache
-    revalidatePath("/admin");
+    // 6. We omit revalidatePath("/admin") here to prevent a Next.js router soft-refresh (flicker).
+    // SWR's mutate() on the frontend instantly handles the UI state seamlessly.
     return { success: true };
   } catch (error: unknown) {
     console.error("Failed to update status:", error);
