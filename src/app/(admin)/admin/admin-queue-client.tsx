@@ -77,6 +77,11 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
   const processingCount = requests.filter(r => r.status === "PROCESSING").length;
   const readyCount = requests.filter(r => r.status === "READY_FOR_PICKUP").length;
 
+  const isTerminalSelected = Array.from(selectedIds).some((id) => {
+    const req = requests.find((r) => r.id === id);
+    return req && (req.status === "COMPLETED" || req.status === "CANCELLED");
+  });
+
   const toggleSelectAll = () => {
     if (selectedIds.size === filteredRequests.length) setSelectedIds(new Set());
     else setSelectedIds(new Set(filteredRequests.map((r) => r.id)));
@@ -273,13 +278,6 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
           <div>
             <CardTitle className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
               Request Queue
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100/50 dark:bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 shadow-sm ml-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                Live
-              </span>
             </CardTitle>
             <div className="flex items-center gap-4 mt-1">
               <CardDescription className="text-base text-muted-foreground">Automatically syncing with database.</CardDescription>
@@ -304,7 +302,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   variant="ghost" 
                   size="sm"
                   className="rounded-full h-8 px-4 text-xs font-medium hover:bg-yellow-500/10 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
-                  disabled={isUpdating}
+                  disabled={isUpdating || isTerminalSelected}
                   onClick={() => handleBulkUpdate(RequestStatus.PROCESSING)}
                 >
                   Process
@@ -313,7 +311,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   variant="default" 
                   size="sm"
                   className="rounded-full h-8 px-4 text-xs font-medium shadow-[0_2px_10px_rgba(10,92,54,0.2)] transition-colors"
-                  disabled={isUpdating}
+                  disabled={isUpdating || isTerminalSelected}
                   onClick={() => handleBulkUpdate(RequestStatus.READY_FOR_PICKUP)}
                 >
                   Mark Ready
@@ -322,7 +320,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   variant="ghost" 
                   size="sm"
                   className="rounded-full h-8 px-4 text-xs font-medium hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-                  disabled={isUpdating}
+                  disabled={isUpdating || isTerminalSelected}
                   onClick={() => handleBulkUpdate(RequestStatus.COMPLETED)}
                 >
                   Complete
@@ -331,7 +329,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   variant="ghost" 
                   size="sm"
                   className="rounded-full h-8 px-4 text-xs font-medium text-red-500 hover:text-red-600 hover:bg-red-500/10 dark:hover:text-red-400 transition-colors"
-                  disabled={isUpdating}
+                  disabled={isUpdating || isTerminalSelected}
                   onClick={() => setCancelDialogOpen(true)}
                 >
                   Cancel
