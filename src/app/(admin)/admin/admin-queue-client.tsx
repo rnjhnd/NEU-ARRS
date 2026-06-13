@@ -232,20 +232,30 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 no-scrollbar max-w-full">
-          {["ALL", "PENDING", "PROCESSING", "READY_FOR_PICKUP", "COMPLETED"].map((f) => (
-            <button
-              key={f}
-              onClick={() => { setFilter(f); setCurrentPage(1); }}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                filter === f 
-                  ? "bg-foreground text-background shadow-[0_2px_10px_rgba(10,92,54,0.2)]" 
-                  : "bg-background/50 backdrop-blur-xl text-muted-foreground hover:bg-muted border-emerald-500/20 border"
-              }`}
-            >
-              {f.replace(/_/g, " ")}
-            </button>
-          ))}
+        <div className="flex items-center gap-1 bg-muted/50 p-1.5 rounded-full overflow-x-auto no-scrollbar max-w-full shadow-sm border border-border/50">
+          {["ALL", "PENDING", "PROCESSING", "READY_FOR_PICKUP", "COMPLETED"].map((f) => {
+            const getLabel = (filterName: string) => {
+              if (filterName === "ALL") return "All";
+              if (filterName === "PENDING") return "Pending";
+              if (filterName === "PROCESSING") return "Processing";
+              if (filterName === "READY_FOR_PICKUP") return "Ready for Pickup";
+              if (filterName === "COMPLETED") return "Completed";
+              return filterName;
+            };
+            return (
+              <button
+                key={f}
+                onClick={() => { setFilter(f); setCurrentPage(1); }}
+                className={`px-5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                  filter === f 
+                    ? "bg-background text-foreground shadow-[0_2px_10px_rgb(0,0,0,0.05)] dark:shadow-[0_2px_10px_rgb(0,0,0,0.2)]" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                }`}
+              >
+                {getLabel(f)}
+              </button>
+            );
+          })}
         </div>
         <div className="relative w-full sm:w-72">
           <Input 
