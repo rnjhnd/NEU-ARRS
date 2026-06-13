@@ -10,6 +10,14 @@ export default async function FinancePage() {
     orderBy: { createdAt: "asc" },
   });
 
+  const docConfigs = await prisma.documentConfig.findMany();
+  const docMap = new Map(docConfigs.map(c => [c.typeId, c.label]));
+
+  const mappedRequests = requests.map(req => ({
+    ...req,
+    documentType: docMap.get(req.documentType) || req.documentType.replace("_", " ")
+  }));
+
   return (
     <div className="space-y-8 w-full">
       {/* Premium Hero Banner */}
@@ -29,7 +37,7 @@ export default async function FinancePage() {
         </div>
       </div>
       
-      <FinanceClient requests={requests} />
+      <FinanceClient requests={mappedRequests as any} />
     </div>
   );
 }

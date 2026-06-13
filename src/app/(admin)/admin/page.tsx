@@ -21,10 +21,14 @@ export default async function AdminPage() {
     }
   ]));
 
+  const docConfigs = await prisma.documentConfig.findMany();
+  const docMap = new Map(docConfigs.map(c => [c.typeId, c.label]));
+
   const mappedRequests = requests.map(req => ({
     ...req,
     studentName: userMap.get(req.studentId)?.name || "Unknown Student",
-    studentEmail: userMap.get(req.studentId)?.email || "No email"
+    studentEmail: userMap.get(req.studentId)?.email || "No email",
+    documentType: docMap.get(req.documentType) || req.documentType.replace("_", " ")
   }));
 
   return (

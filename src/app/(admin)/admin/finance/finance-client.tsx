@@ -91,7 +91,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
     const typeRevenue = requests
       .filter(r => r.documentType === type && isCompletedOrPaid(r))
       .reduce((sum, req) => sum + getAmount(req), 0);
-    return { name: type.replace("_", " "), revenue: typeRevenue };
+    return { name: type, revenue: typeRevenue };
   }).sort((a, b) => b.revenue - a.revenue);
 
   return (

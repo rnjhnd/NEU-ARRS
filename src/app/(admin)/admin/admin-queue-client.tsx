@@ -393,7 +393,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-medium text-foreground">{req.documentType.replace("_", " ")}</span>
+                          <span className="font-medium text-foreground">{req.documentType}</span>
                           <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
                             {req.purpose.replace("_", " ")}
                           </span>

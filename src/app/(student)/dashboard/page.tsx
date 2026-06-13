@@ -23,6 +23,14 @@ export default async function StudentDashboardPage() {
   const completedRequests = requests.filter(r => r.status === 'COMPLETED').length;
   const totalRequests = requests.length;
 
+  const docConfigs = await prisma.documentConfig.findMany();
+  const docMap = new Map(docConfigs.map(c => [c.typeId, c.label]));
+
+  const mappedRequests = requests.map(req => ({
+    ...req,
+    documentType: docMap.get(req.documentType) || req.documentType.replace("_", " ")
+  }));
+
   return (
     <div className="space-y-8 w-full">
       {/* Premium Hero Banner */}
@@ -79,7 +87,7 @@ export default async function StudentDashboardPage() {
         </div>
       </div>
 
-      <RequestList requests={requests} />
+      <RequestList requests={mappedRequests as any} />
     </div>
   );
 }

@@ -175,7 +175,7 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
                         </span>
                       </TableCell>
                       <TableCell className="font-medium text-foreground">
-                        {req.documentType.replace("_", " ")}
+                        {req.documentType}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {req.purpose.replace("_", " ")}
