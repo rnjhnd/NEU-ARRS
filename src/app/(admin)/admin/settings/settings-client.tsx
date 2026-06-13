@@ -140,7 +140,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
                     >
                       <TableCell colSpan={3} className="h-32 text-center">
                         <div className="flex flex-col items-center justify-center text-muted-foreground">
-                          <UserX className="h-8 w-8 mb-2 text-primary/40" />
+                          <UserX className="h-8 w-8 mb-2 text-muted-foreground/60" />
                           <p>No users found matching your search.</p>
                         </div>
                       </TableCell>
@@ -248,7 +248,7 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
             </div>
           </div>
           
-          <DialogFooter className="p-6 border-t border-border/50 bg-muted/10 sm:justify-end items-center">
+          <DialogFooter className="m-0 p-6 border-t border-border/50 bg-muted/10 sm:justify-end items-center">
             <Button variant="outline" onClick={() => setIsEmailModalOpen(false)}>Cancel</Button>
             <Button onClick={handleSaveEmailTemplates} disabled={isSavingEmail} className="bg-primary hover:bg-primary/90 text-white">
               {isSavingEmail ? "Saving..." : "Save Templates"}
