@@ -90,7 +90,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
             <CardDescription>Manage descriptions, pricing, and active status.</CardDescription>
           </div>
           <Button 
-            size="sm" className="rounded-full px-6" 
+            size="sm" className="rounded-full px-6 bg-primary/10 hover:bg-primary/20 text-primary border-none shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:scale-105 active:scale-95 h-10" 
             onClick={startNew} 
             disabled={editingId === "new"}
           >

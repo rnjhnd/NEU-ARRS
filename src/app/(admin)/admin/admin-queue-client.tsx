@@ -335,14 +335,14 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
             );
           })}
         </div>
-        <div className="relative w-full sm:w-72 group">
+        <div className="relative w-full sm:w-80 group">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none" />
           <Input 
             placeholder="Search name, email, or ID..." 
-            className="pl-9 bg-muted/30 hover:bg-muted/50 focus:bg-background backdrop-blur-xl border-border/50 shadow-sm rounded-full transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/50"
+            className="pl-10 bg-background/40 hover:bg-background/80 focus:bg-background backdrop-blur-sm border-border/50 shadow-[0_2px_10px_rgba(0,0,0,0.02)] dark:shadow-none rounded-full h-10 transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/30"
             value={searchQuery}
             onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
           />
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors pointer-events-none" />
         </div>
       </div>
 
@@ -354,8 +354,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
             </CardTitle>
             <div className="flex items-center gap-4 mt-1">
               <CardDescription className="text-base text-muted-foreground">Automatically syncing with database.</CardDescription>
-              <Button variant="outline" size="sm" onClick={exportToCSV} className="h-7 text-xs bg-background">
-                <Download className="w-3 h-3 mr-1" /> Export CSV
+              <Button size="sm" onClick={exportToCSV} className="h-9 px-5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary border-none shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:scale-105 active:scale-95">
+                <Download className="w-4 h-4 mr-2" /> Export CSV
               </Button>
             </div>
           </div>
