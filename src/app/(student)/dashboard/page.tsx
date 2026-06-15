@@ -26,7 +26,7 @@ function DashboardSkeleton() {
       </div>
 
       <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0 !pb-0">
-        <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 py-6 px-8">
+        <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 !py-6 px-8">
           <Skeleton className="h-6 w-40 mb-2" />
           <Skeleton className="h-4 w-72" />
         </CardHeader>
