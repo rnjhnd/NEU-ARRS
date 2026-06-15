@@ -10,7 +10,7 @@ export const metadata = { title: "Document Management" };
 function DocumentsSkeleton() {
   return (
     <Card className="shadow-sm border-border !pb-0 mt-8">
-      <CardHeader className="border-b pb-6 px-8 pt-8 bg-gradient-to-r from-primary/5 to-transparent">
+      <CardHeader className="border-b py-6 px-8 bg-gradient-to-r from-primary/5 to-transparent">
         <Skeleton className="h-8 w-48 mb-2" />
         <Skeleton className="h-4 w-72" />
       </CardHeader>

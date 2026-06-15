@@ -218,7 +218,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
 
         {/* Document Performance Bar Chart */}
         <Card className="lg:col-span-3 shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0">
-          <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 pb-6 px-8 pt-8">
+          <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 py-6 px-8">
             <CardTitle className="text-xl font-bold tracking-tight text-foreground">Revenue by Document Type</CardTitle>
             <CardDescription>Which documents generate the most value.</CardDescription>
           </CardHeader>

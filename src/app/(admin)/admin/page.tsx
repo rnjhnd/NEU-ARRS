@@ -30,7 +30,7 @@ function AdminQueueSkeleton() {
       </div>
 
       <Card className="shadow-sm border-border overflow-hidden !pb-0">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent pb-6 px-8 pt-8">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent py-6 px-8">
           <div>
             <Skeleton className="h-6 w-32 mb-2" />
             <Skeleton className="h-4 w-64" />
