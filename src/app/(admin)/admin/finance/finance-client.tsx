@@ -226,7 +226,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
             {documentData.length > 0 && documentData.some(d => d.revenue > 0) ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={documentData} layout="vertical" margin={{ top: 0, right: 60, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="currentColor" className="opacity-10" />
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} vertical={true} stroke="currentColor" className="opacity-10" />
                   <XAxis 
                     type="number" 
                     stroke="currentColor" 
