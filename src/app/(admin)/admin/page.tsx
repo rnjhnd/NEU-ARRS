@@ -23,17 +23,23 @@ function AdminQueueSkeleton() {
         ))}
       </div>
 
-      <div className="flex gap-2 flex-wrap">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <Skeleton key={i} className="h-10 w-24 rounded-full" />
-        ))}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex gap-2 flex-wrap">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className="h-10 w-24 rounded-full" />
+          ))}
+        </div>
+        <Skeleton className="h-10 w-full sm:w-80 rounded-full" />
       </div>
 
       <Card className="shadow-sm border-border overflow-hidden !pb-0">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent !py-6 px-8">
           <div>
-            <Skeleton className="h-6 w-32 mb-2" />
-            <Skeleton className="h-4 w-64" />
+            <Skeleton className="h-8 w-40 mb-2" />
+            <div className="flex items-center gap-4 mt-1">
+              <Skeleton className="h-5 w-64" />
+              <Skeleton className="h-9 w-32 rounded-full" />
+            </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">

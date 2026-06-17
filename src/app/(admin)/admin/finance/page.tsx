@@ -24,23 +24,33 @@ function FinanceSkeleton() {
       </div>
 
       {/* Charts Skeleton */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <Skeleton className="h-6 w-32 mb-2" />
-            <Skeleton className="h-4 w-48" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2 shadow-lg border-primary/10 overflow-hidden rounded-3xl pt-0">
+          <CardHeader className="border-b border-border/50 !py-6 px-8">
+            <Skeleton className="h-6 w-48 mb-2" />
+            <Skeleton className="h-4 w-64" />
           </CardHeader>
-          <CardContent className="pl-2">
+          <CardContent className="px-8 pb-8 pt-6">
             <Skeleton className="h-[350px] w-full" />
           </CardContent>
         </Card>
         
-        <Card className="col-span-3">
-          <CardHeader>
-            <Skeleton className="h-6 w-32 mb-2" />
+        <Card className="shadow-lg border-primary/10 overflow-hidden rounded-3xl pt-0">
+          <CardHeader className="border-b border-border/50 !py-6 px-8">
+            <Skeleton className="h-6 w-40 mb-2" />
             <Skeleton className="h-4 w-48" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-8 pb-8 pt-6">
+            <Skeleton className="h-[350px] w-full rounded-full" />
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-3 shadow-lg border-primary/10 overflow-hidden rounded-3xl pt-0">
+          <CardHeader className="border-b border-border/50 !py-6 px-8">
+            <Skeleton className="h-6 w-56 mb-2" />
+            <Skeleton className="h-4 w-72" />
+          </CardHeader>
+          <CardContent className="px-8 pb-8 pt-6">
             <Skeleton className="h-[350px] w-full" />
           </CardContent>
         </Card>

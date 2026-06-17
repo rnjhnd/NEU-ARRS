@@ -8,9 +8,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 function StudentsSkeleton() {
   return (
     <Card className="shadow-sm border-border !pb-0 mt-8">
-      <CardHeader className="border-b !py-6 px-8 bg-gradient-to-r from-primary/5 to-transparent">
-        <Skeleton className="h-8 w-48 mb-2" />
-        <Skeleton className="h-4 w-72" />
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b !py-6 px-8 bg-gradient-to-r from-primary/5 to-transparent">
+        <div>
+          <Skeleton className="h-6 w-32 mb-2" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+        <Skeleton className="h-10 w-full sm:w-80 rounded-full" />
       </CardHeader>
       <CardContent className="p-0">
         <div className="w-full">

@@ -33,10 +33,13 @@ function SettingsSkeleton() {
         </CardContent>
       </Card>
 
-      <Card className="md:col-span-2 shadow-sm border-border">
-        <CardHeader className="border-b bg-muted/5 pb-4 pt-6 px-6">
-          <Skeleton className="h-6 w-48 mb-2" />
-          <Skeleton className="h-4 w-64" />
+      <Card className="md:col-span-2 shadow-sm border-border rounded-3xl overflow-hidden">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent p-6">
+          <div>
+            <Skeleton className="h-6 w-48 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <Skeleton className="h-10 w-full sm:w-80 rounded-full" />
         </CardHeader>
         <CardContent className="p-6">
           <div className="flex gap-2 mb-6">
