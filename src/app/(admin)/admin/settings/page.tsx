@@ -50,12 +50,9 @@ function SettingsSkeleton() {
               {[1, 2, 3, 4, 5].map((i) => (
                 <TableRow key={i} className="border-b border-border">
                   <TableCell className="pl-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <Skeleton className="h-10 w-10 rounded-full shrink-0" />
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-32" />
-                        <Skeleton className="h-3 w-40" />
-                      </div>
+                    <div className="flex flex-col space-y-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-40" />
                     </div>
                   </TableCell>
                   <TableCell className="py-4">
