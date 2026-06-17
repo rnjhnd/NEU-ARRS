@@ -165,7 +165,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                   axisLine={false} 
                   tickFormatter={(value) => `₱${value}`}
                   tickMargin={12}
-                  width={60}
+                  width={80}
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'currentColor', strokeWidth: 1, strokeDasharray: '3 3', opacity: 0.2 }} />
                 <Line 
