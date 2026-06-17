@@ -8,49 +8,69 @@ export const metadata = { title: "Admin Settings" };
 
 function SettingsSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 animate-pulse">
-      <Card className="md:col-span-1 shadow-sm border-border">
-        <CardHeader className="border-b bg-muted/5 pb-4 pt-6 px-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
+      <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden md:col-span-1 h-fit">
+        <div className="p-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
           <Skeleton className="h-6 w-32 mb-2" />
           <Skeleton className="h-4 w-48" />
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="p-6">
-            <Skeleton className="h-10 w-full mb-4" />
-            <div className="space-y-4 mt-6">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex items-center gap-3 border-b border-border/50 pb-4 last:border-0 last:pb-0">
-                  <Skeleton className="h-10 w-10 rounded-full shrink-0" />
-                  <div className="space-y-2 flex-1">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-3 w-40" />
-                  </div>
-                  <Skeleton className="h-6 w-20 rounded-full" />
-                </div>
-              ))}
-            </div>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="p-4 bg-muted/50 rounded-xl border border-border">
+            <Skeleton className="h-5 w-32 mb-2" />
+            <Skeleton className="h-3 w-48 mb-4" />
+            <Skeleton className="h-8 w-full rounded-md" />
           </div>
-        </CardContent>
-      </Card>
+          <div className="p-4 bg-muted/50 rounded-xl border border-border">
+            <Skeleton className="h-5 w-32 mb-2" />
+            <Skeleton className="h-3 w-48 mb-4" />
+            <Skeleton className="h-8 w-full rounded-md" />
+          </div>
+        </div>
+      </div>
 
-      <Card className="md:col-span-2 shadow-sm border-border rounded-3xl overflow-hidden">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent p-6">
+      <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden md:col-span-2">
+        <div className="p-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <Skeleton className="h-6 w-48 mb-2" />
             <Skeleton className="h-4 w-64" />
           </div>
           <Skeleton className="h-10 w-full sm:w-80 rounded-full" />
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="flex gap-2 mb-6">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Skeleton key={i} className="h-10 w-32" />
-            ))}
-          </div>
-          <Skeleton className="h-[200px] w-full mb-6" />
-          <Skeleton className="h-10 w-32" />
-        </CardContent>
-      </Card>
+        </div>
+        <div className="p-0">
+          <Table className="table-fixed">
+            <TableHeader>
+              <TableRow className="border-b border-border hover:bg-transparent">
+                <TableHead className="pl-6 w-[40%] h-12"><Skeleton className="h-4 w-16" /></TableHead>
+                <TableHead className="w-[30%] h-12"><Skeleton className="h-4 w-24" /></TableHead>
+                <TableHead className="text-right pr-6 w-[30%] h-12"><div className="flex justify-end"><Skeleton className="h-4 w-16" /></div></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <TableRow key={i} className="border-b border-border">
+                  <TableCell className="pl-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-40" />
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </TableCell>
+                  <TableCell className="text-right pr-6 py-4">
+                    <div className="flex justify-end">
+                      <Skeleton className="h-8 w-24 rounded-md" />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </div>
   );
 }
