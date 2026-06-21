@@ -32,8 +32,15 @@ export async function POST(req: NextRequest) {
       .update(signaturePayload)
       .digest("hex");
 
+    const expectedBuffer = Buffer.from(expectedSignature);
+    const testBuffer = Buffer.from(testSignature || "empty");
+    const liveBuffer = Buffer.from(liveSignature || "empty");
+
+    const isTestValid = expectedBuffer.length === testBuffer.length && crypto.timingSafeEqual(expectedBuffer, testBuffer);
+    const isLiveValid = expectedBuffer.length === liveBuffer.length && crypto.timingSafeEqual(expectedBuffer, liveBuffer);
+
     // Check if the expected signature matches either the test or live signature
-    if (expectedSignature !== testSignature && expectedSignature !== liveSignature) {
+    if (!isTestValid && !isLiveValid) {
       console.error("Webhook signature verification failed.");
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
