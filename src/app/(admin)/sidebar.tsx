@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { ProfileMenu } from "@/components/profile-menu";
-import { LayoutDashboard, Settings, ChevronLeft, ChevronRight, Users, PieChart, FileText } from "lucide-react";
+import { LayoutDashboard, Settings, ChevronLeft, ChevronRight, Users, PieChart, FileText, Loader2 } from "lucide-react";
 import { LogoIcon } from "@/components/logo-icon";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -13,8 +13,14 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [navigatingTo, setNavigatingTo] = useState<string | null>(null);
   const pathname = usePathname();
   const { user } = useUser();
+
+  // Reset loading state when route changes
+  useEffect(() => {
+    setNavigatingTo(null);
+  }, [pathname]);
   
   const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Administrator";
   const role = user?.publicMetadata?.role === "admin" ? "Administrator" : "Registrar Office";
@@ -54,6 +60,7 @@ export function Sidebar() {
       <nav className="flex-1 space-y-2 p-4 overflow-hidden whitespace-nowrap">
         <Link 
           href="/admin" 
+          onClick={() => pathname !== "/admin" && setNavigatingTo("/admin")}
           className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin" 
               ? "bg-primary/10 text-primary font-bold shadow-sm"
@@ -61,11 +68,16 @@ export function Sidebar() {
           } ${isCollapsed ? "justify-center" : ""}`}
           title="Request Queue"
         >
-          <LayoutDashboard className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin" ? "text-primary" : ""}`} />
+          {navigatingTo === "/admin" ? (
+            <Loader2 className="w-5 h-5 flex-shrink-0 animate-spin text-muted-foreground" />
+          ) : (
+            <LayoutDashboard className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin" ? "text-primary" : ""}`} />
+          )}
           {!isCollapsed && <span>Request Queue</span>}
         </Link>
         <Link 
           href="/admin/documents" 
+          onClick={() => pathname !== "/admin/documents" && setNavigatingTo("/admin/documents")}
           className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin/documents" 
               ? "bg-primary/10 text-primary font-bold shadow-sm"
@@ -73,11 +85,16 @@ export function Sidebar() {
           } ${isCollapsed ? "justify-center" : ""}`}
           title="Document Management"
         >
-          <FileText className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/documents" ? "text-primary" : ""}`} />
+          {navigatingTo === "/admin/documents" ? (
+            <Loader2 className="w-5 h-5 flex-shrink-0 animate-spin text-muted-foreground" />
+          ) : (
+            <FileText className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/documents" ? "text-primary" : ""}`} />
+          )}
           {!isCollapsed && <span>Document Management</span>}
         </Link>
         <Link 
           href="/admin/finance" 
+          onClick={() => pathname !== "/admin/finance" && setNavigatingTo("/admin/finance")}
           className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin/finance" 
               ? "bg-primary/10 text-primary font-bold shadow-sm"
@@ -85,11 +102,16 @@ export function Sidebar() {
           } ${isCollapsed ? "justify-center" : ""}`}
           title="Financial Analytics"
         >
-          <PieChart className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/finance" ? "text-primary" : ""}`} />
+          {navigatingTo === "/admin/finance" ? (
+            <Loader2 className="w-5 h-5 flex-shrink-0 animate-spin text-muted-foreground" />
+          ) : (
+            <PieChart className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/finance" ? "text-primary" : ""}`} />
+          )}
           {!isCollapsed && <span>Financial Analytics</span>}
         </Link>
         <Link 
           href="/admin/students" 
+          onClick={() => pathname !== "/admin/students" && setNavigatingTo("/admin/students")}
           className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin/students" 
               ? "bg-primary/10 text-primary font-bold shadow-sm"
@@ -97,7 +119,11 @@ export function Sidebar() {
           } ${isCollapsed ? "justify-center" : ""}`}
           title="Student Records"
         >
-          <Users className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/students" ? "text-primary" : ""}`} />
+          {navigatingTo === "/admin/students" ? (
+            <Loader2 className="w-5 h-5 flex-shrink-0 animate-spin text-muted-foreground" />
+          ) : (
+            <Users className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/students" ? "text-primary" : ""}`} />
+          )}
           {!isCollapsed && <span>Student Records</span>}
         </Link>
         
@@ -105,6 +131,7 @@ export function Sidebar() {
         
         <Link 
           href="/admin/settings" 
+          onClick={() => pathname !== "/admin/settings" && setNavigatingTo("/admin/settings")}
           className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
             pathname === "/admin/settings" 
               ? "bg-primary/10 text-primary font-bold shadow-sm"
@@ -112,7 +139,11 @@ export function Sidebar() {
           } ${isCollapsed ? "justify-center" : ""}`}
           title="System Settings"
         >
-          <Settings className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/settings" ? "text-primary" : ""}`} />
+          {navigatingTo === "/admin/settings" ? (
+            <Loader2 className="w-5 h-5 flex-shrink-0 animate-spin text-muted-foreground" />
+          ) : (
+            <Settings className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/settings" ? "text-primary" : ""}`} />
+          )}
           {!isCollapsed && <span>System Settings</span>}
         </Link>
       </nav>
