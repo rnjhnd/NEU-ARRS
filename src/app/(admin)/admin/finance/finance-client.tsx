@@ -6,8 +6,10 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell, Legend
 } from "recharts";
-import { format, subDays, isAfter } from "date-fns";
-import { DollarSign, CreditCard, Banknote, TrendingUp } from "lucide-react";
+import { format, subDays } from "date-fns";
+import { DollarSign, CreditCard, Banknote, TrendingUp, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const COLORS = ['#0A5C36', '#eab308'];
 
@@ -93,8 +95,42 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
     return { name: type, revenue: typeRevenue };
   }).sort((a, b) => b.revenue - a.revenue);
 
+  const exportToCSV = () => {
+    const paidRequests = requests.filter(isCompletedOrPaid);
+    if (paidRequests.length === 0) return toast.error("There is no revenue data available to export.");
+    
+    const headers = ["Reference ID", "Document", "Purpose", "Payment Method", "Revenue (PHP)", "Date Paid"];
+    const rows = paidRequests.map(r => [
+      r.id,
+      r.documentType,
+      r.purpose,
+      r.paymentMethod,
+      getAmount(r),
+      format(new Date(r.updatedAt || r.createdAt), "yyyy-MM-dd HH:mm:ss")
+    ]);
+    
+    const csvContent = [headers.join(","), ...rows.map(row => row.map(cell => `"${cell}"`).join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `neu_revenue_report_${format(new Date(), "yyyyMMdd")}.csv`);
+    link.click();
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">Finance Analytics</h2>
+          <p className="text-muted-foreground mt-1">Monitor revenue, payment methods, and financial trends.</p>
+        </div>
+        <Button onClick={exportToCSV} className="h-10 px-5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary border-none shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:scale-105 active:scale-95">
+          <Download className="w-4 h-4 mr-2" />
+          Export Revenue Report
+        </Button>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-background/60 backdrop-blur-md rounded-2xl border border-border/50 shadow-sm transition-all hover:bg-background/80">
