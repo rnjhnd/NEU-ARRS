@@ -12,7 +12,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="absolute -bottom-[500px] -left-[500px] w-[1000px] h-[1000px] rounded-full bg-primary/5 blur-[120px] opacity-50"></div>
       </div>
 
-      <div className="relative z-10 flex h-full w-full">
+      <div className="relative z-10 flex h-full w-full pointer-events-auto">
         <Sidebar />
 
         {/* Admin Main Content */}
