@@ -22,25 +22,31 @@ const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)", "/api/
 const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // Rate Limiting Logic
-  const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
-  
-  try {
-    const { success, limit, reset, remaining } = await ratelimit.limit(ip);
+  // Only apply rate limiting to API routes or mutating requests (POST, PUT, DELETE, etc.)
+  // This ensures that standard page navigation (GET requests) remains instantly snappy.
+  const isApi = req.nextUrl.pathname.startsWith('/api');
+  const isMutation = req.method !== 'GET';
+
+  if (isApi || isMutation) {
+    const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
     
-    if (!success) {
-      return new NextResponse("Too Many Requests - Rate limit exceeded. Please try again later.", {
-        status: 429,
-        headers: {
-          "X-RateLimit-Limit": limit.toString(),
-          "X-RateLimit-Remaining": remaining.toString(),
-          "X-RateLimit-Reset": reset.toString(),
-        },
-      });
+    try {
+      const { success, limit, reset, remaining } = await ratelimit.limit(ip);
+      
+      if (!success) {
+        return new NextResponse("Too Many Requests - Rate limit exceeded. Please try again later.", {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": limit.toString(),
+            "X-RateLimit-Remaining": remaining.toString(),
+            "X-RateLimit-Reset": reset.toString(),
+          },
+        });
+      }
+    } catch (err) {
+      console.error("Rate limiting error:", err);
+      // If Redis fails, we allow the request through to prevent total outage
     }
-  } catch (err) {
-    console.error("Rate limiting error:", err);
-    // If Redis fails, we allow the request through to prevent total outage
   }
 
   if (isPublicRoute(req)) {
