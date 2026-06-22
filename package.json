@@ -19,6 +19,8 @@
     "@prisma/client": "^7.8.0",
     "@react-email/components": "^1.0.12",
     "@react-email/render": "^2.0.8",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
