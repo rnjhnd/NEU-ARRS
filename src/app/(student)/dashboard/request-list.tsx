@@ -240,16 +240,6 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
                           {req.status === "COMPLETED" && (
                             <div className="flex flex-col gap-1 items-end mt-1">
                               <a 
-                                href={`/api/student/requests/${req.id}/pdf`} 
-                                target="_blank" 
-                                rel="noreferrer" 
-                                onClick={(e) => e.stopPropagation()}
-                                className="inline-flex items-center gap-1 text-xs leading-none font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-500 dark:hover:text-emerald-400 hover:underline transition-all"
-                              >
-                                <FileText className="w-3 h-3" />
-                                <span>Download PDF Document</span>
-                              </a>
-                              <a 
                                 href={`/receipt/${req.id}`} 
                                 target="_blank" 
                                 rel="noreferrer" 
