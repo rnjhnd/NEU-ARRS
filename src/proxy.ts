@@ -23,7 +23,7 @@ const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   // Rate Limiting Logic
-  const ip = req.headers.get("x-forwarded-for") || req.ip || "127.0.0.1";
+  const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
   
   try {
     const { success, limit, reset, remaining } = await ratelimit.limit(ip);
