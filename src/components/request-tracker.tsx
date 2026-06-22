@@ -1,11 +1,11 @@
 "use client";
 
-import { RequestStatus } from "@prisma/client";
+import { RequestStatus, Request as RequestType } from "@prisma/client";
 import { Check, FileText, Activity, Package, CheckCircle2, XCircle } from "lucide-react";
+import { format } from "date-fns";
 
 interface RequestTrackerProps {
-  status: RequestStatus;
-  cancelReason?: string | null;
+  request: RequestType;
 }
 
 const steps = [
@@ -15,7 +15,9 @@ const steps = [
   { id: "COMPLETED", label: "Completed", icon: CheckCircle2 },
 ];
 
-export function RequestTracker({ status, cancelReason }: RequestTrackerProps) {
+export function RequestTracker({ request }: RequestTrackerProps) {
+  const { status, cancelReason, createdAt, updatedAt } = request;
+
   if (status === "CANCELLED") {
     return (
       <div className="flex flex-col items-center justify-center py-6 text-center">
@@ -25,6 +27,9 @@ export function RequestTracker({ status, cancelReason }: RequestTrackerProps) {
         <h4 className="font-bold text-lg text-foreground">Request Cancelled</h4>
         <p className="text-muted-foreground text-sm max-w-md mt-1 text-center mx-auto break-words">
           {cancelReason ? `Reason: ${cancelReason}` : "This request was cancelled and will not be processed."}
+        </p>
+        <p className="text-xs text-muted-foreground mt-4 font-mono">
+          Cancelled on: {format(new Date(updatedAt), "MMM d, yyyy h:mm a")}
         </p>
       </div>
     );
@@ -48,9 +53,17 @@ export function RequestTracker({ status, cancelReason }: RequestTrackerProps) {
         {steps.map((step, index) => {
           const isCompleted = status === "COMPLETED" ? true : index < activeIndex;
           const isCurrent = status !== "COMPLETED" && index === activeIndex;
-          const isPending = status !== "COMPLETED" && index > activeIndex;
+          const isFirst = index === 0;
+          const isLastActive = index === activeIndex || (status === "COMPLETED" && index === steps.length - 1);
 
           const Icon = step.icon;
+          
+          let timeLabel = "";
+          if (isFirst) {
+            timeLabel = format(new Date(createdAt), "MMM d, h:mm a");
+          } else if (isLastActive) {
+            timeLabel = format(new Date(updatedAt), "MMM d, h:mm a");
+          }
 
           return (
             <div key={step.id} className="relative z-10 flex flex-col items-center">
@@ -68,10 +81,15 @@ export function RequestTracker({ status, cancelReason }: RequestTrackerProps) {
               </div>
               
               {/* Label */}
-              <div className="absolute top-16 sm:top-20 w-32 text-center">
-                <p className={`text-xs sm:text-sm font-semibold ${isCurrent ? "text-foreground" : "text-muted-foreground"}`}>
+              <div className="absolute top-16 sm:top-20 w-32 text-center flex flex-col items-center">
+                <p className={`text-xs sm:text-sm font-semibold ${isCurrent || isCompleted ? "text-foreground" : "text-muted-foreground"}`}>
                   {step.label}
                 </p>
+                {timeLabel && (
+                  <span className="text-[10px] text-muted-foreground mt-0.5 font-mono">
+                    {timeLabel}
+                  </span>
+                )}
                 {isCurrent && (
                   <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-ping mt-1"></span>
                 )}
@@ -81,7 +99,7 @@ export function RequestTracker({ status, cancelReason }: RequestTrackerProps) {
         })}
       </div>
       {/* Spacer to account for absolute positioned labels */}
-      <div className="h-12 sm:h-16"></div>
+      <div className="h-16 sm:h-20"></div>
     </div>
   );
 }

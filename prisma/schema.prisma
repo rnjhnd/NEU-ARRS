@@ -72,3 +72,15 @@ model SystemSettings {
   value     String   // JSON stringified configuration
   updatedAt DateTime @updatedAt
 }
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  adminId   String   // Clerk user ID of the admin
+  action    String   // e.g., 'STATUS_OVERRIDE', 'ROLE_GRANTED'
+  details   String   // Contextual information
+  requestId String?  // Optional relation if it pertains to a request
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+  @@index([requestId])
+}

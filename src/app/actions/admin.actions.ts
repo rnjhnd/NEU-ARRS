@@ -28,7 +28,7 @@ const ALLOWED_TRANSITIONS: Record<RequestStatus, RequestStatus[]> = {
 export async function updateRequestStatus(formData: FormData) {
   try {
     // 1. Strict Server-Side Authorization
-    await requireAdmin();
+    const adminId = await requireAdmin();
 
     // 2. Extract and Validate Input
     const rawIds = formData.getAll("requestIds") as string[];
@@ -91,12 +91,30 @@ export async function updateRequestStatus(formData: FormData) {
             cancelReason: reason,
           },
         });
+        
+        await prisma.auditLog.create({
+          data: {
+            adminId,
+            action: "UPDATE_STATUS_CANCELLED",
+            details: `Cancelled request. Reason: ${reason}`,
+            requestId: req.id
+          }
+        });
       }
     } else {
       await prisma.request.updateMany({
         where: { id: { in: requestIds } },
         data: { status: newStatus },
       });
+      
+      // Bulk create audit logs
+      const auditData = requestIds.map(id => ({
+        adminId,
+        action: "UPDATE_STATUS",
+        details: `Updated status to ${newStatus}${isOverride ? " (Force Override)" : ""}`,
+        requestId: id
+      }));
+      await prisma.auditLog.createMany({ data: auditData });
     }
 
     // 5.5 Send Email Notifications

@@ -52,6 +52,29 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
   const [sortConfig, setSortConfig] = useState<{ key: keyof Request; direction: "asc" | "desc" } | null>({ key: "updatedAt", direction: "desc" });
   const router = useRouter();
 
+  // Keep track of previous requests to detect status changes
+  const prevRequestsRef = React.useRef<Request[]>(initialRequests);
+
+  React.useEffect(() => {
+    if (!localRequests) return;
+    
+    localRequests.forEach(newReq => {
+      const oldReq = prevRequestsRef.current.find(r => r.id === newReq.id);
+      if (oldReq && oldReq.status !== newReq.status) {
+        // Status has changed!
+        if (newReq.status === "READY_FOR_PICKUP") {
+          toast.success(`Update! Your ${newReq.documentType.replace("_", " ")} is now Ready for Pickup!`);
+        } else if (newReq.status === "COMPLETED") {
+          toast.success(`Success! Your request for ${newReq.documentType.replace("_", " ")} is completed.`);
+        } else if (newReq.status === "PROCESSING") {
+          toast.info(`Your ${newReq.documentType.replace("_", " ")} is now being processed.`);
+        }
+      }
+    });
+
+    prevRequestsRef.current = localRequests;
+  }, [localRequests]);
+
   const handleSort = (key: keyof Request) => {
     let direction: "asc" | "desc" = "asc";
     if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
@@ -215,16 +238,28 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
                           {getStatusBadge(req.status)}
 
                           {req.status === "COMPLETED" && (
-                            <a 
-                              href={`/receipt/${req.id}`} 
-                              target="_blank" 
-                              rel="noreferrer" 
-                              onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center gap-1 mt-0.5 text-xs leading-none font-medium text-yellow-600 hover:text-yellow-700 dark:text-gold dark:hover:text-gold/80 hover:underline transition-all"
-                            >
-                              <FileText className="w-3 h-3" />
-                              <span>Download Receipt</span>
-                            </a>
+                            <div className="flex flex-col gap-1 items-end mt-1">
+                              <a 
+                                href={`/api/student/requests/${req.id}/pdf`} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-1 text-xs leading-none font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-500 dark:hover:text-emerald-400 hover:underline transition-all"
+                              >
+                                <FileText className="w-3 h-3" />
+                                <span>Download PDF Document</span>
+                              </a>
+                              <a 
+                                href={`/receipt/${req.id}`} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-1 text-xs leading-none font-medium text-yellow-600 hover:text-yellow-700 dark:text-gold dark:hover:text-gold/80 hover:underline transition-all"
+                              >
+                                <FileText className="w-3 h-3" />
+                                <span>View Official Receipt</span>
+                              </a>
+                            </div>
                           )}
                         </div>
                       </TableCell>
@@ -241,7 +276,7 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
                               className="bg-primary/5 overflow-hidden border-b border-border/50"
                             >
                               <div className="px-6 py-4">
-                              <RequestTracker status={req.status} cancelReason={req.cancelReason} />
+                              <RequestTracker request={req} />
                               {req.status === "PENDING_PAYMENT" && (
                                 <div className="flex justify-end mt-2 pr-2 gap-2">
                                   {req.status === "PENDING_PAYMENT" && req.paymentMethod === "online" && (
