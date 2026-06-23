@@ -260,7 +260,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     dataKey="revenue" 
                     position="top" 
                     offset={10}
-                    formatter={(value: number) => value > 0 ? `₱${value.toLocaleString()}` : ''}
+                    formatter={(value: any) => typeof value === 'number' && value > 0 ? `₱${value.toLocaleString()}` : ''}
                     className="fill-foreground text-xs font-semibold"
                   />
                 </Line>
@@ -295,7 +295,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     <LabelList 
                       dataKey="value" 
                       position="inside" 
-                      formatter={(value: number) => value > 0 ? `₱${value.toLocaleString()}` : ''}
+                      formatter={(value: any) => typeof value === 'number' && value > 0 ? `₱${value.toLocaleString()}` : ''}
                       className="fill-white text-xs font-bold drop-shadow-md"
                     />
                   </Pie>
@@ -346,7 +346,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     <LabelList 
                       dataKey="revenue" 
                       position="right" 
-                      formatter={(value: number) => value > 0 ? `₱${value.toLocaleString()}` : ''}
+                      formatter={(value: any) => typeof value === 'number' && value > 0 ? `₱${value.toLocaleString()}` : ''}
                       className="fill-foreground text-xs font-semibold"
                     />
                   </Bar>
