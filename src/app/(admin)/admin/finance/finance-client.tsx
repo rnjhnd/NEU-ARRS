@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import html2canvas from "html2canvas";
+import { toPng } from "html-to-image";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Request } from "@prisma/client";
@@ -136,14 +136,13 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
       
       const isDark = document.documentElement.classList.contains("dark");
       
-      const canvas = await html2canvas(element, {
-        scale: 2, // High resolution
+      const image = await toPng(element, {
+        pixelRatio: 2, // High resolution
         backgroundColor: isDark ? "#020817" : "#ffffff", // Match Tailwind background
-        logging: false,
-        useCORS: true,
+        cacheBust: true, // Prevent CORS issues
+        skipFonts: true, // Prevents hanging on web fonts
       });
       
-      const image = canvas.toDataURL("image/png", 1.0);
       const link = document.createElement("a");
       link.href = image;
       link.download = `neu_finance_charts_${format(new Date(), "yyyyMMdd")}.png`;
