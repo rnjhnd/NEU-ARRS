@@ -10,9 +10,17 @@ import {
   LineChart, Line, PieChart, Pie, Cell, Legend, LabelList
 } from "recharts";
 import { format, subDays } from "date-fns";
-import { DollarSign, CreditCard, Banknote, TrendingUp, Download, Camera, Loader2 } from "lucide-react";
+import { DollarSign, CreditCard, Banknote, TrendingUp, Download, Camera, Loader2, ChevronDown, Image as ImageIcon, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const COLORS = ['#0A5C36', '#eab308'];
 
@@ -158,20 +166,32 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-      <div className="flex flex-col sm:flex-row justify-end items-center gap-3">
-        <Button 
-          variant="outline"
-          onClick={exportToImage} 
-          disabled={isExporting}
-          className="w-full sm:w-auto h-10 px-5 rounded-full border-primary/20 text-foreground shadow-sm transition-all hover:bg-muted active:scale-95"
-        >
-          {isExporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Camera className="w-4 h-4 mr-2 text-primary" />}
-          {isExporting ? "Capturing..." : "Download Visual Report"}
-        </Button>
-        <Button onClick={exportToCSV} className="w-full sm:w-auto h-10 px-5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary border-none shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:scale-105 active:scale-95">
-          <Download className="w-4 h-4 mr-2" />
-          Export Data (CSV)
-        </Button>
+      <div className="flex justify-end items-center gap-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="outline" 
+              className="h-10 px-5 rounded-full border-primary/20 text-foreground shadow-sm transition-all hover:bg-muted active:scale-95 flex items-center gap-2"
+              disabled={isExporting}
+            >
+              {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              {isExporting ? "Exporting..." : "Export"}
+              <ChevronDown className="w-4 h-4 opacity-50" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 rounded-xl border-border/50 shadow-xl bg-background/95 backdrop-blur-md">
+            <DropdownMenuLabel className="font-semibold">Export Options</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={exportToImage} className="cursor-pointer font-medium py-2 focus:bg-primary/5 focus:text-primary transition-colors">
+              <ImageIcon className="w-4 h-4 mr-3 opacity-70" />
+              <span>Visual Report (.png)</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={exportToCSV} className="cursor-pointer font-medium py-2 focus:bg-primary/5 focus:text-primary transition-colors">
+              <FileSpreadsheet className="w-4 h-4 mr-3 opacity-70" />
+              <span>Raw Data (.csv)</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div id="finance-visual-report" className="space-y-8 pb-4">
