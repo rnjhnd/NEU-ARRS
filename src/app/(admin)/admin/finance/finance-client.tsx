@@ -120,11 +120,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">Finance Analytics</h2>
-          <p className="text-muted-foreground mt-1">Monitor revenue, payment methods, and financial trends.</p>
-        </div>
+      <div className="flex justify-end items-center gap-4">
         <Button onClick={exportToCSV} className="h-10 px-5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary border-none shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:scale-105 active:scale-95">
           <Download className="w-4 h-4 mr-2" />
           Export Revenue Report
