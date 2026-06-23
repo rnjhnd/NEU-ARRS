@@ -168,16 +168,13 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
       <div className="flex justify-end items-center gap-4">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button 
-              variant="outline" 
-              className="h-10 px-5 rounded-full border-primary/20 text-foreground shadow-sm transition-all hover:bg-muted active:scale-95 flex items-center gap-2"
-              disabled={isExporting}
-            >
+          <DropdownMenuTrigger 
+            className="inline-flex h-10 px-5 rounded-full border border-primary/20 bg-transparent text-foreground shadow-sm transition-all hover:bg-muted focus:bg-muted active:scale-95 items-center gap-2 font-medium text-sm disabled:pointer-events-none disabled:opacity-50 outline-none"
+            disabled={isExporting}
+          >
               {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               {isExporting ? "Exporting..." : "Export"}
               <ChevronDown className="w-4 h-4 opacity-50" />
-            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 rounded-xl border-border/50 shadow-xl bg-background/95 backdrop-blur-md">
             <DropdownMenuLabel className="font-semibold">Export Options</DropdownMenuLabel>
