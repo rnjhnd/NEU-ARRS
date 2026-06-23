@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Request } from "@prisma/client";
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  LineChart, Line, PieChart, Pie, Cell, Legend
+  LineChart, Line, PieChart, Pie, Cell, Legend, LabelList
 } from "recharts";
 import { format, subDays } from "date-fns";
 import { DollarSign, CreditCard, Banknote, TrendingUp, Download, Camera, Loader2 } from "lucide-react";
@@ -255,7 +255,15 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                   strokeWidth={3}
                   dot={{ r: 4, strokeWidth: 2 }}
                   activeDot={{ r: 6, strokeWidth: 0 }}
-                />
+                >
+                  <LabelList 
+                    dataKey="revenue" 
+                    position="top" 
+                    offset={10}
+                    formatter={(value: number) => value > 0 ? `₱${value.toLocaleString()}` : ''}
+                    className="fill-foreground text-xs font-semibold"
+                  />
+                </Line>
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -284,6 +292,12 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     {paymentMethodData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
+                    <LabelList 
+                      dataKey="value" 
+                      position="inside" 
+                      formatter={(value: number) => value > 0 ? `₱${value.toLocaleString()}` : ''}
+                      className="fill-white text-xs font-bold drop-shadow-md"
+                    />
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
                   <Legend content={<CustomLegend />} verticalAlign="bottom" height={36} />
@@ -328,7 +342,14 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     width={180}
                   />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: 'currentColor', opacity: 0.05 }} />
-                  <Bar dataKey="revenue" fill="#0A5C36" radius={[0, 4, 4, 0]} barSize={32} />
+                  <Bar dataKey="revenue" fill="#0A5C36" radius={[0, 4, 4, 0]} barSize={32}>
+                    <LabelList 
+                      dataKey="revenue" 
+                      position="right" 
+                      formatter={(value: number) => value > 0 ? `₱${value.toLocaleString()}` : ''}
+                      className="fill-foreground text-xs font-semibold"
+                    />
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             ) : (
