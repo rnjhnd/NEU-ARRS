@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toPng } from "html-to-image";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Request } from "@prisma/client";
@@ -13,19 +14,24 @@ import { format, subDays } from "date-fns";
 import { DollarSign, CreditCard, Banknote, TrendingUp, Download, Camera, Loader2, ChevronDown, Image as ImageIcon, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const COLORS = ['#0A5C36', '#eab308'];
 
 export function FinanceClient({ requests }: { requests: Request[] }) {
   const [isExporting, setIsExporting] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -167,28 +173,49 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
       <div className="flex justify-end items-center gap-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger 
-            className="inline-flex h-10 px-5 rounded-full border border-primary/20 bg-transparent text-foreground shadow-sm transition-all hover:bg-muted focus:bg-muted active:scale-95 items-center gap-2 font-medium text-sm disabled:pointer-events-none disabled:opacity-50 outline-none"
+        <div className="relative" ref={menuRef}>
+          <Button 
+            variant="outline" 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="h-10 px-5 rounded-full border border-primary/20 bg-background text-foreground shadow-sm transition-all hover:bg-muted focus:bg-muted active:scale-95 flex items-center gap-2 font-medium text-sm disabled:pointer-events-none disabled:opacity-50 outline-none"
             disabled={isExporting}
           >
-              {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-              {isExporting ? "Exporting..." : "Export"}
-              <ChevronDown className="w-4 h-4 opacity-50" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 rounded-xl border-border/50 shadow-xl bg-background/95 backdrop-blur-md">
-            <DropdownMenuLabel className="font-semibold">Export Options</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={exportToImage} className="cursor-pointer font-medium py-2 focus:bg-primary/5 focus:text-primary transition-colors">
-              <ImageIcon className="w-4 h-4 mr-3 opacity-70" />
-              <span>Visual Report (.png)</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={exportToCSV} className="cursor-pointer font-medium py-2 focus:bg-primary/5 focus:text-primary transition-colors">
-              <FileSpreadsheet className="w-4 h-4 mr-3 opacity-70" />
-              <span>Raw Data (.csv)</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            {isExporting ? "Exporting..." : "Export"}
+            <ChevronDown className={`w-4 h-4 opacity-50 transition-transform ${isMenuOpen ? "rotate-180" : ""}`} />
+          </Button>
+
+          <AnimatePresence>
+            {isMenuOpen && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                className="absolute right-0 top-12 z-50 w-56 rounded-xl border border-border/50 shadow-xl bg-background/95 backdrop-blur-md p-1"
+              >
+                <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                  Export Options
+                </div>
+                <div className="h-px bg-border/50 mx-1 my-1" />
+                <button 
+                  onClick={() => { setIsMenuOpen(false); exportToImage(); }} 
+                  className="w-full flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-primary/5 hover:text-primary transition-colors focus:bg-primary/5 focus:outline-none"
+                >
+                  <ImageIcon className="w-4 h-4 mr-3 opacity-70" />
+                  Visual Report (.png)
+                </button>
+                <button 
+                  onClick={() => { setIsMenuOpen(false); exportToCSV(); }} 
+                  className="w-full flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-primary/5 hover:text-primary transition-colors focus:bg-primary/5 focus:outline-none"
+                >
+                  <FileSpreadsheet className="w-4 h-4 mr-3 opacity-70" />
+                  Raw Data (.csv)
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       <div id="finance-visual-report" className="space-y-8 pb-4">
