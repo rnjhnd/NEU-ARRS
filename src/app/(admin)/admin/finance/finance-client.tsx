@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import html2canvas from "html2canvas";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Request } from "@prisma/client";
 import { 
@@ -7,13 +10,15 @@ import {
   LineChart, Line, PieChart, Pie, Cell, Legend
 } from "recharts";
 import { format, subDays } from "date-fns";
-import { DollarSign, CreditCard, Banknote, TrendingUp, Download } from "lucide-react";
+import { DollarSign, CreditCard, Banknote, TrendingUp, Download, Camera, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 const COLORS = ['#0A5C36', '#eab308'];
 
 export function FinanceClient({ requests }: { requests: Request[] }) {
+  const [isExporting, setIsExporting] = useState(false);
+  
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -118,16 +123,60 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
     link.click();
   };
 
+  const exportToImage = async () => {
+    const element = document.getElementById("finance-visual-report");
+    if (!element) return toast.error("Report content not found.");
+    
+    setIsExporting(true);
+    toast.info("Generating high-quality snapshot...", { duration: 2000 });
+    
+    try {
+      // Small delay to allow toast and Recharts animations to settle
+      await new Promise(r => setTimeout(r, 800));
+      
+      const isDark = document.documentElement.classList.contains("dark");
+      
+      const canvas = await html2canvas(element, {
+        scale: 2, // High resolution
+        backgroundColor: isDark ? "#020817" : "#ffffff", // Match Tailwind background
+        logging: false,
+        useCORS: true,
+      });
+      
+      const image = canvas.toDataURL("image/png", 1.0);
+      const link = document.createElement("a");
+      link.href = image;
+      link.download = `neu_finance_charts_${format(new Date(), "yyyyMMdd")}.png`;
+      link.click();
+      toast.success("Visual report downloaded!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to generate image.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-      <div className="flex justify-end items-center gap-4">
-        <Button onClick={exportToCSV} className="h-10 px-5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary border-none shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:scale-105 active:scale-95">
+      <div className="flex flex-col sm:flex-row justify-end items-center gap-3">
+        <Button 
+          variant="outline"
+          onClick={exportToImage} 
+          disabled={isExporting}
+          className="w-full sm:w-auto h-10 px-5 rounded-full border-primary/20 text-foreground shadow-sm transition-all hover:bg-muted active:scale-95"
+        >
+          {isExporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Camera className="w-4 h-4 mr-2 text-primary" />}
+          {isExporting ? "Capturing..." : "Download Visual Report"}
+        </Button>
+        <Button onClick={exportToCSV} className="w-full sm:w-auto h-10 px-5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary border-none shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:scale-105 active:scale-95">
           <Download className="w-4 h-4 mr-2" />
-          Export Revenue Report
+          Export Data (CSV)
         </Button>
       </div>
 
-      {/* KPI Cards */}
+      <div id="finance-visual-report" className="space-y-8 pb-4">
+        {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-background/60 backdrop-blur-md rounded-2xl border border-border/50 shadow-sm transition-all hover:bg-background/80">
           <CardContent className="p-6 flex items-center justify-between">
@@ -290,6 +339,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
             )}
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );
