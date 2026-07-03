@@ -71,16 +71,20 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
     return 0;
   };
 
-  const isCompletedOrPaid = (req: Request) => 
-    req.paymentStatus === 'PAID' || req.paymentStatus === 'CASH_ON_PICKUP';
+  const isCompletedOrPaid = (req: Request) => {
+    if (req.status === 'CANCELLED') return false; // Never count cancelled requests
+    if (req.paymentStatus === 'PAID') return true; // Online payments are immediate revenue
+    if (req.paymentStatus === 'CASH_ON_PICKUP' && req.status === 'COMPLETED') return true; // Cash is only revenue when actually picked up
+    return false;
+  };
 
   // 1. Top Level KPIs
   const totalRevenue = requests.filter(isCompletedOrPaid).reduce((sum, req) => sum + getAmount(req), 0);
   
-  const onlineRequests = requests.filter(r => r.paymentMethod === 'online' && r.paymentStatus === 'PAID');
+  const onlineRequests = requests.filter(r => r.paymentMethod === 'online' && isCompletedOrPaid(r));
   const onlineRevenue = onlineRequests.reduce((sum, req) => sum + getAmount(req), 0);
   
-  const cashRequests = requests.filter(r => r.paymentMethod === 'cash');
+  const cashRequests = requests.filter(r => r.paymentMethod === 'cash' && isCompletedOrPaid(r));
   const cashRevenue = cashRequests.reduce((sum, req) => sum + getAmount(req), 0);
 
   // 2. Revenue Over Time (Last 7 Days)
