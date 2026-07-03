@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Request, RequestStatus } from "@prisma/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -38,6 +38,11 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
   const [editStatus, setEditStatus] = useState<string>("");
   const [sendCorrection, setSendCorrection] = useState(false);
   const ITEMS_PER_PAGE = 10;
+
+  // Fix: Reset pagination when filters or search change to prevent out-of-bounds blank pages
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filter]);
 
   const STATUS_ORDER: Record<string, number> = {
     PENDING_PAYMENT: 0,
@@ -116,8 +121,19 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
   });
 
   const toggleSelectAll = () => {
-    if (selectedIds.size === filteredRequests.length) setSelectedIds(new Set());
-    else setSelectedIds(new Set(filteredRequests.map((r) => r.id)));
+    // Safety Fix: Only select currently visible items on this page, not everything hidden across all pages
+    const pageIds = paginatedRequests.map((r) => r.id);
+    const allSelected = pageIds.length > 0 && pageIds.every(id => selectedIds.has(id));
+    
+    if (allSelected) {
+      const next = new Set(selectedIds);
+      pageIds.forEach(id => next.delete(id));
+      setSelectedIds(next);
+    } else {
+      const next = new Set(selectedIds);
+      pageIds.forEach(id => next.add(id));
+      setSelectedIds(next);
+    }
   };
 
   const toggleSelectRow = (id: string) => {
@@ -419,7 +435,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   <TableHead className="w-[50px] pl-8">
                     <input
                       type="checkbox"
-                      checked={selectedIds.size === sortedRequests.length && sortedRequests.length > 0}
+                      checked={paginatedRequests.length > 0 && paginatedRequests.every(r => selectedIds.has(r.id))}
                       onChange={toggleSelectAll}
                       className="block rounded border-input accent-primary focus:ring-primary h-4 w-4 transition-all cursor-pointer"
                     />
