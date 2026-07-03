@@ -207,7 +207,7 @@ export async function updateDocumentConfig(formData: FormData) {
       data: {
         label,
         description,
-        price: parseInt(priceStr) * 100, // convert pesos to centavos
+        price: isNaN(parseInt(priceStr)) ? 0 : parseInt(priceStr) * 100, // convert pesos to centavos
         isActive: isActiveStr === "true"
       }
     });
@@ -238,7 +238,7 @@ export async function createDocumentConfig(formData: FormData) {
         typeId: finalTypeId.toUpperCase().replace(/[^A-Z0-9]/ig, '_'),
         label,
         description,
-        price: parseInt(priceStr) * 100, // convert pesos to centavos
+        price: isNaN(parseInt(priceStr)) ? 0 : parseInt(priceStr) * 100, // convert pesos to centavos
         isActive: isActiveStr === "true"
       }
     });
