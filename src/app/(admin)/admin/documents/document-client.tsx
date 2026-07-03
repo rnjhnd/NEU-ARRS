@@ -86,7 +86,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
       <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0 !pb-0">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 !py-6 px-8">
           <div>
-            <CardTitle className="text-xl font-bold tracking-tight text-foreground">Available Documents</CardTitle>
+            <CardTitle className="text-xl font-bold tracking-tight text-foreground">Document Management</CardTitle>
             <CardDescription>Manage descriptions, pricing, and active status.</CardDescription>
           </div>
           <Button 

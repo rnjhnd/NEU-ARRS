@@ -95,10 +95,10 @@ export function Sidebar() {
               ? "bg-primary/10 text-primary font-bold shadow-sm"
               : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
           } ${isCollapsed ? "justify-center" : ""}`}
-          title="Student Records"
+          title="Student Directory"
         >
           <Users className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/students" ? "text-primary" : ""}`} />
-          {!isCollapsed && <span>Student Records</span>}
+          {!isCollapsed && <span>Student Directory</span>}
         </Link>
         
         <div className="pt-4 mt-4 border-t border-border/50" />

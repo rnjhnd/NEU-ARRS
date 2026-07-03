@@ -89,7 +89,7 @@ export function MobileNav() {
                   className={`flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium transition-colors ${pathname === "/admin/settings" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
                 >
                   <Settings className="w-5 h-5" />
-                  Admin Settings
+                  System Settings
                 </Link>
               </nav>
 
