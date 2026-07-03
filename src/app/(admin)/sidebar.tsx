@@ -59,10 +59,10 @@ export function Sidebar() {
               ? "bg-primary/10 text-primary font-bold shadow-sm"
               : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
           } ${isCollapsed ? "justify-center" : ""}`}
-          title="Request Queue"
+          title="Command Center"
         >
           <LayoutDashboard className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin" ? "text-primary" : ""}`} />
-          {!isCollapsed && <span>Request Queue</span>}
+          {!isCollapsed && <span>Command Center</span>}
         </Link>
         <Link 
           href="/admin/documents" 

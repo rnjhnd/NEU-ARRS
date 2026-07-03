@@ -366,7 +366,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent !py-6 px-8">
           <div>
             <CardTitle className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              Request Queue
+              Command Center
             </CardTitle>
             <div className="flex items-center gap-4 mt-1">
               <CardDescription className="text-base text-muted-foreground">Automatically syncing with database.</CardDescription>
