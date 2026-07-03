@@ -24,7 +24,7 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
   };
 
   const formattedDate = format(new Date(receipt.dateCompleted), "PPP 'at' p");
-  const priceFormatted = (receipt.amountPaid / 100).toLocaleString("en-PH", {
+  const priceFormatted = receipt.amountPaid.toLocaleString("en-PH", {
     style: "currency",
     currency: "PHP",
   });

@@ -26,7 +26,8 @@ export async function StudentsData() {
       studentId: true,
       amountPaid: true,
       paymentMethod: true,
-      paymentStatus: true
+      paymentStatus: true,
+      status: true
     }
   });
 
@@ -38,10 +39,11 @@ export async function StudentsData() {
     countMap[r.studentId] = (countMap[r.studentId] || 0) + 1;
 
     // Lifetime Value (LTV)
-    if (r.paymentStatus === "PAID" || r.paymentStatus === "CASH_ON_PICKUP") {
+    const isRevenue = r.paymentStatus === "PAID" || (r.paymentStatus === "CASH_ON_PICKUP" && r.status === "COMPLETED");
+    if (isRevenue) {
       let amount = 0;
       if (r.amountPaid) {
-        amount = r.amountPaid / 100; // Centavos to PHP
+        amount = r.amountPaid; // amountPaid is already stored in PHP in the database
       } else if (r.paymentMethod === "cash") {
         amount = 150; // Hardcoded fallback for existing cash payments without amountPaid
       }
