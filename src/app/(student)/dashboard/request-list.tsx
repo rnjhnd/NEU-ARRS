@@ -237,7 +237,7 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
                         <div className="flex flex-col items-end justify-center gap-2">
                           {getStatusBadge(req.status)}
 
-                          {req.status === "COMPLETED" && (
+                          {(req.paymentStatus === "PAID" || (req.paymentStatus === "CASH_ON_PICKUP" && req.status === "COMPLETED")) && (
                             <div className="flex flex-col gap-1 items-end mt-1">
                               <a 
                                 href={`/receipt/${req.id}`} 

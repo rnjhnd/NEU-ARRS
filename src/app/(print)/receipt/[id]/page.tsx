@@ -30,12 +30,14 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
     return notFound();
   }
 
-  if (request.status !== RequestStatus.COMPLETED) {
-    // Only completed requests get a formal receipt
+  const isRevenue = request.paymentStatus === "PAID" || (request.paymentStatus === "CASH_ON_PICKUP" && request.status === RequestStatus.COMPLETED);
+  
+  if (!isRevenue) {
+    // Only paid or fully completed cash requests get a formal receipt
     return (
       <div className="flex min-h-screen items-center justify-center p-8 text-center text-red-600">
         <h1 className="text-2xl font-bold">Receipt Not Available</h1>
-        <p className="mt-2 text-muted-foreground">This request has not been completed yet.</p>
+        <p className="mt-2 text-muted-foreground">This request has not been fully paid or completed yet.</p>
       </div>
     );
   }
@@ -60,7 +62,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
     documentLabel,
     purpose: request.purpose.replace("_", " "),
     paymentMethod: request.paymentMethod,
-    amountPaid: request.amountPaid || 0, // In centavos
+    amountPaid: request.amountPaid || 0, // In PHP
   };
 
   return <ReceiptClient receipt={receiptData} />;
