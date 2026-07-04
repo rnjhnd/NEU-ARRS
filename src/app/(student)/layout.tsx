@@ -26,13 +26,6 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
           </Link>
 
           <nav className="flex items-center gap-4 sm:gap-6">
-            <Link 
-              href="/dashboard" 
-              className="text-sm font-semibold text-muted-foreground hover:text-primary dark:hover:text-primary transition-colors hidden sm:block"
-            >
-              Dashboard
-            </Link>
-            <div className="h-4 w-px bg-border/50 hidden sm:block"></div>
             <div className="flex items-center gap-3 bg-muted/50 p-1.5 rounded-full border border-border/50">
               <ThemeToggle />
                 <ProfileMenu />
