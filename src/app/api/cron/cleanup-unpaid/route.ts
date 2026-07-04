@@ -23,6 +23,9 @@ export async function GET(request: Request) {
       where: {
         paymentMethod: 'online',
         status: RequestStatus.PENDING_PAYMENT,
+        createdAt: {
+          lt: threeDaysAgo,
+        },
       },
     });
 
