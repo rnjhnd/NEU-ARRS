@@ -241,21 +241,6 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
                       <TableCell className="text-right pr-8">
                         <div className="flex flex-col items-end justify-center gap-2">
                           {getStatusBadge(req.status)}
-
-                          {(req.paymentStatus === "PAID" || (req.paymentStatus === "CASH_ON_PICKUP" && req.status === "COMPLETED")) && (
-                            <div className="flex flex-col gap-1 items-end mt-1">
-                              <a 
-                                href={`/receipt/${req.id}`} 
-                                target="_blank" 
-                                rel="noreferrer" 
-                                onClick={(e) => e.stopPropagation()}
-                                className="inline-flex items-center gap-1 text-xs leading-none font-medium text-yellow-600 hover:text-yellow-700 dark:text-gold dark:hover:text-gold/80 hover:underline transition-all"
-                              >
-                                <FileText className="w-3 h-3" />
-                                <span>View Official Receipt</span>
-                              </a>
-                            </div>
-                          )}
                         </div>
                       </TableCell>
                     </motion.tr>
@@ -272,35 +257,49 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
                             >
                               <div className="px-6 py-4">
                               <RequestTracker request={req} />
-                              {req.status === "PENDING_PAYMENT" && (
-                                <div className="flex justify-end mt-2 pr-2 gap-2">
-                                  {req.status === "PENDING_PAYMENT" && req.paymentMethod === "online" && (
+                              <div className="flex justify-end mt-2 pr-2 pb-2 gap-2">
+                                {(req.paymentStatus === "PAID" || (req.paymentStatus === "CASH_ON_PICKUP" && req.status === "COMPLETED")) && (
+                                  <a href={`/receipt/${req.id}`} target="_blank" rel="noreferrer">
                                     <Button 
-                                      variant="default" 
+                                      variant="outline" 
                                       size="sm" 
-                                      onClick={() => handlePayNow(req.id)}
-                                      disabled={payingId === req.id || cancellingId === req.id}
-                                      className="font-semibold transition-all duration-300 shadow-sm hover:shadow-md active:scale-95"
+                                      className="font-semibold transition-all duration-300 text-yellow-600 border border-yellow-600/20 bg-yellow-600/5 hover:bg-yellow-600 hover:text-white dark:text-gold dark:border-gold/20 dark:bg-gold/5 dark:hover:bg-gold dark:hover:text-black shadow-sm hover:shadow-md active:scale-95"
                                     >
-                                      {payingId === req.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                                      Pay Now
+                                      <FileText className="w-4 h-4 mr-2" />
+                                      View Official Receipt
                                     </Button>
-                                  )}
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm" 
-                                    onClick={() => {
-                                      setCancellingId(req.id);
-                                      setCancelDialogOpen(true);
-                                    }}
-                                    disabled={(cancellingId === req.id && !cancelDialogOpen) || payingId === req.id}
-                                    className="font-semibold transition-all duration-300 text-destructive border border-destructive/20 bg-destructive/5 hover:bg-destructive hover:text-destructive-foreground hover:border-destructive shadow-sm hover:shadow-md active:scale-95"
-                                  >
-                                    {(cancellingId === req.id && !cancelDialogOpen) ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                                    Cancel Request
-                                  </Button>
-                                </div>
-                              )}
+                                  </a>
+                                )}
+                                {req.status === "PENDING_PAYMENT" && (
+                                  <>
+                                    {req.paymentMethod === "online" && (
+                                      <Button 
+                                        variant="default" 
+                                        size="sm" 
+                                        onClick={() => handlePayNow(req.id)}
+                                        disabled={payingId === req.id || cancellingId === req.id}
+                                        className="font-semibold transition-all duration-300 shadow-sm hover:shadow-md active:scale-95"
+                                      >
+                                        {payingId === req.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                                        Pay Now
+                                      </Button>
+                                    )}
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      onClick={() => {
+                                        setCancellingId(req.id);
+                                        setCancelDialogOpen(true);
+                                      }}
+                                      disabled={(cancellingId === req.id && !cancelDialogOpen) || payingId === req.id}
+                                      className="font-semibold transition-all duration-300 text-destructive border border-destructive/20 bg-destructive/5 hover:bg-destructive hover:text-destructive-foreground hover:border-destructive shadow-sm hover:shadow-md active:scale-95"
+                                    >
+                                      {(cancellingId === req.id && !cancelDialogOpen) ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                                      Cancel Request
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
                               </div>
                             </motion.div>
                           </TableCell>
