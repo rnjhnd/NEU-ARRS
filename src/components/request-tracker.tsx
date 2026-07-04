@@ -39,7 +39,7 @@ export function RequestTracker({ request }: RequestTrackerProps) {
   const activeIndex = currentStepIndex === -1 ? 0 : currentStepIndex;
 
   return (
-    <div className="w-full py-6 px-2 sm:px-8">
+    <div className="w-full py-6 px-10 sm:px-16">
       <div className="relative flex items-center justify-between w-full">
         {/* Connecting Line (Background) */}
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1.5 bg-muted rounded-full pointer-events-none"></div>
