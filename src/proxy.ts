@@ -3,19 +3,20 @@ import { NextResponse } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
-// Initialize Upstash Redis and Ratelimit
-const redis = new Redis({
+// Initialize Upstash Redis and Ratelimit only if keys are present
+const isRateLimitingConfigured = !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN;
+
+const redis = isRateLimitingConfigured ? new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL || "",
   token: process.env.UPSTASH_REDIS_REST_TOKEN || "",
-});
+}) : null;
 
-// Create a rate limiter: 100 requests per 10 seconds per IP
-const ratelimit = new Ratelimit({
+const ratelimit = redis ? new Ratelimit({
   redis: redis,
   limiter: Ratelimit.slidingWindow(100, "10 s"),
   analytics: true,
   prefix: "@upstash/ratelimit",
-});
+}) : null;
 
 const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)", "/api/webhooks(.*)"]);
 
@@ -27,7 +28,7 @@ export default clerkMiddleware(async (auth, req) => {
   const isApi = req.nextUrl.pathname.startsWith('/api');
   const isMutation = req.method !== 'GET';
 
-  if (isApi || isMutation) {
+  if (isRateLimitingConfigured && ratelimit && (isApi || isMutation)) {
     const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
     
     try {
