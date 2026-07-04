@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useUser, useClerk } from "@clerk/nextjs";
 import { LogOut, LifeBuoy } from "lucide-react";
@@ -24,13 +24,15 @@ export function ProfileMenu() {
   
   // Cache user to prevent UI flickering/empty circles during sign out
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const cachedUser = useRef<any>(null);
+  const [cachedUser, setCachedUser] = useState<any>(null);
   
-  if (user) {
-    cachedUser.current = user;
-  }
+  useEffect(() => {
+    if (user) {
+      setCachedUser(user);
+    }
+  }, [user]);
   
-  const displayUser = user || cachedUser.current;
+  const displayUser = user || cachedUser;
 
   if (!isLoaded && !displayUser) {
     return <Skeleton className="h-8 w-8 rounded-full" />;

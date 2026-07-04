@@ -1,6 +1,6 @@
 "use client";
 
-import { RequestStatus, Request as RequestType } from "@prisma/client";
+import { Request as RequestType } from "@prisma/client";
 import { Check, FileText, Activity, Package, CheckCircle2, XCircle } from "lucide-react";
 import { format } from "date-fns";
 

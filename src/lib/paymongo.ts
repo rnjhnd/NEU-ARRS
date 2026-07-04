@@ -36,7 +36,7 @@ export async function refundPayment(requestId: string, amount: number, reason: s
 
       const intentData = await intentRes.json();
       const payments = intentData.data?.attributes?.payments || [];
-      const successfulPayment = payments.find((p: any) => p.attributes.status === "paid");
+      const successfulPayment = payments.find((p: { attributes: { status: string }; id: string }) => p.attributes.status === "paid");
 
       if (!successfulPayment) {
         console.error(`[Refund] No successful payment found inside intent: ${targetPaymentId}`);
@@ -61,7 +61,8 @@ export async function refundPayment(requestId: string, amount: number, reason: s
           attributes: {
             amount: amount,
             payment_id: targetPaymentId,
-            reason: "requested_by_customer"
+            reason: "requested_by_customer",
+            notes: reason
           }
         }
       })
