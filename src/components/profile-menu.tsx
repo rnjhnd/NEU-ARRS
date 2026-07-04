@@ -22,8 +22,6 @@ export function ProfileMenu() {
   const { signOut } = useClerk();
   const router = useRouter();
   
-  // Cache user to prevent UI flickering/empty circles during sign out
-  const [isSigningOut, setIsSigningOut] = useState(false);
   const [cachedUser, setCachedUser] = useState<any>(null);
   
   useEffect(() => {
@@ -54,20 +52,11 @@ export function ProfileMenu() {
     .toUpperCase();
 
   const handleSignOut = async () => {
-    setIsSigningOut(true);
     await signOut({ redirectUrl: "/" });
   };
 
   return (
     <>
-      {isSigningOut && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="flex flex-col items-center gap-4 bg-background p-8 rounded-3xl shadow-2xl border border-primary/10">
-            <Loader2 className="h-10 w-10 animate-spin text-primary" />
-            <p className="text-base font-semibold text-foreground tracking-tight">Logging out securely...</p>
-          </div>
-        </div>
-      )}
       <DropdownMenu>
         <DropdownMenuTrigger className="relative h-8 w-8 rounded-full shadow-sm ring-2 ring-primary/50 ring-offset-2 ring-offset-background hover:ring-primary focus:outline-none active:scale-95 transition-all">
           <Avatar className="h-full w-full">
