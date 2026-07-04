@@ -5,7 +5,7 @@ import { FileText, Plus, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { Request } from "@prisma/client";
 import { useState } from "react";
@@ -50,6 +50,8 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelReasonInput, setCancelReasonInput] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: keyof Request; direction: "asc" | "desc" } | null>({ key: "updatedAt", direction: "desc" });
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
   const router = useRouter();
 
   // Keep track of previous requests to detect status changes
@@ -94,6 +96,9 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
     if (valA > valB) return direction === "asc" ? 1 : -1;
     return 0;
   });
+
+  const totalPages = Math.max(1, Math.ceil(sortedRequests.length / ITEMS_PER_PAGE));
+  const paginatedRequests = sortedRequests.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const SortableHeader = ({ title, sortKey, alignRight = false, className = "" }: { title: string, sortKey: keyof Request, alignRight?: boolean, className?: string }) => {
     if (localRequests.length <= 1) {
@@ -204,7 +209,7 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
             </TableHeader>
             <TableBody>
               <AnimatePresence>
-                {sortedRequests.map((req, i) => (
+                {paginatedRequests.map((req, i) => (
                   <React.Fragment key={req.id}>
                     <motion.tr 
                       initial={{ opacity: 0, y: -10 }}
@@ -309,6 +314,37 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
           </Table>
         </div>
       </CardContent>
+
+      {totalPages > 1 && (
+        <CardFooter className="flex items-center justify-between border-t border-border/50 px-8 py-4 bg-muted/5">
+          <span className="text-sm font-medium text-muted-foreground">
+            Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, sortedRequests.length)} of {sortedRequests.length} requests
+          </span>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="rounded-full border-border/50 hover:bg-background"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <div className="text-sm font-semibold text-foreground px-2">
+              Page {currentPage} of {totalPages}
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="rounded-full border-border/50 hover:bg-background"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </CardFooter>
+      )}
 
       <Dialog open={cancelDialogOpen} onOpenChange={(open) => {
         setCancelDialogOpen(open);
