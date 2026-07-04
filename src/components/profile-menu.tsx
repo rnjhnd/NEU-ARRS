@@ -59,8 +59,17 @@ export function ProfileMenu() {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="relative h-8 w-8 rounded-full shadow-sm ring-2 ring-primary/50 ring-offset-2 ring-offset-background hover:ring-primary focus:outline-none active:scale-95 transition-all">
+    <>
+      {isSigningOut && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="flex flex-col items-center gap-4 bg-background p-8 rounded-3xl shadow-2xl border border-primary/10">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            <p className="text-base font-semibold text-foreground tracking-tight">Logging out securely...</p>
+          </div>
+        </div>
+      )}
+      <DropdownMenu>
+        <DropdownMenuTrigger className="relative h-8 w-8 rounded-full shadow-sm ring-2 ring-primary/50 ring-offset-2 ring-offset-background hover:ring-primary focus:outline-none active:scale-95 transition-all">
           <Avatar className="h-full w-full">
             <AvatarImage src={displayUser.imageUrl} alt={name} />
             <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
@@ -107,19 +116,13 @@ export function ProfileMenu() {
         <DropdownMenuItem 
           variant="destructive"
           className="cursor-pointer py-2.5 px-3 rounded-xl focus:bg-red-500/10 transition-colors group"
-          onSelect={(e) => {
-            e.preventDefault(); // Properly prevent Radix UI from closing the menu
-            handleSignOut();
-          }}
+          onClick={() => handleSignOut()}
         >
-          {isSigningOut ? (
-            <Loader2 className="mr-3 h-4 w-4 text-red-500/70 animate-spin" />
-          ) : (
-            <LogOut className="mr-3 h-4 w-4 text-red-500/70 group-hover:text-red-600 transition-colors" />
-          )}
-          <span className="font-medium">{isSigningOut ? "Logging out..." : "Log out"}</span>
+          <LogOut className="mr-3 h-4 w-4 text-red-500/70 group-hover:text-red-600 transition-colors" />
+          <span className="font-medium">Log out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    </>
   );
 }
