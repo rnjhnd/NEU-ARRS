@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { useUser, useClerk } from "@clerk/nextjs";
-import { LogOut, LifeBuoy } from "lucide-react";
+import { LogOut, LifeBuoy, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -107,10 +107,17 @@ export function ProfileMenu() {
         <DropdownMenuItem 
           variant="destructive"
           className="cursor-pointer py-2.5 px-3 rounded-xl focus:bg-red-500/10 transition-colors group"
-          onClick={handleSignOut}
+          onClick={(e) => {
+            e.preventDefault(); // Prevent menu from closing immediately
+            handleSignOut();
+          }}
         >
-          <LogOut className="mr-3 h-4 w-4 text-red-500/70 group-hover:text-red-600 transition-colors" />
-          <span className="font-medium">Log out</span>
+          {isSigningOut ? (
+            <Loader2 className="mr-3 h-4 w-4 text-red-500/70 animate-spin" />
+          ) : (
+            <LogOut className="mr-3 h-4 w-4 text-red-500/70 group-hover:text-red-600 transition-colors" />
+          )}
+          <span className="font-medium">{isSigningOut ? "Logging out..." : "Log out"}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
