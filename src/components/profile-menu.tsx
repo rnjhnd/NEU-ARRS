@@ -107,8 +107,8 @@ export function ProfileMenu() {
         <DropdownMenuItem 
           variant="destructive"
           className="cursor-pointer py-2.5 px-3 rounded-xl focus:bg-red-500/10 transition-colors group"
-          onClick={(e) => {
-            e.preventDefault(); // Prevent menu from closing immediately
+          onSelect={(e) => {
+            e.preventDefault(); // Properly prevent Radix UI from closing the menu
             handleSignOut();
           }}
         >
