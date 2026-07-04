@@ -91,7 +91,7 @@ export function RequestTracker({ request }: RequestTrackerProps) {
                   </span>
                 )}
                 {isCurrent && (
-                  <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-ping mt-1"></span>
+                  <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-ping mt-3"></span>
                 )}
               </div>
             </div>
