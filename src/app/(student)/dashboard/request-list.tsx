@@ -51,7 +51,7 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
   const [cancelReasonInput, setCancelReasonInput] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: keyof Request; direction: "asc" | "desc" } | null>({ key: "updatedAt", direction: "desc" });
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 5;
+  const ITEMS_PER_PAGE = 10;
   const router = useRouter();
 
   // Keep track of previous requests to detect status changes
