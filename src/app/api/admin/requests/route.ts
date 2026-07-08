@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth";
+import { requireEmployeeOrAdmin } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { clerkClient } from "@clerk/nextjs/server";
 
@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     // Ensure the user is authenticated and has the admin role
-    await requireAdmin();
+    await requireEmployeeOrAdmin();
 
     const requests = await prisma.request.findMany({
       orderBy: { createdAt: "desc" },

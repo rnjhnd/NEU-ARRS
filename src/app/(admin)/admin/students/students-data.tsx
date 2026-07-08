@@ -11,7 +11,7 @@ export async function StudentsData() {
   
   // 2. Filter out Admins and Serialize user data
   const users = response.data
-    .filter(u => u.publicMetadata?.role !== "admin")
+    .filter(u => u.publicMetadata?.role !== "admin" && u.publicMetadata?.role !== "employee")
     .map(u => ({
       id: u.id,
       firstName: u.firstName,
