@@ -4,6 +4,7 @@ import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { Purpose, PaymentStatus, RequestStatus } from "@prisma/client";
+import { getSystemSetting } from "./admin.actions";
 
 import { clerkClient } from "@clerk/nextjs/server";
 import { sendStatusUpdateEmail } from "@/lib/email";
@@ -31,6 +32,23 @@ export async function createRequest(formData: FormData) {
     }
 
     const { documentType, purpose, paymentMethod } = validatedFields.data;
+
+    // 2.5 Security Check: Enforce Maintenance Mode and Payment Methods on the Server
+    const maintenanceSetting = await getSystemSetting("MAINTENANCE_MODE");
+    if (maintenanceSetting.success && maintenanceSetting.value === "true") {
+      return { success: false, error: "System is currently under maintenance. No new requests can be processed at this time." };
+    }
+
+    const paymentSetting = await getSystemSetting("PAYMENT_METHODS");
+    if (paymentSetting.success && paymentSetting.value) {
+      const allowedMethods = JSON.parse(paymentSetting.value);
+      if (paymentMethod === "online" && !allowedMethods.online) {
+        return { success: false, error: "Online payment is currently disabled." };
+      }
+      if (paymentMethod === "cash" && !allowedMethods.cash) {
+        return { success: false, error: "Cash payment is currently disabled." };
+      }
+    }
 
     // 3. Determine initial statuses based on payment method
     let paymentStatus: PaymentStatus = PaymentStatus.UNPAID;
