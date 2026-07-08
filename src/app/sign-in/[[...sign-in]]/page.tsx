@@ -74,21 +74,20 @@ export default function SignInPage() {
 
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center bg-background overflow-hidden">
-      {/* Animated Background Gradients & Grid (The Vercel Aesthetic) */}
-      <div className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center">
+      {/* Subtle Concentric Rings Background */}
+      <div className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden">
         {/* Portal Base Gradient */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background animate-pulse" style={{ animationDuration: '8s' }}></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-background to-background"></div>
         
-        {/* Subtle Dot Matrix Grid with Radial Fade */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-
-        {/* Cinematic Cinematic Glow Orbs */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[100px] opacity-50 dark:opacity-30 mix-blend-screen animate-[pulse_6s_ease-in-out_infinite]"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-[30%] -translate-y-[60%] w-[500px] h-[500px] bg-gold/20 rounded-full blur-[100px] opacity-40 dark:opacity-20 mix-blend-screen animate-[pulse_8s_ease-in-out_infinite]"></div>
+        {/* Elegant Concentric Ripples */}
+        <div className="absolute w-[800px] h-[800px] rounded-full border-[1px] border-primary/5 dark:border-primary/10"></div>
+        <div className="absolute w-[1200px] h-[1200px] rounded-full border-[1px] border-primary/5 dark:border-primary/10"></div>
+        <div className="absolute w-[1600px] h-[1600px] rounded-full border-[1px] border-primary/5 dark:border-primary/10"></div>
+        <div className="absolute w-[2000px] h-[2000px] rounded-full border-[1px] border-primary/5 dark:border-primary/10"></div>
         
-        {/* Corner soft glows */}
-        <div className="absolute -top-[500px] -right-[500px] w-[1000px] h-[1000px] rounded-full bg-primary/5 blur-[120px] opacity-50"></div>
-        <div className="absolute -bottom-[500px] -left-[500px] w-[1000px] h-[1000px] rounded-full bg-primary/5 blur-[120px] opacity-50"></div>
+        {/* Very soft corner ambient glows (matches portals) */}
+        <div className="absolute -top-[500px] -right-[500px] w-[1000px] h-[1000px] rounded-full bg-primary/5 blur-[120px] opacity-30"></div>
+        <div className="absolute -bottom-[500px] -left-[500px] w-[1000px] h-[1000px] rounded-full bg-primary/5 blur-[120px] opacity-30"></div>
       </div>
 
       {/* Floating Header */}
