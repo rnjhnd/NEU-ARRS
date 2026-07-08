@@ -18,7 +18,7 @@ const ratelimit = redis ? new Ratelimit({
   prefix: "@upstash/ratelimit",
 }) : null;
 
-const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)", "/api/webhooks(.*)"]);
+const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)", "/api/webhooks(.*)"]);
 
 const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 
