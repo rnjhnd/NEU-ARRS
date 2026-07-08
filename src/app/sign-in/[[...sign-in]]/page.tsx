@@ -109,7 +109,7 @@ export default function SignInPage() {
           <h2 className="text-3xl font-extrabold tracking-tight text-foreground">
             NEU <span className="font-medium text-muted-foreground">ARRS</span>
           </h2>
-          <p className="text-muted-foreground mt-2 font-medium text-center">Secure Access Portal</p>
+          <p className="text-muted-foreground mt-2 font-medium text-center">Academic Record Request System</p>
         </div>
 
         <div className="bg-background/70 backdrop-blur-xl border border-primary/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] rounded-2xl p-8 space-y-6">
