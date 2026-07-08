@@ -10,7 +10,7 @@ export async function SettingsData() {
     id: u.id,
     name: `${u.firstName || ""} ${u.lastName || ""}`.trim() || "Unnamed",
     email: u.emailAddresses[0]?.emailAddress || "No email",
-    isAdmin: u.publicMetadata?.role === "admin"
+    role: (u.publicMetadata?.role as string) || "student"
   }));
   const opsSetting = await getSystemSetting("OPERATIONS_CONFIG");
   const initialOperationsConfig = opsSetting.success && opsSetting.value 

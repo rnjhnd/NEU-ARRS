@@ -17,7 +17,9 @@ export function Sidebar() {
   const { user } = useUser();
   
   const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Administrator";
-  const role = user?.publicMetadata?.role === "admin" ? "Administrator" : "Registrar Office";
+  const rawRole = user?.publicMetadata?.role as string | undefined;
+  const role = rawRole === "admin" ? "Administrator" : rawRole === "employee" ? "Registrar Employee" : "Student";
+  const isAdmin = rawRole === "admin";
 
   return (
     <motion.aside 
@@ -64,30 +66,34 @@ export function Sidebar() {
           <LayoutDashboard className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin" ? "text-primary" : ""}`} />
           {!isCollapsed && <span>Command Center</span>}
         </Link>
-        <Link 
-          href="/admin/documents" 
-          className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
-            pathname === "/admin/documents" 
-              ? "bg-primary/10 text-primary font-bold shadow-sm"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
-          } ${isCollapsed ? "justify-center" : ""}`}
-          title="Document Management"
-        >
-          <FileText className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/documents" ? "text-primary" : ""}`} />
-          {!isCollapsed && <span>Document Management</span>}
-        </Link>
-        <Link 
-          href="/admin/finance" 
-          className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
-            pathname === "/admin/finance" 
-              ? "bg-primary/10 text-primary font-bold shadow-sm"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
-          } ${isCollapsed ? "justify-center" : ""}`}
-          title="Financial Analytics"
-        >
-          <PieChart className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/finance" ? "text-primary" : ""}`} />
-          {!isCollapsed && <span>Financial Analytics</span>}
-        </Link>
+        {isAdmin && (
+          <Link 
+            href="/admin/documents" 
+            className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
+              pathname === "/admin/documents" 
+                ? "bg-primary/10 text-primary font-bold shadow-sm"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
+            } ${isCollapsed ? "justify-center" : ""}`}
+            title="Document Management"
+          >
+            <FileText className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/documents" ? "text-primary" : ""}`} />
+            {!isCollapsed && <span>Document Management</span>}
+          </Link>
+        )}
+        {isAdmin && (
+          <Link 
+            href="/admin/finance" 
+            className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
+              pathname === "/admin/finance" 
+                ? "bg-primary/10 text-primary font-bold shadow-sm"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
+            } ${isCollapsed ? "justify-center" : ""}`}
+            title="Financial Analytics"
+          >
+            <PieChart className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/finance" ? "text-primary" : ""}`} />
+            {!isCollapsed && <span>Financial Analytics</span>}
+          </Link>
+        )}
         <Link 
           href="/admin/students" 
           className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
@@ -101,20 +107,24 @@ export function Sidebar() {
           {!isCollapsed && <span>Student Directory</span>}
         </Link>
         
-        <div className="pt-4 mt-4 border-t border-border/50" />
-        
-        <Link 
-          href="/admin/settings" 
-          className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
-            pathname === "/admin/settings" 
-              ? "bg-primary/10 text-primary font-bold shadow-sm"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
-          } ${isCollapsed ? "justify-center" : ""}`}
-          title="System Settings"
-        >
-          <Settings className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/settings" ? "text-primary" : ""}`} />
-          {!isCollapsed && <span>System Settings</span>}
-        </Link>
+        {isAdmin && (
+          <>
+            <div className="pt-4 mt-4 border-t border-border/50" />
+            
+            <Link 
+              href="/admin/settings" 
+              className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
+                pathname === "/admin/settings" 
+                  ? "bg-primary/10 text-primary font-bold shadow-sm"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
+              } ${isCollapsed ? "justify-center" : ""}`}
+              title="System Settings"
+            >
+              <Settings className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/settings" ? "text-primary" : ""}`} />
+              {!isCollapsed && <span>System Settings</span>}
+            </Link>
+          </>
+        )}
       </nav>
 
       {/* User profile at bottom of sidebar */}

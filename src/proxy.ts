@@ -63,7 +63,18 @@ export default clerkMiddleware(async (auth, req) => {
     // Assuming metadata is available in sessionClaims via custom JWT template
     const role = sessionClaims?.metadata?.role;
     
-    if (role !== "admin") {
+    if (role === "admin") {
+      // Admins have full access
+      return;
+    } else if (role === "employee") {
+      // Employees only have access to Command Center and Student Directory
+      const path = req.nextUrl.pathname;
+      if (path === "/admin" || path.startsWith("/admin/students")) {
+        return;
+      }
+      // Redirect employees away from restricted areas back to command center
+      return NextResponse.redirect(new URL("/admin", req.url));
+    } else {
       // Redirect students trying to access admin dashboard to the student portal
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }

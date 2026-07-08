@@ -4,14 +4,15 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Search, ShieldAlert, ShieldCheck, UserX } from "lucide-react";
+import { Search, UserX } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { grantAdminRole, updateSystemSetting } from "@/app/actions/admin.actions";
+import { updateUserRole, updateSystemSetting } from "@/app/actions/admin.actions";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type UserType = { id: string; name: string; email: string; isAdmin: boolean };
+type UserType = { id: string; name: string; email: string; role: string };
 
 export function SettingsClient({ 
   users, 
@@ -62,13 +63,13 @@ export function SettingsClient({
     setCurrentPage(1);
   }, [searchQuery]);
 
-  const handleToggleRole = async (userId: string, currentIsAdmin: boolean) => {
+  const handleUpdateRole = async (userId: string, newRole: "admin" | "employee" | "student") => {
     setIsUpdating(userId);
-    const res = await grantAdminRole(userId, !currentIsAdmin);
+    const res = await updateUserRole(userId, newRole);
     if (res.success) {
-      toast.success(`User role updated successfully.`);
+      toast.success(`Role successfully updated to ${newRole}.`);
     } else {
-      toast.error(res.error || "Failed to update user role.");
+      toast.error(res.error || "Failed to update role");
     }
     setIsUpdating(null);
   };
@@ -220,9 +221,8 @@ export function SettingsClient({
             <Table className="table-fixed">
               <TableHeader>
                 <TableRow className="border-b border-border hover:bg-transparent">
-                  <TableHead className="pl-6 w-[40%] h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">User</TableHead>
-                  <TableHead className="w-[30%] h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Current Role</TableHead>
-                  <TableHead className="text-right pr-6 w-[30%] h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Action</TableHead>
+                  <TableHead className="pl-6 w-[60%] h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">User</TableHead>
+                  <TableHead className="w-[40%] h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Role</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -232,7 +232,7 @@ export function SettingsClient({
                       initial={{ opacity: 0 }} 
                       animate={{ opacity: 1 }} 
                     >
-                      <TableCell colSpan={3} className="h-32 text-center">
+                      <TableCell colSpan={2} className="h-32 text-center">
                         <div className="flex flex-col items-center justify-center text-muted-foreground">
                           <UserX className="h-8 w-8 mb-2 text-muted-foreground/60" />
                           <p>No users found matching your search.</p>
@@ -255,38 +255,30 @@ export function SettingsClient({
                         </div>
                       </TableCell>
                       <TableCell>
-                        {user.isAdmin ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary border border-primary/20 dark:border-primary/30">
-                            Administrator
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-600 border border-yellow-500/20 dark:border-yellow-900/50">
-                            Student
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right pr-6">
-                        {user.isAdmin ? (
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                            disabled={isUpdating === user.id}
-                            onClick={() => handleToggleRole(user.id, true)}
-                          >
-                            <ShieldAlert className="w-4 h-4 mr-2" /> Revoke
-                          </Button>
-                        ) : (
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="text-primary hover:text-primary hover:bg-primary/10"
-                            disabled={isUpdating === user.id}
-                            onClick={() => handleToggleRole(user.id, false)}
-                          >
-                            <ShieldCheck className="w-4 h-4 mr-2" /> Grant Admin
-                          </Button>
-                        )}
+                        <Select 
+                          disabled={isUpdating === user.id} 
+                          value={user.role} 
+                          onValueChange={(val: string | null) => {
+                            if (val && (val === "admin" || val === "employee" || val === "student")) {
+                              handleUpdateRole(user.id, val);
+                            }
+                          }}
+                        >
+                          <SelectTrigger className="w-[140px] h-8 text-xs font-semibold">
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="admin">
+                              <span className="flex items-center text-primary font-medium">Administrator</span>
+                            </SelectItem>
+                            <SelectItem value="employee">
+                              <span className="flex items-center text-blue-600 dark:text-blue-400 font-medium">Registrar Employee</span>
+                            </SelectItem>
+                            <SelectItem value="student">
+                              <span className="flex items-center text-yellow-600 dark:text-yellow-500 font-medium">Student</span>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                     </motion.tr>
                   ))}

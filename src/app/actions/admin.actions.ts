@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import prisma from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdmin, requireEmployeeOrAdmin } from "@/lib/auth";
 import { RequestStatus, PaymentStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { clerkClient } from "@clerk/nextjs/server";
@@ -27,8 +27,8 @@ const ALLOWED_TRANSITIONS: Record<RequestStatus, RequestStatus[]> = {
 
 export async function updateRequestStatus(formData: FormData) {
   try {
-    // 1. Strict Server-Side Authorization
-    const adminId = await requireAdmin();
+    // 1. Strict Server-Side Authorization (Admins and Employees can process requests)
+    const adminId = await requireEmployeeOrAdmin();
 
     // 2. Extract and Validate Input
     const rawIds = formData.getAll("requestIds") as string[];
@@ -251,14 +251,14 @@ export async function createDocumentConfig(formData: FormData) {
   }
 }
 
-export async function grantAdminRole(userId: string, grant: boolean) {
+export async function updateUserRole(userId: string, role: "admin" | "employee" | "student") {
   try {
     await requireAdmin();
     const client = await clerkClient();
     
     await client.users.updateUserMetadata(userId, {
       publicMetadata: {
-        role: grant ? "admin" : "student"
+        role: role
       }
     });
     
