@@ -45,11 +45,22 @@ export function SettingsClient({
   const [opsConfig, setOpsConfig] = useState(initialOperationsConfig);
   const [isSavingOps, setIsSavingOps] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
   const filteredUsers = users.filter((u) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
     return u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
   });
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const paginatedUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Reset to first page when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const handleToggleRole = async (userId: string, currentIsAdmin: boolean) => {
     setIsUpdating(userId);
@@ -229,7 +240,7 @@ export function SettingsClient({
                       </TableCell>
                     </motion.tr>
                   )}
-                  {filteredUsers.map((user) => (
+                  {paginatedUsers.map((user) => (
                     <motion.tr 
                       key={user.id}
                       initial={{ opacity: 0, y: -10 }}
@@ -282,6 +293,35 @@ export function SettingsClient({
                 </AnimatePresence>
               </TableBody>
             </Table>
+
+            {/* Pagination Controls */}
+            {filteredUsers.length > 0 && (
+              <div className="p-4 border-t border-border/50 bg-muted/10 flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">
+                  Showing <span className="font-medium text-foreground">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-medium text-foreground">{Math.min(currentPage * itemsPerPage, filteredUsers.length)}</span> of <span className="font-medium text-foreground">{filteredUsers.length}</span> users
+                </span>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-8 text-xs"
+                    disabled={currentPage === 1} 
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  >
+                    Previous
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-8 text-xs"
+                    disabled={currentPage === totalPages || totalPages === 0} 
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
