@@ -74,10 +74,15 @@ export default function SignInPage() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Left side: Branding / UI (Vibrant animated green gradient) */}
+      {/* Left side: Branding / UI (Vibrant animated green gradient with floating orbs) */}
       <div className="hidden lg:flex flex-col justify-between w-[45%] p-12 relative overflow-hidden text-white shadow-2xl z-10">
         <div className="absolute inset-0 bg-[#0A5C36]"></div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#34d399]/40 via-[#0A5C36]/0 to-[#042F1A]/80 animate-pulse" style={{ animationDuration: '4s' }}></div>
+        
+        {/* Floating Glass Orbs for Web3 / Modern SaaS aesthetic */}
+        <div className="absolute top-20 right-20 w-64 h-64 bg-emerald-400/20 rounded-full blur-3xl mix-blend-screen animate-[pulse_6s_ease-in-out_infinite]"></div>
+        <div className="absolute bottom-20 left-10 w-72 h-72 bg-gold/10 rounded-full blur-3xl mix-blend-screen animate-[pulse_8s_ease-in-out_infinite]"></div>
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
         
         <Link href="/" className="flex items-center gap-2 z-10 w-fit hover:opacity-80 transition-opacity">
           <LogoIcon className="h-10 w-10 text-white" sealColor="text-yellow-400" />
@@ -127,18 +132,22 @@ export default function SignInPage() {
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to home
         </Link>
 
-        <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground">Sign in</h2>
-            <p className="text-muted-foreground mt-2">Welcome back! Please enter your details.</p>
+        <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 relative">
+          
+          {/* Ambient Glow behind the form card */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-gold/20 rounded-[2rem] blur-xl opacity-50 dark:opacity-30"></div>
+
+          <div className="text-center relative z-10">
+            <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Sign in</h2>
+            <p className="text-muted-foreground mt-2 font-medium">Welcome back! Please enter your details.</p>
           </div>
 
-          <div className="bg-card border border-border shadow-sm rounded-2xl p-8 space-y-6">
+          <div className="bg-background/60 backdrop-blur-xl border border-primary/10 shadow-2xl rounded-2xl p-8 space-y-6 relative z-10">
             
             <Button 
               type="button" 
               variant="outline" 
-              className="w-full h-12 bg-background hover:bg-muted text-foreground font-medium rounded-xl border-border"
+              className="w-full h-12 bg-background hover:bg-muted/80 text-foreground font-medium rounded-xl border-border hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98]"
               onClick={handleGoogleSignIn}
               disabled={!signIn || isLoading}
             >
@@ -185,15 +194,15 @@ export default function SignInPage() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-foreground font-medium">Email address</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                <div className="relative group">
+                  <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   <Input
                     id="email"
                     type="email"
                     placeholder="name@example.com"
                     value={emailAddress}
                     onChange={(e) => setEmailAddress(e.target.value)}
-                    className="pl-9 h-11 bg-background border-border text-foreground focus-visible:ring-primary rounded-xl"
+                    className="pl-9 h-11 bg-background/50 border-border/60 text-foreground focus-visible:ring-primary/50 focus-visible:border-primary rounded-xl transition-all duration-300 shadow-sm"
                     required
                   />
                 </div>
@@ -202,15 +211,15 @@ export default function SignInPage() {
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password" className="text-foreground font-medium">Password</Label>
                 </div>
-                <div className="relative">
-                  <KeyRound className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                <div className="relative group">
+                  <KeyRound className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   <Input
                     id="password"
                     type="password"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-9 h-11 bg-background border-border text-foreground focus-visible:ring-primary rounded-xl"
+                    className="pl-9 h-11 bg-background/50 border-border/60 text-foreground focus-visible:ring-primary/50 focus-visible:border-primary rounded-xl transition-all duration-300 shadow-sm"
                     required
                   />
                 </div>
@@ -218,17 +227,22 @@ export default function SignInPage() {
 
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl transition-all"
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-primary/20 relative overflow-hidden group"
                 disabled={!signIn || isLoading}
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  "Sign In"
-                )}
+                {/* Shine Animation overlay */}
+                <div className="absolute inset-0 -translate-x-full hover:translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 ease-in-out group-hover:translate-x-[150%]"></div>
+                
+                <div className="relative flex items-center justify-center">
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
+                </div>
               </Button>
             </form>
 
