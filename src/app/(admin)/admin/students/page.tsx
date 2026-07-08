@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/lib/auth";
+import { requireEmployeeOrAdmin } from "@/lib/auth";
 import { Suspense } from "react";
 import { StudentsData } from "./students-data";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -57,7 +57,7 @@ function StudentsSkeleton() {
 export const metadata = { title: "Student Directory" };
 
 export default async function StudentsPage() {
-  await requireAdmin();
+  await requireEmployeeOrAdmin();
 
   return (
     <div className="space-y-8 w-full">

@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/lib/auth";
+import { requireEmployeeOrAdmin } from "@/lib/auth";
 import { Suspense } from "react";
 import { AdminQueueData } from "./admin-queue-data";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -97,7 +97,7 @@ function AdminQueueSkeleton() {
 
 export default async function AdminPage() {
   // Ensure the user is an admin before rendering or fetching data
-  await requireAdmin();
+  await requireEmployeeOrAdmin();
 
   return (
     <div className="space-y-8 w-full">
