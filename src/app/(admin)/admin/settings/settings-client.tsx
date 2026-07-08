@@ -189,7 +189,7 @@ export function SettingsClient({
           </div>
         </div>
 
-        <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden md:col-span-2">
+        <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden md:col-span-2 h-fit">
           <div className="p-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-bold tracking-tight">Role Management</h2>
