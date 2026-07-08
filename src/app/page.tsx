@@ -7,7 +7,7 @@ export default async function Home() {
   // If user is already logged in, seamlessly redirect them to their respective portal
   if (userId) {
     const role = sessionClaims?.metadata?.role;
-    if (role === "admin") {
+    if (role === "admin" || role === "employee") {
       redirect("/admin");
     } else {
       redirect("/dashboard");

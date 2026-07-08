@@ -22,6 +22,8 @@ const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)", "
 
 const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 
+const isStudentRoute = createRouteMatcher(["/dashboard(.*)", "/receipt(.*)", "/api/student(.*)"]);
+
 export default clerkMiddleware(async (auth, req) => {
   // Only apply rate limiting to API routes or mutating requests (POST, PUT, DELETE, etc.)
   // This ensures that standard page navigation (GET requests) remains instantly snappy.
@@ -60,23 +62,27 @@ export default clerkMiddleware(async (auth, req) => {
   // Role-based access control for /admin
   if (isAdminRoute(req)) {
     const { sessionClaims } = await auth();
-    // Assuming metadata is available in sessionClaims via custom JWT template
     const role = sessionClaims?.metadata?.role;
     
     if (role === "admin") {
-      // Admins have full access
       return;
     } else if (role === "employee") {
-      // Employees only have access to Command Center and Student Directory
       const path = req.nextUrl.pathname;
       if (path === "/admin" || path.startsWith("/admin/students")) {
         return;
       }
-      // Redirect employees away from restricted areas back to command center
       return NextResponse.redirect(new URL("/admin", req.url));
     } else {
-      // Redirect students trying to access admin dashboard to the student portal
       return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+  }
+
+  // Prevent staff from accessing the student portal
+  if (isStudentRoute(req)) {
+    const { sessionClaims } = await auth();
+    const role = sessionClaims?.metadata?.role;
+    if (role === "admin" || role === "employee") {
+      return NextResponse.redirect(new URL("/admin", req.url));
     }
   }
 });
