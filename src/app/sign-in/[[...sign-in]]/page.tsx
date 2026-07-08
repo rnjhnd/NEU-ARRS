@@ -74,20 +74,19 @@ export default function SignInPage() {
 
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center bg-background overflow-hidden">
-      {/* Subtle Concentric Rings Background */}
-      <div className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden">
+      {/* Floating Portal Orbs Background (The Sweet Spot) */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         {/* Portal Base Gradient */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-background to-background"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background"></div>
         
-        {/* Elegant Concentric Ripples */}
-        <div className="absolute w-[800px] h-[800px] rounded-full border-[1px] border-primary/5 dark:border-primary/10"></div>
-        <div className="absolute w-[1200px] h-[1200px] rounded-full border-[1px] border-primary/5 dark:border-primary/10"></div>
-        <div className="absolute w-[1600px] h-[1600px] rounded-full border-[1px] border-primary/5 dark:border-primary/10"></div>
-        <div className="absolute w-[2000px] h-[2000px] rounded-full border-[1px] border-primary/5 dark:border-primary/10"></div>
+        {/* Drifting Blurred Orbs (Matches portal blur-[120px] aesthetic but centralized and moving) */}
+        <div className="absolute top-[20%] left-[20%] w-[600px] h-[600px] rounded-full bg-primary/10 blur-[120px] mix-blend-screen animate-[pulse_10s_ease-in-out_infinite]"></div>
+        <div className="absolute bottom-[20%] right-[20%] w-[500px] h-[500px] rounded-full bg-primary/10 blur-[120px] mix-blend-screen animate-[pulse_12s_ease-in-out_infinite_reverse]"></div>
+        <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-gold/5 blur-[120px] mix-blend-screen animate-[pulse_15s_ease-in-out_infinite]"></div>
         
-        {/* Very soft corner ambient glows (matches portals) */}
-        <div className="absolute -top-[500px] -right-[500px] w-[1000px] h-[1000px] rounded-full bg-primary/5 blur-[120px] opacity-30"></div>
-        <div className="absolute -bottom-[500px] -left-[500px] w-[1000px] h-[1000px] rounded-full bg-primary/5 blur-[120px] opacity-30"></div>
+        {/* Static Corner Orbs (Matches portals exactly) */}
+        <div className="absolute -top-[500px] -right-[500px] w-[1000px] h-[1000px] rounded-full bg-primary/5 blur-[120px] opacity-50"></div>
+        <div className="absolute -bottom-[500px] -left-[500px] w-[1000px] h-[1000px] rounded-full bg-primary/5 blur-[120px] opacity-50"></div>
       </div>
 
       {/* Floating Header */}
