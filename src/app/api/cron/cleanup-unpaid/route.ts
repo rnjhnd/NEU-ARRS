@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { RequestStatus } from '@prisma/client';
+import { Redis } from "@upstash/redis";
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +14,21 @@ export async function GET(request: Request) {
       authHeader !== `Bearer ${process.env.CRON_SECRET}`
     ) {
       return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    // Ping Upstash Redis to prevent the free tier database from being paused/archived due to inactivity
+    try {
+      const isRateLimitingConfigured = !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN;
+      if (isRateLimitingConfigured) {
+        const redis = new Redis({
+          url: process.env.UPSTASH_REDIS_REST_URL || "",
+          token: process.env.UPSTASH_REDIS_REST_TOKEN || "",
+        });
+        await redis.ping();
+        console.log("Upstash Redis keepalive ping successful.");
+      }
+    } catch (e) {
+      console.error("Upstash Redis keepalive ping failed:", e);
     }
 
     // Find all online requests stuck in PENDING_PAYMENT for more than 3 days
