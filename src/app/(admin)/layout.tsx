@@ -1,8 +1,11 @@
+import { auth } from "@clerk/nextjs/server";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileNav } from "./mobile-nav";
 import { Sidebar } from "./sidebar";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { sessionClaims } = await auth();
+  const role = sessionClaims?.metadata?.role || "student";
   return (
     <div className="flex h-screen w-full bg-slate-50/50 dark:bg-background overflow-hidden relative">
       {/* Animated Background Gradients */}
@@ -13,7 +16,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
 
       <div className="relative z-10 flex h-full w-full pointer-events-auto">
-        <Sidebar />
+        <Sidebar serverRole={role} />
 
         {/* Admin Main Content */}
         <div className="flex-1 flex flex-col min-w-0 h-full">
@@ -21,7 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="md:hidden p-4 pb-0">
             <header className="flex h-14 shrink-0 items-center justify-between px-4 rounded-xl bg-background/60 backdrop-blur-xl border border-primary/10 shadow-sm supports-[backdrop-filter]:bg-background/40">
               <div className="flex items-center gap-3">
-                <MobileNav />
+                <MobileNav serverRole={role} />
                 <span className="font-bold text-xl tracking-tight ml-2">
                   NEU <span className="font-medium text-primary dark:text-primary">ARRS</span>
                 </span>

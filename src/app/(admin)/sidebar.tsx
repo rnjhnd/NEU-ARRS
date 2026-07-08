@@ -11,13 +11,13 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-export function Sidebar() {
+export function Sidebar({ serverRole }: { serverRole: string }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
   const { user } = useUser();
   
   const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Administrator";
-  const rawRole = user?.publicMetadata?.role as string | undefined;
+  const rawRole = serverRole;
   const role = rawRole === "admin" ? "Administrator" : rawRole === "employee" ? "Registrar Employee" : "Student";
   const isAdmin = rawRole === "admin";
 

@@ -9,9 +9,15 @@ import { ProfileMenu } from "@/components/profile-menu";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
-export function MobileNav() {
+import { useUser } from "@clerk/nextjs";
+
+export function MobileNav({ serverRole }: { serverRole: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { user } = useUser();
+  const isAdmin = serverRole === "admin";
+  const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Administrator";
+  const roleName = serverRole === "admin" ? "Administrator" : serverRole === "employee" ? "Registrar Employee" : "Student";
 
   return (
     <>
@@ -58,22 +64,26 @@ export function MobileNav() {
                   <LayoutDashboard className="w-5 h-5" />
                   Command Center
                 </Link>
-                <Link 
-                  href="/admin/documents" 
-                  onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium transition-colors ${pathname === "/admin/documents" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
-                >
-                  <FileText className="w-5 h-5" />
-                  Document Management
-                </Link>
-                <Link 
-                  href="/admin/finance" 
-                  onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium transition-colors ${pathname === "/admin/finance" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
-                >
-                  <PieChart className="w-5 h-5" />
-                  Financial Analytics
-                </Link>
+                {isAdmin && (
+                  <Link 
+                    href="/admin/documents" 
+                    onClick={() => setIsOpen(false)}
+                    className={`flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium transition-colors ${pathname === "/admin/documents" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
+                  >
+                    <FileText className="w-5 h-5" />
+                    Document Management
+                  </Link>
+                )}
+                {isAdmin && (
+                  <Link 
+                    href="/admin/finance" 
+                    onClick={() => setIsOpen(false)}
+                    className={`flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium transition-colors ${pathname === "/admin/finance" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
+                  >
+                    <PieChart className="w-5 h-5" />
+                    Financial Analytics
+                  </Link>
+                )}
                 <Link 
                   href="/admin/students" 
                   onClick={() => setIsOpen(false)}
@@ -82,23 +92,27 @@ export function MobileNav() {
                   <Users className="w-5 h-5" />
                   Student Directory
                 </Link>
-                <div className="pt-2 mt-2 border-t border-border/50" />
-                <Link 
-                  href="/admin/settings" 
-                  onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium transition-colors ${pathname === "/admin/settings" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
-                >
-                  <Settings className="w-5 h-5" />
-                  System Settings
-                </Link>
+                {isAdmin && (
+                  <>
+                    <div className="pt-2 mt-2 border-t border-border/50" />
+                    <Link 
+                      href="/admin/settings" 
+                      onClick={() => setIsOpen(false)}
+                      className={`flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium transition-colors ${pathname === "/admin/settings" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
+                    >
+                      <Settings className="w-5 h-5" />
+                      System Settings
+                    </Link>
+                  </>
+                )}
               </nav>
 
               <div className="p-6 border-t mt-auto">
                 <div className="flex items-center gap-3">
                   <ProfileMenu />
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold">Administrator</span>
-                    <span className="text-xs text-muted-foreground">Registrar Office</span>
+                  <div className="flex flex-col whitespace-nowrap overflow-hidden">
+                    <span className="text-sm font-semibold truncate">{name}</span>
+                    <span className="text-xs text-primary font-medium uppercase tracking-wide truncate">{roleName}</span>
                   </div>
                 </div>
               </div>
