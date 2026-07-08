@@ -1,7 +1,7 @@
 "use client";
 
 import { useSignIn, useClerk } from "@clerk/nextjs";
-import { ArrowLeft, Loader2, KeyRound, Mail } from "lucide-react";
+import { Loader2, KeyRound, Mail } from "lucide-react";
 import { LogoIcon } from "@/components/logo-icon";
 import Link from "next/link";
 import { useState } from "react";
@@ -91,14 +91,8 @@ export default function SignInPage() {
 
       {/* Floating Header */}
       <div className="absolute top-4 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-50">
-        <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors group">
-            <div className="p-2 rounded-xl bg-muted/50 group-hover:bg-muted transition-colors border border-border/50">
-              <ArrowLeft className="h-4 w-4" />
-            </div>
-            <span className="hidden sm:inline-block">Back to home</span>
-          </Link>
-          <div className="flex items-center gap-3 bg-muted/50 p-1.5 rounded-full border border-border/50 backdrop-blur-md">
+        <div className="flex h-16 items-center justify-end">
+          <div className="flex items-center gap-4 bg-muted/50 p-1.5 rounded-full border border-border/50 backdrop-blur-md">
             <ThemeToggle />
           </div>
         </div>
