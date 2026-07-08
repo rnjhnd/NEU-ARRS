@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { User, Search, SearchX, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { User, Search, SearchX, ArrowUp, ArrowDown, ArrowUpDown, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 

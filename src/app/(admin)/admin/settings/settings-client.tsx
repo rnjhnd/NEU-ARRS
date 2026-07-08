@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Search, UserX } from "lucide-react";
+import { Search, UserX, SearchX } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { updateUserRole, updateSystemSetting } from "@/app/actions/admin.actions";
 import { toast } from "sonner";
@@ -234,8 +234,17 @@ export function SettingsClient({
                     >
                       <TableCell colSpan={2} className="h-32 text-center">
                         <div className="flex flex-col items-center justify-center text-muted-foreground">
-                          <UserX className="h-8 w-8 mb-2 text-muted-foreground/60" />
-                          <p>No users found matching your search.</p>
+                          {users.length === 0 ? (
+                            <>
+                              <UserX className="h-8 w-8 mb-2 text-muted-foreground/60" />
+                              <p>No users are currently registered in the system.</p>
+                            </>
+                          ) : (
+                            <>
+                              <SearchX className="h-8 w-8 mb-2 text-muted-foreground/60" />
+                              <p>No users found matching your search.</p>
+                            </>
+                          )}
                         </div>
                       </TableCell>
                     </motion.tr>
