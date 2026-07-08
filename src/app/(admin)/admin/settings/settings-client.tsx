@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Search, UserX, SearchX } from "lucide-react";
+import { Search, UserX, SearchX, ShieldCheck, Briefcase, GraduationCap, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { updateUserRole, updateSystemSetting } from "@/app/actions/admin.actions";
 import { toast } from "sonner";
@@ -273,18 +273,42 @@ export function SettingsClient({
                             }
                           }}
                         >
-                          <SelectTrigger className="w-[140px] h-8 text-xs font-semibold">
-                            <SelectValue placeholder="Select role" />
+                          <SelectTrigger 
+                            className={`w-[160px] h-9 text-xs font-semibold rounded-full border shadow-sm transition-all focus:ring-1 focus:ring-primary/20 ${
+                              user.role === "admin" 
+                                ? "bg-primary/5 hover:bg-primary/10 border-primary/20" 
+                                : user.role === "employee" 
+                                  ? "bg-blue-500/5 hover:bg-blue-500/10 border-blue-500/20" 
+                                  : "bg-yellow-500/5 hover:bg-yellow-500/10 border-yellow-500/20"
+                            }`}
+                          >
+                            {isUpdating === user.id ? (
+                              <div className="flex items-center gap-2 text-muted-foreground w-full">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>Updating...</span>
+                              </div>
+                            ) : (
+                              <SelectValue placeholder="Select role" />
+                            )}
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="admin">
-                              <span className="flex items-center text-primary font-medium">Administrator</span>
+                          <SelectContent className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl bg-background/95">
+                            <SelectItem value="admin" className="focus:bg-primary/10 cursor-pointer rounded-lg my-0.5">
+                              <span className="flex items-center gap-2 text-primary font-medium">
+                                <ShieldCheck className="w-4 h-4" />
+                                Administrator
+                              </span>
                             </SelectItem>
-                            <SelectItem value="employee">
-                              <span className="flex items-center text-blue-600 dark:text-blue-400 font-medium">Employee</span>
+                            <SelectItem value="employee" className="focus:bg-blue-500/10 cursor-pointer rounded-lg my-0.5">
+                              <span className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-medium">
+                                <Briefcase className="w-4 h-4" />
+                                Employee
+                              </span>
                             </SelectItem>
-                            <SelectItem value="student">
-                              <span className="flex items-center text-yellow-600 dark:text-yellow-500 font-medium">Student</span>
+                            <SelectItem value="student" className="focus:bg-yellow-500/10 cursor-pointer rounded-lg my-0.5">
+                              <span className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500 font-medium">
+                                <GraduationCap className="w-4 h-4" />
+                                Student
+                              </span>
                             </SelectItem>
                           </SelectContent>
                         </Select>
