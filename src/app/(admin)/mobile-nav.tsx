@@ -17,7 +17,7 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
   const { user } = useUser();
   const isAdmin = serverRole === "admin";
   const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Administrator";
-  const roleName = serverRole === "admin" ? "Administrator" : serverRole === "employee" ? "Registrar Employee" : "Student";
+  const roleName = serverRole === "admin" ? "Administrator" : serverRole === "employee" ? "Employee" : "Student";
 
   return (
     <>

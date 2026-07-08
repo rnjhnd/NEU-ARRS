@@ -18,7 +18,7 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
   
   const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Administrator";
   const rawRole = serverRole;
-  const role = rawRole === "admin" ? "Administrator" : rawRole === "employee" ? "Registrar Employee" : "Student";
+  const role = rawRole === "admin" ? "Administrator" : rawRole === "employee" ? "Employee" : "Student";
   const isAdmin = rawRole === "admin";
 
   return (

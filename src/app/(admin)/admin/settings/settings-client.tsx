@@ -272,7 +272,7 @@ export function SettingsClient({
                               <span className="flex items-center text-primary font-medium">Administrator</span>
                             </SelectItem>
                             <SelectItem value="employee">
-                              <span className="flex items-center text-blue-600 dark:text-blue-400 font-medium">Registrar Employee</span>
+                              <span className="flex items-center text-blue-600 dark:text-blue-400 font-medium">Employee</span>
                             </SelectItem>
                             <SelectItem value="student">
                               <span className="flex items-center text-yellow-600 dark:text-yellow-500 font-medium">Student</span>
