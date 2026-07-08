@@ -11,16 +11,32 @@ export async function sendStatusUpdateEmail(
   status: string,
   cancelReason?: string | null
 ) {
-  const DEFAULT_TEMPLATES: Record<string, string> = {
-    PENDING_PAYMENT: "We have successfully received your document request. Please complete your payment via PayMongo to proceed with processing.",
-    PENDING: "Your payment has been verified. Your document request is now pending review by the Registrar's Office.",
-    PROCESSING: "We are currently processing your document. Please allow 3-5 business days for completion.",
-    READY_FOR_PICKUP: "Great news! Your document is printed and ready for pickup. Please proceed to the Registrar's Office at Window 4 between 8:00 AM and 5:00 PM (Monday-Friday). Don't forget to bring your valid Student ID.",
-    COMPLETED: "Your document request has been successfully completed and claimed. Thank you for using the NEU Academic Record Request System!",
-    CANCELLED: "Your document request has been cancelled. If you believe this is an error, please contact the Registrar's Office."
-  };
-
   try {
+    let location = "Registrar's Office at Window 4";
+    let hours = "8:00 AM to 5:00 PM (Monday-Friday)";
+
+    try {
+      const opsSetting = await prisma.systemSettings.findUnique({
+        where: { key: "OPERATIONS_CONFIG" }
+      });
+      if (opsSetting && opsSetting.value) {
+        const parsed = JSON.parse(opsSetting.value);
+        if (parsed.location) location = parsed.location;
+        if (parsed.hours) hours = parsed.hours;
+      }
+    } catch (e) {
+      console.error("Failed to fetch ops setting", e);
+    }
+
+    const DEFAULT_TEMPLATES: Record<string, string> = {
+      PENDING_PAYMENT: "We have successfully received your document request. Please complete your payment via PayMongo to proceed with processing.",
+      PENDING: "Your payment has been verified. Your document request is now pending review by the Registrar's Office.",
+      PROCESSING: "We are currently processing your document. Please allow 3-5 business days for completion.",
+      READY_FOR_PICKUP: `Great news! Your document is printed and ready for pickup. Please proceed to ${location} between ${hours}. Don't forget to bring your valid Student ID.`,
+      COMPLETED: "Your document request has been successfully completed and claimed. Thank you for using the NEU Academic Record Request System!",
+      CANCELLED: "Your document request has been cancelled. If you believe this is an error, please contact the Registrar's Office."
+    };
+
     let customMessage: string | undefined = DEFAULT_TEMPLATES[status];
 
     try {

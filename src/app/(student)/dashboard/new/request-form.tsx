@@ -18,7 +18,13 @@ const PurposeOptions = [
   { id: "OTHER", label: "Other Reason" }
 ];
 
-export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConfig[] }) {
+export function RequestForm({ 
+  documentConfigs, 
+  paymentMethods 
+}: { 
+  documentConfigs: DocumentConfig[];
+  paymentMethods: { online: boolean; cash: boolean };
+}) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -129,61 +135,70 @@ export function RequestForm({ documentConfigs }: { documentConfigs: DocumentConf
         <div className="space-y-6 pt-10 border-t border-border/50">
           <label className="block text-base font-bold tracking-tight">3. Payment Method <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <motion.div
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setPaymentMethod("online")}
-              className={`relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 ${
-                paymentMethod === "online" 
-                  ? "border-primary bg-primary/5 ring-1 ring-primary shadow-md" 
-                  : "border-border/50 bg-background hover:bg-primary/5 hover:border-primary/30"
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <div className={`p-2.5 rounded-xl ${paymentMethod === "online" ? "bg-primary/20 text-primary dark:text-primary" : "bg-muted text-muted-foreground"}`}>
-                  <CreditCard className="w-6 h-6" />
+            {paymentMethods.online && (
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setPaymentMethod("online")}
+                className={`relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 ${
+                  paymentMethod === "online" 
+                    ? "border-primary bg-primary/5 ring-1 ring-primary shadow-md" 
+                    : "border-border/50 bg-background hover:bg-primary/5 hover:border-primary/30"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`p-2.5 rounded-xl ${paymentMethod === "online" ? "bg-primary/20 text-primary dark:text-primary" : "bg-muted text-muted-foreground"}`}>
+                    <CreditCard className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className={`font-bold text-sm ${paymentMethod === "online" ? "text-primary dark:text-primary" : "text-foreground"}`}>
+                      Online Payment
+                    </h4>
+                    <p className="text-xs text-muted-foreground mt-0.5">GCash, Maya, or Credit Card via PayMongo</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className={`font-bold text-sm ${paymentMethod === "online" ? "text-primary dark:text-primary" : "text-foreground"}`}>
-                    Online Payment
-                  </h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">GCash, Maya, or Credit Card via PayMongo</p>
-                </div>
-              </div>
-              {paymentMethod === "online" && (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-primary dark:text-primary">
-                  <Check className="w-5 h-5" />
-                </motion.div>
-              )}
-            </motion.div>
+                {paymentMethod === "online" && (
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-primary dark:text-primary">
+                    <Check className="w-5 h-5" />
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
 
-            <motion.div
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setPaymentMethod("cash")}
-              className={`relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 ${
-                paymentMethod === "cash" 
-                  ? "border-primary bg-primary/5 ring-1 ring-primary shadow-md" 
-                  : "border-border/50 bg-background hover:bg-primary/5 hover:border-primary/30"
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <div className={`p-2.5 rounded-xl ${paymentMethod === "cash" ? "bg-primary/20 text-primary dark:text-primary" : "bg-muted text-muted-foreground"}`}>
-                  <Landmark className="w-6 h-6" />
+            {paymentMethods.cash && (
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setPaymentMethod("cash")}
+                className={`relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 ${
+                  paymentMethod === "cash" 
+                    ? "border-primary bg-primary/5 ring-1 ring-primary shadow-md" 
+                    : "border-border/50 bg-background hover:bg-primary/5 hover:border-primary/30"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`p-2.5 rounded-xl ${paymentMethod === "cash" ? "bg-primary/20 text-primary dark:text-primary" : "bg-muted text-muted-foreground"}`}>
+                    <Landmark className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className={`font-bold text-sm ${paymentMethod === "cash" ? "text-primary dark:text-primary" : "text-foreground"}`}>
+                      Cash at Window
+                    </h4>
+                    <p className="text-xs text-muted-foreground mt-0.5">Pay in person at the Registrar office</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className={`font-bold text-sm ${paymentMethod === "cash" ? "text-primary dark:text-primary" : "text-foreground"}`}>
-                    Cash at Window
-                  </h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">Pay in person at the Registrar office</p>
-                </div>
+                {paymentMethod === "cash" && (
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-primary dark:text-primary">
+                    <Check className="w-5 h-5" />
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+            {!paymentMethods.online && !paymentMethods.cash && (
+              <div className="col-span-1 sm:col-span-2 p-4 text-center text-sm text-red-500 bg-red-500/10 rounded-xl">
+                No payment methods are currently available. Please contact the registrar.
               </div>
-              {paymentMethod === "cash" && (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-primary dark:text-primary">
-                  <Check className="w-5 h-5" />
-                </motion.div>
-              )}
-            </motion.div>
+            )}
           </div>
         </div>
 

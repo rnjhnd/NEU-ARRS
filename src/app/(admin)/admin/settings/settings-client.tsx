@@ -13,13 +13,37 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 
 type UserType = { id: string; name: string; email: string; isAdmin: boolean };
 
-export function SettingsClient({ users, initialEmailTemplates }: { users: UserType[], initialEmailTemplates: Record<string, string> }) {
+export function SettingsClient({ 
+  users, 
+  initialEmailTemplates,
+  initialMaintenanceMode,
+  initialPaymentMethods,
+  initialOperationsConfig
+}: { 
+  users: UserType[], 
+  initialEmailTemplates: Record<string, string>,
+  initialMaintenanceMode: boolean,
+  initialPaymentMethods: { online: boolean, cash: boolean },
+  initialOperationsConfig: { location: string, hours: string }
+}) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [emailTemplates, setEmailTemplates] = useState<Record<string, string>>(initialEmailTemplates);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("PENDING_PAYMENT");
   const [isSavingEmail, setIsSavingEmail] = useState(false);
+
+  // New states
+  const [maintenanceMode, setMaintenanceMode] = useState(initialMaintenanceMode);
+  const [isSavingMaintenance, setIsSavingMaintenance] = useState(false);
+
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentMethods, setPaymentMethods] = useState(initialPaymentMethods);
+  const [isSavingPayment, setIsSavingPayment] = useState(false);
+
+  const [isOpsModalOpen, setIsOpsModalOpen] = useState(false);
+  const [opsConfig, setOpsConfig] = useState(initialOperationsConfig);
+  const [isSavingOps, setIsSavingOps] = useState(false);
 
   const filteredUsers = users.filter((u) => {
     if (!searchQuery) return true;
@@ -48,6 +72,43 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
       toast.error(res.error || "Failed to update email templates.");
     }
     setIsSavingEmail(false);
+  };
+
+  const handleToggleMaintenance = async () => {
+    setIsSavingMaintenance(true);
+    const newValue = !maintenanceMode;
+    const res = await updateSystemSetting("MAINTENANCE_MODE", String(newValue));
+    if (res.success) {
+      setMaintenanceMode(newValue);
+      toast.success(`Maintenance mode ${newValue ? "enabled" : "disabled"}.`);
+    } else {
+      toast.error(res.error || "Failed to update maintenance mode.");
+    }
+    setIsSavingMaintenance(false);
+  };
+
+  const handleSavePaymentMethods = async () => {
+    setIsSavingPayment(true);
+    const res = await updateSystemSetting("PAYMENT_METHODS", JSON.stringify(paymentMethods));
+    if (res.success) {
+      toast.success("Payment methods updated successfully.");
+      setIsPaymentModalOpen(false);
+    } else {
+      toast.error(res.error || "Failed to update payment methods.");
+    }
+    setIsSavingPayment(false);
+  };
+
+  const handleSaveOpsConfig = async () => {
+    setIsSavingOps(true);
+    const res = await updateSystemSetting("OPERATIONS_CONFIG", JSON.stringify(opsConfig));
+    if (res.success) {
+      toast.success("Operations configuration updated successfully.");
+      setIsOpsModalOpen(false);
+    } else {
+      toast.error(res.error || "Failed to update operations configuration.");
+    }
+    setIsSavingOps(false);
   };
 
   const statuses = [
@@ -80,10 +141,50 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
                 Edit Templates
               </Button>
             </div>
+            
+            <div className="p-4 bg-muted/50 rounded-xl border border-border">
+              <div className="flex justify-between items-start mb-1">
+                <p className="text-sm font-semibold">Maintenance Mode</p>
+                <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${maintenanceMode ? 'bg-red-500/10 text-red-600 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'}`}>
+                  {maintenanceMode ? 'Active' : 'Disabled'}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">Halt the system and prevent new requests.</p>
+              <Button 
+                variant={maintenanceMode ? "destructive" : "outline"}
+                size="sm" 
+                className={`w-full ${!maintenanceMode ? 'text-primary border-primary/20 hover:bg-primary/5 hover:text-primary' : ''}`}
+                onClick={handleToggleMaintenance}
+                disabled={isSavingMaintenance}
+              >
+                {isSavingMaintenance ? "Updating..." : maintenanceMode ? "Disable Maintenance Mode" : "Enable Maintenance Mode"}
+              </Button>
+            </div>
+
             <div className="p-4 bg-muted/50 rounded-xl border border-border">
               <p className="text-sm font-semibold mb-1">Payment Gateways</p>
-              <p className="text-xs text-muted-foreground mb-3">Configure PayMongo API keys and active payment methods.</p>
-              <Button variant="outline" size="sm" className="w-full" disabled>Coming Soon</Button>
+              <p className="text-xs text-muted-foreground mb-3">Configure PayMongo and toggle active payment methods.</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full text-primary border-primary/20 hover:bg-primary/5 hover:text-primary"
+                onClick={() => setIsPaymentModalOpen(true)}
+              >
+                Configure Payments
+              </Button>
+            </div>
+
+            <div className="p-4 bg-muted/50 rounded-xl border border-border">
+              <p className="text-sm font-semibold mb-1">Operations Details</p>
+              <p className="text-xs text-muted-foreground mb-3">Set business hours and campus pickup location.</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full text-primary border-primary/20 hover:bg-primary/5 hover:text-primary"
+                onClick={() => setIsOpsModalOpen(true)}
+              >
+                Edit Operations
+              </Button>
             </div>
           </div>
         </div>
@@ -232,6 +333,86 @@ export function SettingsClient({ users, initialEmailTemplates }: { users: UserTy
             <Button variant="outline" onClick={() => setIsEmailModalOpen(false)}>Cancel</Button>
             <Button onClick={handleSaveEmailTemplates} disabled={isSavingEmail} className="bg-primary hover:bg-primary/90 text-white">
               {isSavingEmail ? "Saving..." : "Save Templates"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden bg-background border-border/50 shadow-2xl rounded-2xl">
+          <DialogHeader className="p-6 pb-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
+            <DialogTitle className="text-2xl font-bold tracking-tight">Payment Gateways</DialogTitle>
+            <DialogDescription>
+              Toggle which payment methods are available to students.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="p-6 space-y-6">
+            <div className="flex items-center justify-between p-4 bg-muted/30 border border-border/50 rounded-xl">
+              <div>
+                <p className="font-semibold">Online Payment (PayMongo)</p>
+                <p className="text-sm text-muted-foreground">GCash, Maya, QR Ph, Cards.</p>
+              </div>
+              <Button 
+                variant={paymentMethods.online ? "default" : "outline"} 
+                size="sm"
+                onClick={() => setPaymentMethods({ ...paymentMethods, online: !paymentMethods.online })}
+              >
+                {paymentMethods.online ? "Enabled" : "Disabled"}
+              </Button>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-muted/30 border border-border/50 rounded-xl">
+              <div>
+                <p className="font-semibold">Cash on Pickup</p>
+                <p className="text-sm text-muted-foreground">Pay at the registrar counter.</p>
+              </div>
+              <Button 
+                variant={paymentMethods.cash ? "default" : "outline"} 
+                size="sm"
+                onClick={() => setPaymentMethods({ ...paymentMethods, cash: !paymentMethods.cash })}
+              >
+                {paymentMethods.cash ? "Enabled" : "Disabled"}
+              </Button>
+            </div>
+          </div>
+          <DialogFooter className="m-0 p-6 border-t border-border/50 bg-muted/10 sm:justify-end items-center">
+            <Button variant="outline" onClick={() => setIsPaymentModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSavePaymentMethods} disabled={isSavingPayment} className="bg-primary hover:bg-primary/90 text-white">
+              {isSavingPayment ? "Saving..." : "Save Settings"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isOpsModalOpen} onOpenChange={setIsOpsModalOpen}>
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden bg-background border-border/50 shadow-2xl rounded-2xl">
+          <DialogHeader className="p-6 pb-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
+            <DialogTitle className="text-2xl font-bold tracking-tight">Operations Details</DialogTitle>
+            <DialogDescription>
+              Update the campus pickup location and active business hours.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="p-6 space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold">Pickup Location</label>
+              <Input 
+                value={opsConfig.location}
+                onChange={(e) => setOpsConfig({ ...opsConfig, location: e.target.value })}
+                placeholder="E.g., Registrar's Office at Window 4"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold">Business Hours</label>
+              <Input 
+                value={opsConfig.hours}
+                onChange={(e) => setOpsConfig({ ...opsConfig, hours: e.target.value })}
+                placeholder="E.g., 8:00 AM to 5:00 PM (Monday-Friday)"
+              />
+            </div>
+          </div>
+          <DialogFooter className="m-0 p-6 border-t border-border/50 bg-muted/10 sm:justify-end items-center">
+            <Button variant="outline" onClick={() => setIsOpsModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveOpsConfig} disabled={isSavingOps} className="bg-primary hover:bg-primary/90 text-white">
+              {isSavingOps ? "Saving..." : "Save Details"}
             </Button>
           </DialogFooter>
         </DialogContent>
