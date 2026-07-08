@@ -125,8 +125,8 @@ export function SettingsClient({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden md:col-span-1 h-fit">
           <div className="p-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
-            <h2 className="text-xl font-bold tracking-tight">Configuration</h2>
-            <p className="text-sm text-muted-foreground mt-1">Global system variables.</p>
+            <h2 className="text-xl font-bold tracking-tight">System Controls</h2>
+            <p className="text-sm text-muted-foreground mt-1">Manage core application behaviors and student experience.</p>
           </div>
           <div className="p-6 space-y-4">
             <div className="p-4 bg-muted/50 rounded-xl border border-border">
