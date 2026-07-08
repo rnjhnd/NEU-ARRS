@@ -274,13 +274,7 @@ export function SettingsClient({
                           }}
                         >
                           <SelectTrigger 
-                            className={`w-[160px] h-9 text-xs font-semibold rounded-full border shadow-sm transition-all focus:ring-1 focus:ring-primary/20 ${
-                              user.role === "admin" 
-                                ? "bg-primary/5 hover:bg-primary/10 border-primary/20" 
-                                : user.role === "employee" 
-                                  ? "bg-blue-500/5 hover:bg-blue-500/10 border-blue-500/20" 
-                                  : "bg-yellow-500/5 hover:bg-yellow-500/10 border-yellow-500/20"
-                            }`}
+                            className="h-9 w-[150px] rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors"
                           >
                             {isUpdating === user.id ? (
                               <div className="flex items-center gap-2 text-muted-foreground w-full">
@@ -288,27 +282,32 @@ export function SettingsClient({
                                 <span>Updating...</span>
                               </div>
                             ) : (
-                              <SelectValue placeholder="Select role" />
+                              <SelectValue placeholder="Select role">
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-2 h-2 rounded-full ${user.role === "admin" ? "bg-primary" : user.role === "employee" ? "bg-blue-600 dark:bg-blue-400" : "bg-yellow-600 dark:bg-yellow-500"}`} />
+                                  <span className="font-medium text-foreground">{user.role === "admin" ? "Administrator" : user.role === "employee" ? "Employee" : "Student"}</span>
+                                </div>
+                              </SelectValue>
                             )}
                           </SelectTrigger>
-                          <SelectContent className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl bg-background/95">
-                            <SelectItem value="admin" className="focus:bg-primary/10 cursor-pointer rounded-lg my-0.5">
-                              <span className="flex items-center gap-2 text-primary font-medium">
-                                <ShieldCheck className="w-4 h-4" />
+                          <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[150px] p-1">
+                            <SelectItem value="admin" className="cursor-pointer focus:bg-primary/10 transition-colors py-2 rounded-md">
+                              <div className="flex items-center gap-2 font-medium">
+                                <div className="w-2 h-2 rounded-full bg-primary" />
                                 Administrator
-                              </span>
+                              </div>
                             </SelectItem>
-                            <SelectItem value="employee" className="focus:bg-blue-500/10 cursor-pointer rounded-lg my-0.5">
-                              <span className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-medium">
-                                <Briefcase className="w-4 h-4" />
+                            <SelectItem value="employee" className="cursor-pointer focus:bg-blue-500/10 transition-colors py-2 rounded-md">
+                              <div className="flex items-center gap-2 font-medium">
+                                <div className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400" />
                                 Employee
-                              </span>
+                              </div>
                             </SelectItem>
-                            <SelectItem value="student" className="focus:bg-yellow-500/10 cursor-pointer rounded-lg my-0.5">
-                              <span className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500 font-medium">
-                                <GraduationCap className="w-4 h-4" />
+                            <SelectItem value="student" className="cursor-pointer focus:bg-yellow-500/10 transition-colors py-2 rounded-md">
+                              <div className="flex items-center gap-2 font-medium">
+                                <div className="w-2 h-2 rounded-full bg-yellow-600 dark:bg-yellow-500" />
                                 Student
-                              </span>
+                              </div>
                             </SelectItem>
                           </SelectContent>
                         </Select>
