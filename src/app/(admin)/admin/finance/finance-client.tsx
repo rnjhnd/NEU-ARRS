@@ -536,6 +536,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     paddingAngle={5}
                     dataKey="value"
                     stroke="none"
+                    animationDuration={800}
                   >
                     {paymentMethodData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -593,7 +594,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     width={180}
                   />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: 'currentColor', opacity: 0.05 }} />
-                  <Bar dataKey="revenue" fill="#0A5C36" radius={[0, 4, 4, 0]} barSize={32}>
+                  <Bar dataKey="revenue" fill="#0A5C36" radius={[0, 4, 4, 0]} barSize={32} animationDuration={800}>
                     {isExporting && (
                       <LabelList 
                         dataKey="revenue" 
