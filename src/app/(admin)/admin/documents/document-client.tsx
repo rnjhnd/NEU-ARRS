@@ -219,13 +219,13 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[130px] p-1">
-                            <SelectItem value="true" className="cursor-pointer focus:bg-primary/10 transition-colors py-2 rounded-md">
+                            <SelectItem value="true" className="cursor-pointer focus:!bg-primary/10 transition-colors py-2 rounded-md">
                               <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-primary" />
                                 Active
                               </div>
                             </SelectItem>
-                            <SelectItem value="false" className="cursor-pointer focus:bg-yellow-500/10 transition-colors py-2 rounded-md">
+                            <SelectItem value="false" className="cursor-pointer focus:!bg-yellow-500/10 transition-colors py-2 rounded-md">
                               <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-yellow-500" />
                                 Inactive
@@ -338,13 +338,13 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                                 </SelectValue>
                               </SelectTrigger>
                               <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[130px] p-1">
-                                <SelectItem value="true" className="cursor-pointer focus:bg-primary/10 transition-colors py-2 rounded-md">
+                                <SelectItem value="true" className="cursor-pointer focus:!bg-primary/10 transition-colors py-2 rounded-md">
                                   <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-primary" />
                                     Active
                                   </div>
                                 </SelectItem>
-                                <SelectItem value="false" className="cursor-pointer focus:bg-yellow-500/10 transition-colors py-2 rounded-md">
+                                <SelectItem value="false" className="cursor-pointer focus:!bg-yellow-500/10 transition-colors py-2 rounded-md">
                                   <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-yellow-500" />
                                     Inactive
