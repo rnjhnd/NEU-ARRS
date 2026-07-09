@@ -281,7 +281,7 @@ export function SettingsClient({
                     </span>
                   </div>
                 </SelectTrigger>
-                <SelectContent align="end" className="rounded-xl border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[160px] p-1">
+                <SelectContent alignItemWithTrigger={false} align="end" className="rounded-xl border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[160px] p-1">
                   <SelectItem value="all" className="rounded-md my-0.5 font-medium cursor-pointer focus:bg-muted transition-colors py-2">
                     <div className="flex items-center gap-2">
                       <Filter className="w-4 h-4 text-muted-foreground" />
