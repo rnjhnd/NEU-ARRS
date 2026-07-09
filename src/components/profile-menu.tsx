@@ -84,7 +84,7 @@ export function ProfileMenu() {
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-semibold leading-none text-foreground truncate max-w-[150px]">{name}</p>
                 <p className="text-[11px] font-medium leading-none text-primary uppercase tracking-wide">
-                  {isAdmin ? "Administrator" : "Student"}
+                  {role === "admin" ? "Administrator" : role === "employee" ? "Employee" : "Student"}
                 </p>
                 <p className="text-xs text-muted-foreground truncate max-w-[150px]" title={email}>{email}</p>
               </div>
