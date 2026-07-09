@@ -63,6 +63,27 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
       </div>
     );
   };
+  
+  const CustomAnimatedDot = (props: any) => {
+    const { cx, cy, index, dataCount } = props;
+    
+    // The line animates over 800ms. We stagger the dots so they pop right when the line reaches them!
+    const delay = dataCount > 1 ? (index / (dataCount - 1)) * 0.8 : 0;
+  
+    return (
+      <motion.circle
+        cx={cx}
+        cy={cy}
+        r={4}
+        stroke="#0A5C36"
+        strokeWidth={2}
+        fill="var(--background)"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay, type: "spring", stiffness: 300, damping: 20 }}
+      />
+    );
+  };
 
   const getAmount = (req: Request) => {
     if (req.amountPaid) return req.amountPaid;
@@ -470,7 +491,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                   dataKey="revenue" 
                   stroke="#0A5C36" 
                   strokeWidth={3}
-                  dot={false}
+                  dot={(props: any) => <CustomAnimatedDot {...props} dataCount={revenueOverTime.length} />}
                   activeDot={{ r: 6, strokeWidth: 0, fill: "#0A5C36" }}
                   animationDuration={800}
                 >
