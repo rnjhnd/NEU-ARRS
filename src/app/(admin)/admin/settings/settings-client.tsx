@@ -17,12 +17,14 @@ type UserType = { id: string; name: string; email: string; role: string };
 
 export function SettingsClient({ 
   users, 
+  currentUserId,
   initialEmailTemplates,
   initialMaintenanceMode,
   initialPaymentMethods,
   initialOperationsConfig
 }: { 
   users: UserType[], 
+  currentUserId: string,
   initialEmailTemplates: Record<string, string>,
   initialMaintenanceMode: boolean,
   initialPaymentMethods: { online: boolean, cash: boolean },
@@ -351,12 +353,25 @@ export function SettingsClient({
                       className="border-b border-border/50"
                     >
                       <TableCell className="pl-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-foreground">{user.name}</span>
-                          <span className="text-xs text-muted-foreground">{user.email}</span>
+                        <div className="flex items-center gap-3">
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-foreground">{user.name}</span>
+                              {user.id === currentUserId && (
+                                <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20">You</span>
+                              )}
+                            </div>
+                            <span className="text-xs text-muted-foreground">{user.email}</span>
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="py-4">
+                        {user.id === currentUserId ? (
+                          <div className="h-9 w-[170px] rounded-lg border border-border/50 bg-muted/30 flex items-center px-3 gap-2 cursor-not-allowed">
+                            <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
+                            <span className="text-sm font-medium text-muted-foreground">Administrator</span>
+                          </div>
+                        ) : (
                         <Select 
                           value={user.role} 
                           onValueChange={(val: string | null) => {
@@ -396,6 +411,7 @@ export function SettingsClient({
                             </SelectItem>
                           </SelectContent>
                         </Select>
+                        )}
                       </TableCell>
                     </motion.tr>
                   ))}

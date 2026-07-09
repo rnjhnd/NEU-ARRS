@@ -253,7 +253,13 @@ export async function createDocumentConfig(formData: FormData) {
 
 export async function updateUserRole(userId: string, role: "admin" | "employee" | "student") {
   try {
-    await requireAdmin();
+    const callerId = await requireAdmin();
+    
+    // Prevent admins from changing their own role (accidental self-demotion)
+    if (callerId === userId) {
+      return { success: false, error: "You cannot change your own role. Contact another administrator." };
+    }
+    
     const client = await clerkClient();
     
     await client.users.updateUserMetadata(userId, {

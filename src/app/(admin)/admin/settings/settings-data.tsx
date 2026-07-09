@@ -1,8 +1,9 @@
-import { clerkClient } from "@clerk/nextjs/server";
+import { clerkClient, auth } from "@clerk/nextjs/server";
 import { getSystemSetting } from "@/app/actions/admin.actions";
 import { SettingsClient } from "./settings-client";
 
 export async function SettingsData() {
+  const { userId: currentUserId } = await auth();
   const client = await clerkClient();
   const response = await client.users.getUserList({ limit: 100 });
   
@@ -41,6 +42,7 @@ export async function SettingsData() {
   return (
     <SettingsClient 
       users={users} 
+      currentUserId={currentUserId ?? ""}
       initialEmailTemplates={initialEmailTemplates} 
       initialMaintenanceMode={initialMaintenanceMode}
       initialPaymentMethods={initialPaymentMethods}
