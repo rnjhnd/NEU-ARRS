@@ -50,12 +50,22 @@ export function SettingsClient({
   const [opsConfig, setOpsConfig] = useState(initialOperationsConfig);
   const [isSavingOps, setIsSavingOps] = useState(false);
 
+  const [activeTab, setActiveTab] = useState<string>("pending");
+  const [localUsers, setLocalUsers] = useState<UserType[]>(users);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
 
-  const filteredUsers = users.filter((u) => {
-    const matchesSearch = !searchQuery || u.name.toLowerCase().includes(searchQuery.toLowerCase()) || u.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRole = roleFilter === "all" || u.role === roleFilter;
+  // Sync with server if props update
+  useEffect(() => {
+    setLocalUsers(users);
+  }, [users]);
+
+  // Pagination and Filtering logic
+  const itemsPerPage = 7;
+  
+  const filteredUsers = localUsers.filter((user) => {
+    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          user.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesRole = roleFilter === "all" || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
@@ -68,14 +78,20 @@ export function SettingsClient({
   }, [searchQuery, roleFilter]);
 
   const handleUpdateRole = async (userId: string, newRole: "admin" | "employee" | "student") => {
-    setIsUpdating(userId);
+    const originalUser = localUsers.find(u => u.id === userId);
+    if (!originalUser || originalUser.role === newRole) return;
+
+    // Optimistic update
+    setLocalUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
+    
     const res = await updateUserRole(userId, newRole);
     if (res.success) {
       toast.success(`Role successfully updated to ${newRole}.`);
     } else {
       toast.error(res.error || "Failed to update role");
+      // Revert if failed
+      setLocalUsers(prev => prev.map(u => u.id === userId ? { ...u, role: originalUser.role } : u));
     }
-    setIsUpdating(null);
   };
 
   const handleSaveEmailTemplates = async () => {
@@ -321,7 +337,6 @@ export function SettingsClient({
                       </TableCell>
                       <TableCell className="py-4">
                         <Select 
-                          disabled={isUpdating === user.id} 
                           value={user.role} 
                           onValueChange={(val: string | null) => {
                             if (val && (val === "admin" || val === "employee" || val === "student")) {
@@ -332,19 +347,12 @@ export function SettingsClient({
                           <SelectTrigger 
                             className="h-9 w-[150px] rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors"
                           >
-                            {isUpdating === user.id ? (
-                              <div className="flex items-center gap-2 text-muted-foreground w-full">
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                <span>Updating...</span>
+                            <SelectValue placeholder="Select role">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${user.role === "admin" ? "bg-primary" : user.role === "employee" ? "bg-slate-500 dark:bg-slate-400" : "bg-yellow-600 dark:bg-yellow-500"}`} />
+                                <span className="font-medium text-foreground">{user.role === "admin" ? "Administrator" : user.role === "employee" ? "Employee" : "Student"}</span>
                               </div>
-                            ) : (
-                              <SelectValue placeholder="Select role">
-                                <div className="flex items-center gap-2">
-                                  <div className={`w-2 h-2 rounded-full ${user.role === "admin" ? "bg-primary" : user.role === "employee" ? "bg-slate-500 dark:bg-slate-400" : "bg-yellow-600 dark:bg-yellow-500"}`} />
-                                  <span className="font-medium text-foreground">{user.role === "admin" ? "Administrator" : user.role === "employee" ? "Employee" : "Student"}</span>
-                                </div>
-                              </SelectValue>
-                            )}
+                            </SelectValue>
                           </SelectTrigger>
                           <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[150px] p-1">
                             <SelectItem value="admin" className="cursor-pointer focus:bg-primary/10 transition-colors py-2 rounded-md">
