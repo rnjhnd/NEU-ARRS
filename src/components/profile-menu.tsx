@@ -97,7 +97,7 @@ export function ProfileMenu() {
             className="cursor-pointer py-2.5 px-3 rounded-xl focus:bg-muted focus:text-foreground transition-colors group"
             onClick={() => window.location.href = "mailto:support@neu.edu.ph"}
           >
-            <LifeBuoy className="mr-3 h-4 w-4 text-muted-foreground transition-colors" />
+            <LifeBuoy className="mr-3 h-4 w-4 transition-colors" />
             <span className="font-medium">Help & Support</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
