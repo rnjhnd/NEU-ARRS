@@ -67,8 +67,8 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
   const CustomAnimatedDot = (props: any) => {
     const { cx, cy, index, dataCount } = props;
     
-    // The line animates over 800ms. We stagger the dots so they pop right when the line reaches them!
-    const delay = dataCount > 1 ? (index / (dataCount - 1)) * 0.8 : 0;
+    // The line animates over 1000ms. We stagger the dots so they pop right when the line reaches them!
+    const delay = dataCount > 1 ? (index / (dataCount - 1)) * 1.0 : 0;
   
     return (
       <motion.circle
@@ -494,7 +494,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     strokeWidth={3}
                     dot={(props: any) => <CustomAnimatedDot {...props} dataCount={revenueOverTime.length} />}
                     activeDot={{ r: 6, strokeWidth: 0, fill: "#0A5C36" }}
-                    animationDuration={800}
+                    animationDuration={1000}
                   >
                     {isExporting && (
                       <LabelList 
@@ -536,7 +536,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     paddingAngle={5}
                     dataKey="value"
                     stroke="none"
-                    animationDuration={800}
+                    animationDuration={1000}
                   >
                     {paymentMethodData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -594,7 +594,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     width={180}
                   />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: 'currentColor', opacity: 0.05 }} />
-                  <Bar dataKey="revenue" fill="#0A5C36" radius={[0, 4, 4, 0]} barSize={32} animationDuration={800}>
+                  <Bar dataKey="revenue" fill="#0A5C36" radius={[0, 4, 4, 0]} barSize={32} animationDuration={1000}>
                     {isExporting && (
                       <LabelList 
                         dataKey="revenue" 
