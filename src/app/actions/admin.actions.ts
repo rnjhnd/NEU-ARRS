@@ -262,6 +262,14 @@ export async function updateUserRole(userId: string, role: "admin" | "employee" 
       }
     });
     
+    // Revoke all active sessions for this user to enforce instant role change
+    const sessions = await client.sessions.getSessionList({ userId });
+    for (const session of sessions.data) {
+      if (session.status === "active") {
+        await client.sessions.revokeSession(session.id);
+      }
+    }
+    
     revalidatePath("/admin/settings");
     revalidatePath("/admin/students");
     return { success: true };
