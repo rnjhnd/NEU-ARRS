@@ -24,7 +24,7 @@ export function ClerkThemeProvider({ children }: { children: React.ReactNode }) 
           scrollBox: "bg-background",
           pageScrollBox: "bg-background",
           navbarButton: "text-muted-foreground hover:text-foreground",
-          navbarButton__active: "text-emerald-500 bg-emerald-500/10",
+          navbarButton__active: "text-primary bg-primary/10",
         }
       }}
     >

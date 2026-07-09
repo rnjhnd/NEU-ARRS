@@ -408,7 +408,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="rounded-full h-8 px-4 text-xs font-medium hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                  className="rounded-full h-8 px-4 text-xs font-medium hover:bg-primary/10 hover:text-primary transition-colors"
                   disabled={isUpdating || !canComplete}
                   onClick={() => handleBulkUpdate(RequestStatus.COMPLETED)}
                 >

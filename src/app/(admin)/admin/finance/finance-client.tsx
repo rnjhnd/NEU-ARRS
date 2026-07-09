@@ -248,7 +248,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <p className="text-sm font-semibold text-muted-foreground">Total Revenue</p>
               <h3 className="text-2xl font-bold mt-1 text-foreground">₱{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
-            <div className="p-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl shrink-0">
+            <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <DollarSign className="w-6 h-6" />
             </div>
           </CardContent>

@@ -176,7 +176,7 @@ export function SettingsClient({
               <div className="flex-1">
                 <div className="flex justify-between items-start mb-1">
                   <p className={`text-sm font-semibold ${maintenanceMode ? 'text-red-700 dark:text-red-400' : ''}`}>Maintenance Mode</p>
-                  <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${maintenanceMode ? 'bg-red-500/20 text-red-700 dark:text-red-400' : 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'}`}>
+                  <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${maintenanceMode ? 'bg-red-500/20 text-red-700 dark:text-red-400' : 'bg-primary/10 text-primary border border-primary/20'}`}>
                     {maintenanceMode ? 'Active' : 'Disabled'}
                   </div>
                 </div>
@@ -204,7 +204,7 @@ export function SettingsClient({
 
             {/* Payment Gateways */}
             <div className="p-4 bg-muted/50 rounded-xl border border-border flex items-start gap-4">
-              <div className="p-3 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl shrink-0">
+              <div className="p-3 bg-primary/10 text-primary rounded-xl shrink-0">
                 <CreditCard className="w-5 h-5" />
               </div>
               <div className="flex-1">
