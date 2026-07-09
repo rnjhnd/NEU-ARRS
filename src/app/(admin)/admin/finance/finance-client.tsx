@@ -114,7 +114,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
         return { name: month, revenue: monthlyRev };
       });
     } else { // all time
-      const uniqueYearMonths = Array.from(new Set(filteredRequests.map(r => format(new Date(r.createdAt), "MMM yyyy"))))
+      const uniqueYearMonths = Array.from(new Set(filteredRequests.map(req => format(new Date(req.createdAt), "MMM yyyy"))))
         .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
       
       revenueOverTime = uniqueYearMonths.map(ym => {
@@ -127,6 +127,24 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
       
       if (revenueOverTime.length === 0) {
         revenueOverTime = [{ name: format(now, "MMM yyyy"), revenue: 0 }];
+      }
+
+      if (revenueOverTime.length === 1) {
+        // If there's only one month of data, pad with the previous month so a trend line can be drawn
+        const singleMonth = revenueOverTime[0].name; // e.g. "Jun 2026"
+        const [mStr, yStr] = singleMonth.split(" ");
+        const mIndex = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].indexOf(mStr);
+        let prevYear = parseInt(yStr);
+        let prevMonthIndex = mIndex - 1;
+        if (prevMonthIndex < 0) {
+          prevMonthIndex = 11;
+          prevYear -= 1;
+        }
+        const prevMonthStr = `${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][prevMonthIndex]} ${prevYear}`;
+        revenueOverTime = [
+          { name: prevMonthStr, revenue: 0 },
+          revenueOverTime[0]
+        ];
       }
     }
   }
