@@ -87,12 +87,18 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
     if (timePeriod === "30days") return d >= subDays(todayStart, 29);
     if (timePeriod === "year") return d.getFullYear() === now.getFullYear();
     if (timePeriod === "custom" && dateRange?.from) {
+      let from = new Date(dateRange.from);
       if (dateRange.to) {
-        const toDate = new Date(dateRange.to);
-        toDate.setHours(23, 59, 59, 999);
-        return d >= dateRange.from && d <= toDate;
+        let to = new Date(dateRange.to);
+        if (from > to) {
+          const temp = from;
+          from = to;
+          to = temp;
+        }
+        to.setHours(23, 59, 59, 999);
+        return d >= from && d <= to;
       }
-      return d >= dateRange.from;
+      return d >= from;
     }
     return true; // all
   });
@@ -116,12 +122,24 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
     const fromDate = timePeriod === "custom" ? dateRange!.from! : subDays(todayStart, timePeriod === "7days" ? 6 : 29);
     const toDate = timePeriod === "custom" && dateRange?.to ? dateRange.to : now;
     
-    // Calculate the difference in calendar days exactly
-    const start = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
-    const end = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
+    // Ensure start is before end
+    let start = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
+    let end = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
+    
+    if (start > end) {
+      const temp = start;
+      start = end;
+      end = temp;
+    }
+    
+    // Prevent massive arrays if someone selects a 10 year range by accident, though UI groups by month > 31
     const diffDays = Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1);
     
-    const dateArray = Array.from({ length: diffDays }, (_, i) => format(subDays(end, diffDays - 1 - i), 'MMM dd'));
+    const dateArray = Array.from({ length: Math.min(diffDays, 31) }, (_, i) => {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      return format(d, 'MMM dd');
+    });
     
     revenueOverTime = dateArray.map(dateStr => {
       const dailyRev = filteredRequests.filter(isCompletedOrPaid).reduce((sum, req) => {
