@@ -344,11 +344,11 @@ export function SettingsClient({
                           }}
                         >
                           <SelectTrigger 
-                            className="h-9 w-[150px] rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors"
+                            className="h-9 w-[170px] rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors"
                           >
                             <SelectValue placeholder="Select role">
                               <div className="flex items-center gap-2">
-                                {user.role === "admin" ? <ShieldCheck className="w-4 h-4 text-primary" /> : user.role === "employee" ? <Briefcase className="w-4 h-4 text-slate-500 dark:text-slate-400" /> : <GraduationCap className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />}
+                                {user.role === "admin" ? <ShieldCheck className="w-4 h-4 !text-primary" /> : user.role === "employee" ? <Briefcase className="w-4 h-4 !text-slate-500 dark:!text-slate-400" /> : <GraduationCap className="w-4 h-4 !text-yellow-600 dark:!text-yellow-500" />}
                                 <span className="font-medium text-foreground">{user.role === "admin" ? "Administrator" : user.role === "employee" ? "Employee" : "Student"}</span>
                               </div>
                             </SelectValue>
@@ -356,19 +356,19 @@ export function SettingsClient({
                           <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[150px] p-1">
                             <SelectItem value="admin" className="cursor-pointer focus:bg-primary/10 transition-colors py-2 rounded-md">
                               <div className="flex items-center gap-2 font-medium">
-                                <ShieldCheck className="w-4 h-4 text-primary" />
+                                <ShieldCheck className="w-4 h-4 !text-primary" />
                                 Administrator
                               </div>
                             </SelectItem>
                             <SelectItem value="employee" className="cursor-pointer focus:bg-slate-500/10 transition-colors py-2 rounded-md">
                               <div className="flex items-center gap-2 font-medium">
-                                <Briefcase className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                <Briefcase className="w-4 h-4 !text-slate-500 dark:!text-slate-400" />
                                 Employee
                               </div>
                             </SelectItem>
                             <SelectItem value="student" className="cursor-pointer focus:bg-yellow-500/10 transition-colors py-2 rounded-md">
                               <div className="flex items-center gap-2 font-medium">
-                                <GraduationCap className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
+                                <GraduationCap className="w-4 h-4 !text-yellow-600 dark:!text-yellow-500" />
                                 Student
                               </div>
                             </SelectItem>
