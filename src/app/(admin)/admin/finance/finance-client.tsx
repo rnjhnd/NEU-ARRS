@@ -11,7 +11,7 @@ import {
   LineChart, Line, PieChart, Pie, Cell, Legend, LabelList
 } from "recharts";
 import { format, subDays } from "date-fns";
-import { DollarSign, CreditCard, Banknote, TrendingUp, Download, Loader2, Image as ImageIcon, FileSpreadsheet, Calendar } from "lucide-react";
+import { DollarSign, CreditCard, Banknote, TrendingUp, Download, Loader2, Image as ImageIcon, FileSpreadsheet, Calendar, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -201,22 +201,42 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-2xl font-bold tracking-tight">Financial Analytics</h2>
-        
-        <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4 w-full">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <Select value={timePeriod} onValueChange={(val: any) => setTimePeriod(val)}>
-            <SelectTrigger className="w-[160px] h-10 rounded-full border-border/50 bg-background/40 hover:bg-background/80 transition-all">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-muted-foreground" />
-                <SelectValue placeholder="Select Period" />
+            <SelectTrigger className="h-10 w-full sm:w-[180px] rounded-full border-border/50 bg-background/40 hover:bg-background/80 focus:bg-background transition-all">
+              <div className="flex items-center gap-2 text-foreground font-medium">
+                <Filter className="w-4 h-4 text-muted-foreground" />
+                <span>
+                  {timePeriod === "7days" ? "Last 7 Days" : timePeriod === "30days" ? "Last 30 Days" : timePeriod === "year" ? "This Year" : "All Time"}
+                </span>
               </div>
             </SelectTrigger>
-            <SelectContent className="rounded-xl border-border/50 shadow-xl bg-background/95 backdrop-blur-md">
-              <SelectItem value="7days" className="rounded-lg cursor-pointer">Last 7 Days</SelectItem>
-              <SelectItem value="30days" className="rounded-lg cursor-pointer">Last 30 Days</SelectItem>
-              <SelectItem value="year" className="rounded-lg cursor-pointer">This Year</SelectItem>
-              <SelectItem value="all" className="rounded-lg cursor-pointer">All Time</SelectItem>
+            <SelectContent alignItemWithTrigger={false} align="end" className="rounded-xl border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[180px] p-1">
+              <SelectItem value="7days" className="rounded-md my-0.5 font-medium cursor-pointer focus:bg-primary/10 transition-colors py-2">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  Last 7 Days
+                </div>
+              </SelectItem>
+              <SelectItem value="30days" className="rounded-md my-0.5 font-medium cursor-pointer focus:bg-primary/10 transition-colors py-2">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  Last 30 Days
+                </div>
+              </SelectItem>
+              <SelectItem value="year" className="rounded-md my-0.5 font-medium cursor-pointer focus:bg-primary/10 transition-colors py-2">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  This Year
+                </div>
+              </SelectItem>
+              <SelectItem value="all" className="rounded-md my-0.5 font-medium cursor-pointer focus:bg-primary/10 transition-colors py-2">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  All Time
+                </div>
+              </SelectItem>
             </SelectContent>
           </Select>
 
