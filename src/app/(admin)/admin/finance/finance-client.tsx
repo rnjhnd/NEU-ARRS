@@ -470,9 +470,9 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                   dataKey="revenue" 
                   stroke="#0A5C36" 
                   strokeWidth={3}
-                  dot={{ r: 4, strokeWidth: 2 }}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
-                  isAnimationActive={false}
+                  dot={false}
+                  activeDot={{ r: 6, strokeWidth: 0, fill: "#0A5C36" }}
+                  animationDuration={800}
                 >
                   {isExporting && (
                     <LabelList 
