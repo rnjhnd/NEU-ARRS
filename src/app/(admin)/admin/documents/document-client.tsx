@@ -354,7 +354,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             </Select>
                           ) : (
                             config.isActive ? (
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-emerald-700 dark:text-primary border border-primary/20 dark:border-primary/30">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 dark:border-primary/30">
                                 Active
                               </span>
                             ) : (

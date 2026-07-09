@@ -739,7 +739,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       onCheckedChange={(checked) => setSendCorrection(checked === true)} 
                       disabled={isUpdating}
                     />
-                    <Label htmlFor="send-correction" className="text-sm cursor-pointer text-amber-600 dark:text-amber-500 font-medium">
+                    <Label htmlFor="send-correction" className="text-sm cursor-pointer text-yellow-600 dark:text-yellow-500 font-medium">
                       Send automated correction email for status reversal
                     </Label>
                   </div>

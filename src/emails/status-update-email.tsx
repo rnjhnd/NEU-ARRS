@@ -29,23 +29,23 @@ const getStatusStyles = (status: string) => {
     case 'PENDING_PAYMENT':
     case 'PENDING':
       return {
-        bg: 'bg-amber-50',
-        text: 'text-amber-700',
-        border: 'border-amber-500',
-        msgBg: 'bg-amber-50/40',
+        bg: 'bg-yellow-50',
+        text: 'text-yellow-600',
+        border: 'border-yellow-500',
+        msgBg: 'bg-yellow-50/40',
       };
     case 'PROCESSING':
       return {
-        bg: 'bg-amber-50',
-        text: 'text-amber-700',
-        border: 'border-amber-500',
-        msgBg: 'bg-amber-50/40',
+        bg: 'bg-yellow-50',
+        text: 'text-yellow-600',
+        border: 'border-yellow-500',
+        msgBg: 'bg-yellow-50/40',
       };
     case 'READY_FOR_PICKUP':
     case 'COMPLETED':
       return {
         bg: 'bg-emerald-50',
-        text: 'text-emerald-700',
+        text: 'text-emerald-600',
         border: 'border-emerald-500',
         msgBg: 'bg-emerald-50/40',
       };

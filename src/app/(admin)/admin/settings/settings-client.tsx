@@ -129,10 +129,10 @@ export function SettingsClient({
   };
 
   const statuses = [
-    { id: "PENDING_PAYMENT", label: "Pending Payment", icon: Clock, color: "text-yellow-500" },
+    { id: "PENDING_PAYMENT", label: "Pending Payment", icon: Clock, color: "text-yellow-600 dark:text-yellow-500" },
     { id: "PROCESSING", label: "Processing", icon: Activity, color: "text-yellow-600 dark:text-yellow-500" },
-    { id: "READY_FOR_PICKUP", label: "Ready for Pickup", icon: Package, color: "text-emerald-600 dark:text-emerald-500" },
-    { id: "COMPLETED", label: "Completed", icon: CheckCircle2, color: "text-green-600" },
+    { id: "READY_FOR_PICKUP", label: "Ready for Pickup", icon: Package, color: "text-primary" },
+    { id: "COMPLETED", label: "Completed", icon: CheckCircle2, color: "text-primary" },
   ];
 
   return (
