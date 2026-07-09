@@ -11,7 +11,11 @@ import {
   LineChart, Line, PieChart, Pie, Cell, Legend, LabelList
 } from "recharts";
 import { format, subDays } from "date-fns";
-import { DollarSign, CreditCard, Banknote, TrendingUp, Download, Loader2, Image as ImageIcon, FileSpreadsheet, Calendar, Filter } from "lucide-react";
+import { DollarSign, CreditCard, Banknote, TrendingUp, Download, Loader2, Image as ImageIcon, FileSpreadsheet, Calendar as CalendarIcon, Filter } from "lucide-react";
+import { DateRange } from "react-day-picker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -21,7 +25,11 @@ const COLORS = ['#0A5C36', '#eab308'];
 
 export function FinanceClient({ requests }: { requests: Request[] }) {
   const [isExporting, setIsExporting] = useState(false);
-  const [timePeriod, setTimePeriod] = useState<"7days" | "30days" | "year" | "all">("7days");
+  const [timePeriod, setTimePeriod] = useState<"7days" | "30days" | "year" | "all" | "custom">("7days");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 14),
+    to: new Date(),
+  });
   
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -76,6 +84,14 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
     if (timePeriod === "7days") return d >= subDays(now, 7);
     if (timePeriod === "30days") return d >= subDays(now, 30);
     if (timePeriod === "year") return d.getFullYear() === now.getFullYear();
+    if (timePeriod === "custom" && dateRange?.from) {
+      if (dateRange.to) {
+        const toDate = new Date(dateRange.to);
+        toDate.setHours(23, 59, 59, 999);
+        return d >= dateRange.from && d <= toDate;
+      }
+      return d >= dateRange.from;
+    }
     return true; // all
   });
 
@@ -91,10 +107,17 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
   // 3. Revenue Over Time
   let revenueOverTime: any[] = [];
   
-  if (timePeriod === "7days" || timePeriod === "30days") {
-    const days = timePeriod === "7days" ? 7 : 30;
-    const dateArray = Array.from({ length: days }, (_, i) => format(subDays(now, days - 1 - i), 'MMM dd'));
-    revenueOverTime = dateArray.map(dateStr => {
+  const isDaysScale = timePeriod === "7days" || timePeriod === "30days" || 
+    (timePeriod === "custom" && dateRange?.from && (!dateRange.to || Math.ceil(Math.abs(dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24)) <= 31));
+
+  if (isDaysScale) {
+    const fromDate = timePeriod === "custom" ? dateRange!.from! : subDays(now, timePeriod === "7days" ? 6 : 29);
+    const toDate = timePeriod === "custom" && dateRange?.to ? dateRange.to : now;
+    
+    const diffDays = Math.max(1, Math.ceil((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24)) + 1);
+    const dateArray = Array.from({ length: diffDays }, (_, i) => format(subDays(toDate, diffDays - 1 - i), 'MMM dd'));
+    
+    revenueOverTime = dateArray.reverse().map(dateStr => {
       const dailyRev = filteredRequests.filter(isCompletedOrPaid).reduce((sum, req) => {
         if (format(new Date(req.createdAt), 'MMM dd') === dateStr) return sum + getAmount(req);
         return sum;
@@ -113,7 +136,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
         }, 0);
         return { name: month, revenue: monthlyRev };
       });
-    } else { // all time
+    } else { // all time OR custom > 31 days
       const uniqueYearMonths = Array.from(new Set(filteredRequests.map(req => format(new Date(req.createdAt), "MMM yyyy"))))
         .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
       
@@ -126,7 +149,8 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
       });
       
       if (revenueOverTime.length === 0) {
-        revenueOverTime = [{ name: format(now, "MMM yyyy"), revenue: 0 }];
+        const fallBackDate = timePeriod === "custom" && dateRange?.to ? dateRange.to : now;
+        revenueOverTime = [{ name: format(fallBackDate, "MMM yyyy"), revenue: 0 }];
       }
 
       if (revenueOverTime.length === 1) {
@@ -226,37 +250,77 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <div className="flex items-center gap-2 text-foreground font-medium">
                 <Filter className="w-4 h-4 text-muted-foreground" />
                 <span>
-                  {timePeriod === "7days" ? "Last 7 Days" : timePeriod === "30days" ? "Last 30 Days" : timePeriod === "year" ? "This Year" : "All Time"}
+                  {timePeriod === "7days" ? "Last 7 Days" : timePeriod === "30days" ? "Last 30 Days" : timePeriod === "year" ? "This Year" : timePeriod === "custom" ? "Custom Range" : "All Time"}
                 </span>
               </div>
             </SelectTrigger>
             <SelectContent alignItemWithTrigger={false} align="end" className="rounded-xl border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[180px] p-1">
               <SelectItem value="7days" className="rounded-md my-0.5 font-medium cursor-pointer focus:bg-primary/10 transition-colors py-2">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                   Last 7 Days
                 </div>
               </SelectItem>
               <SelectItem value="30days" className="rounded-md my-0.5 font-medium cursor-pointer focus:bg-primary/10 transition-colors py-2">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                   Last 30 Days
                 </div>
               </SelectItem>
               <SelectItem value="year" className="rounded-md my-0.5 font-medium cursor-pointer focus:bg-primary/10 transition-colors py-2">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                   This Year
                 </div>
               </SelectItem>
               <SelectItem value="all" className="rounded-md my-0.5 font-medium cursor-pointer focus:bg-primary/10 transition-colors py-2">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                   All Time
+                </div>
+              </SelectItem>
+              <SelectItem value="custom" className="rounded-md my-0.5 font-medium cursor-pointer focus:bg-primary/10 transition-colors py-2 border-t border-border/50 mt-1">
+                <div className="flex items-center gap-2">
+                  <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                  Custom Range
                 </div>
               </SelectItem>
             </SelectContent>
           </Select>
+
+          {timePeriod === "custom" && (
+            <Popover>
+              <PopoverTrigger
+                className={cn(
+                  "inline-flex items-center justify-start h-10 w-full sm:w-[260px] rounded-full border border-border/50 bg-background/40 hover:bg-background/80 px-4 py-2 text-sm text-left font-normal transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                  !dateRange && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {dateRange?.from ? (
+                  dateRange.to ? (
+                    <>
+                      {format(dateRange.from, "LLL dd, y")} -{" "}
+                      {format(dateRange.to, "LLL dd, y")}
+                    </>
+                  ) : (
+                    format(dateRange.from, "LLL dd, y")
+                  )
+                ) : (
+                  <span>Pick a date range</span>
+                )}
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 rounded-2xl border-border/50 shadow-xl" align="end">
+                <Calendar
+                  mode="range"
+                  defaultMonth={dateRange?.from}
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
+          )}
 
           <DropdownMenu>
             <DropdownMenuTrigger className="h-10 px-5 rounded-full border border-primary/20 bg-background text-foreground shadow-sm transition-all hover:bg-muted focus:bg-muted active:scale-95 flex items-center gap-2 font-medium text-sm disabled:pointer-events-none disabled:opacity-50 outline-none" disabled={isExporting}>
