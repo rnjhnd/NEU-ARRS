@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, CheckCircle2, Package, Activity, Search, Download, ArrowUpDown, ArrowUp, ArrowDown, FileText, AlertTriangle, Inbox, SearchX } from "lucide-react";
+import { Clock, CheckCircle2, Package, Activity, Search, Download, ArrowUpDown, ArrowUp, ArrowDown, FileText, AlertTriangle, Inbox, SearchX, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -463,10 +463,15 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                               <Inbox className="w-8 h-8 text-muted-foreground/50 mb-2" />
                               <p>No active requests in this queue.</p>
                             </>
-                          ) : (
+                          ) : searchQuery.trim() !== "" ? (
                             <>
                               <SearchX className="w-8 h-8 text-muted-foreground/50 mb-2" />
                               <p>No requests found matching your search.</p>
+                            </>
+                          ) : (
+                            <>
+                              <Filter className="w-8 h-8 text-muted-foreground/50 mb-2" />
+                              <p>No requests found with this status.</p>
                             </>
                           )}
                         </div>
