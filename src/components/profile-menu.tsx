@@ -56,18 +56,17 @@ export function ProfileMenu({ side = "bottom" }: { side?: "top" | "bottom" | "le
   };
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger className="relative h-8 w-8 rounded-full shadow-sm ring-2 ring-primary/50 ring-offset-2 ring-offset-background hover:ring-primary focus:outline-none active:scale-95 transition-all">
-          <Avatar className="h-full w-full">
-            <AvatarImage src={displayUser.imageUrl} alt={name} />
-            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
-              {fallbackInitials}
-            </AvatarFallback>
-          </Avatar>
+    <DropdownMenu>
+      <DropdownMenuTrigger className="relative h-8 w-8 rounded-full shadow-sm ring-2 ring-primary/50 ring-offset-2 ring-offset-background hover:ring-primary focus:outline-none active:scale-95 transition-all">
+        <Avatar className="h-full w-full">
+          <AvatarImage src={displayUser.imageUrl} alt={name} />
+          <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
+            {fallbackInitials}
+          </AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent 
-        className="w-64 p-2 rounded-3xl bg-background/90 backdrop-blur-2xl border border-border/50 shadow-2xl z-50" 
+      <DropdownMenuContent
+        className="w-64 p-2 rounded-3xl bg-popover border border-border/50 shadow-2xl z-[200]"
         align="end"
         side={side}
         sideOffset={12}
@@ -75,14 +74,14 @@ export function ProfileMenu({ side = "bottom" }: { side?: "top" | "bottom" | "le
         <DropdownMenuGroup>
           <DropdownMenuLabel className="font-normal p-2">
             <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10 shadow-sm ring-2 ring-primary/50 ring-offset-2 ring-offset-background">
+              <Avatar className="h-10 w-10 shadow-sm ring-2 ring-primary/50 ring-offset-2 ring-offset-popover">
                 <AvatarImage src={displayUser.imageUrl} alt={name} />
                 <AvatarFallback className="bg-primary/10 text-primary font-bold">
                   {fallbackInitials}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-semibold leading-none text-foreground truncate max-w-[150px]">{name}</p>
+                <p className="text-sm font-semibold leading-none text-popover-foreground truncate max-w-[150px]">{name}</p>
                 <p className="text-[11px] font-medium leading-none text-primary uppercase tracking-wide">
                   {role === "admin" ? "Administrator" : role === "employee" ? "Employee" : "Student"}
                 </p>
@@ -93,25 +92,25 @@ export function ProfileMenu({ side = "bottom" }: { side?: "top" | "bottom" | "le
         </DropdownMenuGroup>
         <DropdownMenuSeparator className="bg-border/40 my-1.5 mx-2" />
         <DropdownMenuGroup>
-          <DropdownMenuItem 
+          <DropdownMenuItem
             className="cursor-pointer py-2.5 px-3 rounded-xl"
-            onClick={() => window.location.href = "mailto:support@neu.edu.ph"}
+            closeOnClick={false}
+            onClick={() => { window.open("mailto:support@neu.edu.ph"); }}
           >
             <LifeBuoy className="mr-3 h-4 w-4" />
             <span className="font-medium">Help & Support</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator className="bg-border/40 my-1.5 mx-2" />
-        <DropdownMenuItem 
+        <DropdownMenuItem
           variant="destructive"
           className="cursor-pointer py-2.5 px-3 rounded-xl focus:bg-red-500/10 transition-colors group"
-          onClick={() => handleSignOut()}
+          onClick={handleSignOut}
         >
           <LogOut className="mr-3 h-4 w-4 text-red-500/70 group-hover:text-red-600 transition-colors" />
           <span className="font-medium">Log out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-    </>
   );
 }
