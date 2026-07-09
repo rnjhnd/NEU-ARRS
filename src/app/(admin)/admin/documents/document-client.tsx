@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { FileText, Edit2, Check, X, Loader2, Plus, Search, SearchX, CheckCircle2, XCircle } from "lucide-react";
@@ -17,6 +17,8 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 7;
   
   // Edit State
   const [editForm, setEditForm] = useState({ typeId: "", label: "", description: "", price: "0", isActive: "true" });
@@ -51,6 +53,14 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
   });
 
   const sortedConfigs = [...filteredConfigs].sort((a, b) => a.label.localeCompare(b.label));
+  
+  const totalPages = Math.max(1, Math.ceil(sortedConfigs.length / ITEMS_PER_PAGE));
+  const paginatedConfigs = sortedConfigs.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const handleSave = async (id: string) => {
     setIsSubmitting(true);
@@ -279,7 +289,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                       </TableCell>
                     </motion.tr>
                   )}
-                  {sortedConfigs.map((config) => {
+                  {paginatedConfigs.map((config) => {
                     const isEditing = editingId === config.id;
                     return (
                       <motion.tr 
@@ -298,7 +308,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             />
                           ) : (
                             <div className="flex items-center gap-3">
-                              <div className="h-9 w-9 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                              <div className="h-9 w-9 shrink-0 rounded-xl bg-yellow-500/10 flex items-center justify-center text-yellow-600 dark:text-yellow-500">
                                 <FileText className="w-4 h-4" />
                               </div>
                               <span className="font-semibold text-foreground">{config.label}</span>
@@ -405,6 +415,36 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
             </Table>
           </div>
         </CardContent>
+        {totalPages > 1 && (
+          <CardFooter className="flex items-center justify-between border-t border-border/50 px-8 py-4 bg-muted/5">
+            <span className="text-sm font-medium text-muted-foreground">
+              Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, sortedConfigs.length)} of {sortedConfigs.length} documents
+            </span>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="rounded-full border-border/50 hover:bg-background"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <div className="text-sm font-semibold text-foreground px-2">
+                Page {currentPage} of {totalPages}
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="rounded-full border-border/50 hover:bg-background"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </CardFooter>
+        )}
       </Card>
     </div>
   );
