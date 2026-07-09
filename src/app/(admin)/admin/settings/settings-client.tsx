@@ -50,7 +50,6 @@ export function SettingsClient({
   const [opsConfig, setOpsConfig] = useState(initialOperationsConfig);
   const [isSavingOps, setIsSavingOps] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<string>("pending");
   const [localUsers, setLocalUsers] = useState<UserType[]>(users);
   const [currentPage, setCurrentPage] = useState(1);
 
