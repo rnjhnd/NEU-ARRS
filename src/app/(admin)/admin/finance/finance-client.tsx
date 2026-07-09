@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toPng } from "html-to-image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Request } from "@prisma/client";
@@ -259,7 +259,16 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
         </div>
       </div>
 
-      <div id="finance-visual-report" className="space-y-8 pb-4">
+      <AnimatePresence mode="wait">
+        <motion.div 
+          key={timePeriod}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          id="finance-visual-report" 
+          className="space-y-8 pb-4"
+        >
         {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
@@ -451,8 +460,8 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
           </CardContent>
         </Card>
       </div>
-      </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
-

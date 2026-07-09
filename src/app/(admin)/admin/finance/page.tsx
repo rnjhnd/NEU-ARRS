@@ -7,6 +7,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 function FinanceSkeleton() {
   return (
     <div className="space-y-8 mt-8 animate-pulse">
+      {/* Filters and Actions Skeleton */}
+      <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4 w-full">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <Skeleton className="h-10 w-full sm:w-[180px] rounded-full" />
+          <Skeleton className="h-10 w-[100px] rounded-full" />
+        </div>
+      </div>
+
       {/* KPI Cards Skeleton */}
       <div className="grid gap-6 grid-cols-1 md:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
