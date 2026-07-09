@@ -250,7 +250,7 @@ export function SettingsClient({
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Select value={roleFilter} onValueChange={setRoleFilter}>
+              <Select value={roleFilter} onValueChange={(val: string | null) => setRoleFilter(val || "all")}>
                 <SelectTrigger className="h-10 w-full sm:w-[130px] rounded-full border-border/50 bg-background/40 hover:bg-background/80 focus:bg-background transition-all">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Filter className="w-4 h-4" />
