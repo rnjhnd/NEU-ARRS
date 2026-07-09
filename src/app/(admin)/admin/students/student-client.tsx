@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { User, Search, SearchX, ArrowUp, ArrowDown, ArrowUpDown, Users } from "lucide-react";
+import { User, Search, SearchX, ArrowUp, ArrowDown, ArrowUpDown, Users, FileText, Banknote } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 
@@ -97,10 +97,10 @@ export function StudentClient({
     };
 
     return (
-      <TableHead className={`font-semibold tracking-wider text-emerald-800 dark:text-emerald-400 uppercase text-xs h-12 ${alignRight ? "text-right" : ""} ${className}`}>
+      <TableHead className={`font-semibold tracking-wider text-foreground uppercase text-xs h-12 ${alignRight ? "text-right" : ""} ${className}`}>
         <button 
           onClick={() => handleSort(sortKey)}
-          className={`flex items-center gap-1.5 hover:text-emerald-950 dark:hover:text-emerald-300 transition-colors py-2 group ${alignRight ? "ml-auto justify-end" : ""}`}
+          className={`flex items-center gap-1.5 hover:text-primary transition-colors py-2 group ${alignRight ? "ml-auto justify-end" : ""}`}
         >
           {alignRight && renderIcon()}
           {title}
@@ -110,9 +110,54 @@ export function StudentClient({
     );
   };
 
+  // Metrics calculation
+  const totalStudents = users.length;
+  const totalRequests = Object.values(countMap).reduce((acc, curr) => acc + curr, 0);
+  const totalRevenue = Object.values(ltvMap).reduce((acc, curr) => acc + curr, 0);
+
   return (
     <div className="space-y-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-      <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0 !pb-0">
+      
+      {/* Metrics Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
+          <CardContent className="p-6 flex items-center gap-5">
+            <div className="p-4 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl shrink-0">
+              <Users className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground">Total Students</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground">{totalStudents}</h3>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
+          <CardContent className="p-6 flex items-center gap-5">
+            <div className="p-4 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-2xl shrink-0">
+              <FileText className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground">Total Requests</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground">{totalRequests}</h3>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
+          <CardContent className="p-6 flex items-center gap-5">
+            <div className="p-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl shrink-0">
+              <Banknote className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground">Lifetime Revenue</p>
+              <h3 className="text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">₱{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl pt-0 gap-0 !pb-0">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 !py-6 px-8">
           <div>
             <CardTitle className="text-xl font-bold tracking-tight text-foreground">Student Directory</CardTitle>
