@@ -261,6 +261,22 @@ export async function updateUserRole(userId: string, role: "admin" | "employee" 
     }
     
     const client = await clerkClient();
+
+    // Prevent demoting the last remaining admin — system must always have at least one
+    const targetUser = await client.users.getUser(userId);
+    const targetCurrentRole = targetUser.publicMetadata?.role as string | undefined;
+    if (targetCurrentRole === "admin" && role !== "admin") {
+      const allUsers = await client.users.getUserList({ limit: 500 });
+      const adminCount = allUsers.data.filter(
+        u => (u.publicMetadata?.role as string) === "admin"
+      ).length;
+      if (adminCount <= 1) {
+        return {
+          success: false,
+          error: "Cannot demote the last administrator. Promote another user to admin first."
+        };
+      }
+    }
     
     await client.users.updateUserMetadata(userId, {
       publicMetadata: {
