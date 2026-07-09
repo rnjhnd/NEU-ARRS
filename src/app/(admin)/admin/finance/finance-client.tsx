@@ -355,7 +355,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                     defaultMonth={dateRange?.from}
                     selected={dateRange}
                     onSelect={setDateRange}
-                    numberOfMonths={2}
+                    numberOfMonths={1}
                     className="p-3"
                   />
                 </div>
@@ -472,6 +472,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                   strokeWidth={3}
                   dot={{ r: 4, strokeWidth: 2 }}
                   activeDot={{ r: 6, strokeWidth: 0 }}
+                  isAnimationActive={false}
                 >
                   {isExporting && (
                     <LabelList 
