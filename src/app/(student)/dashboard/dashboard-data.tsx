@@ -2,12 +2,16 @@ import prisma from "@/lib/prisma";
 import { RequestList } from "./request-list";
 import { FileText, CheckCircle, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { getSystemSetting } from "@/app/actions/admin.actions";
 
 export async function DashboardData({ userId }: { userId: string }) {
-  const requests = await prisma.request.findMany({
-    where: { studentId: userId },
-    orderBy: { createdAt: "desc" },
-  });
+  const [requests, maintenanceSetting] = await Promise.all([
+    prisma.request.findMany({
+      where: { studentId: userId },
+      orderBy: { createdAt: "desc" },
+    }),
+    getSystemSetting("MAINTENANCE_MODE"),
+  ]);
 
   const activeRequests = requests.filter(r => r.status !== 'COMPLETED' && r.status !== 'CANCELLED').length;
   const completedRequests = requests.filter(r => r.status === 'COMPLETED').length;
@@ -71,7 +75,7 @@ export async function DashboardData({ userId }: { userId: string }) {
         </Card>
       </div>
 
-      <RequestList requests={mappedRequests as any} />
+      <RequestList requests={mappedRequests as any} isMaintenanceMode={maintenanceSetting?.value === "true"} />
     </>
   );
 }

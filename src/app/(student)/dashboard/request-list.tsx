@@ -18,6 +18,7 @@ import { RequestTracker } from "@/components/request-tracker";
 import { cancelStudentRequest, createRepaymentSession } from "@/app/actions/request.actions";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { NewRequestButton } from "./new-request-button";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -38,7 +39,7 @@ const getStatusBadge = (status: string) => {
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export function RequestList({ requests: initialRequests }: { requests: Request[] }) {
+export function RequestList({ requests: initialRequests, isMaintenanceMode = false }: { requests: Request[], isMaintenanceMode?: boolean }) {
   const { data: localRequests = initialRequests, mutate } = useSWR<Request[]>("/api/student/requests", fetcher, {
     fallbackData: initialRequests,
     refreshInterval: 5000,
@@ -178,12 +179,13 @@ export function RequestList({ requests: initialRequests }: { requests: Request[]
         <p className="text-muted-foreground max-w-md mb-10 text-lg">
           Your document queue is completely clear. Need an official transcript or certificate? Initiate a new request now.
         </p>
-        <Link href="/dashboard/new">
-          <Button size="lg" className="bg-primary hover:bg-primary/90 text-white shadow-[0_4px_20px_rgba(10,92,54,0.3)] dark:shadow-[0_4px_20px_rgba(10,92,54,0.15)] transition-all hover:scale-105 active:scale-95 rounded-full px-8 text-base h-12">
-            <Plus className="w-5 h-5 mr-2" />
-            Create Request
-          </Button>
-        </Link>
+        <NewRequestButton 
+          isMaintenanceMode={isMaintenanceMode}
+          className="bg-primary hover:bg-primary/90 text-white shadow-[0_4px_20px_rgba(10,92,54,0.3)] dark:shadow-[0_4px_20px_rgba(10,92,54,0.15)] transition-all hover:scale-105 active:scale-95 rounded-full px-8 text-base h-12"
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          Create Request
+        </NewRequestButton>
       </motion.div>
     );
   }

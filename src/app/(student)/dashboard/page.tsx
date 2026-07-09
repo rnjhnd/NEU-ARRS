@@ -2,8 +2,10 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Plus } from "lucide-react";
 import { Suspense } from "react";
+import { Plus } from "lucide-react";
+import { getSystemSetting } from "@/app/actions/admin.actions";
+import { NewRequestButton } from "./new-request-button";
 import { DashboardData } from "./dashboard-data";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -83,6 +85,8 @@ function DashboardSkeleton() {
 export default async function StudentDashboardPage() {
   const { userId } = await auth();
   const user = await currentUser();
+  const maintenanceSetting = await getSystemSetting("MAINTENANCE_MODE");
+  const isMaintenanceMode = maintenanceSetting?.value === "true";
 
   if (!userId) {
     redirect("/sign-in");
@@ -104,12 +108,13 @@ export default async function StudentDashboardPage() {
               Track your academic document requests and initiate new ones instantly.
             </p>
           </div>
-          <Link href="/dashboard/new" className="shrink-0">
-            <Button size="lg" className="bg-white/20 hover:bg-white/30 text-white border-none shadow-sm backdrop-blur-md transition-transform hover:scale-105 rounded-full font-bold px-8">
-              <Plus className="w-5 h-5 mr-2" />
-              New Request
-            </Button>
-          </Link>
+          <NewRequestButton 
+            isMaintenanceMode={isMaintenanceMode}
+            className="bg-white/20 hover:bg-white/30 text-white border-none shadow-sm backdrop-blur-md transition-transform hover:scale-105 rounded-full font-bold px-8"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            New Request
+          </NewRequestButton>
         </div>
       </div>
 
