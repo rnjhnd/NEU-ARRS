@@ -287,39 +287,39 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
   return (
     <div className="space-y-8">
       {/* At-A-Glance Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-background/60 backdrop-blur-md rounded-2xl border border-border/50 shadow-sm transition-all hover:bg-background/80">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Pending Action</p>
-              <h3 className="text-3xl font-bold mt-1 text-foreground">{pendingCount}</h3>
-            </div>
-            <div className="p-3 bg-yellow-500/10 text-yellow-600 dark:bg-gold/10 dark:text-gold rounded-xl">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
+          <CardContent className="p-6 flex items-center gap-5">
+            <div className="p-4 bg-yellow-500/10 text-yellow-600 dark:bg-gold/10 dark:text-gold rounded-2xl shrink-0">
               <Clock className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground">Pending Action</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground">{pendingCount}</h3>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-background/60 backdrop-blur-md rounded-2xl border border-border/50 shadow-sm transition-all hover:bg-background/80">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">In Processing</p>
-              <h3 className="text-3xl font-bold mt-1 text-foreground">{processingCount}</h3>
-            </div>
-            <div className="p-3 bg-yellow-500/10 text-yellow-600 dark:bg-gold/10 dark:text-gold rounded-xl">
+        <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
+          <CardContent className="p-6 flex items-center gap-5">
+            <div className="p-4 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-2xl shrink-0">
               <Activity className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground">In Processing</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground">{processingCount}</h3>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-background/60 backdrop-blur-md rounded-2xl border border-border/50 shadow-sm transition-all hover:bg-background/80">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Ready for Pickup</p>
-              <h3 className="text-3xl font-bold mt-1 text-foreground">{readyCount}</h3>
-            </div>
-            <div className="p-3 bg-primary/10 text-primary rounded-xl">
+        <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
+          <CardContent className="p-6 flex items-center gap-5">
+            <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <Package className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground">Ready for Pickup</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground">{readyCount}</h3>
             </div>
           </CardContent>
         </Card>
@@ -362,7 +362,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
         </div>
       </div>
 
-      <Card className="shadow-lg border-emerald-500/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0 !pb-0">
+      <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl pt-0 gap-0 !pb-0">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent !py-6 px-8">
           <div>
             <CardTitle className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
