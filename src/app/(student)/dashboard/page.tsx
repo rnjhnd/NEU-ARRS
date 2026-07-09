@@ -13,10 +13,10 @@ function DashboardSkeleton() {
   return (
     <div className="space-y-8 w-full animate-pulse">
       {/* Quick Stats Skeleton */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-muted/20 rounded-2xl p-6 border border-border/50 flex items-center gap-4">
-            <Skeleton className="w-12 h-12 rounded-xl shrink-0" />
+          <div key={i} className="shadow-sm border border-border overflow-hidden bg-card rounded-3xl p-6 flex items-center gap-5">
+            <Skeleton className="w-[56px] h-[56px] rounded-2xl shrink-0" />
             <div className="space-y-2">
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-8 w-16" />
@@ -25,7 +25,7 @@ function DashboardSkeleton() {
         ))}
       </div>
 
-      <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0 !pb-0">
+      <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl pt-0 gap-0 !pb-0">
         <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 !py-6 px-8">
           <Skeleton className="h-6 w-40 mb-2" />
           <Skeleton className="h-4 w-72" />

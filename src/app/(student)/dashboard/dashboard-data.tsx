@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { RequestList } from "./request-list";
 import { FileText, CheckCircle, Clock } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 export async function DashboardData({ userId }: { userId: string }) {
   const requests = await prisma.request.findMany({
@@ -32,34 +33,42 @@ export async function DashboardData({ userId }: { userId: string }) {
   return (
     <>
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-        <div className="bg-background/60 backdrop-blur-md rounded-2xl p-6 border border-border/50 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-yellow-500/10 text-yellow-600 dark:bg-gold/10 dark:text-gold rounded-xl">
-            <Clock className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Active Requests</p>
-            <h3 className="text-2xl font-bold">{activeRequests}</h3>
-          </div>
-        </div>
-        <div className="bg-background/60 backdrop-blur-md rounded-2xl p-6 border border-border/50 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-primary/10 text-primary rounded-xl">
-            <CheckCircle className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Completed</p>
-            <h3 className="text-2xl font-bold">{completedRequests}</h3>
-          </div>
-        </div>
-        <div className="bg-background/60 backdrop-blur-md rounded-2xl p-6 border border-border/50 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-primary/10 text-primary rounded-xl">
-            <FileText className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Total Processed</p>
-            <h3 className="text-2xl font-bold">{totalRequests}</h3>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
+          <CardContent className="p-6 flex items-center gap-5">
+            <div className="p-4 bg-yellow-500/10 text-yellow-600 dark:bg-gold/10 dark:text-gold rounded-2xl shrink-0">
+              <Clock className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground">Active Requests</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground">{activeRequests}</h3>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
+          <CardContent className="p-6 flex items-center gap-5">
+            <div className="p-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl shrink-0">
+              <CheckCircle className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground">Completed</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground">{completedRequests}</h3>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
+          <CardContent className="p-6 flex items-center gap-5">
+            <div className="p-4 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl shrink-0">
+              <FileText className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground">Total Processed</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground">{totalRequests}</h3>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <RequestList requests={mappedRequests as any} />
