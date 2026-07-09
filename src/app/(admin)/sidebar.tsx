@@ -31,10 +31,12 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
       <Button
         variant="outline"
         size="icon"
-        className="absolute -right-4 top-[32px] h-8 w-8 rounded-full border border-primary/20 bg-background/80 backdrop-blur-md text-primary shadow-lg z-50 hover:bg-muted/80 hover:scale-105 transition-all"
+        className="absolute -right-4 top-[36px] h-8 w-8 rounded-full border border-border/50 bg-background/80 backdrop-blur-md text-foreground shadow-sm z-50 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-md hover:scale-110 transition-all duration-300"
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
-        {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        <motion.div animate={{ rotate: isCollapsed ? 180 : 0 }} transition={{ type: "spring", bounce: 0, duration: 0.4 }}>
+          <ChevronLeft className="h-4 w-4" />
+        </motion.div>
       </Button>
 
       <div className="flex pt-8 pb-6 items-start px-6 border-b border-primary/10 overflow-hidden whitespace-nowrap">
