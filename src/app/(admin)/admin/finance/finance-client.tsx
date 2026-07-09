@@ -79,10 +79,12 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
 
   // 1. Filter Data based on Time Period
   const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
   const filteredRequests = requests.filter(req => {
     const d = new Date(req.createdAt);
-    if (timePeriod === "7days") return d >= subDays(now, 7);
-    if (timePeriod === "30days") return d >= subDays(now, 30);
+    if (timePeriod === "7days") return d >= subDays(todayStart, 6);
+    if (timePeriod === "30days") return d >= subDays(todayStart, 29);
     if (timePeriod === "year") return d.getFullYear() === now.getFullYear();
     if (timePeriod === "custom" && dateRange?.from) {
       if (dateRange.to) {
@@ -111,13 +113,17 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
     (timePeriod === "custom" && dateRange?.from && (!dateRange.to || Math.ceil(Math.abs(dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24)) <= 31));
 
   if (isDaysScale) {
-    const fromDate = timePeriod === "custom" ? dateRange!.from! : subDays(now, timePeriod === "7days" ? 6 : 29);
+    const fromDate = timePeriod === "custom" ? dateRange!.from! : subDays(todayStart, timePeriod === "7days" ? 6 : 29);
     const toDate = timePeriod === "custom" && dateRange?.to ? dateRange.to : now;
     
-    const diffDays = Math.max(1, Math.ceil((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24)) + 1);
-    const dateArray = Array.from({ length: diffDays }, (_, i) => format(subDays(toDate, diffDays - 1 - i), 'MMM dd'));
+    // Calculate the difference in calendar days exactly
+    const start = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
+    const end = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
+    const diffDays = Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1);
     
-    revenueOverTime = dateArray.reverse().map(dateStr => {
+    const dateArray = Array.from({ length: diffDays }, (_, i) => format(subDays(end, diffDays - 1 - i), 'MMM dd'));
+    
+    revenueOverTime = dateArray.map(dateStr => {
       const dailyRev = filteredRequests.filter(isCompletedOrPaid).reduce((sum, req) => {
         if (format(new Date(req.createdAt), 'MMM dd') === dateStr) return sum + getAmount(req);
         return sum;
@@ -310,14 +316,31 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                   <span>Pick a date range</span>
                 )}
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 rounded-2xl border-border/50 shadow-xl" align="end">
-                <Calendar
-                  mode="range"
-                  defaultMonth={dateRange?.from}
-                  selected={dateRange}
-                  onSelect={setDateRange}
-                  numberOfMonths={2}
-                />
+              <PopoverContent className="w-auto p-0 flex flex-col sm:flex-row rounded-2xl border-border/50 shadow-xl overflow-hidden" align="end">
+                <div className="flex flex-col gap-1 p-3 border-b sm:border-b-0 sm:border-r border-border/10 bg-muted/20 min-w-[140px]">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2 pt-1">Quick Select</span>
+                  <Button variant="ghost" size="sm" className="justify-start text-left font-medium" onClick={() => setDateRange({ from: subDays(todayStart, 6), to: now })}>Last 7 Days</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-left font-medium" onClick={() => setDateRange({ from: subDays(todayStart, 29), to: now })}>Last 30 Days</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-left font-medium" onClick={() => {
+                    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+                    setDateRange({ from: start, to: now });
+                  }}>This Month</Button>
+                  <Button variant="ghost" size="sm" className="justify-start text-left font-medium" onClick={() => {
+                    const end = new Date(now.getFullYear(), now.getMonth(), 0);
+                    const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    setDateRange({ from: start, to: end });
+                  }}>Last Month</Button>
+                </div>
+                <div className="p-2">
+                  <Calendar
+                    mode="range"
+                    defaultMonth={dateRange?.from}
+                    selected={dateRange}
+                    onSelect={setDateRange}
+                    numberOfMonths={2}
+                    className="p-3"
+                  />
+                </div>
               </PopoverContent>
             </Popover>
           )}
