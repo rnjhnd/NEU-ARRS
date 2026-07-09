@@ -451,7 +451,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 <AnimatePresence>
                   {filteredRequests.length === 0 && (
                     <motion.tr 
-                      key={`empty-${filter}-${searchQuery}`}
+                      key="empty-state"
                       initial={{ opacity: 0 }} 
                       animate={{ opacity: 1 }} 
                       transition={{ duration: 0.15 }}
@@ -463,15 +463,15 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                               <Inbox className="w-8 h-8 text-muted-foreground/50 mb-2" />
                               <p>No active requests in this queue.</p>
                             </>
-                          ) : searchQuery.trim() !== "" ? (
-                            <>
-                              <SearchX className="w-8 h-8 text-muted-foreground/50 mb-2" />
-                              <p>No requests found matching your search.</p>
-                            </>
-                          ) : (
+                          ) : (filter !== "ALL" && !requests.some(r => r.status === filter)) ? (
                             <>
                               <Filter className="w-8 h-8 text-muted-foreground/50 mb-2" />
                               <p>No requests found with this status.</p>
+                            </>
+                          ) : (
+                            <>
+                              <SearchX className="w-8 h-8 text-muted-foreground/50 mb-2" />
+                              <p>No requests found matching your search.</p>
                             </>
                           )}
                         </div>
