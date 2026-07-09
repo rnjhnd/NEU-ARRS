@@ -85,10 +85,10 @@ export default async function StudentsPage() {
         
         <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight drop-shadow-sm">
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight drop-shadow-sm text-white">
               Student Directory
             </h1>
-            <p className="text-primary-foreground/90 text-lg font-medium max-w-xl">
+            <p className="text-white/80 text-lg font-medium max-w-xl">
               View all registered students, their request history, and lifetime value.
             </p>
           </div>
