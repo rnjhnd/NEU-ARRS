@@ -215,7 +215,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                                 Active
                               </div>
                             </SelectItem>
-                            <SelectItem value="false" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
+                            <SelectItem value="false" className="cursor-pointer focus:bg-yellow-500/10 focus:text-yellow-600 dark:focus:text-yellow-500 transition-colors py-2 rounded-md">
                               <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-yellow-500" />
                                 Inactive
@@ -334,7 +334,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                                     Active
                                   </div>
                                 </SelectItem>
-                                <SelectItem value="false" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
+                                <SelectItem value="false" className="cursor-pointer focus:bg-yellow-500/10 focus:text-yellow-600 dark:focus:text-yellow-500 transition-colors py-2 rounded-md">
                                   <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-yellow-500" />
                                     Inactive
