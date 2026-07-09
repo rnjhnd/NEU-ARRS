@@ -93,12 +93,16 @@ export function SettingsClient({
   const handleToggleMaintenance = async () => {
     setIsSavingMaintenance(true);
     const newValue = !maintenanceMode;
+    // Optimistic update
+    setMaintenanceMode(newValue);
+
     const res = await updateSystemSetting("MAINTENANCE_MODE", String(newValue));
     if (res.success) {
-      setMaintenanceMode(newValue);
       toast.success(`Maintenance mode ${newValue ? "enabled" : "disabled"}.`);
       setIsMaintenanceModalOpen(false);
     } else {
+      // Revert if failed
+      setMaintenanceMode(!newValue);
       toast.error(res.error || "Failed to update maintenance mode.");
     }
     setIsSavingMaintenance(false);
@@ -187,9 +191,13 @@ export function SettingsClient({
                         handleToggleMaintenance(); // Disable directly without modal
                       }
                     }} 
+                    disabled={isSavingMaintenance}
                     className={maintenanceMode ? 'data-[state=checked]:bg-red-600' : ''}
                   />
-                  <span className="text-xs font-medium">{maintenanceMode ? "Turn Off" : "Turn On"}</span>
+                  <span className="text-xs font-medium flex items-center gap-1.5">
+                    {isSavingMaintenance && <Loader2 className="w-3 h-3 animate-spin" />}
+                    {maintenanceMode ? "Turn Off" : "Turn On"}
+                  </span>
                 </div>
               </div>
             </div>
