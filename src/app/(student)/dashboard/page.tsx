@@ -1,4 +1,4 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -85,13 +85,23 @@ function DashboardSkeleton() {
 }
 
 export default async function StudentDashboardPage() {
-  const { userId } = await auth();
+  const { userId, sessionClaims } = await auth();
   const user = await currentUser();
   const maintenanceSetting = await getSystemSetting("MAINTENANCE_MODE");
   const isMaintenanceMode = maintenanceSetting?.value === "true";
 
   if (!userId) {
     redirect("/sign-in");
+  }
+
+  // Set default role as 'student' if no role is explicitly assigned yet
+  if (!sessionClaims?.metadata?.role) {
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(userId, {
+      publicMetadata: {
+        role: "student"
+      }
+    });
   }
 
   return (

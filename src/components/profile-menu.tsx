@@ -94,11 +94,11 @@ export function ProfileMenu() {
         <DropdownMenuSeparator className="bg-border/40 my-1.5 mx-2" />
         <DropdownMenuGroup>
           <DropdownMenuItem 
-            className="cursor-pointer py-2.5 px-3 rounded-xl focus:bg-muted focus:text-foreground transition-colors group"
+            className="cursor-pointer py-2.5 px-3 rounded-xl focus:bg-primary/10 transition-colors group"
             onClick={() => window.location.href = "mailto:support@neu.edu.ph"}
           >
-            <LifeBuoy className="mr-3 h-4 w-4 transition-colors" />
-            <span className="font-medium">Help & Support</span>
+            <LifeBuoy className="mr-3 h-4 w-4" />
+            <span className="font-medium text-foreground group-focus:text-primary transition-colors">Help & Support</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator className="bg-border/40 my-1.5 mx-2" />
