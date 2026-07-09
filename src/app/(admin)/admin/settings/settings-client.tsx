@@ -522,7 +522,13 @@ export function SettingsClient({
               </div>
               <Switch 
                 checked={paymentMethods.online} 
-                onCheckedChange={() => setPaymentMethods({ ...paymentMethods, online: !paymentMethods.online })}
+                onCheckedChange={(checked) => {
+                  if (!checked && !paymentMethods.cash) {
+                    toast.error("You must have at least one active payment method.");
+                    return;
+                  }
+                  setPaymentMethods({ ...paymentMethods, online: checked });
+                }}
               />
             </div>
             <div className={`flex items-center justify-between p-4 border rounded-xl transition-colors ${paymentMethods.cash ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-border/50'}`}>
@@ -532,7 +538,13 @@ export function SettingsClient({
               </div>
               <Switch 
                 checked={paymentMethods.cash} 
-                onCheckedChange={() => setPaymentMethods({ ...paymentMethods, cash: !paymentMethods.cash })}
+                onCheckedChange={(checked) => {
+                  if (!checked && !paymentMethods.online) {
+                    toast.error("You must have at least one active payment method.");
+                    return;
+                  }
+                  setPaymentMethods({ ...paymentMethods, cash: checked });
+                }}
               />
             </div>
           </div>
