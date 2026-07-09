@@ -289,7 +289,7 @@ export async function updateSystemSetting(key: string, value: string) {
       create: { key, value }
     });
     
-    revalidatePath("/admin/settings");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error: unknown) {
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
