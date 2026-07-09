@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Search, UserX, SearchX, Loader2, Mail, AlertTriangle, CreditCard, MapPin, Clock, CheckCircle2, Package, Activity, Filter, CheckCircle } from "lucide-react";
+import { Search, UserX, SearchX, Loader2, Mail, AlertTriangle, CreditCard, MapPin, Clock, CheckCircle2, Package, Activity, Filter, CheckCircle, ShieldCheck, GraduationCap, Briefcase } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { updateUserRole, updateSystemSetting } from "@/app/actions/admin.actions";
 import { toast } from "sonner";
@@ -348,7 +348,7 @@ export function SettingsClient({
                           >
                             <SelectValue placeholder="Select role">
                               <div className="flex items-center gap-2">
-                                <div className={`w-2 h-2 rounded-full ${user.role === "admin" ? "bg-primary" : user.role === "employee" ? "bg-slate-500 dark:bg-slate-400" : "bg-yellow-600 dark:bg-yellow-500"}`} />
+                                {user.role === "admin" ? <ShieldCheck className="w-4 h-4 text-primary" /> : user.role === "employee" ? <Briefcase className="w-4 h-4 text-slate-500 dark:text-slate-400" /> : <GraduationCap className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />}
                                 <span className="font-medium text-foreground">{user.role === "admin" ? "Administrator" : user.role === "employee" ? "Employee" : "Student"}</span>
                               </div>
                             </SelectValue>
@@ -356,19 +356,19 @@ export function SettingsClient({
                           <SelectContent alignItemWithTrigger={false} className="border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[150px] p-1">
                             <SelectItem value="admin" className="cursor-pointer focus:bg-primary/10 transition-colors py-2 rounded-md">
                               <div className="flex items-center gap-2 font-medium">
-                                <div className="w-2 h-2 rounded-full bg-primary" />
+                                <ShieldCheck className="w-4 h-4 text-primary" />
                                 Administrator
                               </div>
                             </SelectItem>
                             <SelectItem value="employee" className="cursor-pointer focus:bg-slate-500/10 transition-colors py-2 rounded-md">
                               <div className="flex items-center gap-2 font-medium">
-                                <div className="w-2 h-2 rounded-full bg-slate-500 dark:bg-slate-400" />
+                                <Briefcase className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                                 Employee
                               </div>
                             </SelectItem>
                             <SelectItem value="student" className="cursor-pointer focus:bg-yellow-500/10 transition-colors py-2 rounded-md">
                               <div className="flex items-center gap-2 font-medium">
-                                <div className="w-2 h-2 rounded-full bg-yellow-600 dark:bg-yellow-500" />
+                                <GraduationCap className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
                                 Student
                               </div>
                             </SelectItem>
