@@ -11,28 +11,28 @@ function AdminQueueSkeleton() {
       {/* At-A-Glance Stats Skeleton */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
-          <Card key={i} className="shadow-sm border-border bg-card">
-            <CardContent className="p-6 flex items-center justify-between">
-              <div>
-                <Skeleton className="h-4 w-24 mb-3" />
-                <Skeleton className="h-8 w-12" />
+          <Card key={i} className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
+            <CardContent className="p-6 flex items-center gap-5">
+              <Skeleton className="w-14 h-14 rounded-2xl shrink-0" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-8 w-16" />
               </div>
-              <Skeleton className="w-12 h-12 rounded-xl shrink-0" />
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex gap-2 flex-wrap">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-1 bg-muted/50 p-1.5 rounded-full overflow-x-auto no-scrollbar max-w-full shadow-sm border border-border/50">
           {[1, 2, 3, 4, 5].map((i) => (
-            <Skeleton key={i} className="h-10 w-24 rounded-full" />
+            <Skeleton key={i} className="h-9 w-28 rounded-full" />
           ))}
         </div>
         <Skeleton className="h-10 w-full sm:w-80 rounded-full" />
       </div>
 
-      <Card className="shadow-sm border-border overflow-hidden !pb-0">
+      <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl pt-0 gap-0 !pb-0">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent !py-6 px-8">
           <div>
             <Skeleton className="h-8 w-40 mb-2" />
@@ -102,16 +102,16 @@ export default async function AdminPage() {
   return (
     <div className="space-y-8 w-full">
       {/* Premium Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-900 p-8 sm:p-10 text-white shadow-xl">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 p-8 sm:p-10 text-primary-foreground shadow-xl">
         <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 rounded-full bg-white/10 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-48 h-48 rounded-full bg-primary/20 blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-48 h-48 rounded-full bg-black/10 blur-2xl"></div>
         
         <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="space-y-2">
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight drop-shadow-sm">
               Registrar Command Center
             </h1>
-            <p className="text-white/90 text-lg font-medium max-w-xl">
+            <p className="text-primary-foreground/90 text-lg font-medium max-w-xl">
               Manage and process incoming student document requests in real-time.
             </p>
           </div>
