@@ -26,20 +26,22 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
       initial={false}
       animate={{ width: isCollapsed ? 80 : 280 }}
       transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-      className="flex-col border-r border-primary/10 bg-background/60 backdrop-blur-xl hidden md:flex relative overflow-visible z-20 h-full"
+      className="flex-col hidden md:flex relative z-20 h-[calc(100vh-2rem)] my-4 ml-4 rounded-[2rem] border border-primary/20 bg-background/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] overflow-visible supports-[backdrop-filter]:bg-background/40"
     >
       <Button
         variant="outline"
         size="icon"
-        className="absolute -right-4 top-[22px] h-8 w-8 rounded-full border bg-card dark:bg-muted shadow-sm z-50 hover:bg-muted dark:hover:bg-muted/80"
+        className="absolute -right-4 top-[32px] h-8 w-8 rounded-full border border-primary/20 bg-background/80 backdrop-blur-md text-primary shadow-lg z-50 hover:bg-muted/80 hover:scale-105 transition-all"
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
         {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </Button>
 
-      <div className="flex pt-6 pb-4 items-start px-6 border-b overflow-hidden whitespace-nowrap">
-        <Link href="/admin" className="flex items-center gap-2">
-          <LogoIcon className="h-6 w-6 text-primary dark:text-primary flex-shrink-0" sealColor="text-yellow-600 dark:text-yellow-500" />
+      <div className="flex pt-8 pb-6 items-start px-6 border-b border-primary/10 overflow-hidden whitespace-nowrap">
+        <Link href="/admin" className="flex items-center gap-2 group transition-all duration-300">
+          <div className="p-2 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
+            <LogoIcon className="h-5 w-5 text-primary flex-shrink-0" sealColor="text-yellow-600 dark:text-yellow-500" />
+          </div>
           {!isCollapsed && (
             <motion.span 
               initial={{ opacity: 0 }}
@@ -56,10 +58,10 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
       <nav className="flex-1 space-y-2 p-4 overflow-hidden whitespace-nowrap">
         <Link 
           href="/admin" 
-          className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
+          className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
             pathname === "/admin" 
-              ? "bg-primary/10 text-primary font-bold shadow-sm"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
+              ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
+              : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
           } ${isCollapsed ? "justify-center" : ""}`}
           title="Command Center"
         >
@@ -69,10 +71,10 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
         {isAdmin && (
           <Link 
             href="/admin/documents" 
-            className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
+            className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
               pathname === "/admin/documents" 
-                ? "bg-primary/10 text-primary font-bold shadow-sm"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
+                ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
+                : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
             } ${isCollapsed ? "justify-center" : ""}`}
             title="Document Management"
           >
@@ -83,10 +85,10 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
         {isAdmin && (
           <Link 
             href="/admin/finance" 
-            className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
+            className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
               pathname === "/admin/finance" 
-                ? "bg-primary/10 text-primary font-bold shadow-sm"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
+                ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
+                : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
             } ${isCollapsed ? "justify-center" : ""}`}
             title="Financial Analytics"
           >
@@ -96,10 +98,10 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
         )}
         <Link 
           href="/admin/students" 
-          className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
+          className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
             pathname === "/admin/students" 
-              ? "bg-primary/10 text-primary font-bold shadow-sm"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
+              ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
+              : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
           } ${isCollapsed ? "justify-center" : ""}`}
           title="Student Directory"
         >
@@ -109,14 +111,14 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
         
         {isAdmin && (
           <>
-            <div className="pt-4 mt-4 border-t border-border/50" />
+            <div className="pt-4 mt-4 border-t border-primary/10 mx-2" />
             
             <Link 
               href="/admin/settings" 
-              className={`flex items-center gap-3 py-2.5 px-3 transition-all rounded-xl ${
+              className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
                 pathname === "/admin/settings" 
-                  ? "bg-primary/10 text-primary font-bold shadow-sm"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
+                  ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
+                  : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
               } ${isCollapsed ? "justify-center" : ""}`}
               title="System Settings"
             >
@@ -128,7 +130,7 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
       </nav>
 
       {/* User profile at bottom of sidebar */}
-      <div className={`p-6 border-t flex ${isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between"}`}>
+      <div className={`p-6 border-t border-primary/10 bg-muted/20 flex ${isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between"}`}>
         <div className={`flex ${isCollapsed ? "justify-center" : "items-center gap-3"}`}>
           <ProfileMenu side="top" />
           {!isCollapsed && (
