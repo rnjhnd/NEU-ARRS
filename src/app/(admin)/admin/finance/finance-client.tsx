@@ -11,7 +11,7 @@ import {
   LineChart, Line, PieChart, Pie, Cell, Legend, LabelList
 } from "recharts";
 import { format, subDays } from "date-fns";
-import { DollarSign, CreditCard, Banknote, TrendingUp, Download, Loader2, Image as ImageIcon, FileSpreadsheet, Calendar as CalendarIcon, Filter, PieChart as LucidePieChart, BarChart3 as LucideBarChart } from "lucide-react";
+import { DollarSign, CreditCard, Banknote, TrendingUp, Download, Loader2, Image as ImageIcon, FileSpreadsheet, Calendar as CalendarIcon, Filter, PieChart as LucidePieChart, BarChart3 as LucideBarChart, LineChart as LucideLineChart } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -472,41 +472,50 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
             <CardDescription>Visualized revenue based on the selected period.</CardDescription>
           </CardHeader>
           <CardContent className="px-8 pb-8 pt-6 h-[350px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={revenueOverTime} margin={{ top: 10, right: 40, left: 0, bottom: 0 }}>
-                <CartesianGrid vertical={false} stroke="currentColor" className="opacity-[0.05]" />
-                <XAxis dataKey="name" stroke="currentColor" className="opacity-50 text-xs" tickLine={false} axisLine={false} tickMargin={12} />
-                <YAxis 
-                  stroke="currentColor" 
-                  className="opacity-50 text-xs" 
-                  tickLine={false} 
-                  axisLine={false} 
-                  tickFormatter={(value) => `₱${value}`}
-                  tickMargin={12}
-                  width={80}
-                />
-                <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'currentColor', strokeWidth: 1, strokeDasharray: '3 3', opacity: 0.2 }} />
-                <Line 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#0A5C36" 
-                  strokeWidth={3}
-                  dot={(props: any) => <CustomAnimatedDot {...props} dataCount={revenueOverTime.length} />}
-                  activeDot={{ r: 6, strokeWidth: 0, fill: "#0A5C36" }}
-                  animationDuration={800}
-                >
-                  {isExporting && (
-                    <LabelList 
-                      dataKey="revenue" 
-                      position="top" 
-                      offset={10}
-                      formatter={(value: any) => typeof value === 'number' && value > 0 ? `₱${value.toLocaleString()}` : ''}
-                      className="fill-foreground text-xs font-semibold"
-                    />
-                  )}
-                </Line>
-              </LineChart>
-            </ResponsiveContainer>
+            {revenueOverTime.length > 0 && revenueOverTime.some(d => d.revenue > 0) ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={revenueOverTime} margin={{ top: 10, right: 40, left: 0, bottom: 0 }}>
+                  <CartesianGrid vertical={false} stroke="currentColor" className="opacity-[0.05]" />
+                  <XAxis dataKey="name" stroke="currentColor" className="opacity-50 text-xs" tickLine={false} axisLine={false} tickMargin={12} />
+                  <YAxis 
+                    stroke="currentColor" 
+                    className="opacity-50 text-xs" 
+                    tickLine={false} 
+                    axisLine={false} 
+                    tickFormatter={(value) => `₱${value}`}
+                    tickMargin={12}
+                    width={80}
+                  />
+                  <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'currentColor', strokeWidth: 1, strokeDasharray: '3 3', opacity: 0.2 }} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="#0A5C36" 
+                    strokeWidth={3}
+                    dot={(props: any) => <CustomAnimatedDot {...props} dataCount={revenueOverTime.length} />}
+                    activeDot={{ r: 6, strokeWidth: 0, fill: "#0A5C36" }}
+                    animationDuration={800}
+                  >
+                    {isExporting && (
+                      <LabelList 
+                        dataKey="revenue" 
+                        position="top" 
+                        offset={10}
+                        formatter={(value: any) => typeof value === 'number' && value > 0 ? `₱${value.toLocaleString()}` : ''}
+                        className="fill-foreground text-xs font-semibold"
+                      />
+                    )}
+                  </Line>
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-muted-foreground h-full gap-3">
+                <div className="p-4 bg-muted/50 rounded-full">
+                  <LucideLineChart className="w-8 h-8 opacity-40" />
+                </div>
+                <p className="font-medium text-sm">No revenue trend data for this period.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
