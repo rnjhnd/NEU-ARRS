@@ -11,7 +11,7 @@ import {
   LineChart, Line, PieChart, Pie, Cell, Legend, LabelList
 } from "recharts";
 import { format, subDays } from "date-fns";
-import { DollarSign, CreditCard, Banknote, TrendingUp, Download, Loader2, Image as ImageIcon, FileSpreadsheet, Calendar as CalendarIcon, Filter } from "lucide-react";
+import { DollarSign, CreditCard, Banknote, TrendingUp, Download, Loader2, Image as ImageIcon, FileSpreadsheet, Calendar as CalendarIcon, Filter, PieChart as LucidePieChart, BarChart3 as LucideBarChart } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -547,8 +547,11 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex flex-col items-center justify-center text-muted-foreground h-full">
-                <p>No payment data for this period.</p>
+              <div className="flex flex-col items-center justify-center text-muted-foreground h-full gap-3">
+                <div className="p-4 bg-muted/50 rounded-full">
+                  <LucidePieChart className="w-8 h-8 opacity-40" />
+                </div>
+                <p className="font-medium text-sm">No payment data for this period.</p>
               </div>
             )}
           </CardContent>
@@ -598,8 +601,11 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex flex-col items-center justify-center text-muted-foreground h-full">
-                <p>No document revenue data for this period.</p>
+              <div className="flex flex-col items-center justify-center text-muted-foreground h-full gap-3">
+                <div className="p-4 bg-muted/50 rounded-full">
+                  <LucideBarChart className="w-8 h-8 opacity-40" />
+                </div>
+                <p className="font-medium text-sm">No document revenue data for this period.</p>
               </div>
             )}
           </CardContent>
