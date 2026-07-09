@@ -31,14 +31,14 @@ export default async function StudentLayout({ children }: { children: React.Reac
           </Link>
 
           <nav className="flex items-center gap-4 sm:gap-6">
-            <div className="flex items-center gap-2 bg-muted/50 p-1.5 pr-4 rounded-full border border-border/50">
+            <div className="flex items-center gap-2 bg-muted/50 p-1.5 pl-4 rounded-full border border-border/50">
               <ThemeToggle />
-              <div className="flex items-center gap-3 pl-2 ml-1 border-l border-border/50">
-                <ProfileMenu />
+              <div className="flex items-center gap-3 pr-1.5 pl-2 ml-1 border-l border-border/50">
                 <div className="flex flex-col whitespace-nowrap overflow-hidden hidden sm:flex">
                   <span className="text-sm font-semibold text-foreground truncate leading-tight">{name}</span>
                   <span className="text-[11px] text-primary font-medium uppercase tracking-wide truncate leading-tight">{roleName}</span>
                 </div>
+                <ProfileMenu />
               </div>
             </div>
           </nav>
