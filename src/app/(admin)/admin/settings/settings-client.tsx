@@ -273,17 +273,39 @@ export function SettingsClient({
                 />
               </div>
               <Select value={roleFilter} onValueChange={(val: string | null) => setRoleFilter(val || "all")}>
-                <SelectTrigger className="h-10 w-full sm:w-[130px] rounded-full border-border/50 bg-background/40 hover:bg-background/80 focus:bg-background transition-all">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Filter className="w-4 h-4" />
-                    <SelectValue placeholder="Filter" />
+                <SelectTrigger className="h-10 w-full sm:w-[160px] rounded-full border-border/50 bg-background/40 hover:bg-background/80 focus:bg-background transition-all">
+                  <div className="flex items-center gap-2 text-foreground font-medium">
+                    <Filter className="w-4 h-4 text-muted-foreground" />
+                    <span className="capitalize">
+                      {roleFilter === "all" ? "All Roles" : roleFilter === "admin" ? "Administrators" : roleFilter === "employee" ? "Employees" : "Students"}
+                    </span>
                   </div>
                 </SelectTrigger>
-                <SelectContent align="end" className="rounded-xl border-border/40 shadow-lg backdrop-blur-xl bg-background/95">
-                  <SelectItem value="all" className="rounded-lg my-0.5 font-medium">All Roles</SelectItem>
-                  <SelectItem value="admin" className="rounded-lg my-0.5 font-medium">Administrators</SelectItem>
-                  <SelectItem value="employee" className="rounded-lg my-0.5 font-medium">Employees</SelectItem>
-                  <SelectItem value="student" className="rounded-lg my-0.5 font-medium">Students</SelectItem>
+                <SelectContent align="end" className="rounded-xl border-border/40 shadow-lg backdrop-blur-xl bg-background/95 min-w-[160px] p-1">
+                  <SelectItem value="all" className="rounded-md my-0.5 font-medium cursor-pointer focus:bg-muted transition-colors py-2">
+                    <div className="flex items-center gap-2">
+                      <Filter className="w-4 h-4 text-muted-foreground" />
+                      All Roles
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="admin" className="rounded-md my-0.5 font-medium cursor-pointer focus:bg-primary/10 transition-colors py-2">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 !text-primary" />
+                      Administrators
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="employee" className="rounded-md my-0.5 font-medium cursor-pointer focus:bg-slate-500/10 transition-colors py-2">
+                    <div className="flex items-center gap-2">
+                      <Briefcase className="w-4 h-4 !text-slate-500 dark:!text-slate-400" />
+                      Employees
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="student" className="rounded-md my-0.5 font-medium cursor-pointer focus:bg-yellow-500/10 transition-colors py-2">
+                    <div className="flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4 !text-yellow-600 dark:!text-yellow-500" />
+                      Students
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
