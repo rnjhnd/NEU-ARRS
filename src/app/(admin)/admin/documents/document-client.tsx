@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { FileText, Edit2, Check, X, Loader2, Plus, ChevronDown } from "lucide-react";
+import { FileText, Edit2, Check, X, Loader2, Plus, Search, SearchX, CheckCircle2, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { updateDocumentConfig, createDocumentConfig } from "@/app/actions/admin.actions";
@@ -16,6 +16,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
   const [configs, setConfigs] = useState<DocumentConfig[]>(initialConfigs);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   
   // Edit State
   const [editForm, setEditForm] = useState({ typeId: "", label: "", description: "", price: "0", isActive: "true" });
@@ -42,7 +43,14 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
     });
   };
 
-  const sortedConfigs = [...configs].sort((a, b) => a.label.localeCompare(b.label));
+  // Filter
+  const filteredConfigs = configs.filter((config) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return config.label.toLowerCase().includes(q) || config.description.toLowerCase().includes(q);
+  });
+
+  const sortedConfigs = [...filteredConfigs].sort((a, b) => a.label.localeCompare(b.label));
 
   const handleSave = async (id: string) => {
     setIsSubmitting(true);
@@ -81,21 +89,77 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
     setIsSubmitting(false);
   };
 
+  const totalDocs = configs.length;
+  const activeDocs = configs.filter(c => c.isActive).length;
+  const inactiveDocs = totalDocs - activeDocs;
+
   return (
     <div className="space-y-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-      <Card className="shadow-lg border-primary/10 overflow-hidden bg-background/70 backdrop-blur-xl rounded-3xl pt-0 gap-0 !pb-0">
+      
+      {/* Metrics Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
+          <CardContent className="p-6 flex items-center gap-5">
+            <div className="p-4 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl shrink-0">
+              <FileText className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground">Total Documents</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground">{totalDocs}</h3>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
+          <CardContent className="p-6 flex items-center gap-5">
+            <div className="p-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl shrink-0">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground">Active</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground">{activeDocs}</h3>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
+          <CardContent className="p-6 flex items-center gap-5">
+            <div className="p-4 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-2xl shrink-0">
+              <XCircle className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground">Inactive</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground">{inactiveDocs}</h3>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl pt-0 gap-0 !pb-0">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 !py-6 px-8">
           <div>
             <CardTitle className="text-xl font-bold tracking-tight text-foreground">Document Management</CardTitle>
             <CardDescription>Manage descriptions, pricing, and active status.</CardDescription>
           </div>
-          <Button 
-            size="sm" className="rounded-full px-6 bg-primary/10 hover:bg-primary/20 text-primary border-none shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:scale-105 active:scale-95 h-10" 
-            onClick={startNew} 
-            disabled={editingId === "new"}
-          >
-            <Plus className="w-4 h-4 mr-2" /> Add New Document
-          </Button>
+          
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            <div className="relative w-full sm:w-64 group">
+              <Search className="absolute z-10 left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none" />
+              <Input 
+                placeholder="Search documents..." 
+                className="pl-10 bg-background/40 hover:bg-background/80 focus:bg-background backdrop-blur-sm border-border/50 shadow-[0_2px_10px_rgba(0,0,0,0.02)] dark:shadow-none rounded-full h-10 transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/30"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Button 
+              size="sm" className="rounded-full px-6 w-full sm:w-auto bg-primary/10 hover:bg-primary/20 text-primary border-none shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:scale-105 active:scale-95 h-10" 
+              onClick={startNew} 
+              disabled={editingId === "new"}
+            >
+              <Plus className="w-4 h-4 mr-2" /> Add New
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="w-full overflow-x-auto">
@@ -139,7 +203,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                           <SelectTrigger className="h-9 w-[130px] rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors">
                             <SelectValue placeholder="Status">
                               <div className="flex items-center gap-2">
-                                <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-primary" : "bg-gold"}`} />
+                                <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-primary" : "bg-yellow-500"}`} />
                                 {editForm.isActive === "true" ? "Active" : "Inactive"}
                               </div>
                             </SelectValue>
@@ -153,7 +217,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             </SelectItem>
                             <SelectItem value="false" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
                               <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-gold" />
+                                <div className="w-2 h-2 rounded-full bg-yellow-500" />
                                 Inactive
                               </div>
                             </SelectItem>
@@ -193,6 +257,28 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                       </TableCell>
                     </motion.tr>
                   )}
+                  {sortedConfigs.length === 0 && editingId !== "new" && (
+                    <motion.tr
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                    >
+                      <TableCell colSpan={5} className="h-48 text-center text-muted-foreground">
+                        <div className="flex flex-col items-center justify-center">
+                          {configs.length === 0 ? (
+                            <>
+                              <FileText className="w-8 h-8 text-muted-foreground/50 mb-2" />
+                              <p>No documents have been configured yet.</p>
+                            </>
+                          ) : (
+                            <>
+                              <SearchX className="w-8 h-8 text-muted-foreground/50 mb-2" />
+                              <p>No documents found matching your search.</p>
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
+                    </motion.tr>
+                  )}
                   {sortedConfigs.map((config) => {
                     const isEditing = editingId === config.id;
                     return (
@@ -211,9 +297,11 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                               className="h-9 w-48 bg-background border-border/50 rounded-lg"
                             />
                           ) : (
-                            <div className="flex items-center gap-2">
-                              <FileText className="w-4 h-4 text-yellow-600 dark:text-gold" />
-                              <span className="font-bold text-foreground">{config.label}</span>
+                            <div className="flex items-center gap-3">
+                              <div className="h-9 w-9 shrink-0 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-600 dark:text-orange-400">
+                                <FileText className="w-4 h-4" />
+                              </div>
+                              <span className="font-semibold text-foreground">{config.label}</span>
                             </div>
                           )}
                         </TableCell>
@@ -234,7 +322,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                               <SelectTrigger className="h-9 w-[130px] rounded-lg border-border/50 bg-background shadow-sm hover:bg-muted/50 transition-colors">
                                 <SelectValue placeholder="Status">
                                   <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-primary" : "bg-yellow-500 dark:bg-gold"}`} />
+                                    <div className={`w-2 h-2 rounded-full ${editForm.isActive === "true" ? "bg-primary" : "bg-yellow-500"}`} />
                                     {editForm.isActive === "true" ? "Active" : "Inactive"}
                                   </div>
                                 </SelectValue>
@@ -248,7 +336,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                                 </SelectItem>
                                 <SelectItem value="false" className="cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors py-2 rounded-md">
                                   <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-yellow-500 dark:bg-gold" />
+                                    <div className="w-2 h-2 rounded-full bg-yellow-500" />
                                     Inactive
                                   </div>
                                 </SelectItem>
@@ -260,7 +348,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                                 Active
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-700 dark:bg-gold/10 dark:text-gold border border-yellow-500/20 dark:border-gold/20">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-700 border border-yellow-500/20">
                                 Inactive
                               </span>
                             )
