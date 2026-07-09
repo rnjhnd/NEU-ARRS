@@ -419,7 +419,7 @@ export function SettingsClient({
               Only administrators and employees will have access to the system.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="mt-4 gap-2 sm:gap-0 flex-col sm:flex-row">
+          <DialogFooter className="mt-4 gap-3 sm:gap-4 flex-col sm:flex-row">
             <Button variant="outline" className="w-full sm:w-auto rounded-full" onClick={() => setIsMaintenanceModalOpen(false)}>
               Cancel
             </Button>
