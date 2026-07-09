@@ -95,11 +95,11 @@ export function SettingsClient({
     const newValue = !maintenanceMode;
     // Optimistic update
     setMaintenanceMode(newValue);
+    setIsMaintenanceModalOpen(false); // Close dialog instantly
 
     const res = await updateSystemSetting("MAINTENANCE_MODE", String(newValue));
     if (res.success) {
       toast.success(`Maintenance mode ${newValue ? "enabled" : "disabled"}.`);
-      setIsMaintenanceModalOpen(false);
     } else {
       // Revert if failed
       setMaintenanceMode(!newValue);
@@ -427,10 +427,8 @@ export function SettingsClient({
               variant="destructive" 
               className="w-full sm:w-auto rounded-full" 
               onClick={handleToggleMaintenance} 
-              disabled={isSavingMaintenance}
             >
-              {isSavingMaintenance ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {isSavingMaintenance ? "Enabling..." : "Yes, Enable"}
+              Yes, Enable
             </Button>
           </DialogFooter>
         </DialogContent>
