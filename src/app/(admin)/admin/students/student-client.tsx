@@ -122,7 +122,7 @@ export function StudentClient({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
           <CardContent className="p-6 flex items-center gap-5">
-            <div className="p-4 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl shrink-0">
+            <div className="p-4 bg-slate-500/10 text-slate-600 dark:text-slate-400 rounded-2xl shrink-0">
               <Users className="w-6 h-6" />
             </div>
             <div>
@@ -134,7 +134,7 @@ export function StudentClient({
 
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
           <CardContent className="p-6 flex items-center gap-5">
-            <div className="p-4 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-2xl shrink-0">
+            <div className="p-4 bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 rounded-2xl shrink-0">
               <FileText className="w-6 h-6" />
             </div>
             <div>
@@ -146,12 +146,12 @@ export function StudentClient({
 
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
           <CardContent className="p-6 flex items-center gap-5">
-            <div className="p-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl shrink-0">
+            <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <Banknote className="w-6 h-6" />
             </div>
             <div>
               <p className="text-sm font-semibold text-muted-foreground">Lifetime Revenue</p>
-              <h3 className="text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">₱{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+              <h3 className="text-3xl font-bold tracking-tight text-primary">₱{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
           </CardContent>
         </Card>

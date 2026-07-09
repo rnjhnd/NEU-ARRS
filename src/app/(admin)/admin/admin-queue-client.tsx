@@ -302,7 +302,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
         
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
           <CardContent className="p-6 flex items-center gap-5">
-            <div className="p-4 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-2xl shrink-0">
+            <div className="p-4 bg-slate-500/10 text-slate-600 dark:text-slate-400 rounded-2xl shrink-0">
               <Activity className="w-6 h-6" />
             </div>
             <div>

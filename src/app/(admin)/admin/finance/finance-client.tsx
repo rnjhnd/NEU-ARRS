@@ -260,7 +260,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <p className="text-sm font-semibold text-muted-foreground">Online Payments</p>
               <h3 className="text-2xl font-bold mt-1 text-foreground">₱{onlineRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
-            <div className="p-4 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl shrink-0">
+            <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <CreditCard className="w-6 h-6" />
             </div>
           </CardContent>
@@ -272,7 +272,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <p className="text-sm font-semibold text-muted-foreground">Cash on Pickup</p>
               <h3 className="text-2xl font-bold mt-1 text-foreground">₱{cashRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
-            <div className="p-4 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-2xl shrink-0">
+            <div className="p-4 bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 rounded-2xl shrink-0">
               <Banknote className="w-6 h-6" />
             </div>
           </CardContent>

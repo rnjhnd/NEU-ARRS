@@ -100,7 +100,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
           <CardContent className="p-6 flex items-center gap-5">
-            <div className="p-4 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl shrink-0">
+            <div className="p-4 bg-slate-500/10 text-slate-600 dark:text-slate-400 rounded-2xl shrink-0">
               <FileText className="w-6 h-6" />
             </div>
             <div>
@@ -112,7 +112,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
 
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
           <CardContent className="p-6 flex items-center gap-5">
-            <div className="p-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl shrink-0">
+            <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
@@ -124,7 +124,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
 
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
           <CardContent className="p-6 flex items-center gap-5">
-            <div className="p-4 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-2xl shrink-0">
+            <div className="p-4 bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 rounded-2xl shrink-0">
               <XCircle className="w-6 h-6" />
             </div>
             <div>
@@ -298,7 +298,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             />
                           ) : (
                             <div className="flex items-center gap-3">
-                              <div className="h-9 w-9 shrink-0 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-600 dark:text-orange-400">
+                              <div className="h-9 w-9 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                                 <FileText className="w-4 h-4" />
                               </div>
                               <span className="font-semibold text-foreground">{config.label}</span>

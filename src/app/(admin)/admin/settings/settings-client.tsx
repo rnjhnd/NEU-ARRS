@@ -129,7 +129,7 @@ export function SettingsClient({
   };
 
   const statuses = [
-    { id: "PENDING_PAYMENT", label: "Pending Payment", icon: Clock, color: "text-blue-500" },
+    { id: "PENDING_PAYMENT", label: "Pending Payment", icon: Clock, color: "text-yellow-500" },
     { id: "PROCESSING", label: "Processing", icon: Activity, color: "text-yellow-600 dark:text-yellow-500" },
     { id: "READY_FOR_PICKUP", label: "Ready for Pickup", icon: Package, color: "text-emerald-600 dark:text-emerald-500" },
     { id: "COMPLETED", label: "Completed", icon: CheckCircle2, color: "text-green-600" },
@@ -147,7 +147,7 @@ export function SettingsClient({
           <div className="p-6 space-y-4">
             {/* Email Templates */}
             <div className="p-4 bg-muted/50 rounded-xl border border-border flex items-start gap-4">
-              <div className="p-3 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl shrink-0">
+              <div className="p-3 bg-primary/10 text-primary rounded-xl shrink-0">
                 <Mail className="w-5 h-5" />
               </div>
               <div className="flex-1">
@@ -166,7 +166,7 @@ export function SettingsClient({
             
             {/* Maintenance Mode */}
             <div className={`p-4 rounded-xl border transition-colors flex items-start gap-4 ${maintenanceMode ? 'bg-red-500/10 border-red-500/30' : 'bg-muted/50 border-border'}`}>
-              <div className={`p-3 rounded-xl shrink-0 ${maintenanceMode ? 'bg-red-500/20 text-red-600' : 'bg-orange-500/10 text-orange-600 dark:text-orange-400'}`}>
+              <div className={`p-3 rounded-xl shrink-0 ${maintenanceMode ? 'bg-red-500/20 text-red-600' : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-500'}`}>
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div className="flex-1">
@@ -215,7 +215,7 @@ export function SettingsClient({
 
             {/* Operations Details */}
             <div className="p-4 bg-muted/50 rounded-xl border border-border flex items-start gap-4">
-              <div className="p-3 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-xl shrink-0">
+              <div className="p-3 bg-slate-500/10 text-slate-600 dark:text-slate-400 rounded-xl shrink-0">
                 <MapPin className="w-5 h-5" />
               </div>
               <div className="flex-1">
@@ -333,7 +333,7 @@ export function SettingsClient({
                             ) : (
                               <SelectValue placeholder="Select role">
                                 <div className="flex items-center gap-2">
-                                  <div className={`w-2 h-2 rounded-full ${user.role === "admin" ? "bg-primary" : user.role === "employee" ? "bg-blue-600 dark:bg-blue-400" : "bg-yellow-600 dark:bg-yellow-500"}`} />
+                                  <div className={`w-2 h-2 rounded-full ${user.role === "admin" ? "bg-primary" : user.role === "employee" ? "bg-slate-500 dark:bg-slate-400" : "bg-yellow-600 dark:bg-yellow-500"}`} />
                                   <span className="font-medium text-foreground">{user.role === "admin" ? "Administrator" : user.role === "employee" ? "Employee" : "Student"}</span>
                                 </div>
                               </SelectValue>
@@ -346,9 +346,9 @@ export function SettingsClient({
                                 Administrator
                               </div>
                             </SelectItem>
-                            <SelectItem value="employee" className="cursor-pointer focus:bg-blue-500/10 transition-colors py-2 rounded-md">
+                            <SelectItem value="employee" className="cursor-pointer focus:bg-slate-500/10 transition-colors py-2 rounded-md">
                               <div className="flex items-center gap-2 font-medium">
-                                <div className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400" />
+                                <div className="w-2 h-2 rounded-full bg-slate-500 dark:bg-slate-400" />
                                 Employee
                               </div>
                             </SelectItem>
