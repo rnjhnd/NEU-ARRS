@@ -194,8 +194,7 @@ export function SettingsClient({
                     disabled={isSavingMaintenance}
                     className={maintenanceMode ? 'data-[state=checked]:bg-red-600' : ''}
                   />
-                  <span className="text-xs font-medium flex items-center gap-1.5">
-                    {isSavingMaintenance && <Loader2 className="w-3 h-3 animate-spin" />}
+                  <span className="text-xs font-medium">
                     {maintenanceMode ? "Turn Off" : "Turn On"}
                   </span>
                 </div>
