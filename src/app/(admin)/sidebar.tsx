@@ -130,7 +130,7 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
       {/* User profile at bottom of sidebar */}
       <div className={`p-6 border-t flex ${isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between"}`}>
         <div className={`flex ${isCollapsed ? "justify-center" : "items-center gap-3"}`}>
-          <ProfileMenu />
+          <ProfileMenu side="top" />
           {!isCollapsed && (
             <div className="flex flex-col whitespace-nowrap overflow-hidden">
               <span className="text-sm font-semibold text-foreground truncate">{name}</span>

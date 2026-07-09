@@ -17,7 +17,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 
-export function ProfileMenu() {
+export function ProfileMenu({ side = "bottom" }: { side?: "top" | "bottom" | "left" | "right" } = {}) {
   const { user, isLoaded } = useUser();
   const { signOut } = useClerk();
   const router = useRouter();
@@ -67,9 +67,9 @@ export function ProfileMenu() {
           </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
-        className="w-64 p-2 rounded-3xl bg-background/90 backdrop-blur-2xl border border-border/50 shadow-2xl z-50 mb-2" 
+        className="w-64 p-2 rounded-3xl bg-background/90 backdrop-blur-2xl border border-border/50 shadow-2xl z-50" 
         align="end"
-        side="top"
+        side={side}
         sideOffset={12}
       >
         <DropdownMenuGroup>

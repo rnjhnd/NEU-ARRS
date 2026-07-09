@@ -109,7 +109,7 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
 
               <div className="p-6 border-t mt-auto">
                 <div className="flex items-center gap-3">
-                  <ProfileMenu />
+                  <ProfileMenu side="top" />
                   <div className="flex flex-col whitespace-nowrap overflow-hidden">
                     <span className="text-sm font-semibold truncate">{name}</span>
                     <span className="text-xs text-primary font-medium uppercase tracking-wide truncate">{roleName}</span>
