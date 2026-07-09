@@ -7,6 +7,7 @@ import { createRequest } from "@/app/actions/request.actions";
 import { toast } from "sonner";
 import { Purpose, DocumentConfig } from "@prisma/client";
 import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
 import { Check, FileText, CreditCard, Landmark, Loader2 } from "lucide-react";
 
 const PurposeOptions = [
@@ -65,7 +66,8 @@ export function RequestForm({
     <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
       
       {/* Left Column: Form Fields */}
-      <div className="lg:col-span-2 space-y-8 bg-background/70 backdrop-blur-xl border border-primary/10 rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)]">
+      <Card className="lg:col-span-2 shadow-sm border-border bg-card rounded-3xl">
+        <CardContent className="p-6 sm:p-8 space-y-8">
         
         {/* Document Type Section */}
         <div className="space-y-6">
@@ -202,11 +204,12 @@ export function RequestForm({
           </div>
         </div>
 
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Right Column: Sticky Order Summary */}
       <div className="lg:col-span-1 lg:sticky lg:top-24 space-y-6">
-        <div className="bg-background/70 backdrop-blur-xl border border-primary/20 rounded-3xl p-6 shadow-lg relative overflow-hidden">
+        <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl p-6 relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
           
           <h4 className="font-extrabold text-lg mb-6 tracking-tight">Order Summary</h4>
@@ -241,7 +244,7 @@ export function RequestForm({
               <p className="text-muted-foreground text-sm font-medium">Select a document to see your summary.</p>
             </div>
           )}
-        </div>
+        </Card>
 
         <div className="flex flex-col gap-3">
           <Button 
