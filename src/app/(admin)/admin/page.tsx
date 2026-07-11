@@ -44,7 +44,7 @@ function AdminQueueSkeleton() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="w-full overflow-x-auto">
-            <Table className="min-w-[1000px]">
+            <Table className="min-w-[1200px]">
               <TableHeader>
                 <TableRow className="border-b border-border/50 bg-transparent hover:bg-transparent">
                   <TableHead className="w-[50px] pl-8"><Skeleton className="h-4 w-4 rounded" /></TableHead>

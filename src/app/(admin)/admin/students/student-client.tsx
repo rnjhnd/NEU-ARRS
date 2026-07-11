@@ -175,7 +175,7 @@ export function StudentClient({
         </CardHeader>
         <CardContent className="p-0">
           <div className="w-full overflow-x-auto pb-4">
-            <Table className="table-fixed min-w-[800px]">
+            <Table className="table-fixed min-w-[1000px]">
               <TableHeader>
                 <TableRow className="border-b border-border/50 hover:bg-transparent">
                   <SortableHeader title="Student" sortKey="name" className="pl-8 w-[35%]" />
