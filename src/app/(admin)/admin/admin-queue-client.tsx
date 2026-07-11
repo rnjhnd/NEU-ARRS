@@ -368,9 +368,9 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
             <CardTitle className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
               Active Request Queue
             </CardTitle>
-            <div className="flex items-center gap-4 mt-1">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mt-2 sm:mt-1">
               <CardDescription className="text-base text-muted-foreground">Automatically syncing with database.</CardDescription>
-              <Button size="sm" onClick={exportToCSV} className="h-9 px-5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary border-none shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:scale-105 active:scale-95">
+              <Button size="sm" onClick={exportToCSV} className="h-9 w-full sm:w-auto px-5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary border-none shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:scale-105 active:scale-95 justify-center">
                 <Download className="w-4 h-4 mr-2" /> Export CSV
               </Button>
             </div>
@@ -542,7 +542,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
         </CardContent>
         {/* Pagination Footer */}
         {totalPages > 1 && (
-          <CardFooter className="flex items-center justify-between border-t border-border px-6 py-4 bg-muted/10">
+          <CardFooter className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0 border-t border-border px-4 sm:px-6 py-4 bg-muted/10">
             <span className="text-sm text-muted-foreground">
               Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, sortedRequests.length)} of {sortedRequests.length} requests
             </span>

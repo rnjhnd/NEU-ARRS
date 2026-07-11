@@ -385,7 +385,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
           )}
 
           <DropdownMenu>
-            <DropdownMenuTrigger className="h-10 px-5 rounded-full border border-primary/20 bg-background text-foreground shadow-sm transition-all hover:bg-muted focus:bg-muted active:scale-95 flex items-center gap-2 font-medium text-sm disabled:pointer-events-none disabled:opacity-50 outline-none" disabled={isExporting}>
+            <DropdownMenuTrigger className="h-10 px-5 rounded-full border border-primary/20 bg-background text-foreground shadow-sm transition-all hover:bg-muted focus:bg-muted active:scale-95 flex items-center justify-center gap-2 font-medium text-sm disabled:pointer-events-none disabled:opacity-50 outline-none w-full sm:w-auto" disabled={isExporting}>
               {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               {isExporting ? "Exporting..." : "Export"}
             </DropdownMenuTrigger>

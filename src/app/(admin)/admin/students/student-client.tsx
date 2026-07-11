@@ -259,7 +259,7 @@ export function StudentClient({
         </CardContent>
         {/* Pagination Footer */}
         {totalPages > 1 && (
-          <CardFooter className="flex items-center justify-between border-t border-border/50 px-8 py-4 bg-muted/5">
+          <CardFooter className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0 border-t border-border/50 px-4 sm:px-8 py-4 bg-muted/5">
             <span className="text-sm font-medium text-muted-foreground">
               Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredUsers.length)} of {filteredUsers.length} students
             </span>

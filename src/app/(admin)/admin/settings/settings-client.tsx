@@ -421,7 +421,7 @@ export function SettingsClient({
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="p-4 border-t border-border/50 bg-muted/10 flex items-center justify-between">
+              <div className="p-4 border-t border-border/50 bg-muted/10 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
                 <span className="text-xs text-muted-foreground">
                   Showing <span className="font-medium text-foreground">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-medium text-foreground">{Math.min(currentPage * itemsPerPage, filteredUsers.length)}</span> of <span className="font-medium text-foreground">{filteredUsers.length}</span> users
                 </span>
