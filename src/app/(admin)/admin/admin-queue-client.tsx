@@ -294,8 +294,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <Clock className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Pending Action</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{pendingCount}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Pending Action</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground whitespace-normal break-words">{pendingCount}</h3>
             </div>
           </CardContent>
         </Card>
@@ -306,8 +306,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <Activity className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">In Processing</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{processingCount}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">In Processing</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground whitespace-normal break-words">{processingCount}</h3>
             </div>
           </CardContent>
         </Card>
@@ -318,8 +318,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <Package className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Ready for Pickup</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{readyCount}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Ready for Pickup</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground whitespace-normal break-words">{readyCount}</h3>
             </div>
           </CardContent>
         </Card>

@@ -44,8 +44,8 @@ export async function DashboardData({ userId }: { userId: string }) {
               <Clock className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Active Requests</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{activeRequests}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Active Requests</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground whitespace-normal break-words">{activeRequests}</h3>
             </div>
           </CardContent>
         </Card>
@@ -56,8 +56,8 @@ export async function DashboardData({ userId }: { userId: string }) {
               <CheckCircle className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Completed</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{completedRequests}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Completed</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground whitespace-normal break-words">{completedRequests}</h3>
             </div>
           </CardContent>
         </Card>
@@ -68,8 +68,8 @@ export async function DashboardData({ userId }: { userId: string }) {
               <FileText className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Total Processed</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{totalRequests}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Total Processed</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground whitespace-normal break-words">{totalRequests}</h3>
             </div>
           </CardContent>
         </Card>

@@ -421,8 +421,8 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <DollarSign className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Total Revenue</p>
-              <h3 className="text-2xl font-bold mt-1 text-foreground truncate">₱{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Total Revenue</p>
+              <h3 className="text-2xl font-bold mt-1 text-foreground whitespace-normal break-words">₱{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
           </CardContent>
         </Card>
@@ -433,8 +433,8 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <CreditCard className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Online Payments</p>
-              <h3 className="text-2xl font-bold mt-1 text-foreground truncate">₱{onlineRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Online Payments</p>
+              <h3 className="text-2xl font-bold mt-1 text-foreground whitespace-normal break-words">₱{onlineRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
           </CardContent>
         </Card>
@@ -445,8 +445,8 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <Banknote className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Cash on Pickup</p>
-              <h3 className="text-2xl font-bold mt-1 text-foreground truncate">₱{cashRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Cash on Pickup</p>
+              <h3 className="text-2xl font-bold mt-1 text-foreground whitespace-normal break-words">₱{cashRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
           </CardContent>
         </Card>
@@ -457,8 +457,8 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               <TrendingUp className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Paid Requests</p>
-              <h3 className="text-2xl font-bold mt-1 text-foreground truncate">{filteredRequests.filter(isCompletedOrPaid).length}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Paid Requests</p>
+              <h3 className="text-2xl font-bold mt-1 text-foreground whitespace-normal break-words">{filteredRequests.filter(isCompletedOrPaid).length}</h3>
             </div>
           </CardContent>
         </Card>

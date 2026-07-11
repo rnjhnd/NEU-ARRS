@@ -126,8 +126,8 @@ export function StudentClient({
               <Users className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Total Students</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{totalStudents}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Total Students</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground whitespace-normal break-words">{totalStudents}</h3>
             </div>
           </CardContent>
         </Card>
@@ -138,8 +138,8 @@ export function StudentClient({
               <FileText className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Total Requests</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{totalRequests}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Total Requests</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground whitespace-normal break-words">{totalRequests}</h3>
             </div>
           </CardContent>
         </Card>
@@ -150,8 +150,8 @@ export function StudentClient({
               <Banknote className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Lifetime Revenue</p>
-              <h3 className="text-3xl font-bold tracking-tight text-primary truncate">₱{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Lifetime Revenue</p>
+              <h3 className="text-3xl font-bold tracking-tight text-primary whitespace-normal break-words">₱{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
           </CardContent>
         </Card>

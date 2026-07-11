@@ -114,8 +114,8 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
               <FileText className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Total Documents</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{totalDocs}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Total Documents</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground whitespace-normal break-words">{totalDocs}</h3>
             </div>
           </CardContent>
         </Card>
@@ -126,8 +126,8 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Active</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{activeDocs}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Active</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground whitespace-normal break-words">{activeDocs}</h3>
             </div>
           </CardContent>
         </Card>
@@ -138,8 +138,8 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
               <XCircle className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">Inactive</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{inactiveDocs}</h3>
+              <p className="text-sm font-semibold text-muted-foreground whitespace-normal break-words">Inactive</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground whitespace-normal break-words">{inactiveDocs}</h3>
             </div>
           </CardContent>
         </Card>
