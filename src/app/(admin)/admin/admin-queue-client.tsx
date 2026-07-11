@@ -293,9 +293,9 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
             <div className="p-4 bg-yellow-500/10 text-yellow-600 dark:bg-gold/10 dark:text-gold rounded-2xl shrink-0">
               <Clock className="w-6 h-6" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Pending Action</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground">{pendingCount}</h3>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Pending Action</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{pendingCount}</h3>
             </div>
           </CardContent>
         </Card>
@@ -305,9 +305,9 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
             <div className="p-4 bg-slate-500/10 text-slate-600 dark:text-slate-400 rounded-2xl shrink-0">
               <Activity className="w-6 h-6" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">In Processing</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground">{processingCount}</h3>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">In Processing</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{processingCount}</h3>
             </div>
           </CardContent>
         </Card>
@@ -317,9 +317,9 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
             <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <Package className="w-6 h-6" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Ready for Pickup</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground">{readyCount}</h3>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Ready for Pickup</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{readyCount}</h3>
             </div>
           </CardContent>
         </Card>

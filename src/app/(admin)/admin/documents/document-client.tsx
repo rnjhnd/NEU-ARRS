@@ -113,9 +113,9 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
             <div className="p-4 bg-slate-500/10 text-slate-600 dark:text-slate-400 rounded-2xl shrink-0">
               <FileText className="w-6 h-6" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Total Documents</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground">{totalDocs}</h3>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Total Documents</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{totalDocs}</h3>
             </div>
           </CardContent>
         </Card>
@@ -125,9 +125,9 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
             <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <CheckCircle2 className="w-6 h-6" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Active</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground">{activeDocs}</h3>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Active</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{activeDocs}</h3>
             </div>
           </CardContent>
         </Card>
@@ -137,9 +137,9 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
             <div className="p-4 bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 rounded-2xl shrink-0">
               <XCircle className="w-6 h-6" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Inactive</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground">{inactiveDocs}</h3>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Inactive</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{inactiveDocs}</h3>
             </div>
           </CardContent>
         </Card>

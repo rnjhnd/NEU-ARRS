@@ -125,9 +125,9 @@ export function StudentClient({
             <div className="p-4 bg-slate-500/10 text-slate-600 dark:text-slate-400 rounded-2xl shrink-0">
               <Users className="w-6 h-6" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Total Students</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground">{totalStudents}</h3>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Total Students</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{totalStudents}</h3>
             </div>
           </CardContent>
         </Card>
@@ -137,9 +137,9 @@ export function StudentClient({
             <div className="p-4 bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 rounded-2xl shrink-0">
               <FileText className="w-6 h-6" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Total Requests</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground">{totalRequests}</h3>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Total Requests</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{totalRequests}</h3>
             </div>
           </CardContent>
         </Card>
@@ -149,9 +149,9 @@ export function StudentClient({
             <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <Banknote className="w-6 h-6" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Lifetime Revenue</p>
-              <h3 className="text-3xl font-bold tracking-tight text-primary">₱{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Lifetime Revenue</p>
+              <h3 className="text-3xl font-bold tracking-tight text-primary truncate">₱{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
           </CardContent>
         </Card>

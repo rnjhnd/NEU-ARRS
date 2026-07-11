@@ -43,9 +43,9 @@ export async function DashboardData({ userId }: { userId: string }) {
             <div className="p-4 bg-yellow-500/10 text-yellow-600 dark:bg-gold/10 dark:text-gold rounded-2xl shrink-0">
               <Clock className="w-6 h-6" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Active Requests</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground">{activeRequests}</h3>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Active Requests</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{activeRequests}</h3>
             </div>
           </CardContent>
         </Card>
@@ -55,9 +55,9 @@ export async function DashboardData({ userId }: { userId: string }) {
             <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <CheckCircle className="w-6 h-6" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Completed</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground">{completedRequests}</h3>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Completed</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{completedRequests}</h3>
             </div>
           </CardContent>
         </Card>
@@ -67,9 +67,9 @@ export async function DashboardData({ userId }: { userId: string }) {
             <div className="p-4 bg-slate-500/10 text-slate-600 dark:text-slate-400 rounded-2xl shrink-0">
               <FileText className="w-6 h-6" />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Total Processed</p>
-              <h3 className="text-3xl font-bold tracking-tight text-foreground">{totalRequests}</h3>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Total Processed</p>
+              <h3 className="text-3xl font-bold tracking-tight text-foreground truncate">{totalRequests}</h3>
             </div>
           </CardContent>
         </Card>
