@@ -57,7 +57,7 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
         </Link>
       </div>
       
-      <nav className="flex-1 space-y-2 p-4 overflow-y-auto no-scrollbar whitespace-nowrap">
+      <nav className="flex-1 space-y-2 p-4 overflow-y-auto overflow-x-hidden no-scrollbar whitespace-nowrap">
         <Link 
           href="/admin" 
           className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
