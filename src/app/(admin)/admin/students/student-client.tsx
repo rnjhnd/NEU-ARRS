@@ -161,7 +161,7 @@ export function StudentClient({
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 !py-6 px-8">
           <div>
             <CardTitle className="text-xl font-bold tracking-tight text-foreground">Student Directory</CardTitle>
-            <CardDescription>A complete list of students who have signed up via the portal.</CardDescription>
+            <CardDescription className="mt-1">A complete list of students who have signed up via the portal.</CardDescription>
           </div>
           <div className="relative w-full sm:w-80 group">
             <Search className="absolute z-10 left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none" />

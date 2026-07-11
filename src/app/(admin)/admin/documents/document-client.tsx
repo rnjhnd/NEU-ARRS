@@ -149,7 +149,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 !py-6 px-8">
           <div>
             <CardTitle className="text-xl font-bold tracking-tight text-foreground">Document Management</CardTitle>
-            <CardDescription>Manage descriptions, pricing, and active status.</CardDescription>
+            <CardDescription className="mt-1">Manage descriptions, pricing, and active status.</CardDescription>
           </div>
           
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
