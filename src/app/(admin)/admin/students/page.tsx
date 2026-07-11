@@ -32,8 +32,8 @@ function StudentsSkeleton() {
           <Skeleton className="h-10 w-full sm:w-80 rounded-full" />
         </CardHeader>
         <CardContent className="p-0">
-          <div className="w-full">
-            <Table className="table-fixed">
+          <div className="w-full overflow-x-auto pb-4">
+            <Table className="table-fixed min-w-[800px]">
               <TableHeader>
                 <TableRow className="border-b border-border/50 bg-transparent hover:bg-transparent">
                   <TableHead className="pl-8 w-[35%]"><Skeleton className="h-4 w-16" /></TableHead>
