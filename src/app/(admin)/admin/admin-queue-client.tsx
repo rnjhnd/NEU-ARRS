@@ -382,7 +382,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                 initial={{ opacity: 0, y: -10 }} 
                 animate={{ opacity: 1, y: 0 }} 
                 exit={{ opacity: 0, y: -10 }}
-                className="flex items-center gap-1 bg-background/95 backdrop-blur-md border border-border/50 p-1.5 rounded-full shadow-md"
+                className="flex items-center gap-1 bg-background/95 backdrop-blur-md border border-border/50 p-1.5 rounded-full shadow-md max-w-full overflow-x-auto no-scrollbar"
               >
                 <span className="text-sm font-medium text-muted-foreground px-3 border-r border-border/50 mr-1">
                   <span className="font-semibold text-foreground">{selectedIds.size}</span> selected
@@ -428,8 +428,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
           </AnimatePresence>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="w-full">
-            <Table className="table-fixed">
+          <div className="w-full overflow-x-auto pb-4">
+            <Table className="table-fixed min-w-[1000px]">
               <TableHeader>
                 <TableRow className="border-b border-border/50 bg-transparent hover:bg-transparent">
                   <TableHead className="w-[50px] pl-8">

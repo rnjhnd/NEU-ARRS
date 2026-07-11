@@ -197,8 +197,8 @@ export function RequestList({ requests: initialRequests, isMaintenanceMode = fal
         <CardDescription className="text-base text-muted-foreground">A complete log of your academic document requests.</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="w-full overflow-x-auto">
-          <Table className="table-fixed">
+        <div className="w-full overflow-x-auto pb-4">
+          <Table className="table-fixed min-w-[800px]">
             <TableHeader>
               <TableRow className="border-b border-border/50 bg-transparent hover:bg-transparent">
                 <SortableHeader title="Reference ID" sortKey="id" className="pl-8 w-[15%]" />
