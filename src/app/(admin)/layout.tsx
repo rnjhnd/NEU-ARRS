@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
           {/* Mobile Header (Hidden on Desktop) */}
           <div className="xl:hidden sticky top-0 z-50 pt-4 px-4 pb-0 bg-transparent pointer-events-none">
-            <header className="flex h-14 shrink-0 items-center justify-between px-4 rounded-xl bg-background/80 backdrop-blur-2xl border border-primary/10 shadow-md supports-[backdrop-filter]:bg-background/50 pointer-events-auto">
+            <header className="flex h-14 shrink-0 items-center justify-between px-4 rounded-xl bg-background border border-border shadow-md pointer-events-auto">
               <div className="flex items-center gap-3">
                 <MobileNav serverRole={role} />
                 <span className="font-bold text-xl tracking-tight ml-2">
