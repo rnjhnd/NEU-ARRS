@@ -25,7 +25,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
             <div className="p-2 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
               <LogoIcon className="h-5 w-5 text-primary dark:text-primary" sealColor="text-yellow-600 dark:text-yellow-500" />
             </div>
-            <span className="font-bold text-xl tracking-tight hidden sm:inline-block">
+            <span className="font-bold text-xl tracking-tight ml-2">
               NEU <span className="font-normal text-muted-foreground">ARRS</span>
             </span>
           </Link>
