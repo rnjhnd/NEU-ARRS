@@ -416,49 +416,49 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
         {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Total Revenue</p>
-              <h3 className="text-2xl font-bold mt-1 text-foreground">₱{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
-            </div>
+          <CardContent className="p-6 flex items-center gap-5">
             <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <DollarSign className="w-6 h-6" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Total Revenue</p>
+              <h3 className="text-2xl font-bold mt-1 text-foreground truncate">₱{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
           </CardContent>
         </Card>
         
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Online Payments</p>
-              <h3 className="text-2xl font-bold mt-1 text-foreground">₱{onlineRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
-            </div>
+          <CardContent className="p-6 flex items-center gap-5">
             <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <CreditCard className="w-6 h-6" />
             </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Online Payments</p>
+              <h3 className="text-2xl font-bold mt-1 text-foreground truncate">₱{onlineRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+            </div>
           </CardContent>
         </Card>
 
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Cash on Pickup</p>
-              <h3 className="text-2xl font-bold mt-1 text-foreground">₱{cashRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
-            </div>
+          <CardContent className="p-6 flex items-center gap-5">
             <div className="p-4 bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 rounded-2xl shrink-0">
               <Banknote className="w-6 h-6" />
             </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Cash on Pickup</p>
+              <h3 className="text-2xl font-bold mt-1 text-foreground truncate">₱{cashRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+            </div>
           </CardContent>
         </Card>
 
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">Paid Requests</p>
-              <h3 className="text-2xl font-bold mt-1 text-foreground">{filteredRequests.filter(isCompletedOrPaid).length}</h3>
-            </div>
+          <CardContent className="p-6 flex items-center gap-5">
             <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <TrendingUp className="w-6 h-6" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-muted-foreground truncate">Paid Requests</p>
+              <h3 className="text-2xl font-bold mt-1 text-foreground truncate">{filteredRequests.filter(isCompletedOrPaid).length}</h3>
             </div>
           </CardContent>
         </Card>
