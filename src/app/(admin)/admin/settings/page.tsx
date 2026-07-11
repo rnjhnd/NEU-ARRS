@@ -9,8 +9,8 @@ export const metadata = { title: "Admin Settings" };
 
 function SettingsSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
-      <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden md:col-span-1 h-fit">
+    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 animate-pulse">
+      <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden xl:col-span-1 h-fit">
         <div className="p-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
           <Skeleton className="h-6 w-32 mb-2" />
           <Skeleton className="h-4 w-48" />
@@ -29,7 +29,7 @@ function SettingsSkeleton() {
         </div>
       </div>
 
-      <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden md:col-span-2 h-fit">
+      <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden xl:col-span-2 h-fit">
         <div className="p-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <Skeleton className="h-6 w-48 mb-2" />
@@ -40,8 +40,8 @@ function SettingsSkeleton() {
             <Skeleton className="h-10 w-full sm:w-[160px] rounded-full" />
           </div>
         </div>
-        <div className="p-0">
-          <Table className="table-fixed">
+        <div className="p-0 w-full overflow-x-auto">
+          <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow className="border-b border-border hover:bg-transparent">
                 <TableHead className="pl-6 w-[60%] h-12"><Skeleton className="h-4 w-12" /></TableHead>

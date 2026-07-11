@@ -159,8 +159,8 @@ export function SettingsClient({
   return (
     <div className="space-y-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden lg:col-span-1 h-fit">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden xl:col-span-1 h-fit">
           <div className="p-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
             <h2 className="text-xl font-bold tracking-tight">System Controls</h2>
             <p className="text-sm text-muted-foreground mt-1">Manage core application behaviors and student experience.</p>
@@ -258,7 +258,7 @@ export function SettingsClient({
           </div>
         </div>
 
-        <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden lg:col-span-2 h-fit">
+        <div className="rounded-3xl bg-card border border-border shadow-sm overflow-hidden xl:col-span-2 h-fit">
           <div className="p-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-bold tracking-tight">Role Management</h2>
@@ -312,8 +312,8 @@ export function SettingsClient({
               </Select>
             </div>
           </div>
-          <div className="p-0">
-            <Table className="table-fixed">
+          <div className="p-0 w-full overflow-x-auto">
+            <Table className="min-w-[600px]">
               <TableHeader>
                 <TableRow className="border-b border-border hover:bg-transparent">
                   <TableHead className="pl-6 w-[60%] h-12 text-xs font-semibold uppercase tracking-wider text-muted-foreground">User</TableHead>
