@@ -191,9 +191,9 @@ export function SettingsClient({
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div className="flex-1">
-                <div className="flex justify-between items-start mb-1">
+                <div className="flex justify-between items-start mb-1 gap-2">
                   <p className={`text-sm font-semibold ${maintenanceMode ? 'text-red-700 dark:text-red-400' : ''}`}>Maintenance Mode</p>
-                  <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${maintenanceMode ? 'bg-red-500/20 text-red-700 dark:text-red-400' : 'bg-primary/10 text-primary border border-primary/20'}`}>
+                  <div className={`shrink-0 whitespace-nowrap px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${maintenanceMode ? 'bg-red-500/20 text-red-700 dark:text-red-400' : 'bg-primary/10 text-primary border border-primary/20'}`}>
                     {maintenanceMode ? 'Active' : 'Disabled'}
                   </div>
                 </div>
@@ -422,7 +422,7 @@ export function SettingsClient({
             {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="p-4 border-t border-border/50 bg-muted/10 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-muted-foreground text-center sm:text-left">
                   Showing <span className="font-medium text-foreground">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-medium text-foreground">{Math.min(currentPage * itemsPerPage, filteredUsers.length)}</span> of <span className="font-medium text-foreground">{filteredUsers.length}</span> users
                 </span>
                 <div className="flex items-center gap-2">

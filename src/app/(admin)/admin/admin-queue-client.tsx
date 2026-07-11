@@ -543,7 +543,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
         {/* Pagination Footer */}
         {totalPages > 1 && (
           <CardFooter className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0 border-t border-border px-4 sm:px-6 py-4 bg-muted/10">
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-muted-foreground text-center sm:text-left">
               Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, sortedRequests.length)} of {sortedRequests.length} requests
             </span>
             <div className="flex items-center gap-2">
