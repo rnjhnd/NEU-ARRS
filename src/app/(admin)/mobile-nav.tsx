@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Menu, X, LayoutDashboard, Settings, Users, PieChart, FileText } from "lucide-react";
 import { LogoIcon } from "@/components/logo-icon";
 import Link from "next/link";
@@ -18,6 +19,11 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
   const isAdmin = serverRole === "admin";
   const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Administrator";
   const roleName = serverRole === "admin" ? "Administrator" : serverRole === "employee" ? "Employee" : "Student";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <>
@@ -25,7 +31,8 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
         <Menu className="w-5 h-5" />
       </Button>
 
-      <AnimatePresence>
+      {mounted && createPortal(
+        <AnimatePresence>
         {isOpen && (
           <>
             <motion.div
@@ -142,6 +149,7 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
           </>
         )}
       </AnimatePresence>
+      , document.body)}
     </>
   );
 }
