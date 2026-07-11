@@ -389,7 +389,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
               {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               {isExporting ? "Exporting..." : "Export"}
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[--radix-dropdown-menu-trigger-width] sm:w-48 rounded-xl border border-border/50 shadow-xl bg-background/95 backdrop-blur-md p-1">
+            <DropdownMenuContent align="end" className="w-(--anchor-width) sm:w-48 rounded-xl border border-border/50 shadow-xl bg-background/95 backdrop-blur-md p-1">
               <DropdownMenuItem onClick={exportToImage} className="rounded-md cursor-pointer flex items-center p-2 focus:bg-primary/10">
                 <ImageIcon className="w-4 h-4 mr-3 opacity-70" />
                 Visual Report (.png)
