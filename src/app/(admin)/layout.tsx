@@ -21,7 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* Admin Main Content */}
         <div className="flex-1 flex flex-col min-w-0 h-full">
           {/* Mobile Header (Hidden on Desktop) */}
-          <div className="md:hidden p-4 pb-0">
+          <div className="lg:hidden p-4 pb-0">
             <header className="flex h-14 shrink-0 items-center justify-between px-4 rounded-xl bg-background/60 backdrop-blur-xl border border-primary/10 shadow-sm supports-[backdrop-filter]:bg-background/40">
               <div className="flex items-center gap-3">
                 <MobileNav serverRole={role} />
@@ -33,7 +33,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </header>
           </div>
           
-          <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+          <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
             <div className="max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
               {children}
             </div>

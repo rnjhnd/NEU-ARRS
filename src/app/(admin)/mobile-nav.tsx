@@ -21,7 +21,7 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
 
   return (
     <>
-      <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsOpen(true)}>
+      <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setIsOpen(true)}>
         <Menu className="w-5 h-5" />
       </Button>
 
@@ -33,7 +33,7 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm lg:hidden"
             />
             
             <motion.div
@@ -41,7 +41,7 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 z-50 w-3/4 max-w-sm bg-card border-r shadow-2xl flex flex-col md:hidden"
+              className="fixed inset-y-0 left-0 z-50 w-3/4 max-w-sm bg-card border-r shadow-2xl flex flex-col lg:hidden"
             >
               <div className="flex h-16 items-center justify-between px-6 border-b">
                 <Link href="/admin" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
@@ -55,7 +55,7 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
                 </Button>
               </div>
               
-              <nav className="flex-1 space-y-2 p-4">
+              <nav className="flex-1 space-y-2 p-4 overflow-y-auto no-scrollbar">
                 <Link 
                   href="/admin" 
                   onClick={() => setIsOpen(false)}
