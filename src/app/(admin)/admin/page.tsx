@@ -9,7 +9,7 @@ function AdminQueueSkeleton() {
   return (
     <div className="space-y-8 w-full animate-pulse">
       {/* At-A-Glance Stats Skeleton */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {[1, 2, 3].map((i) => (
           <Card key={i} className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
             <CardContent className="p-6 flex items-center gap-5">

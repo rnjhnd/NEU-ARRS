@@ -414,7 +414,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
           className="space-y-8 pb-4"
         >
         {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
           <CardContent className="p-6 flex items-center gap-5">
             <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">

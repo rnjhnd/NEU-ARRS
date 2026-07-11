@@ -16,7 +16,7 @@ function FinanceSkeleton() {
       </div>
 
       {/* KPI Cards Skeleton */}
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
           <Card key={i} className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
             <CardContent className="p-6 flex items-center gap-5">
