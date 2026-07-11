@@ -550,6 +550,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <Button 
                 variant="outline" 
                 size="sm" 
+                className="w-24"
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
               >
@@ -561,6 +562,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
               <Button 
                 variant="outline" 
                 size="sm" 
+                className="w-24"
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
               >

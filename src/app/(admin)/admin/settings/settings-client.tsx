@@ -429,7 +429,7 @@ export function SettingsClient({
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="h-8 text-xs rounded-full"
+                    className="w-20 h-8 text-xs rounded-full"
                     disabled={currentPage === 1} 
                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   >
@@ -438,7 +438,7 @@ export function SettingsClient({
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="h-8 text-xs rounded-full"
+                    className="w-20 h-8 text-xs rounded-full"
                     disabled={currentPage === totalPages || totalPages === 0} 
                     onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                   >

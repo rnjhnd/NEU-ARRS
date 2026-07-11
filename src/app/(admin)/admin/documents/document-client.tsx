@@ -424,7 +424,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="rounded-full border-border/50 hover:bg-background"
+                className="w-24 rounded-full border-border/50 hover:bg-background"
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
               >
@@ -436,7 +436,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="rounded-full border-border/50 hover:bg-background"
+                className="w-24 rounded-full border-border/50 hover:bg-background"
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
               >
