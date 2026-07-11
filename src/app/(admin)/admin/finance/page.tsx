@@ -19,7 +19,7 @@ function FinanceSkeleton() {
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         {[1, 2, 3, 4].map((i) => (
           <Card key={i} className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
-            <CardContent className="p-6 flex items-center gap-5">
+            <CardContent className="p-6 flex flex-1 items-center gap-5">
               <Skeleton className="w-14 h-14 rounded-2xl shrink-0" />
               <div className="space-y-2 min-w-0">
                 <Skeleton className="h-4 w-24" />

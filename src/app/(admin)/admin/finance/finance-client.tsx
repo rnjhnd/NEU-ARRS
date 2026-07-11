@@ -416,7 +416,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
         {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
-          <CardContent className="p-6 flex items-center gap-5">
+          <CardContent className="p-6 flex flex-1 items-center gap-5">
             <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <DollarSign className="w-6 h-6" />
             </div>
@@ -428,7 +428,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
         </Card>
         
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
-          <CardContent className="p-6 flex items-center gap-5">
+          <CardContent className="p-6 flex flex-1 items-center gap-5">
             <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <CreditCard className="w-6 h-6" />
             </div>
@@ -440,7 +440,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
         </Card>
 
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
-          <CardContent className="p-6 flex items-center gap-5">
+          <CardContent className="p-6 flex flex-1 items-center gap-5">
             <div className="p-4 bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 rounded-2xl shrink-0">
               <Banknote className="w-6 h-6" />
             </div>
@@ -452,7 +452,7 @@ export function FinanceClient({ requests }: { requests: Request[] }) {
         </Card>
 
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
-          <CardContent className="p-6 flex items-center gap-5">
+          <CardContent className="p-6 flex flex-1 items-center gap-5">
             <div className="p-4 bg-primary/10 text-primary rounded-2xl shrink-0">
               <TrendingUp className="w-6 h-6" />
             </div>
