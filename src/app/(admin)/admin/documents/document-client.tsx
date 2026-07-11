@@ -354,11 +354,11 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
                             </Select>
                           ) : (
                             config.isActive ? (
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 dark:border-primary/30">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-primary/10 text-primary border border-primary/20 dark:border-primary/30">
                                 Active
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-700 border border-yellow-500/20">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-yellow-500/10 text-yellow-700 border border-yellow-500/20">
                                 Inactive
                               </span>
                             )
@@ -430,7 +430,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
               >
                 Previous
               </Button>
-              <div className="text-sm font-semibold text-foreground px-2">
+              <div className="text-sm font-semibold text-foreground px-2 whitespace-nowrap">
                 Page {currentPage} of {totalPages}
               </div>
               <Button 

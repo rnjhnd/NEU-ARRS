@@ -273,7 +273,7 @@ export function StudentClient({
               >
                 Previous
               </Button>
-              <div className="text-sm font-semibold text-foreground px-2">
+              <div className="text-sm font-semibold text-foreground px-2 whitespace-nowrap">
                 Page {currentPage} of {totalPages}
               </div>
               <Button 
