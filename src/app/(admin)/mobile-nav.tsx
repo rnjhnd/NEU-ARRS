@@ -44,9 +44,11 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
               className="fixed inset-y-0 left-0 z-50 w-3/4 max-w-sm bg-card border-r shadow-2xl flex flex-col lg:hidden"
             >
               <div className="flex h-16 items-center justify-between px-6 border-b">
-                <Link href="/admin" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
-                  <LogoIcon className="h-6 w-6 text-primary" sealColor="text-yellow-600 dark:text-yellow-500" />
-                  <span className="font-bold text-xl tracking-tight ml-2">
+                <Link href="/admin" className="flex items-center gap-2 group transition-all duration-300" onClick={() => setIsOpen(false)}>
+                  <div className="p-2 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                    <LogoIcon className="h-5 w-5 text-primary flex-shrink-0" sealColor="text-yellow-600 dark:text-yellow-500" />
+                  </div>
+                  <span className="font-bold text-xl tracking-tight ml-2 truncate">
                     NEU <span className="font-normal text-muted-foreground">ARRS</span>
                   </span>
                 </Link>
@@ -59,18 +61,26 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
                 <Link 
                   href="/admin" 
                   onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium transition-colors ${pathname === "/admin" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
+                  className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
+                    pathname === "/admin" 
+                      ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
+                      : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
+                  }`}
                 >
-                  <LayoutDashboard className="w-5 h-5" />
+                  <LayoutDashboard className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin" ? "text-primary" : ""}`} />
                   Command Center
                 </Link>
                 {isAdmin && (
                   <Link 
                     href="/admin/documents" 
                     onClick={() => setIsOpen(false)}
-                    className={`flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium transition-colors ${pathname === "/admin/documents" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
+                    className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
+                      pathname === "/admin/documents" 
+                        ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
+                        : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
+                    }`}
                   >
-                    <FileText className="w-5 h-5" />
+                    <FileText className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/documents" ? "text-primary" : ""}`} />
                     Document Management
                   </Link>
                 )}
@@ -78,18 +88,26 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
                   <Link 
                     href="/admin/finance" 
                     onClick={() => setIsOpen(false)}
-                    className={`flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium transition-colors ${pathname === "/admin/finance" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
+                    className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
+                      pathname === "/admin/finance" 
+                        ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
+                        : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
+                    }`}
                   >
-                    <PieChart className="w-5 h-5" />
+                    <PieChart className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/finance" ? "text-primary" : ""}`} />
                     Financial Analytics
                   </Link>
                 )}
                 <Link 
                   href="/admin/students" 
                   onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium transition-colors ${pathname === "/admin/students" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
+                  className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
+                    pathname === "/admin/students" 
+                      ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
+                      : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
+                  }`}
                 >
-                  <Users className="w-5 h-5" />
+                  <Users className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/students" ? "text-primary" : ""}`} />
                   Student Directory
                 </Link>
                 {isAdmin && (
@@ -98,9 +116,13 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
                     <Link 
                       href="/admin/settings" 
                       onClick={() => setIsOpen(false)}
-                      className={`flex items-center gap-3 rounded-md px-3 py-3 text-sm font-medium transition-colors ${pathname === "/admin/settings" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted"}`}
+                      className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
+                        pathname === "/admin/settings" 
+                          ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
+                          : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
+                      }`}
                     >
-                      <Settings className="w-5 h-5" />
+                      <Settings className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/settings" ? "text-primary" : ""}`} />
                       System Settings
                     </Link>
                   </>
