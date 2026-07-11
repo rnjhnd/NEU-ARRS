@@ -34,8 +34,8 @@ function FinanceSkeleton() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 shadow-sm border-border overflow-hidden bg-card rounded-3xl pt-0">
           <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 !py-6 px-8">
-            <Skeleton className="h-6 w-40 mb-2" />
-            <Skeleton className="h-4 w-64" />
+            <Skeleton className="h-6 w-full max-w-[160px] mb-2" />
+            <Skeleton className="h-4 w-full max-w-[256px]" />
           </CardHeader>
           <CardContent className="px-8 pb-8 pt-6">
             <Skeleton className="h-[350px] w-full" />
@@ -44,8 +44,8 @@ function FinanceSkeleton() {
         
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl pt-0">
           <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 !py-6 px-8">
-            <Skeleton className="h-6 w-48 mb-2" />
-            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-6 w-full max-w-[192px] mb-2" />
+            <Skeleton className="h-4 w-full max-w-[160px]" />
           </CardHeader>
           <CardContent className="px-8 pb-8 pt-6">
             <Skeleton className="h-[350px] w-full rounded-full" />
@@ -54,8 +54,8 @@ function FinanceSkeleton() {
 
         <Card className="lg:col-span-3 shadow-sm border-border overflow-hidden bg-card rounded-3xl pt-0">
           <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 !py-6 px-8">
-            <Skeleton className="h-6 w-56 mb-2" />
-            <Skeleton className="h-4 w-72" />
+            <Skeleton className="h-6 w-full max-w-[224px] mb-2" />
+            <Skeleton className="h-4 w-full max-w-[288px]" />
           </CardHeader>
           <CardContent className="px-8 pb-8 pt-6">
             <Skeleton className="h-[350px] w-full" />

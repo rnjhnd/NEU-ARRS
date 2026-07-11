@@ -43,8 +43,8 @@ function AdminQueueSkeleton() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="w-full">
-            <Table className="table-fixed">
+          <div className="w-full overflow-x-auto">
+            <Table className="min-w-[1000px]">
               <TableHeader>
                 <TableRow className="border-b border-border/50 bg-transparent hover:bg-transparent">
                   <TableHead className="w-[50px] pl-8"><Skeleton className="h-4 w-4 rounded" /></TableHead>

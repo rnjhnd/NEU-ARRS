@@ -37,8 +37,8 @@ function DocumentsSkeleton() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="w-full">
-            <Table className="table-fixed">
+          <div className="w-full overflow-x-auto">
+            <Table className="min-w-[900px]">
               <TableHeader>
                 <TableRow className="border-b border-border/50 bg-transparent hover:bg-transparent">
                   <TableHead className="pl-8 w-[25%]"><Skeleton className="h-4 w-24" /></TableHead>

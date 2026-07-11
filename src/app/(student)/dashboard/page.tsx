@@ -36,7 +36,7 @@ function DashboardSkeleton() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="w-full overflow-x-auto">
-            <Table className="table-fixed">
+            <Table className="min-w-[800px]">
               <TableHeader>
                 <TableRow className="border-b border-border/50 bg-transparent hover:bg-transparent">
                   <TableHead className="pl-8 w-[15%]"><Skeleton className="h-4 w-20" /></TableHead>
