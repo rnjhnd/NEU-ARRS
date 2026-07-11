@@ -26,7 +26,7 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
       initial={false}
       animate={{ width: isCollapsed ? 80 : 280 }}
       transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-      className="flex-col hidden lg:flex relative z-20 h-[calc(100vh-2rem)] my-4 ml-4 rounded-[2rem] border border-primary/20 bg-background/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] overflow-visible supports-[backdrop-filter]:bg-background/40"
+      className="flex-col hidden xl:flex relative z-20 h-[calc(100vh-2rem)] my-4 ml-4 rounded-[2rem] border border-primary/20 bg-background/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] overflow-visible supports-[backdrop-filter]:bg-background/40"
     >
       <Button
         variant="outline"
