@@ -42,9 +42,9 @@ function DashboardSkeleton() {
                   <TableHead className="pl-8 w-[15%]"><Skeleton className="h-4 w-20" /></TableHead>
                   <TableHead className="w-[22%]"><Skeleton className="h-4 w-24" /></TableHead>
                   <TableHead className="w-[15%]"><Skeleton className="h-4 w-16" /></TableHead>
-                  <TableHead className="w-[15%] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-16" /></div></TableHead>
-                  <TableHead className="w-[15%] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-20" /></div></TableHead>
-                  <TableHead className="pr-8 w-[18%] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-24" /></div></TableHead>
+                  <TableHead className="w-[15%]"><Skeleton className="h-4 w-16" /></TableHead>
+                  <TableHead className="w-[15%]"><Skeleton className="h-4 w-20" /></TableHead>
+                  <TableHead className="pr-8 w-[15%] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-24" /></div></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -59,15 +59,13 @@ function DashboardSkeleton() {
                     <TableCell className="py-4">
                       <Skeleton className="h-4 w-24" />
                     </TableCell>
-                    <TableCell className="text-right py-4">
-                      <div className="flex justify-end"><Skeleton className="h-4 w-24 ml-auto" /></div>
+                    <TableCell className="py-4">
+                      <Skeleton className="h-4 w-24" />
                     </TableCell>
-                    <TableCell className="text-right py-4">
-                      <div className="flex justify-end">
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-16 ml-auto" />
-                          <Skeleton className="h-3 w-20 ml-auto" />
-                        </div>
+                    <TableCell className="py-4">
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-3 w-20" />
                       </div>
                     </TableCell>
                     <TableCell className="text-right pr-8 py-4">

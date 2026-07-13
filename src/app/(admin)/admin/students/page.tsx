@@ -33,7 +33,7 @@ function StudentsSkeleton() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="w-full overflow-x-auto pb-4">
-            <Table className="table-fixed min-w-[800px]">
+            <Table className="table-fixed min-w-[1000px]">
               <TableHeader>
                 <TableRow className="border-b border-border/50 bg-transparent hover:bg-transparent">
                   <TableHead className="pl-8 w-[35%]"><Skeleton className="h-4 w-16" /></TableHead>

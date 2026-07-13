@@ -50,9 +50,9 @@ function AdminQueueSkeleton() {
                   <TableHead className="w-[50px] pl-8"><Skeleton className="h-4 w-4 rounded" /></TableHead>
                   <TableHead className="w-[20%]"><Skeleton className="h-4 w-16" /></TableHead>
                   <TableHead className="w-[25%]"><Skeleton className="h-4 w-24" /></TableHead>
-                  <TableHead className="w-[15%] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-16" /></div></TableHead>
-                  <TableHead className="w-[15%] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-20" /></div></TableHead>
-                  <TableHead className="pr-8 w-[20%] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-16" /></div></TableHead>
+                  <TableHead className="w-[15%]"><Skeleton className="h-4 w-16" /></TableHead>
+                  <TableHead className="w-[15%]"><Skeleton className="h-4 w-20" /></TableHead>
+                  <TableHead className="pr-8 w-[15%] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-16" /></div></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -70,15 +70,13 @@ function AdminQueueSkeleton() {
                     <TableCell className="py-4">
                       <Skeleton className="h-4 w-48" />
                     </TableCell>
-                    <TableCell className="text-right py-4">
-                      <div className="flex justify-end"><Skeleton className="h-5 w-20 rounded-full" /></div>
+                    <TableCell className="py-4">
+                      <Skeleton className="h-5 w-20 rounded-full" />
                     </TableCell>
-                    <TableCell className="text-right py-4">
-                      <div className="flex justify-end">
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-20 ml-auto" />
-                          <Skeleton className="h-3 w-16 ml-auto" />
-                        </div>
+                    <TableCell className="py-4">
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-3 w-16" />
                       </div>
                     </TableCell>
                     <TableCell className="text-right pr-8 py-4">
