@@ -146,7 +146,9 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
               <span className="text-sm font-semibold text-foreground truncate">
                 {name || <Skeleton className="h-4 w-24" />}
               </span>
-              <span className="text-xs text-primary font-medium uppercase tracking-wide truncate">{role}</span>
+              <span className="text-xs text-primary font-medium uppercase tracking-wide truncate">
+                {name ? role : <Skeleton className="h-3 w-16 mt-1.5" />}
+              </span>
             </div>
           )}
         </div>

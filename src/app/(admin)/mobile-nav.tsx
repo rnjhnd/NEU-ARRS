@@ -150,7 +150,9 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
                     <span className="text-sm font-semibold truncate">
                       {name || <Skeleton className="h-4 w-24 mb-1" />}
                     </span>
-                    <span className="text-xs text-primary font-medium uppercase tracking-wide truncate">{roleName}</span>
+                    <span className="text-xs text-primary font-medium uppercase tracking-wide truncate">
+                      {name ? roleName : <Skeleton className="h-3 w-16" />}
+                    </span>
                   </div>
                 </div>
               </div>
