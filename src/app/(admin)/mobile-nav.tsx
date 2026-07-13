@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Menu, X, LayoutDashboard, Settings, Users, PieChart, FileText } from "lucide-react";
 import { LogoIcon } from "@/components/logo-icon";
@@ -15,9 +15,15 @@ import { useUser } from "@clerk/nextjs";
 export function MobileNav({ serverRole }: { serverRole: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const { user, isLoaded } = useUser();
+  const { user } = useUser();
   const isAdmin = serverRole === "admin";
-  const name = !isLoaded ? "Loading..." : user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Signing out...";
+  const cachedNameRef = useRef<string | null>(null);
+  
+  if (user) {
+    cachedNameRef.current = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User";
+  }
+  
+  const name = cachedNameRef.current || "Administrator";
   const roleName = serverRole === "admin" ? "Administrator" : serverRole === "employee" ? "Employee" : "Student";
   const [mounted, setMounted] = useState(false);
 

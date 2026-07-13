@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { ProfileMenu } from "@/components/profile-menu";
 import { LayoutDashboard, Settings, ChevronLeft, ChevronRight, Users, PieChart, FileText } from "lucide-react";
@@ -14,9 +14,14 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export function Sidebar({ serverRole }: { serverRole: string }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
-  const { user, isLoaded } = useUser();
+  const { user } = useUser();
+  const cachedNameRef = useRef<string | null>(null);
   
-  const name = !isLoaded ? "Loading..." : user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Signing out...";
+  if (user) {
+    cachedNameRef.current = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User";
+  }
+  
+  const name = cachedNameRef.current || "Administrator";
   const rawRole = serverRole;
   const role = rawRole === "admin" ? "Administrator" : rawRole === "employee" ? "Employee" : "Student";
   const isAdmin = rawRole === "admin";
