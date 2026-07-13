@@ -173,7 +173,7 @@ export function DocumentClient({ initialConfigs }: { initialConfigs: DocumentCon
         </CardHeader>
         <CardContent className="p-0">
           <div className="w-full overflow-x-auto pb-4">
-            <Table className="table-fixed min-w-[1100px]">
+            <Table className="table-fixed min-w-[900px]">
               <TableHeader>
                 <TableRow className="border-b border-border/50 hover:bg-transparent">
                   <TableHead className="pl-8 w-[25%] h-12 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Document</TableHead>

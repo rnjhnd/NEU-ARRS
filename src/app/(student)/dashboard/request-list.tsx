@@ -205,7 +205,7 @@ export function RequestList({ requests: initialRequests, isMaintenanceMode = fal
                 <SortableHeader title="Document Type" sortKey="documentType" className="w-[22%]" />
                 <SortableHeader title="Purpose" sortKey="purpose" className="w-[15%]" />
                 <SortableHeader title="Last Updated" sortKey="updatedAt" alignRight className="w-[15%]" />
-                <SortableHeader title="Payment" sortKey="paymentStatus" alignRight className="w-[15%]" />
+                <SortableHeader title="Payment" sortKey="paymentStatus" className="w-[15%]" />
                 <SortableHeader title="Status" sortKey="status" alignRight className="pr-8 w-[18%]" />
               </TableRow>
             </TableHeader>
@@ -234,8 +234,8 @@ export function RequestList({ requests: initialRequests, isMaintenanceMode = fal
                       <TableCell className="text-right text-muted-foreground font-medium">
                         {format(new Date(req.updatedAt), "MMM d, yyyy")}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex flex-col gap-0.5 items-end">
+                      <TableCell>
+                        <div className="flex flex-col gap-0.5">
                           <span className="capitalize text-sm font-medium">{req.paymentMethod}</span>
                           <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{req.paymentStatus.replace(/_/g, " ")}</span>
                         </div>
