@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import { ProfileMenu } from "@/components/profile-menu";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { useUser } from "@clerk/nextjs";
 
@@ -23,7 +24,7 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
     cachedNameRef.current = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User";
   }
   
-  const name = cachedNameRef.current || "Administrator";
+  const name = cachedNameRef.current;
   const roleName = serverRole === "admin" ? "Administrator" : serverRole === "employee" ? "Employee" : "Student";
   const [mounted, setMounted] = useState(false);
 
@@ -146,7 +147,9 @@ export function MobileNav({ serverRole }: { serverRole: string }) {
                 <div className="flex items-center gap-3">
                   <ProfileMenu side="top" />
                   <div className="flex flex-col whitespace-nowrap overflow-hidden">
-                    <span className="text-sm font-semibold truncate">{name}</span>
+                    <span className="text-sm font-semibold truncate">
+                      {name || <Skeleton className="h-4 w-24 mb-1" />}
+                    </span>
                     <span className="text-xs text-primary font-medium uppercase tracking-wide truncate">{roleName}</span>
                   </div>
                 </div>

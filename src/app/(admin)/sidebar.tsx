@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function Sidebar({ serverRole }: { serverRole: string }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -21,7 +22,7 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
     cachedNameRef.current = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User";
   }
   
-  const name = cachedNameRef.current || "Administrator";
+  const name = cachedNameRef.current;
   const rawRole = serverRole;
   const role = rawRole === "admin" ? "Administrator" : rawRole === "employee" ? "Employee" : "Student";
   const isAdmin = rawRole === "admin";
@@ -142,7 +143,9 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
           <ProfileMenu side="top" />
           {!isCollapsed && (
             <div className="flex flex-col whitespace-nowrap overflow-hidden">
-              <span className="text-sm font-semibold text-foreground truncate">{name}</span>
+              <span className="text-sm font-semibold text-foreground truncate">
+                {name || <Skeleton className="h-4 w-24" />}
+              </span>
               <span className="text-xs text-primary font-medium uppercase tracking-wide truncate">{role}</span>
             </div>
           )}
