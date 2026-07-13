@@ -204,7 +204,7 @@ export function RequestList({ requests: initialRequests, isMaintenanceMode = fal
                 <SortableHeader title="Reference ID" sortKey="id" className="pl-8 w-[15%]" />
                 <SortableHeader title="Document Type" sortKey="documentType" className="w-[22%]" />
                 <SortableHeader title="Purpose" sortKey="purpose" className="w-[15%]" />
-                <SortableHeader title="Last Updated" sortKey="updatedAt" alignRight className="w-[15%]" />
+                <SortableHeader title="Last Updated" sortKey="updatedAt" className="w-[15%]" />
                 <SortableHeader title="Payment" sortKey="paymentStatus" className="w-[15%]" />
                 <SortableHeader title="Status" sortKey="status" alignRight className="pr-8 w-[18%]" />
               </TableRow>
@@ -231,7 +231,7 @@ export function RequestList({ requests: initialRequests, isMaintenanceMode = fal
                       <TableCell className="text-muted-foreground">
                         {req.purpose.replace("_", " ")}
                       </TableCell>
-                      <TableCell className="text-right text-muted-foreground font-medium">
+                      <TableCell className="text-muted-foreground font-medium">
                         {format(new Date(req.updatedAt), "MMM d, yyyy")}
                       </TableCell>
                       <TableCell>

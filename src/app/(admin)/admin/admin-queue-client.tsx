@@ -443,7 +443,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                   <SortableHeader title="Student" sortKey="studentName" className="w-[20%]" />
                   <SortableHeader title="Document" sortKey="documentType" className="w-[25%]" />
                   <SortableHeader title="Payment" sortKey="paymentStatus" className="w-[15%]" />
-                  <SortableHeader title="Last Updated" sortKey="updatedAt" alignRight className="w-[15%]" />
+                  <SortableHeader title="Last Updated" sortKey="updatedAt" className="w-[15%]" />
                   <SortableHeader title="Status" sortKey="status" alignRight className="pr-8 w-[20%]" />
                 </TableRow>
               </TableHeader>
@@ -522,8 +522,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex flex-col gap-0.5 items-end">
+                      <TableCell>
+                        <div className="flex flex-col gap-0.5">
                           <span className="text-sm font-medium text-foreground">{format(new Date(req.updatedAt), "MMM d, yyyy")}</span>
                           <span className="text-[10px] text-muted-foreground">{format(new Date(req.updatedAt), "h:mm a")}</span>
                         </div>
