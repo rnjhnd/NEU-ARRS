@@ -14,9 +14,9 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export function Sidebar({ serverRole }: { serverRole: string }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   
-  const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Administrator";
+  const name = !isLoaded ? "Loading..." : user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Signing out...";
   const rawRole = serverRole;
   const role = rawRole === "admin" ? "Administrator" : rawRole === "employee" ? "Employee" : "Student";
   const isAdmin = rawRole === "admin";

@@ -15,9 +15,9 @@ import { useUser } from "@clerk/nextjs";
 export function MobileNav({ serverRole }: { serverRole: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const isAdmin = serverRole === "admin";
-  const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Administrator";
+  const name = !isLoaded ? "Loading..." : user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Signing out...";
   const roleName = serverRole === "admin" ? "Administrator" : serverRole === "employee" ? "Employee" : "Student";
   const [mounted, setMounted] = useState(false);
 
