@@ -206,7 +206,7 @@ export function RequestList({ requests: initialRequests, isMaintenanceMode = fal
                 <SortableHeader title="Purpose" sortKey="purpose" className="w-[15%]" />
                 <SortableHeader title="Last Updated" sortKey="updatedAt" className="w-[15%]" />
                 <SortableHeader title="Payment" sortKey="paymentStatus" className="w-[15%]" />
-                <SortableHeader title="Status" sortKey="status" alignRight className="pr-8 w-[18%]" />
+                <SortableHeader title="Status" sortKey="status" className="w-[18%]" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -240,8 +240,8 @@ export function RequestList({ requests: initialRequests, isMaintenanceMode = fal
                           <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{req.paymentStatus.replace(/_/g, " ")}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right pr-8">
-                        <div className="flex flex-col items-end justify-center gap-2">
+                      <TableCell>
+                        <div className="flex flex-col items-start justify-center gap-2">
                           {getStatusBadge(req.status)}
                         </div>
                       </TableCell>
