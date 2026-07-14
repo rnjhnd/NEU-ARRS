@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileNav } from "./mobile-nav";
 import { Sidebar } from "./sidebar";
@@ -6,6 +6,14 @@ import { Sidebar } from "./sidebar";
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const { sessionClaims } = await auth();
   const role = sessionClaims?.metadata?.role || "student";
+  const user = await currentUser();
+  const serverUser = user ? {
+    name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User",
+    email: user.primaryEmailAddress?.emailAddress || "",
+    imageUrl: user.imageUrl,
+    role: role as string
+  } : null;
+
   return (
     <div className="flex h-screen w-full bg-slate-50/50 dark:bg-background overflow-hidden relative">
       {/* Animated Background Gradients */}
@@ -16,7 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </div>
 
       <div className="relative z-10 flex h-full w-full pointer-events-auto">
-        <Sidebar serverRole={role} />
+        <Sidebar serverRole={role as string} serverUser={serverUser} />
 
         {/* Admin Main Content */}
         <div className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
@@ -24,7 +32,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div className="xl:hidden sticky top-0 z-50 pt-4 px-4 pb-0 bg-transparent pointer-events-none">
             <header className="flex h-14 shrink-0 items-center justify-between px-4 rounded-xl bg-background border border-border shadow-md pointer-events-auto">
               <div className="flex items-center gap-3">
-                <MobileNav serverRole={role} />
+                <MobileNav serverRole={role as string} serverUser={serverUser} />
                 <span className="font-bold text-xl tracking-tight ml-2">
                   NEU <span className="font-medium text-primary dark:text-primary">ARRS</span>
                 </span>

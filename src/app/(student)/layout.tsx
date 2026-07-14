@@ -9,6 +9,13 @@ export default async function StudentLayout({ children }: { children: React.Reac
   const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Student";
   const rawRole = user?.publicMetadata?.role as string | undefined;
   const roleName = rawRole === "admin" ? "Administrator" : rawRole === "employee" ? "Employee" : "Student";
+  const serverUser = user ? {
+    name,
+    email: user.primaryEmailAddress?.emailAddress || "",
+    imageUrl: user.imageUrl,
+    role: rawRole as string
+  } : null;
+  
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-background overflow-hidden">
       {/* Animated Background Gradients */}
@@ -38,7 +45,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
                   <span className="text-sm font-semibold text-foreground truncate leading-tight">{name}</span>
                   <span className="text-[11px] text-primary font-medium uppercase tracking-wide truncate leading-tight">{roleName}</span>
                 </div>
-                <ProfileMenu />
+                <ProfileMenu serverUser={serverUser} />
               </div>
             </div>
           </nav>

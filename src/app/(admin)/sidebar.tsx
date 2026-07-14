@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
-import { ProfileMenu } from "@/components/profile-menu";
+import { ProfileMenu, ServerUser } from "@/components/profile-menu";
 import { LayoutDashboard, Settings, ChevronLeft, ChevronRight, Users, PieChart, FileText } from "lucide-react";
 import { LogoIcon } from "@/components/logo-icon";
 import Link from "next/link";
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function Sidebar({ serverRole }: { serverRole: string }) {
+export function Sidebar({ serverRole, serverUser }: { serverRole: string, serverUser?: ServerUser }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
   const { user } = useUser();
@@ -22,7 +22,7 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
     cachedNameRef.current = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User";
   }
   
-  const name = cachedNameRef.current;
+  const name = serverUser?.name || cachedNameRef.current;
   const rawRole = serverRole;
   const role = rawRole === "admin" ? "Administrator" : rawRole === "employee" ? "Employee" : "Student";
   const isAdmin = rawRole === "admin";
@@ -140,7 +140,7 @@ export function Sidebar({ serverRole }: { serverRole: string }) {
       {/* User profile at bottom of sidebar */}
       <div className={`p-6 border-t border-primary/10 bg-muted/20 flex ${isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between"}`}>
         <div className={`flex ${isCollapsed ? "justify-center" : "items-center gap-3"}`}>
-          <ProfileMenu side="top" />
+          <ProfileMenu side="top" serverUser={serverUser} />
           {!isCollapsed && (
             <div className="flex flex-col whitespace-nowrap overflow-hidden">
               <span className="text-sm font-semibold text-foreground truncate">

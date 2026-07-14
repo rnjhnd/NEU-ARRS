@@ -17,7 +17,14 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 
-export function ProfileMenu({ side = "bottom" }: { side?: "top" | "bottom" | "left" | "right" } = {}) {
+export type ServerUser = {
+  name: string;
+  email: string;
+  imageUrl: string;
+  role: string;
+} | null;
+
+export function ProfileMenu({ side = "bottom", serverUser }: { side?: "top" | "bottom" | "left" | "right", serverUser?: ServerUser } = {}) {
   const { user, isLoaded } = useUser();
   const { signOut } = useClerk();
   const router = useRouter();
@@ -31,22 +38,24 @@ export function ProfileMenu({ side = "bottom" }: { side?: "top" | "bottom" | "le
   }, [user]);
   
   const displayUser = user || cachedUser;
+  
+  const resolvedName = serverUser?.name || (displayUser ? `${displayUser.firstName || ""} ${displayUser.lastName || ""}`.trim() || "User" : "User");
+  const resolvedEmail = serverUser?.email || displayUser?.primaryEmailAddress?.emailAddress || "";
+  const resolvedImageUrl = serverUser?.imageUrl || displayUser?.imageUrl || "";
+  const resolvedRole = serverUser?.role || (displayUser?.publicMetadata?.role as string | undefined) || "student";
+  const isAdmin = resolvedRole === "admin";
 
-  if (!isLoaded && !displayUser) {
+  if (!isLoaded && !displayUser && !serverUser) {
     return <Skeleton className="h-8 w-8 rounded-full" />;
   }
 
-  if (!displayUser) {
+  if (!displayUser && !serverUser) {
     return null;
   }
 
-  const role = displayUser.publicMetadata?.role as string | undefined;
-  const isAdmin = role === "admin";
-  const name = `${displayUser.firstName || ""} ${displayUser.lastName || ""}`.trim() || "User";
-  const email = displayUser.primaryEmailAddress?.emailAddress || "";
-  const fallbackInitials = name
+  const fallbackInitials = resolvedName
     .split(" ")
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join("")
     .substring(0, 2)
     .toUpperCase();
@@ -59,7 +68,7 @@ export function ProfileMenu({ side = "bottom" }: { side?: "top" | "bottom" | "le
     <DropdownMenu>
       <DropdownMenuTrigger className="relative h-8 w-8 rounded-full shadow-sm ring-2 ring-primary/50 ring-offset-2 ring-offset-background hover:ring-primary focus:outline-none active:scale-95 transition-all">
         <Avatar className="h-full w-full">
-          <AvatarImage src={displayUser.imageUrl} alt={name} />
+          <AvatarImage src={resolvedImageUrl} alt={resolvedName} />
           <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
             {fallbackInitials}
           </AvatarFallback>
@@ -75,17 +84,17 @@ export function ProfileMenu({ side = "bottom" }: { side?: "top" | "bottom" | "le
           <DropdownMenuLabel className="font-normal p-2">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 shadow-sm ring-2 ring-primary/50 ring-offset-2 ring-offset-popover">
-                <AvatarImage src={displayUser.imageUrl} alt={name} />
+                <AvatarImage src={resolvedImageUrl} alt={resolvedName} />
                 <AvatarFallback className="bg-primary/10 text-primary font-bold">
                   {fallbackInitials}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-semibold leading-none text-popover-foreground truncate max-w-[150px]">{name}</p>
+                <p className="text-sm font-semibold leading-none text-popover-foreground truncate max-w-[150px]">{resolvedName}</p>
                 <p className="text-[11px] font-medium leading-none text-primary uppercase tracking-wide">
-                  {role === "admin" ? "Administrator" : role === "employee" ? "Employee" : "Student"}
+                  {resolvedRole === "admin" ? "Administrator" : resolvedRole === "employee" ? "Employee" : "Student"}
                 </p>
-                <p className="text-xs text-muted-foreground truncate max-w-[150px]" title={email}>{email}</p>
+                <p className="text-xs text-muted-foreground truncate max-w-[150px]" title={resolvedEmail}>{resolvedEmail}</p>
               </div>
             </div>
           </DropdownMenuLabel>
