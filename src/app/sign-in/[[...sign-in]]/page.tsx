@@ -53,9 +53,14 @@ export default function SignInPage() {
     } catch (err: unknown) {
       console.error(err);
       if (isClerkAPIResponseError(err)) {
-        const msg = err.errors[0]?.longMessage || err.errors[0]?.message;
-        if (msg?.includes("verification strategy is not valid")) {
+        const firstError = err.errors[0];
+        const msg = firstError?.longMessage || firstError?.message || "";
+        const code = firstError?.code;
+
+        if (code === "strategy_for_user_invalid" || msg.toLowerCase().includes("verification strategy") || msg.toLowerCase().includes("strategy")) {
           toast.error("This account is linked to Google. Please use 'Continue with Google' to sign in.");
+        } else if (code === "form_password_incorrect") {
+          toast.error("Incorrect password. Please try again.");
         } else {
           toast.error(msg || "Sign-in failed. Please verify your credentials.");
         }
