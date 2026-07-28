@@ -29,6 +29,10 @@ export default function SignUpPage() {
   // Handle standard registration
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!firstName.trim() || !lastName.trim() || !emailAddress.trim() || !password) {
+      toast.error("Please fill in all the required fields to create your account.");
+      return;
+    }
     if (!signUp) return;
     setIsLoading(true);
 
@@ -236,7 +240,6 @@ export default function SignUpPage() {
                           value={firstName}
                           onChange={(e) => setFirstName(e.target.value)}
                           className="pl-9 h-11 bg-background border-border text-foreground focus-visible:ring-primary rounded-xl"
-                          required
                         />
                       </div>
                     </div>
@@ -247,7 +250,6 @@ export default function SignUpPage() {
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         className="h-11 bg-background border-border text-foreground focus-visible:ring-primary rounded-xl"
-                        required
                       />
                     </div>
                   </div>
@@ -262,7 +264,6 @@ export default function SignUpPage() {
                         value={emailAddress}
                         onChange={(e) => setEmailAddress(e.target.value)}
                         className="pl-9 h-11 bg-background border-border text-foreground focus-visible:ring-primary rounded-xl"
-                        required
                       />
                     </div>
                   </div>
@@ -276,7 +277,6 @@ export default function SignUpPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="pl-9 pr-10 h-11 bg-background border-border text-foreground focus-visible:ring-primary rounded-xl transition-all"
-                        required
                       />
                       <button
                         type="button"

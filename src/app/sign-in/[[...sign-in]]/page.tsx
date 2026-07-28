@@ -25,6 +25,10 @@ export default function SignInPage() {
   // Handle standard email/password login
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!emailAddress.trim() || !password) {
+      toast.error("Please enter both your email address and password to sign in.");
+      return;
+    }
     if (!signIn) return;
     setIsLoading(true);
 
@@ -172,7 +176,6 @@ export default function SignInPage() {
                   value={emailAddress}
                   onChange={(e) => setEmailAddress(e.target.value)}
                   className="pl-9 h-11 bg-background/50 border-border/60 text-foreground focus-visible:ring-primary/50 focus-visible:border-primary rounded-xl transition-all shadow-sm"
-                  required
                 />
               </div>
             </div>
@@ -189,7 +192,6 @@ export default function SignInPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-9 pr-10 h-11 bg-background/50 border-border/60 text-foreground focus-visible:ring-primary/50 focus-visible:border-primary rounded-xl transition-all shadow-sm"
-                  required
                 />
                 <button
                   type="button"
