@@ -85,7 +85,7 @@ export function RequestForm({
           <label className="block text-base font-bold tracking-tight mb-6">1. Student Details <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="studentName" className="block text-sm font-semibold mb-6">Full Name</label>
+              <label htmlFor="studentName" className="block text-sm font-semibold mb-4">Full Name</label>
               <input
                 id="studentName"
                 type="text"
@@ -97,7 +97,7 @@ export function RequestForm({
               />
             </div>
             <div>
-              <label htmlFor="studentNumber" className="block text-sm font-semibold mb-6">Student Number</label>
+              <label htmlFor="studentNumber" className="block text-sm font-semibold mb-4">Student Number</label>
               <input
                 id="studentNumber"
                 type="text"
