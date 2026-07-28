@@ -47,7 +47,7 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
         <Link href="/dashboard" className={buttonVariants({ variant: "ghost", className: "flex items-center gap-2" })}>
           <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </Link>
-        <Button onClick={handlePrint} className="flex items-center gap-2">
+        <Button onClick={handlePrint} className="flex items-center gap-2 text-white">
           <Printer className="w-4 h-4" /> Print Receipt
         </Button>
       </div>
