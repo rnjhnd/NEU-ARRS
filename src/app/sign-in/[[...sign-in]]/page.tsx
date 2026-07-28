@@ -17,7 +17,8 @@ export default function SignInPage() {
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isManualLoading, setIsManualLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
   const { signIn } = useSignIn();
   const clerk = useClerk();
@@ -30,7 +31,7 @@ export default function SignInPage() {
       return;
     }
     if (!signIn) return;
-    setIsLoading(true);
+    setIsManualLoading(true);
 
     try {
       const { error } = await signIn.create({
@@ -77,14 +78,14 @@ export default function SignInPage() {
         toast.error("An unexpected error occurred during sign-in.");
       }
     } finally {
-      setIsLoading(false);
+      setIsManualLoading(false);
     }
   };
 
   // Handle Google OAuth login
   const handleGoogleSignIn = async () => {
     if (!signIn) return;
-    setIsLoading(true);
+    setIsGoogleLoading(true);
     try {
       await clerk.client.signIn.authenticateWithRedirect({
         strategy: "oauth_google",
@@ -97,7 +98,7 @@ export default function SignInPage() {
       }
       console.error(err);
       toast.error("An unexpected error occurred. Please try again later.");
-      setIsLoading(false);
+      setIsGoogleLoading(false);
     }
   };
 
@@ -146,11 +147,11 @@ export default function SignInPage() {
           <Button 
             type="button" 
             variant="outline" 
-            className="w-full h-12 bg-background hover:bg-muted text-foreground font-medium rounded-xl border-border transition-all shadow-sm active:scale-[0.98]"
+            className="w-full h-12 bg-card hover:bg-muted text-foreground font-medium rounded-xl border-border transition-all hover:scale-[1.01] active:scale-[0.98] shadow-sm"
             onClick={handleGoogleSignIn}
-            disabled={!signIn || isLoading}
+            disabled={!signIn || isGoogleLoading || isManualLoading}
           >
-            {isLoading ? (
+            {isGoogleLoading ? (
               <>
                 <Loader2 className="mr-3 h-5 w-5 animate-spin" />
                 Please wait...
@@ -220,9 +221,9 @@ export default function SignInPage() {
             <Button 
               type="submit" 
               className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl transition-all active:scale-[0.98] shadow-md"
-              disabled={!signIn || isLoading}
+              disabled={!signIn || isManualLoading || isGoogleLoading}
             >
-              {isLoading ? (
+              {isManualLoading ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   Signing in...

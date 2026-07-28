@@ -22,7 +22,8 @@ export default function SignUpPage() {
   const [code, setCode] = useState("");
   
   const [pendingVerification, setPendingVerification] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isManualLoading, setIsManualLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
   const clerk = useClerk();
 
@@ -34,7 +35,7 @@ export default function SignUpPage() {
       return;
     }
     if (!signUp) return;
-    setIsLoading(true);
+    setIsManualLoading(true);
 
     try {
       const { error: createError } = await signUp.create({
@@ -69,7 +70,7 @@ export default function SignUpPage() {
         toast.error("An unexpected error occurred during sign-up.");
       }
     } finally {
-      setIsLoading(false);
+      setIsManualLoading(false);
     }
   };
 
@@ -105,14 +106,14 @@ export default function SignUpPage() {
         toast.error("An unexpected error occurred. Please try again later.");
       }
     } finally {
-      setIsLoading(false);
+      setIsManualLoading(false);
     }
   };
 
   // Handle Google OAuth sign up
   const handleGoogleSignUp = async () => {
     if (!signUp) return;
-    setIsLoading(true);
+    setIsGoogleLoading(true);
     try {
       await clerk.client.signIn.authenticateWithRedirect({
         strategy: "oauth_google",
@@ -125,7 +126,7 @@ export default function SignUpPage() {
       }
       console.error(err);
       toast.error("An unexpected error occurred. Please try again later.");
-      setIsLoading(false);
+      setIsGoogleLoading(false);
     }
   };
 
@@ -209,9 +210,9 @@ export default function SignUpPage() {
                   variant="outline" 
                   className="w-full h-12 bg-background hover:bg-muted text-foreground font-medium rounded-xl border-border"
                   onClick={handleGoogleSignUp}
-                  disabled={!signUp || isLoading}
+                  disabled={!signUp || isGoogleLoading || isManualLoading}
                 >
-                  {isLoading ? (
+                  {isGoogleLoading ? (
                     <>
                       <Loader2 className="mr-3 h-5 w-5 animate-spin" />
                       Please wait...
@@ -300,10 +301,15 @@ export default function SignUpPage() {
 
                   <Button 
                     type="submit" 
-                    className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl transition-all mt-2"
-                    disabled={!signUp || isLoading}
+                    className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl transition-all active:scale-[0.98] shadow-md"
+                    disabled={!signUp || isManualLoading || isGoogleLoading}
                   >
-                    {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Continue"}
+                    {isManualLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Creating account...
+                      </>
+                    ) : "Continue"}
                   </Button>
                 </form>
 
@@ -344,9 +350,9 @@ export default function SignUpPage() {
                   <Button 
                     type="submit" 
                     className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl transition-all"
-                    disabled={!signUp || isLoading || code.length !== 6}
+                    disabled={!signUp || isManualLoading || code.length !== 6}
                   >
-                    {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Verify Email"}
+                    {isManualLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Verify Email"}
                   </Button>
                 </form>
 
