@@ -30,19 +30,30 @@ export function RequestForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Form State
+  const [studentName, setStudentName] = useState<string>("");
+  const [studentNumber, setStudentNumber] = useState<string>("");
   const [documentType, setDocumentType] = useState<string>("");
   const [purpose, setPurpose] = useState<Purpose | "">("");
   const [paymentMethod, setPaymentMethod] = useState<"online" | "cash" | "">("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!documentType || !purpose || !paymentMethod) {
+    if (!studentName || !studentNumber || !documentType || !purpose || !paymentMethod) {
       toast.error("Please complete all required fields before submitting.");
+      return;
+    }
+    
+    // Basic format check on frontend before submitting
+    const studentNumberRegex = /^\d{2}-\d{5}-\d{3}$/;
+    if (!studentNumberRegex.test(studentNumber)) {
+      toast.error("Student number must be in the format ##-#####-### (e.g., 22-12345-123)");
       return;
     }
 
     setIsSubmitting(true);
     const formData = new FormData();
+    formData.append("studentName", studentName);
+    formData.append("studentNumber", studentNumber);
     formData.append("documentType", documentType);
     formData.append("purpose", purpose);
     formData.append("paymentMethod", paymentMethod);
@@ -69,9 +80,45 @@ export function RequestForm({
       <Card className="lg:col-span-2 shadow-sm border-border bg-card rounded-3xl">
         <CardContent className="p-6 sm:p-8 space-y-8">
         
-        {/* Document Type Section */}
+        {/* Student Details Section */}
         <div className="space-y-6">
-          <label className="block text-base font-bold tracking-tight">1. Document Type <span className="text-red-500">*</span></label>
+          <label className="block text-base font-bold tracking-tight">1. Student Details <span className="text-red-500">*</span></label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label htmlFor="studentName" className="text-sm font-semibold">Full Name</label>
+              <input
+                id="studentName"
+                type="text"
+                value={studentName}
+                onChange={(e) => setStudentName(e.target.value)}
+                placeholder="Juan Dela Cruz"
+                className="w-full flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="studentNumber" className="text-sm font-semibold">Student Number</label>
+              <input
+                id="studentNumber"
+                type="text"
+                value={studentNumber}
+                onChange={(e) => {
+                  // Basic masking: allow only numbers and dashes
+                  let val = e.target.value.replace(/[^\d-]/g, '');
+                  setStudentNumber(val);
+                }}
+                placeholder="22-12345-123"
+                className="w-full flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                required
+              />
+              <p className="text-xs text-muted-foreground">Format: ##-#####-###</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Document Type Section */}
+        <div className="space-y-6 pt-10 border-t border-border/50">
+          <label className="block text-base font-bold tracking-tight">2. Document Type <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {documentConfigs.map((doc) => (
               <motion.div
@@ -113,7 +160,7 @@ export function RequestForm({
 
         {/* Purpose Section */}
         <div className="space-y-6 pt-10 border-t border-border/50">
-          <label className="block text-base font-bold tracking-tight">2. Purpose of Request <span className="text-red-500">*</span></label>
+          <label className="block text-base font-bold tracking-tight">3. Purpose of Request <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {PurposeOptions.map((opt) => (
               <motion.div
@@ -135,7 +182,7 @@ export function RequestForm({
 
         {/* Payment Method Section */}
         <div className="space-y-6 pt-10 border-t border-border/50">
-          <label className="block text-base font-bold tracking-tight">3. Payment Method <span className="text-red-500">*</span></label>
+          <label className="block text-base font-bold tracking-tight">4. Payment Method <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {paymentMethods.online && (
               <motion.div

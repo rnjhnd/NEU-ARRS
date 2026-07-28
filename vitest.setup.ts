@@ -16,6 +16,7 @@ vi.mock("@/lib/prisma", () => ({
 vi.mock("@/lib/auth", () => ({
   requireAuth: vi.fn().mockResolvedValue("mock_student_id"),
   requireAdmin: vi.fn().mockResolvedValue("mock_admin_id"),
+  requireEmployeeOrAdmin: vi.fn().mockResolvedValue("mock_employee_id"),
 }));
 
 // Mock Next Cache

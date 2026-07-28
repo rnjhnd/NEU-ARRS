@@ -60,6 +60,7 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
         !req.id.toLowerCase().includes(q) && 
         !req.documentType.toLowerCase().includes(q) &&
         !req.studentName?.toLowerCase().includes(q) &&
+        !req.studentNumber?.toLowerCase().includes(q) &&
         !req.studentEmail?.toLowerCase().includes(q) &&
         !req.purpose.toLowerCase().replace(/_/g, " ").includes(q) &&
         !req.paymentMethod.toLowerCase().includes(q) &&
@@ -220,10 +221,11 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
 
   const exportToCSV = () => {
     if (requests.length === 0) return toast.error("There is no data available to export.");
-    const headers = ["Reference ID", "Student Name", "Student Email", "Document", "Purpose", "Payment Method", "Payment Status", "Date", "Status", "Cancel Reason"];
+    const headers = ["Reference ID", "Student Name", "Student Number", "Student Email", "Document", "Purpose", "Payment Method", "Payment Status", "Date", "Status", "Cancel Reason"];
     const rows = requests.map(r => [
       r.id,
-      r.studentName || "Unknown",
+      r.studentName,
+      r.studentNumber,
       r.studentEmail || "No email",
       r.documentType,
       r.purpose,
@@ -502,8 +504,8 @@ export function AdminQueueClient({ initialRequests }: { initialRequests: MappedR
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-semibold text-sm text-foreground">{req.studentName || "Unknown"}</span>
-                          <span className="text-[10px] text-muted-foreground">{req.studentEmail || "No email"}</span>
+                          <span className="font-semibold text-sm text-foreground">{req.studentName}</span>
+                          <span className="text-[10px] text-muted-foreground">{req.studentNumber}</span>
                         </div>
                       </TableCell>
                       <TableCell>

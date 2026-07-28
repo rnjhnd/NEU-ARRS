@@ -38,7 +38,6 @@ export async function GET() {
 
     const mappedRequests = requests.map(req => ({
       ...req,
-      studentName: userMap.get(req.studentId)?.name || "Unknown Student",
       studentEmail: userMap.get(req.studentId)?.email || "No email",
       documentType: docMap.get(req.documentType) || LEGACY_DOC_MAP[req.documentType] || req.documentType.replace(/_/g, " ")
     }));

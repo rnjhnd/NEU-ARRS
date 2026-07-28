@@ -37,6 +37,8 @@ enum Purpose {
 model Request {
   id                  String         @id @default(cuid())
   studentId           String         // Clerk userId
+  studentName         String
+  studentNumber       String
   documentType        String
   purpose             Purpose
   paymentMethod       String         // "online" | "cash"

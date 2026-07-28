@@ -192,5 +192,3 @@ export const StatusUpdateEmail = ({
     </Html>
   );
 };
-
-export default StatusUpdateEmail;

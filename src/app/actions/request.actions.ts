@@ -10,6 +10,8 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { sendStatusUpdateEmail } from "@/lib/email";
 import { refundPayment } from "@/lib/paymongo";
 const CreateRequestSchema = z.object({
+  studentName: z.string().min(2, "Name must be at least 2 characters long"),
+  studentNumber: z.string().regex(/^\d{2}-\d{5}-\d{3}$/, "Student number must be in the format ##-#####-###"),
   documentType: z.string().min(1),
   purpose: z.nativeEnum(Purpose),
   paymentMethod: z.enum(["online", "cash"]),
@@ -22,16 +24,18 @@ export async function createRequest(formData: FormData) {
 
     // 2. Validate form inputs
     const validatedFields = CreateRequestSchema.safeParse({
+      studentName: formData.get("studentName"),
+      studentNumber: formData.get("studentNumber"),
       documentType: formData.get("documentType"),
       purpose: formData.get("purpose"),
       paymentMethod: formData.get("paymentMethod"),
     });
 
     if (!validatedFields.success) {
-      return { success: false, error: "Invalid form data. Please check your inputs." };
+      return { success: false, error: "Invalid form data. Please ensure your student number matches the ##-#####-### format." };
     }
 
-    const { documentType, purpose, paymentMethod } = validatedFields.data;
+    const { studentName, studentNumber, documentType, purpose, paymentMethod } = validatedFields.data;
 
     // 2.5 Security Check: Enforce Maintenance Mode and Payment Methods on the Server
     const maintenanceSetting = await getSystemSetting("MAINTENANCE_MODE");
@@ -71,6 +75,8 @@ export async function createRequest(formData: FormData) {
     const newRequest = await prisma.request.create({
       data: {
         studentId,
+        studentName,
+        studentNumber,
         documentType,
         purpose,
         paymentMethod,
