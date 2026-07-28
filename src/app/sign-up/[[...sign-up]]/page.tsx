@@ -78,7 +78,7 @@ export default function SignUpPage() {
   const onPressVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!signUp) return;
-    setIsLoading(true);
+    setIsManualLoading(true);
 
     try {
       const { error } = await signUp.verifications.verifyEmailCode({
