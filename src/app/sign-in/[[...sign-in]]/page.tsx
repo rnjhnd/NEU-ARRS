@@ -1,7 +1,7 @@
 "use client";
 
 import { useSignIn, useClerk } from "@clerk/nextjs";
-import { Loader2, KeyRound, Mail } from "lucide-react";
+import { Loader2, KeyRound, Mail, Eye, EyeOff } from "lucide-react";
 import { LogoIcon } from "@/components/logo-icon";
 import Link from "next/link";
 import { useState } from "react";
@@ -16,6 +16,7 @@ import { isClerkAPIResponseError } from "@clerk/nextjs/errors";
 export default function SignInPage() {
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { signIn } = useSignIn();
@@ -183,13 +184,20 @@ export default function SignInPage() {
                 <KeyRound className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-9 h-11 bg-background/50 border-border/60 text-foreground focus-visible:ring-primary/50 focus-visible:border-primary rounded-xl transition-all shadow-sm"
+                  className="pl-9 pr-10 h-11 bg-background/50 border-border/60 text-foreground focus-visible:ring-primary/50 focus-visible:border-primary rounded-xl transition-all shadow-sm"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3.5 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors focus:outline-none"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
             </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSignUp, useClerk } from "@clerk/nextjs";
-import { ArrowLeft, Loader2, KeyRound, Mail, User, ShieldCheck, Zap, Clock } from "lucide-react";
+import { ArrowLeft, Loader2, KeyRound, Mail, User, ShieldCheck, Zap, Clock, Eye, EyeOff } from "lucide-react";
 import { LogoIcon } from "@/components/logo-icon";
 import Link from "next/link";
 import { useState } from "react";
@@ -18,6 +18,7 @@ export default function SignUpPage() {
   const [lastName, setLastName] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [code, setCode] = useState("");
   
   const [pendingVerification, setPendingVerification] = useState(false);
@@ -267,16 +268,23 @@ export default function SignUpPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="password" className="text-foreground font-medium">Password</Label>
-                    <div className="relative">
-                      <KeyRound className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+                    <div className="relative group">
+                      <KeyRound className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                       <Input
                         id="password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pl-9 h-11 bg-background border-border text-foreground focus-visible:ring-primary rounded-xl"
+                        className="pl-9 pr-10 h-11 bg-background border-border text-foreground focus-visible:ring-primary rounded-xl transition-all"
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-3.5 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors focus:outline-none"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
                   </div>
 
