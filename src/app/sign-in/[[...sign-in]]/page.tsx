@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { isClerkAPIResponseError } from "@clerk/nextjs/errors";
 
 export default function SignInPage() {
   const [emailAddress, setEmailAddress] = useState("");
@@ -46,7 +47,16 @@ export default function SignInPage() {
       }
     } catch (err: unknown) {
       console.error(err);
-      toast.error("An unexpected error occurred during sign-in.");
+      if (isClerkAPIResponseError(err)) {
+        const msg = err.errors[0]?.longMessage || err.errors[0]?.message;
+        if (msg?.includes("verification strategy is not valid")) {
+          toast.error("This account is linked to Google. Please use 'Continue with Google' to sign in.");
+        } else {
+          toast.error(msg || "Sign-in failed. Please verify your credentials.");
+        }
+      } else {
+        toast.error("An unexpected error occurred during sign-in.");
+      }
     } finally {
       setIsLoading(false);
     }
