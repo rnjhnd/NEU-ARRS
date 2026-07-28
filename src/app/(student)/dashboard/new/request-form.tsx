@@ -81,9 +81,9 @@ export function RequestForm({
         <CardContent className="p-6 sm:p-8 space-y-8">
         
         {/* Student Details Section */}
-        <div className="space-y-6">
-          <label className="block text-base font-bold tracking-tight">1. Student Details <span className="text-red-500">*</span></label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label className="block text-base font-bold tracking-tight mb-6">1. Student Details <span className="text-red-500">*</span></label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label htmlFor="studentName" className="text-sm font-semibold">Full Name</label>
               <input
@@ -116,8 +116,8 @@ export function RequestForm({
         </div>
 
         {/* Document Type Section */}
-        <div className="space-y-6 pt-10 border-t border-border/50">
-          <label className="block text-base font-bold tracking-tight">2. Document Type <span className="text-red-500">*</span></label>
+        <div className="space-y-2 pt-10 border-t border-border/50">
+          <label className="block text-base font-bold tracking-tight mb-6">2. Document Type <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {documentConfigs.map((doc) => (
               <motion.div
@@ -158,8 +158,8 @@ export function RequestForm({
         </div>
 
         {/* Purpose Section */}
-        <div className="space-y-6 pt-10 border-t border-border/50">
-          <label className="block text-base font-bold tracking-tight">3. Purpose of Request <span className="text-red-500">*</span></label>
+        <div className="space-y-2 pt-10 border-t border-border/50">
+          <label className="block text-base font-bold tracking-tight mb-6">3. Purpose of Request <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {PurposeOptions.map((opt) => (
               <motion.div
@@ -180,8 +180,8 @@ export function RequestForm({
         </div>
 
         {/* Payment Method Section */}
-        <div className="space-y-6 pt-10 border-t border-border/50">
-          <label className="block text-base font-bold tracking-tight">4. Payment Method <span className="text-red-500">*</span></label>
+        <div className="space-y-2 pt-10 border-t border-border/50">
+          <label className="block text-base font-bold tracking-tight mb-6">4. Payment Method <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {paymentMethods.online && (
               <motion.div
