@@ -84,8 +84,8 @@ export function RequestForm({
         <div className="space-y-2">
           <label className="block text-base font-bold tracking-tight mb-6">1. Student Details <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label htmlFor="studentName" className="text-sm font-semibold">Full Name</label>
+            <div>
+              <label htmlFor="studentName" className="block text-sm font-semibold mb-6">Full Name</label>
               <input
                 id="studentName"
                 type="text"
@@ -96,14 +96,13 @@ export function RequestForm({
                 required
               />
             </div>
-            <div className="space-y-2">
-              <label htmlFor="studentNumber" className="text-sm font-semibold">Student Number</label>
+            <div>
+              <label htmlFor="studentNumber" className="block text-sm font-semibold mb-6">Student Number</label>
               <input
                 id="studentNumber"
                 type="text"
                 value={studentNumber}
                 onChange={(e) => {
-                  // Basic masking: allow only numbers and dashes
                   let val = e.target.value.replace(/[^\d-]/g, '');
                   setStudentNumber(val);
                 }}
