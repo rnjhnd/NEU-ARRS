@@ -62,7 +62,12 @@ export default function SignUpPage() {
       toast.success("Verification code sent. Please check your inbox.");
     } catch (err: unknown) {
       console.error(err);
-      toast.error("An unexpected error occurred during sign-up.");
+      if (isClerkAPIResponseError(err)) {
+        const msg = err.errors[0]?.longMessage || err.errors[0]?.message;
+        toast.error(msg || "An error occurred during sign-up. Please try again.");
+      } else {
+        toast.error("An unexpected error occurred during sign-up.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -93,7 +98,12 @@ export default function SignUpPage() {
       }
     } catch (err: unknown) {
       console.error(err);
-      toast.error("An unexpected error occurred. Please try again later.");
+      if (isClerkAPIResponseError(err)) {
+        const msg = err.errors[0]?.longMessage || err.errors[0]?.message;
+        toast.error(msg || "Invalid verification code. Please try again.");
+      } else {
+        toast.error("An unexpected error occurred. Please try again later.");
+      }
     } finally {
       setIsLoading(false);
     }
