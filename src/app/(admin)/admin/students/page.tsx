@@ -89,7 +89,7 @@ export default async function StudentsPage() {
               Student Directory
             </h1>
             <p className="text-white/80 text-lg font-medium max-w-xl">
-              View all registered students, their request history, and lifetime value.
+              Find registered students, request counts, and verified settled collection values.
             </p>
           </div>
         </div>

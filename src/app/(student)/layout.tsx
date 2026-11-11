@@ -3,17 +3,19 @@ import { LogoIcon } from "@/components/logo-icon";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { currentUser } from "@clerk/nextjs/server";
+import { ProfileDetails } from "@/components/profile-details";
+import { displayRole } from "@/lib/profile-identity";
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
   const user = await currentUser();
   const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Student";
-  const rawRole = user?.publicMetadata?.role as string | undefined;
-  const roleName = rawRole === "admin" ? "Administrator" : rawRole === "employee" ? "Employee" : "Student";
+  const role = displayRole(user?.publicMetadata?.role);
   const serverUser = user ? {
+    id: user.id,
     name,
     email: user.primaryEmailAddress?.emailAddress || "",
     imageUrl: user.imageUrl,
-    role: rawRole as string
+    role
   } : null;
   
   return (
@@ -42,8 +44,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
               <ThemeToggle />
               <div className="flex items-center gap-3 pr-1.5 pl-2 ml-1 border-l border-border/50">
                 <div className="flex flex-col whitespace-nowrap overflow-hidden hidden sm:flex">
-                  <span className="text-sm font-semibold text-foreground truncate leading-tight">{name}</span>
-                  <span className="text-[11px] text-primary font-medium uppercase tracking-wide truncate leading-tight">{roleName}</span>
+                  <ProfileDetails serverUser={serverUser} />
                 </div>
                 <ProfileMenu serverUser={serverUser} />
               </div>

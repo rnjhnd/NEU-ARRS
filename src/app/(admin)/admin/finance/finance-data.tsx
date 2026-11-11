@@ -1,28 +1,16 @@
-import prisma from "@/lib/prisma";
+import { FinanceLoadError, loadFinanceData, requireFinanceActor } from "@/lib/finance-data";
 import { FinanceClient } from "./finance-client";
+import type { FinanceDataset } from "@/lib/finance-model";
 
 export async function FinanceData() {
-  // Fetch all requests
-  const requests = await prisma.request.findMany({
-    orderBy: { createdAt: "asc" },
-  });
-
-  const docConfigs = await prisma.documentConfig.findMany();
-  const docMap = new Map(docConfigs.map(c => [c.typeId, c.label]));
-
-  const LEGACY_DOC_MAP: Record<string, string> = {
-    "TRANSCRIPT_OF_RECORDS": "Transcript of Records",
-    "GOOD_MORAL": "Good Moral Certificate",
-    "LEAVE_OF_ABSENCE": "Leave of Absence",
-    "TRUE_COPY_OF_GRADES": "True Copy of Grades",
-    "CERTIFICATE_OF_ENROLLMENT": "Certificate of Enrollment",
-    "DIPLOMA": "Diploma"
-  };
-
-  const mappedRequests = requests.map(req => ({
-    ...req,
-    documentType: docMap.get(req.documentType) || LEGACY_DOC_MAP[req.documentType] || req.documentType.replace(/_/g, " ")
-  }));
-
-  return <FinanceClient requests={mappedRequests as any} />;
+  const actorId = await requireFinanceActor();
+  let initialData: FinanceDataset | undefined;
+  let initialError: string | undefined;
+  try { initialData = await loadFinanceData(); }
+  catch (error) {
+    if (error instanceof FinanceLoadError && [401, 403].includes(error.status)) throw error;
+    console.error("[FINANCE_INITIAL]", { error: error instanceof Error ? error.name : "UnknownError" });
+    initialError = "Finance snapshot unavailable.";
+  }
+  return <FinanceClient actorId={actorId} initialData={initialData} initialError={initialError} />;
 }

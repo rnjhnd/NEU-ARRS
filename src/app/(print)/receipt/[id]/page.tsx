@@ -4,6 +4,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 import { ReceiptClient } from "./receipt-client";
 import { RequestStatus } from "@prisma/client";
+import { verifiedCollection } from "@/lib/monetary-ledger";
 
 export const metadata = { title: "Document Receipt" };
 
@@ -12,16 +13,14 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
   const userId = await requireAuth();
   
   const request = await prisma.request.findUnique({
-    where: { id: id }
+    where: { id: id }, include: { money: true }
   });
 
   if (!request) {
     return notFound();
   }
 
-  // Security Check: Ensure the user is either the student who made the request, or an admin.
-  // In a robust app, we'd explicitly check for admin role here if userId !== request.studentId.
-  // For now, we will allow viewing if they are authenticated, but ideally we check metadata.
+  // Authenticate ownership/administrator permission before exposing receipt data.
   const client = await clerkClient();
   const viewingUser = await client.users.getUser(userId);
   const isAdmin = viewingUser.publicMetadata?.role === "admin";
@@ -41,6 +40,8 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
       </div>
     );
   }
+  const amountCentavos = verifiedCollection(request.money, request.paymentMethod);
+  if (amountCentavos === null) return <main className="p-8 text-center"><h1>Receipt Amount Needs Verification</h1><p>The registrar must reconcile the original payment evidence before this receipt can be issued. No amount has been inferred from historical values.</p></main>;
 
   // Fetch student details
   const student = await client.users.getUser(request.studentId);
@@ -56,13 +57,14 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
 
   const receiptData = {
     transactionId: request.id,
-    dateCompleted: request.updatedAt.toISOString(),
+    dateRecorded: request.money!.verifiedAt.toISOString(),
+    paidAt: request.money!.paidAt?.toISOString() ?? null,
     studentName,
     studentEmail,
     documentLabel,
     purpose: request.purpose.replace("_", " "),
     paymentMethod: request.paymentMethod,
-    amountPaid: request.amountPaid || 0, // In PHP
+    amountCentavos,
   };
 
   return <ReceiptClient receipt={receiptData} />;

@@ -7,6 +7,19 @@ on:
     branches: [ "main" ]
 
 jobs:
+  dependency-security:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      # Audit the complete lockfile, including development dependencies. This
+      # runs independently so unrelated lint failures cannot skip the audit.
+      - run: npm run audit:security
+
   test:
     name: Type Check, Lint, and Test
     runs-on: ubuntu-latest
@@ -18,11 +31,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Generate Prisma Client
         run: npx prisma generate
@@ -35,3 +48,45 @@ jobs:
 
       - name: Run Unit Tests
         run: npx vitest run
+
+  migrations:
+    name: Migration Replay and Prisma Schema Drift
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: migration_test
+          POSTGRES_PASSWORD: migration_test_only
+          POSTGRES_DB: neu_arrs_migration_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U migration_test -d neu_arrs_migration_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Dedicated disposable service credentials; no repository secrets.
+      MIGRATION_TEST_DATABASE_URL: postgresql://migration_test:migration_test_only@127.0.0.1:5432/neu_arrs_migration_test?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - name: Validate Prisma Schema
+        run: npx prisma validate --config scripts/prisma-test.config.ts
+      - name: Exercise Fresh and Legacy Migration Scenarios
+        run: npm run test:migrations
+      - name: Verify Native PostgreSQL Upgrade and Recovery
+        run: npm run test:migrations -- --native
+      - name: Deploy to Disposable Native PostgreSQL
+        run: npx prisma migrate deploy --config scripts/prisma-test.config.ts
+      - name: Reject Schema Drift
+        run: npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code --config scripts/prisma-test.config.ts
+      - name: Exercise Actual Prisma Client
+        run: node scripts/smoke-migrations.mjs
+      - name: Verify Production Cron Authentication and Empty Run
+        run: npm run build:check -- --smoke-cron

@@ -1,34 +1,25 @@
-"use client";
+﻿"use client";
 
-import { useState, useRef } from "react";
-import { useUser } from "@clerk/nextjs";
-import { ProfileMenu, ServerUser } from "@/components/profile-menu";
-import { LayoutDashboard, Settings, ChevronLeft, ChevronRight, Users, PieChart, FileText } from "lucide-react";
-import { LogoIcon } from "@/components/logo-icon";
+import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import { LogoIcon } from "@/components/logo-icon";
+import { ProfileMenu } from "@/components/profile-menu";
+import { ProfileDetails } from "@/components/profile-details";
+import { useProfileIdentity } from "@/components/use-profile-identity";
+import type { ServerUser } from "@/lib/profile-identity";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import { AdminNavLinks } from "./admin-nav-links";
 
-export function Sidebar({ serverRole, serverUser }: { serverRole: string, serverUser?: ServerUser }) {
+export function Sidebar({ serverUser }: { serverUser?: ServerUser }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const pathname = usePathname();
-  const { user } = useUser();
-  const cachedNameRef = useRef<string | null>(null);
-  
-  if (user) {
-    cachedNameRef.current = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User";
-  }
-  
-  const name = serverUser?.name || cachedNameRef.current;
-  const rawRole = serverRole;
-  const role = rawRole === "admin" ? "Administrator" : rawRole === "employee" ? "Employee" : "Student";
-  const isAdmin = rawRole === "admin";
+  const { profile } = useProfileIdentity(serverUser);
 
   return (
-    <motion.aside 
+    <motion.aside
       initial={false}
       animate={{ width: isCollapsed ? 80 : 280 }}
       transition={{ type: "spring", bounce: 0, duration: 0.3 }}
@@ -37,124 +28,38 @@ export function Sidebar({ serverRole, serverUser }: { serverRole: string, server
       <Button
         variant="outline"
         size="icon"
+        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        aria-expanded={!isCollapsed}
         className="absolute -right-4 top-[36px] h-8 w-8 rounded-full border border-border/50 bg-background/80 backdrop-blur-md text-foreground shadow-sm z-50 hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-md hover:scale-110 transition-all duration-300"
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        onClick={() => setIsCollapsed(collapsed => !collapsed)}
       >
         <motion.div animate={{ rotate: isCollapsed ? 180 : 0 }} transition={{ type: "spring", bounce: 0, duration: 0.4 }}>
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft aria-hidden="true" className="h-4 w-4" />
         </motion.div>
       </Button>
 
       <div className="flex pt-8 pb-6 items-start px-6 border-b border-primary/10 overflow-hidden whitespace-nowrap">
-        <Link href="/admin" className="flex items-center gap-2 group transition-all duration-300">
+        <Link href="/admin" aria-label="NEU ARRS command center" className="flex items-center gap-2 group transition-all duration-300">
           <div className="p-2 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
             <LogoIcon className="h-5 w-5 text-primary flex-shrink-0" sealColor="text-yellow-600 dark:text-yellow-500" />
           </div>
           {!isCollapsed && (
-            <motion.span 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="text-lg font-bold tracking-tight"
-            >
+            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-lg font-bold tracking-tight">
               NEU <span className="font-normal text-muted-foreground">ARRS</span>
             </motion.span>
           )}
         </Link>
       </div>
-      
-      <nav className="flex-1 space-y-2 p-4 overflow-y-auto overflow-x-hidden no-scrollbar whitespace-nowrap">
-        <Link 
-          href="/admin" 
-          className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
-            pathname === "/admin" 
-              ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
-              : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
-          } ${isCollapsed ? "justify-center" : ""}`}
-          title="Command Center"
-        >
-          <LayoutDashboard className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin" ? "text-primary" : ""}`} />
-          {!isCollapsed && <span>Command Center</span>}
-        </Link>
-        {isAdmin && (
-          <Link 
-            href="/admin/documents" 
-            className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
-              pathname === "/admin/documents" 
-                ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
-                : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
-            } ${isCollapsed ? "justify-center" : ""}`}
-            title="Document Management"
-          >
-            <FileText className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/documents" ? "text-primary" : ""}`} />
-            {!isCollapsed && <span>Document Management</span>}
-          </Link>
-        )}
-        {isAdmin && (
-          <Link 
-            href="/admin/finance" 
-            className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
-              pathname === "/admin/finance" 
-                ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
-                : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
-            } ${isCollapsed ? "justify-center" : ""}`}
-            title="Financial Analytics"
-          >
-            <PieChart className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/finance" ? "text-primary" : ""}`} />
-            {!isCollapsed && <span>Financial Analytics</span>}
-          </Link>
-        )}
-        <Link 
-          href="/admin/students" 
-          className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
-            pathname === "/admin/students" 
-              ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
-              : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
-          } ${isCollapsed ? "justify-center" : ""}`}
-          title="Student Directory"
-        >
-          <Users className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/students" ? "text-primary" : ""}`} />
-          {!isCollapsed && <span>Student Directory</span>}
-        </Link>
-        
-        {isAdmin && (
-          <>
-            <div className="pt-4 mt-4 border-t border-primary/10 mx-2" />
-            
-            <Link 
-              href="/admin/settings" 
-              className={`flex items-center gap-3 py-2.5 px-3 transition-all duration-300 rounded-xl ${
-                pathname === "/admin/settings" 
-                  ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-bold shadow-sm border border-primary/10"
-                  : "text-muted-foreground hover:bg-primary/5 hover:text-foreground font-medium border border-transparent"
-              } ${isCollapsed ? "justify-center" : ""}`}
-              title="System Settings"
-            >
-              <Settings className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/admin/settings" ? "text-primary" : ""}`} />
-              {!isCollapsed && <span>System Settings</span>}
-            </Link>
-          </>
-        )}
-      </nav>
 
-      {/* User profile at bottom of sidebar */}
-      <div className={`p-6 border-t border-primary/10 bg-muted/20 flex ${isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between"}`}>
-        <div className={`flex ${isCollapsed ? "justify-center" : "items-center gap-3"}`}>
+      <AdminNavLinks role={profile?.role} collapsed={isCollapsed} />
+
+      <div className={cn("p-6 border-t border-primary/10 bg-muted/20 flex",
+        isCollapsed ? "flex-col items-center gap-4" : "items-center justify-between")}>
+        <div className={cn("flex", isCollapsed ? "justify-center" : "items-center gap-3")}>
           <ProfileMenu side="top" serverUser={serverUser} />
-          {!isCollapsed && (
-            <div className="flex flex-col whitespace-nowrap overflow-hidden">
-              <span className="text-sm font-semibold text-foreground truncate">
-                {name || <Skeleton className="h-4 w-24" />}
-              </span>
-              <span className="text-xs text-primary font-medium uppercase tracking-wide truncate">
-                {name ? role : <Skeleton className="h-3 w-16 mt-1.5" />}
-              </span>
-            </div>
-          )}
+          {!isCollapsed && <ProfileDetails serverUser={serverUser} />}
         </div>
-        <div className="flex-shrink-0">
-          <ThemeToggle />
-        </div>
+        <div className="flex-shrink-0"><ThemeToggle /></div>
       </div>
     </motion.aside>
   );

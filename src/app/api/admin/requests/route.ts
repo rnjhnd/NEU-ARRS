@@ -1,50 +1,18 @@
 import { NextResponse } from "next/server";
-import { requireEmployeeOrAdmin } from "@/lib/auth";
-import prisma from "@/lib/prisma";
-import { clerkClient } from "@clerk/nextjs/server";
+import { getAdminQueueActor, loadAdminQueue, QueueAccessError } from "@/lib/admin-queue-data";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    // Ensure the user is authenticated and has the admin role
-    await requireEmployeeOrAdmin();
-
-    const requests = await prisma.request.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-
-    const client = await clerkClient();
-    const { data: users } = await client.users.getUserList();
-    const userMap = new Map(users.map(u => [
-      u.id, 
-      {
-        name: `${u.firstName || ""} ${u.lastName || ""}`.trim() || "Unknown Student",
-        email: u.emailAddresses[0]?.emailAddress || "No email"
-      }
-    ]));
-
-    const docConfigs = await prisma.documentConfig.findMany();
-    const docMap = new Map(docConfigs.map(c => [c.typeId, c.label]));
-
-    const LEGACY_DOC_MAP: Record<string, string> = {
-      "TRANSCRIPT_OF_RECORDS": "Transcript of Records",
-      "GOOD_MORAL": "Good Moral Certificate",
-      "LEAVE_OF_ABSENCE": "Leave of Absence",
-      "TRUE_COPY_OF_GRADES": "True Copy of Grades",
-      "CERTIFICATE_OF_ENROLLMENT": "Certificate of Enrollment",
-      "DIPLOMA": "Diploma"
-    };
-
-    const mappedRequests = requests.map(req => ({
-      ...req,
-      studentEmail: userMap.get(req.studentId)?.email || "No email",
-      documentType: docMap.get(req.documentType) || LEGACY_DOC_MAP[req.documentType] || req.documentType.replace(/_/g, " ")
-    }));
-
-    return NextResponse.json(mappedRequests);
+    if (new URL(request.url).searchParams.get("format") !== "queue-v1") {
+      await getAdminQueueActor();
+      return NextResponse.json({ error: "Reload the staff queue." }, { status: 409, headers: { "Cache-Control": "private, no-store" } });
+    }
+    return NextResponse.json(await loadAdminQueue(), { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
-    console.error("[ADMIN_REQUESTS_GET]", error);
-    return new NextResponse("Internal Error or Unauthorized", { status: 500 });
+    const status = error instanceof QueueAccessError ? error.status : 500;
+    if (status === 500) console.error("[ADMIN_REQUESTS_GET]", { error: error instanceof Error ? error.name : "UnknownError" });
+    return NextResponse.json({ error: status === 500 ? "Queue unavailable." : "Staff authorization required." }, { status, headers: { "Cache-Control": "private, no-store" } });
   }
 }

@@ -3,216 +3,104 @@
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
-import { Purpose, PaymentStatus, RequestStatus } from "@prisma/client";
-import { getSystemSetting } from "./admin.actions";
+import { Prisma, Purpose, PaymentStatus, RequestStatus } from "@prisma/client";
+import { CheckoutError, requireDocument, requireRequestAvailability, resumeCheckout } from "@/lib/checkout";
 
-import { clerkClient } from "@clerk/nextjs/server";
-import { sendStatusUpdateEmail } from "@/lib/email";
-import { refundPayment } from "@/lib/paymongo";
+import { enqueueRequestNotification } from "@/lib/notification-content";
+import { scheduleNotificationDelivery } from "@/lib/notification-wakeup";
+import { finishCancellationRefunds } from "@/lib/cancellation-refunds";
 const CreateRequestSchema = z.object({
-  studentName: z.string().min(2, "Name must be at least 2 characters long"),
-  studentNumber: z.string().regex(/^\d{2}-\d{5}-\d{3}$/, "Student number must be in the format ##-#####-###"),
-  documentType: z.string().min(1),
-  purpose: z.nativeEnum(Purpose),
+  submissionKey: z.string().uuid(),
+  studentName: z.string().trim().min(2).max(200),
+  studentNumber: z.string().regex(/^\d{2}-\d{5}-\d{3}$/),
+  documentType: z.string().trim().min(1).max(100),
+  purpose: z.enum(Purpose),
   paymentMethod: z.enum(["online", "cash"]),
 });
 
 export async function createRequest(formData: FormData) {
+  let requestId: string | undefined;
   try {
-    // 1. Authenticate the student on the server
     const studentId = await requireAuth();
-
-    // 2. Validate form inputs
-    const validatedFields = CreateRequestSchema.safeParse({
-      studentName: formData.get("studentName"),
-      studentNumber: formData.get("studentNumber"),
-      documentType: formData.get("documentType"),
-      purpose: formData.get("purpose"),
-      paymentMethod: formData.get("paymentMethod"),
-    });
-
-    if (!validatedFields.success) {
-      return { success: false, error: "Invalid form data. Please ensure your student number matches the ##-#####-### format." };
-    }
-
-    const { studentName, studentNumber, documentType, purpose, paymentMethod } = validatedFields.data;
-
-    // 2.5 Security Check: Enforce Maintenance Mode and Payment Methods on the Server
-    const maintenanceSetting = await getSystemSetting("MAINTENANCE_MODE");
-    if (maintenanceSetting.success && maintenanceSetting.value === "true") {
-      return { success: false, error: "System is currently under maintenance. No new requests can be processed at this time." };
-    }
-
-    const paymentSetting = await getSystemSetting("PAYMENT_METHODS");
-    if (paymentSetting.success && paymentSetting.value) {
-      const allowedMethods = JSON.parse(paymentSetting.value);
-      if (paymentMethod === "online" && !allowedMethods.online) {
-        return { success: false, error: "Online payment is currently disabled." };
-      }
-      if (paymentMethod === "cash" && !allowedMethods.cash) {
-        return { success: false, error: "Cash payment is currently disabled." };
+    const parsed = CreateRequestSchema.safeParse(Object.fromEntries(
+      ["submissionKey", "studentName", "studentNumber", "documentType", "purpose", "paymentMethod"].map(key => [key, formData.get(key)]),
+    ));
+    if (!parsed.success) return { success: false, error: "Invalid form data. Refresh the form and check your student details." };
+    const input = parsed.data;
+    const where = { studentId_submissionKey: { studentId, submissionKey: input.submissionKey } };
+    let request = await prisma.request.findUnique({ where });
+    if (!request) {
+      await requireRequestAvailability(input.paymentMethod);
+      const config = await requireDocument(input.documentType, input.paymentMethod);
+      try {
+        request = await prisma.request.create({ data: {
+          ...input, studentId, quotedAmountCentavos: config.price,
+          paymentStatus: input.paymentMethod === "cash" ? PaymentStatus.CASH_ON_PICKUP : PaymentStatus.UNPAID,
+          status: RequestStatus.PENDING_PAYMENT,
+        } });
+      } catch (error) {
+        if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== "P2002") throw error;
+        request = await prisma.request.findUnique({ where });
+        if (!request) throw error;
       }
     }
-
-    // 3. Determine initial statuses based on payment method
-    let paymentStatus: PaymentStatus = PaymentStatus.UNPAID;
-    let status: RequestStatus = RequestStatus.PENDING_PAYMENT;
-
-    if (paymentMethod === "cash") {
-      paymentStatus = PaymentStatus.CASH_ON_PICKUP;
-      status = RequestStatus.PENDING_PAYMENT;
+    requestId = request.id;
+    // An intent cannot be reused to silently change an existing order.
+    if (["studentName", "studentNumber", "documentType", "purpose", "paymentMethod"].some(key =>
+      request[key as keyof typeof request] !== input[key as keyof typeof input])) {
+      throw new CheckoutError("This submission already belongs to a different request. Check your dashboard before submitting again.");
     }
-
-    // 3.5 Fetch Document Config for Dynamic Pricing
-    const config = await prisma.documentConfig.findUnique({
-      where: { typeId: documentType }
-    });
-    
-    // Fallback to 15000 if not found, though it should exist
-    const dynamicPrice = config?.price || 15000;
-
-    // 4. Create the Prisma record
-    const newRequest = await prisma.request.create({
-      data: {
-        studentId,
-        studentName,
-        studentNumber,
-        documentType,
-        purpose,
-        paymentMethod,
-        paymentStatus,
-        status,
-        amountPaid: paymentMethod === "cash" ? Math.round(dynamicPrice / 100) : null, // Store cash price immediately for LTV tracking in PHP
-      },
-    });
-
-    if (paymentMethod === "online") {
-      // 5. Create PayMongo Checkout Session
-      const paymongoSecretKey = process.env.PAYMONGO_SECRET_KEY;
-      if (!paymongoSecretKey) throw new Error("PayMongo secret key is missing.");
-
-      // Base64 encode the secret key for Basic Auth
-      const authHeader = `Basic ${Buffer.from(`${paymongoSecretKey}:`).toString("base64")}`;
-
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-
-      const payload = {
-        data: {
-          attributes: {
-            send_email_receipt: false,
-            show_description: true,
-            show_line_items: true,
-            description: `NEU Document Request - ${documentType.replace("_", " ")}`,
-            payment_method_types: ["gcash", "paymaya", "card", "dob"],
-            line_items: [
-              {
-                currency: "PHP",
-                amount: dynamicPrice, // Dynamically fetched amount from DocumentConfig
-                description: `Purpose: ${purpose.replace("_", " ")}`,
-                name: config?.label || documentType.replace("_", " "),
-                quantity: 1,
-              },
-            ],
-            success_url: `${baseUrl}/dashboard?payment=success`,
-            cancel_url: `${baseUrl}/dashboard/new?payment=cancelled`,
-            metadata: {
-              requestId: newRequest.id,
-              studentId: studentId,
-            },
-          },
-        },
-      };
-
-      const response = await fetch("https://api.paymongo.com/v1/checkout_sessions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: authHeader,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("PayMongo API Error:", errorData);
-        throw new Error("Failed to initialize payment session.");
-      }
-
-      const responseData = await response.json();
-      const checkoutUrl = responseData.data.attributes.checkout_url;
-      const checkoutId = responseData.data.id;
-
-      // Update the request with the checkout ID so we can track it if needed
-      await prisma.request.update({
-        where: { id: newRequest.id },
-        data: { paymongoCheckoutId: checkoutId },
-      });
-
-      return { success: true, redirectUrl: checkoutUrl, request: newRequest };
-    }
-
-    // If cash, just return success
-    return { success: true, request: newRequest };
-  } catch (error: unknown) {
-    console.error("Failed to create request:", error);
-    return { success: false, error: error instanceof Error ? error.message : "Failed to submit request." };
+    if (input.paymentMethod === "cash") return { success: true, requestId };
+    const redirectUrl = await resumeCheckout(request.id, studentId);
+    return { success: true, requestId, redirectUrl };
+  } catch (error) {
+    console.error("Failed to submit request", { requestId, error: error instanceof Error ? error.name : "UnknownError" });
+    return { success: false, requestId, error: error instanceof CheckoutError ? error.message : "Request submission could not be confirmed. Check your dashboard before trying again." };
   }
 }
 
 export async function cancelStudentRequest(requestId: string, reason: string) {
   try {
     const studentId = await requireAuth();
+    const input = z.object({ id: z.string().cuid(), reason: z.string().trim().min(1).max(1000) }).safeParse({ id: requestId, reason });
+    if (!input.success) return { success: false, error: "A valid request and cancellation reason are required." };
+    reason = input.data.reason;
+    const request = await prisma.request.findUnique({ where: { id: requestId } });
+    if (!request || request.studentId !== studentId) return { success: false, error: "Request not found or unauthorized." };
+    if (request.status !== "PENDING_PAYMENT") return { success: false, error: "Only pending requests can be cancelled." };
 
-    // Verify the request belongs to the student and is cancellable
-    const request = await prisma.request.findUnique({
-      where: { id: requestId },
-    });
+    const cancelled = await prisma.$transaction(async tx => {
+      const saved = await tx.request.update({
+        where: {
+          id: requestId, studentId, status: "PENDING_PAYMENT", updatedAt: request.updatedAt,
+          paymentStatus: request.paymentStatus, paymentMethod: request.paymentMethod,
+          paymongoPaymentId: request.paymongoPaymentId,
+        },
+        data: { status: "CANCELLED", cancelReason: reason, notificationVersion: { increment: 1 } },
+      });
+      const event = await tx.auditLog.create({
+        data: {
+          adminId: studentId, action: "STUDENT_CANCELLED_REQUEST", requestId,
+          details: JSON.stringify({ fromStatus: request.status, toStatus: "CANCELLED", reason, refundRequested: request.paymentMethod === "online" && request.paymentStatus === "PAID", paymentClosureRequested: request.paymentMethod === "online" && request.paymentStatus === "UNPAID" }),
+        },
+      });
+      await enqueueRequestNotification(tx, saved, event.id);
+      return saved;
+    }, { maxWait: 2000, timeout: 8000 });
 
-    if (!request || request.studentId !== studentId) {
-      return { success: false, error: "Request not found or unauthorized." };
-    }
+    scheduleNotificationDelivery();
+    const { reviewIds, refundedIds } = await finishCancellationRefunds([request], studentId, reason);
 
-    if (request.status !== RequestStatus.PENDING_PAYMENT) {
-      return { success: false, error: "Only pending requests can be cancelled." };
-    }
-
-    let finalPaymentStatus = request.paymentStatus;
-    if (request.paymentStatus === "PAID" && request.paymentMethod === "online" && request.amountPaid) {
-      const refundSuccess = await refundPayment(requestId, request.amountPaid, reason);
-      if (refundSuccess) {
-        finalPaymentStatus = PaymentStatus.REFUNDED;
-      }
-    }
-
-    const updatedRequest = await prisma.request.update({
-      where: { id: requestId },
-      data: {
-        status: RequestStatus.CANCELLED,
-        paymentStatus: finalPaymentStatus,
-        cancelReason: reason,
-      },
-    });
-
-    try {
-      const client = await clerkClient();
-      const user = await client.users.getUser(studentId);
-      const primaryEmail = user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress;
-      if (primaryEmail) {
-        await sendStatusUpdateEmail(
-          primaryEmail,
-          user.firstName || "Student",
-          request.documentType,
-          RequestStatus.CANCELLED,
-          reason
-        );
-      }
-    } catch (err) {
-      console.error("Failed to send cancellation email", err);
-    }
-
-    return { success: true, request: updatedRequest };
-  } catch (error: unknown) {
+    return {
+      success: true,
+      request: refundedIds.length ? { ...cancelled, paymentStatus: PaymentStatus.REFUNDED } : cancelled,
+      warning: reviewIds.length ? "Your request is cancelled, but payment closure or refund is not confirmed. Do not pay again; please contact the registrar." : undefined,
+    };
+  } catch (error) {
     console.error("Failed to cancel request:", error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError && ["P2025", "P2034"].includes(error.code)) {
+      return { success: false, error: "Request changed. Refresh your dashboard before cancelling." };
+    }
     return { success: false, error: "Failed to cancel request." };
   }
 }
@@ -220,86 +108,10 @@ export async function cancelStudentRequest(requestId: string, reason: string) {
 export async function createRepaymentSession(requestId: string) {
   try {
     const studentId = await requireAuth();
-
-    const request = await prisma.request.findUnique({
-      where: { id: requestId },
-    });
-
-    if (!request || request.studentId !== studentId) {
-      return { success: false, error: "Request not found or unauthorized." };
-    }
-
-    if (request.status !== RequestStatus.PENDING_PAYMENT || request.paymentMethod !== "online") {
-      return { success: false, error: "This request is not eligible for online repayment." };
-    }
-
-    const config = await prisma.documentConfig.findUnique({
-      where: { typeId: request.documentType }
-    });
-
-    const dynamicPrice = config?.price || 15000;
-
-    const paymongoSecretKey = process.env.PAYMONGO_SECRET_KEY;
-    if (!paymongoSecretKey) throw new Error("PayMongo secret key is missing.");
-
-    const authHeader = `Basic ${Buffer.from(`${paymongoSecretKey}:`).toString("base64")}`;
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-
-    const payload = {
-      data: {
-        attributes: {
-          send_email_receipt: false,
-          show_description: true,
-          show_line_items: true,
-          description: `NEU Document Repayment - ${request.documentType.replace(/_/g, " ")}`,
-          payment_method_types: ["gcash", "paymaya", "card", "dob"],
-          line_items: [
-            {
-              currency: "PHP",
-              amount: dynamicPrice,
-              description: `Purpose: ${request.purpose.replace(/_/g, " ")}`,
-              name: config?.label || request.documentType.replace(/_/g, " "),
-              quantity: 1,
-            },
-          ],
-          success_url: `${baseUrl}/dashboard?payment=success`,
-          cancel_url: `${baseUrl}/dashboard?payment=cancelled`,
-          metadata: {
-            requestId: request.id,
-            studentId: studentId,
-          },
-        },
-      },
-    };
-
-    const response = await fetch("https://api.paymongo.com/v1/checkout_sessions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: authHeader,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("PayMongo API Error:", errorData);
-      throw new Error("Failed to initialize payment session.");
-    }
-
-    const responseData = await response.json();
-    const checkoutUrl = responseData.data.attributes.checkout_url;
-    const checkoutId = responseData.data.id;
-
-    await prisma.request.update({
-      where: { id: request.id },
-      data: { paymongoCheckoutId: checkoutId },
-    });
-
-    return { success: true, redirectUrl: checkoutUrl };
-  } catch (error: unknown) {
-    console.error("Failed to create repayment session:", error);
-    return { success: false, error: error instanceof Error ? error.message : "Failed to initialize repayment." };
+    if (!z.string().cuid().safeParse(requestId).success) return { success: false, error: "Invalid request." };
+    return { success: true, redirectUrl: await resumeCheckout(requestId, studentId) };
+  } catch (error) {
+    console.error("Failed to resume payment", { requestId, error: error instanceof Error ? error.name : "UnknownError" });
+    return { success: false, error: error instanceof CheckoutError ? error.message : "Payment could not be confirmed. Wait 30 seconds, then retry from your dashboard." };
   }
 }
-

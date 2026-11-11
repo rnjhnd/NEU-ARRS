@@ -1,11 +1,11 @@
 "use client";
 
-import { Request as RequestType } from "@prisma/client";
+import type { RequestStatus } from "@prisma/client";
 import { Check, FileText, Activity, Package, CheckCircle2, XCircle } from "lucide-react";
 import { format } from "date-fns";
 
 interface RequestTrackerProps {
-  request: RequestType;
+  request: { status: RequestStatus; cancelReason: string | null; createdAt: Date | string; updatedAt: Date | string };
 }
 
 const steps = [

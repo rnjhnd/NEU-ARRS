@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { createRequest } from "@/app/actions/request.actions";
@@ -18,6 +18,7 @@ const PurposeOptions = [
   { id: "PERSONAL", label: "Personal Copy" },
   { id: "OTHER", label: "Other Reason" }
 ];
+const submissionStorageKey = "neu-arrs:new-request:v1";
 
 export function RequestForm({ 
   documentConfigs, 
@@ -28,6 +29,8 @@ export function RequestForm({
 }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = useRef(false);
+  const submissionKeyRef = useRef<string | null>(null);
   
   // Form State
   const [studentName, setStudentName] = useState<string>("");
@@ -38,6 +41,7 @@ export function RequestForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
     if (!studentName || !studentNumber || !documentType || !purpose || !paymentMethod) {
       toast.error("Please complete all required fields before submitting.");
       return;
@@ -50,25 +54,36 @@ export function RequestForm({
       return;
     }
 
+    submittingRef.current = true;
     setIsSubmitting(true);
+    if (!submissionKeyRef.current) {
+      try { submissionKeyRef.current = sessionStorage.getItem(submissionStorageKey); } catch { /* Storage may be unavailable. */ }
+      submissionKeyRef.current ??= crypto.randomUUID();
+      try { sessionStorage.setItem(submissionStorageKey, submissionKeyRef.current); } catch { /* Keep the key in memory. */ }
+    }
     const formData = new FormData();
+    formData.append("submissionKey", submissionKeyRef.current);
     formData.append("studentName", studentName);
     formData.append("studentNumber", studentNumber);
     formData.append("documentType", documentType);
     formData.append("purpose", purpose);
     formData.append("paymentMethod", paymentMethod);
 
-    const result = await createRequest(formData);
-
-    if (result.success) {
-      toast.success("Your document request has been successfully submitted.");
-      if (result.redirectUrl) {
-        router.push(result.redirectUrl);
+    try {
+      const result = await createRequest(formData);
+      if (result.success || result.requestId) {
+        try { sessionStorage.removeItem(submissionStorageKey); } catch { /* The server still guards replays. */ }
+        if (result.success) toast.success("Your document request has been successfully submitted.");
+        else toast.warning(`Your request is saved. ${result.error}`);
+        if (result.redirectUrl) window.location.assign(result.redirectUrl);
+        else router.push("/dashboard");
       } else {
-        router.push("/dashboard");
+        toast.error(result.error || "Failed to submit your request.");
       }
-    } else {
-      toast.error(result.error || "Failed to submit your request.");
+    } catch {
+      toast.error("Submission could not be confirmed. Retry with the same details or check your dashboard first.");
+    } finally {
+      submittingRef.current = false;
       setIsSubmitting(false);
     }
   };
@@ -103,7 +118,7 @@ export function RequestForm({
                 type="text"
                 value={studentNumber}
                 onChange={(e) => {
-                  let val = e.target.value.replace(/[^\d-]/g, '');
+                  const val = e.target.value.replace(/[^\d-]/g, '');
                   setStudentNumber(val);
                 }}
                 placeholder="22-12345-123"

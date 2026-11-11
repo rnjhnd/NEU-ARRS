@@ -46,15 +46,108 @@ model Request {
   paymongoCheckoutId  String?        // PayMongo checkout session ID
   paymongoPaymentId   String?        // PayMongo payment ID (from webhook)
   paymongoPaymentType String?        // e.g., "gcash", "maya", "card", "qrph"
-  amountPaid          Int?           // Amount in centavos (e.g., 15000 = ₱150.00)
+  // Read-only legacy evidence: historical units differ. Never infer or write
+  // money here; verified collections live in RequestMoney (integer centavos).
+  amountPaid          Int?
+  money               RequestMoney?
   status              RequestStatus  @default(PENDING_PAYMENT)
   cancelReason        String?
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
+  submissionKey       String?        // Client intent UUID, scoped to the authenticated student
+  quotedAmountCentavos Int?          // Immutable server quote; null for historical orders
+  checkoutAttempt     CheckoutAttempt?
+  notificationVersion Int            @default(0)
+  notifications       NotificationOutbox[]
 
+  @@unique([studentId, submissionKey])
   @@index([studentId])
+  @@index([createdAt, id], map: "Request_finance_period_idx")
+  @@index([studentId, updatedAt(sort: Desc), id], map: "Request_student_history_idx")
+  @@index([studentId, status], map: "Request_student_summary_idx")
   @@index([status])
   @@index([paymentStatus])
+  @@index([paymentMethod, status, paymentStatus, createdAt, id], map: "Request_cleanup_scan_idx")
+}
+
+enum MoneySource {
+  PAYMONGO_PAYMENT
+  CASH_CONFIRMATION
+  HISTORICAL_VERIFIED
+}
+
+model RequestMoney {
+  requestId          String      @id
+  request            Request     @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  currency           String      @default("PHP")
+  method             String
+  collectedCentavos  Int
+  source             MoneySource
+  reference          String      @unique
+  evidenceId         String      @unique
+  collectionEvidence AuditLog    @relation("CollectionEvidence", fields: [evidenceId], references: [id], onDelete: Restrict)
+  verifiedAt         DateTime    @default(now())
+  paidAt             DateTime?
+  // Null means no verified refund total has been recorded, not a zero refund.
+  refundedCentavos   Int?
+  refundEvidenceId   String?     @unique
+  refundEvidence     AuditLog?   @relation("RefundEvidence", fields: [refundEvidenceId], references: [id], onDelete: Restrict)
+  refundVerifiedAt   DateTime?
+}
+
+enum NotificationState {
+  QUEUED
+  IN_FLIGHT
+  SENT
+  REVIEW
+  SUPERSEDED
+}
+
+model NotificationOutbox {
+  id                    String            @id
+  requestId             String
+  request               Request           @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  version               Int
+  studentId             String
+  status                RequestStatus
+  correction            Boolean           @default(false)
+  content               Json
+  state                 NotificationState @default(QUEUED)
+  payload               Json?
+  firstAttemptAt        DateTime?
+  credentialFingerprint String?
+  attempts              Int               @default(0)
+  retryLimit            Int               @default(5)
+  nextAttemptAt         DateTime          @default(now())
+  leaseToken            String?
+  providerEmailId       String?
+  lastError             String?
+  sentAt                DateTime?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  @@unique([requestId, version])
+  @@index([state, nextAttemptAt, createdAt, id], map: "NotificationOutbox_due_idx")
+}
+
+model CronJobState {
+  name            String   @id
+  leaseToken      String?
+  leaseUntil      DateTime
+  cursorCreatedAt DateTime?
+  cursorId        String?
+  updatedAt       DateTime @updatedAt
+}
+
+model CheckoutAttempt {
+  requestId      String   @id
+  request        Request  @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  idempotencyKey String   @unique @default(uuid())
+  payload        Json     // Frozen provider parameters; never contains API credentials
+  livemode       Boolean
+  credentialFingerprint String // SHA-256 of the high-entropy key, never the key itself
+  createdAt      DateTime @default(now())
+  leaseUntil     DateTime
 }
 
 model DocumentConfig {
@@ -77,11 +170,13 @@ model SystemSettings {
 
 model AuditLog {
   id        String   @id @default(cuid())
-  adminId   String   // Clerk user ID of the admin
+  adminId   String   // Legacy field name: Clerk actor ID or system service ID
   action    String   // e.g., 'STATUS_OVERRIDE', 'ROLE_GRANTED'
   details   String   // Contextual information
   requestId String?  // Optional relation if it pertains to a request
   createdAt DateTime @default(now())
+  collectionMoney RequestMoney? @relation("CollectionEvidence")
+  refundMoney RequestMoney? @relation("RefundEvidence")
 
   @@index([adminId])
   @@index([requestId])

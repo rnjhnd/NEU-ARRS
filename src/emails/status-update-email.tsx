@@ -22,6 +22,7 @@ interface StatusUpdateEmailProps {
   status: string;
   cancelReason?: string | null;
   customMessage?: string;
+  appUrl?: string;
 }
 
 const getStatusStyles = (status: string) => {
@@ -72,11 +73,11 @@ export const StatusUpdateEmail = ({
   status = 'PROCESSING',
   cancelReason,
   customMessage,
+  appUrl = "https://neu-arrs.vercel.app",
 }: StatusUpdateEmailProps) => {
   const styles = getStatusStyles(status);
   const previewText = `Update on your ${documentType} request: ${status.replace(/_/g, " ")}`;
 
-  const appUrl = "https://neu-arrs.vercel.app";
 
   return (
     <Html>

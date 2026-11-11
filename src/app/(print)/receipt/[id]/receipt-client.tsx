@@ -4,17 +4,19 @@ import { Printer, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { formatPHP } from "@/lib/money-format";
 
 interface ReceiptProps {
   receipt: {
     transactionId: string;
-    dateCompleted: string;
+    dateRecorded: string;
+    paidAt: string | null;
     studentName: string;
     studentEmail: string;
     documentLabel: string;
     purpose: string;
     paymentMethod: string;
-    amountPaid: number;
+    amountCentavos: number;
   };
 }
 
@@ -23,11 +25,8 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
     window.print();
   };
 
-  const formattedDate = format(new Date(receipt.dateCompleted), "PPP 'at' p");
-  const priceFormatted = receipt.amountPaid.toLocaleString("en-PH", {
-    style: "currency",
-    currency: "PHP",
-  });
+  const formattedDate = format(new Date(receipt.dateRecorded), "PPP 'at' p");
+  const priceFormatted = formatPHP(receipt.amountCentavos);
 
   return (
     <div className="mx-auto max-w-3xl p-8 print:p-0 bg-white min-h-screen text-slate-900 font-sans">
@@ -80,7 +79,8 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
           <div className="md:text-right print:text-right">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Payment Details</h3>
             <p className="text-slate-800 text-sm"><span className="text-slate-500 mr-2">Method:</span> <span className="font-semibold uppercase">{receipt.paymentMethod}</span></p>
-            <p className="text-slate-800 mt-1 text-sm"><span className="text-slate-500 mr-2">Date:</span> <span className="font-semibold">{formattedDate}</span></p>
+            <p className="text-slate-800 mt-1 text-sm"><span className="text-slate-500 mr-2">Collection verified:</span> <span className="font-semibold">{formattedDate}</span></p>
+            <p className="text-slate-800 mt-1 text-sm"><span className="text-slate-500 mr-2">Payment date:</span> {receipt.paidAt ? format(new Date(receipt.paidAt), "PPP 'at' p") : "Not recorded"}</p>
           </div>
         </div>
 

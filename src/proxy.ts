@@ -1,22 +1,20 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
+import { isServiceCronPath, rejectUnauthorizedCron } from "@/lib/cron-auth";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
-// Initialize Upstash Redis and Ratelimit only if keys are present
-const isRateLimitingConfigured = !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN;
-
-const redis = isRateLimitingConfigured ? new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || "",
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || "",
-}) : null;
-
-const ratelimit = redis ? new Ratelimit({
-  redis: redis,
-  limiter: Ratelimit.slidingWindow(100, "10 s"),
-  analytics: true,
-  prefix: "@upstash/ratelimit",
-}) : null;
+let ratelimit: Ratelimit | undefined;
+function getRateLimiter() {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  // The service-authenticated cron path does not initialize or depend on Redis.
+  return ratelimit ??= new Ratelimit({
+    redis: new Redis({ url, token }), limiter: Ratelimit.slidingWindow(100, "10 s"),
+    analytics: true, prefix: "@upstash/ratelimit",
+  });
+}
 
 const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)", "/sso-callback(.*)", "/api/webhooks(.*)"]);
 
@@ -24,19 +22,21 @@ const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 
 const isStudentRoute = createRouteMatcher(["/dashboard(.*)", "/receipt(.*)", "/api/student(.*)"]);
 
-export default clerkMiddleware(async (auth, req) => {
+const sessionMiddleware = clerkMiddleware(async (auth, req) => {
   // Only apply rate limiting to API routes or mutating requests (POST, PUT, DELETE, etc.)
   // This ensures that standard page navigation (GET requests) remains instantly snappy.
   const isApi = req.nextUrl.pathname.startsWith('/api');
   const isMutation = req.method !== 'GET';
 
-  if (isRateLimitingConfigured && ratelimit && (isApi || isMutation)) {
+  if (isApi || isMutation) {
     const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
     
     try {
-      const { success, limit, reset, remaining } = await ratelimit.limit(ip);
+      const limiter = getRateLimiter();
+      const result = limiter ? await limiter.limit(ip) : null;
       
-      if (!success) {
+      if (result && !result.success) {
+        const { limit, reset, remaining } = result;
         return new NextResponse("Too Many Requests - Rate limit exceeded. Please try again later.", {
           status: 429,
           headers: {
@@ -86,6 +86,13 @@ export default clerkMiddleware(async (auth, req) => {
     }
   }
 });
+
+export default function proxy(request: NextRequest, event: NextFetchEvent) {
+  if (isServiceCronPath(request.nextUrl.pathname)) {
+    return rejectUnauthorizedCron(request) ?? NextResponse.next();
+  }
+  return sessionMiddleware(request, event);
+}
 
 export const config = {
   matcher: [

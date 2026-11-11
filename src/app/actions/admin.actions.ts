@@ -3,169 +3,130 @@
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { requireAdmin, requireEmployeeOrAdmin } from "@/lib/auth";
-import { RequestStatus, PaymentStatus } from "@prisma/client";
+import { Prisma, RequestStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { clerkClient } from "@clerk/nextjs/server";
-import { sendStatusUpdateEmail, sendCorrectionEmail } from "@/lib/email";
-import { refundPayment } from "@/lib/paymongo";
+import { enqueueRequestNotification, loadNotificationSettings } from "@/lib/notification-content";
+import { scheduleNotificationDelivery } from "@/lib/notification-wakeup";
+import { finishCancellationRefunds } from "@/lib/cancellation-refunds";
+import { getStatusChangeError, isStatusReversal } from "@/lib/request-workflow";
+import { confirmCashCollection, MoneyValidationError } from "@/lib/monetary-ledger";
 
 const UpdateStatusSchema = z.object({
-  requestIds: z.array(z.string().cuid()),
+  requestIds: z.array(z.string().cuid()).min(1).max(50).refine(ids => new Set(ids).size === ids.length),
   newStatus: z.nativeEnum(RequestStatus),
-  cancelReason: z.string().optional(),
-  isOverride: z.boolean().optional(),
-  sendCorrectionEmail: z.boolean().optional(),
+  cancelReason: z.string().trim().max(1000).optional(),
+  overrideReason: z.string().trim().max(1000).optional(),
+  isOverride: z.enum(["true", "false"]).transform(value => value === "true"),
+  sendCorrectionEmail: z.enum(["true", "false"]).transform(value => value === "true"),
+  confirmCashCollected: z.enum(["true", "false"]).transform(value => value === "true"),
+  expectedVersions: z.array(z.object({ id: z.string().cuid(), updatedAt: z.iso.datetime() })).min(1).max(50),
 });
 
-const ALLOWED_TRANSITIONS: Record<RequestStatus, RequestStatus[]> = {
-  PENDING_PAYMENT: [RequestStatus.PROCESSING, RequestStatus.CANCELLED],
-  PROCESSING: [RequestStatus.READY_FOR_PICKUP, RequestStatus.CANCELLED],
-  READY_FOR_PICKUP: [RequestStatus.COMPLETED],
-  COMPLETED: [],
-  CANCELLED: [],
-};
+class StatusChangeError extends Error {}
 
 export async function updateRequestStatus(formData: FormData) {
   try {
-    // 1. Strict Server-Side Authorization (Admins and Employees can process requests)
     const adminId = await requireEmployeeOrAdmin();
-
-    // 2. Extract and Validate Input
-    const rawIds = formData.getAll("requestIds") as string[];
-    const rawStatus = formData.get("newStatus") as string;
-    const cancelReason = (formData.get("cancelReason") as string) || undefined;
-
-    const validatedFields = UpdateStatusSchema.safeParse({
+    const rawIds = formData.getAll("requestIds");
+    const rawVersions = formData.get("expectedVersions");
+    if (rawIds.length > 50 || typeof rawVersions !== "string" || rawVersions.length > 8000) {
+      return { success: false, error: "Invalid input provided. Refresh the queue and try again." };
+    }
+    let expectedVersions: unknown;
+    try { expectedVersions = JSON.parse(rawVersions); }
+    catch { return { success: false, error: "Invalid request versions." }; }
+    const parsed = UpdateStatusSchema.safeParse({
       requestIds: rawIds,
-      newStatus: rawStatus,
-      cancelReason,
-      isOverride: formData.get("isOverride") === "true",
-      sendCorrectionEmail: formData.get("sendCorrectionEmail") === "true",
+      newStatus: formData.get("newStatus"),
+      cancelReason: formData.get("cancelReason") ?? undefined,
+      overrideReason: formData.get("overrideReason") ?? undefined,
+      isOverride: formData.get("isOverride") ?? "false",
+      sendCorrectionEmail: formData.get("sendCorrectionEmail") ?? "false",
+      confirmCashCollected: formData.get("confirmCashCollected") ?? "false",
+      expectedVersions,
     });
-
-    if (!validatedFields.success) {
-      return { success: false, error: "Invalid input provided." };
+    if (!parsed.success) return { success: false, error: "Invalid input provided." };
+    const { requestIds, newStatus, cancelReason: reason, overrideReason, isOverride, sendCorrectionEmail: shouldSendCorrection, confirmCashCollected } = parsed.data;
+    const versions = new Map(parsed.data.expectedVersions.map(version => [version.id, new Date(version.updatedAt)]));
+    if (versions.size !== requestIds.length || parsed.data.expectedVersions.length !== requestIds.length || requestIds.some(id => !versions.has(id))) {
+      return { success: false, error: "A matching version is required for every selected request." };
     }
-
-    const { requestIds, newStatus, cancelReason: reason, isOverride, sendCorrectionEmail: shouldSendCorrection } = validatedFields.data;
-
-    if (newStatus === RequestStatus.CANCELLED && (!reason || reason.trim() === "")) {
-      return { success: false, error: "A cancellation reason is required." };
+    if (isOverride) {
+      await requireAdmin();
+      if (!overrideReason || overrideReason.length < 5) return { success: false, error: "An override reason of at least 5 characters is required." };
     }
+    if (shouldSendCorrection && !isOverride) return { success: false, error: "Correction emails require an administrator override." };
+    if (newStatus === "CANCELLED" && !reason) return { success: false, error: "A cancellation reason is required." };
 
-    // 3. Fetch current requests to validate state transitions
-    const requestsToUpdate = await prisma.request.findMany({
-      where: { id: { in: requestIds } },
-      select: { id: true, status: true, paymentStatus: true, paymentMethod: true, amountPaid: true },
-    });
-
-    // 4. Validate allowed status transitions (unless isOverride is true)
-    if (!isOverride) {
-      for (const req of requestsToUpdate) {
-        const allowedNextStates = ALLOWED_TRANSITIONS[req.status];
-        if (!allowedNextStates.includes(newStatus)) {
-          return { 
-            success: false, 
-            error: `Illegal state transition for request ${req.id}. Cannot move from ${req.status} to ${newStatus}.` 
-          };
-        }
+    const changes = await prisma.$transaction(async tx => {
+      const requests = await tx.request.findMany({ where: { id: { in: requestIds } } });
+      if (requests.length !== requestIds.length) throw new StatusChangeError("One or more requests no longer exist. Refresh the queue.");
+      // Validate the entire batch before mutating any row.
+      for (const request of requests) {
+        if (request.updatedAt.getTime() !== versions.get(request.id)?.getTime()) throw new StatusChangeError("Requests changed. Refresh the queue and try again.");
+        const error = getStatusChangeError(request, newStatus, { isOverride, confirmCashCollected });
+        if (error) throw new StatusChangeError(error);
       }
-    }
-
-    // 5. Execute Bulk Update
-    // Process refunds individually before updating if moving to CANCELLED
-    if (newStatus === RequestStatus.CANCELLED) {
-      for (const req of requestsToUpdate) {
-        let finalPaymentStatus = req.paymentStatus;
-        if (req.paymentStatus === "PAID" && req.paymentMethod === "online" && req.amountPaid) {
-          const refundSuccess = await refundPayment(req.id, req.amountPaid, reason || "cancelled_by_admin");
-          if (refundSuccess) {
-            finalPaymentStatus = PaymentStatus.REFUNDED;
-          }
-        }
-        await prisma.request.update({
-          where: { id: req.id },
+      const updated = [];
+      const notificationSettings = requests.some(request => !isStatusReversal(request.status, newStatus) || shouldSendCorrection)
+        ? await loadNotificationSettings(tx) : [];
+      // Stable lock order reduces deadlocks between overlapping batches.
+      for (const request of requests.sort((a, b) => a.id.localeCompare(b.id))) {
+        const saved = await tx.request.update({
+          where: {
+            id: request.id, updatedAt: request.updatedAt, status: request.status,
+            paymentStatus: request.paymentStatus, paymentMethod: request.paymentMethod,
+            paymongoPaymentId: request.paymongoPaymentId,
+          },
+          data: { status: newStatus, cancelReason: newStatus === "CANCELLED" ? reason : null, notificationVersion: { increment: 1 } },
+        });
+        const event = await tx.auditLog.create({
           data: {
-            status: newStatus,
-            paymentStatus: finalPaymentStatus as any, // type workaround
-            cancelReason: reason,
+            adminId, requestId: request.id,
+            action: isOverride ? "STATUS_OVERRIDE" : newStatus === "CANCELLED" ? "UPDATE_STATUS_CANCELLED" : "UPDATE_STATUS",
+            details: JSON.stringify({
+              fromStatus: request.status, toStatus: newStatus, isOverride,
+              overrideReason, reason,
+              cashCollectedConfirmed: newStatus === "COMPLETED" && request.paymentMethod === "cash" && request.paymentStatus === "CASH_ON_PICKUP" && confirmCashCollected,
+              refundRequested: newStatus === "CANCELLED" && request.paymentMethod === "online" && request.paymentStatus === "PAID",
+              paymentClosureRequested: newStatus === "CANCELLED" && request.paymentMethod === "online" && request.paymentStatus === "UNPAID",
+            }),
           },
         });
-        
-        await prisma.auditLog.create({
-          data: {
-            adminId,
-            action: "UPDATE_STATUS_CANCELLED",
-            details: `Cancelled request. Reason: ${reason}`,
-            requestId: req.id
-          }
-        });
-      }
-    } else {
-      await prisma.request.updateMany({
-        where: { id: { in: requestIds } },
-        data: { status: newStatus },
-      });
-      
-      // Bulk create audit logs
-      const auditData = requestIds.map(id => ({
-        adminId,
-        action: "UPDATE_STATUS",
-        details: `Updated status to ${newStatus}${isOverride ? " (Force Override)" : ""}`,
-        requestId: id
-      }));
-      await prisma.auditLog.createMany({ data: auditData });
-    }
-
-    // 5.5 Send Email Notifications
-    const client = await clerkClient();
-    for (const req of requestsToUpdate) {
-      try {
-        const fullReq = await prisma.request.findUnique({ where: { id: req.id } });
-        if (fullReq) {
-          const user = await client.users.getUser(fullReq.studentId);
-          const primaryEmail = user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress;
-          if (primaryEmail) {
-            const STATUS_ORDER: Record<string, number> = {
-              PENDING_PAYMENT: 0, PROCESSING: 1, 
-              READY_FOR_PICKUP: 2, COMPLETED: 3, CANCELLED: 4,
-            };
-            const isReversal = STATUS_ORDER[newStatus] < STATUS_ORDER[fullReq.status];
-
-            if (isReversal && !shouldSendCorrection) {
-              // Silent reversal: user moved status backwards but didn't check the correction email box
-              continue;
-            }
-
-            if (shouldSendCorrection) {
-              await sendCorrectionEmail(
-                primaryEmail,
-                user.firstName || "Student",
-                fullReq.documentType,
-                newStatus
-              );
-            } else {
-              await sendStatusUpdateEmail(
-                primaryEmail,
-                user.firstName || "Student",
-                fullReq.documentType,
-                newStatus,
-                reason
-              );
-            }
-          }
+        if (newStatus === "COMPLETED" && request.paymentMethod === "cash") await confirmCashCollection(tx, request, event.id, confirmCashCollected);
+        if (!isStatusReversal(request.status, newStatus) || shouldSendCorrection) {
+          await enqueueRequestNotification(tx, saved, event.id, shouldSendCorrection, notificationSettings);
         }
-      } catch (err) {
-        console.error("Failed to send email notification", err);
+        updated.push({ before: request, after: saved });
       }
-    }
+      return updated;
+    }, { maxWait: 2000, timeout: 8000 });
 
-    // 6. We omit revalidatePath("/admin") here to prevent a Next.js router soft-refresh (flicker).
-    // SWR's mutate() on the frontend instantly handles the UI state seamlessly.
-    return { success: true };
-  } catch (error: unknown) {
+    scheduleNotificationDelivery();
+
+    // Financial calls happen after a successful cancellation claim, never
+    // inside a retryable database transaction or before the batch commits.
+    const { reviewIds } = newStatus === "CANCELLED"
+      ? await finishCancellationRefunds(changes.map(change => change.before), adminId, reason!)
+      : { reviewIds: [] };
+
+
+    return {
+      success: true,
+      changes: changes.map(({ after }) => ({ id: after.id, status: after.status, paymentStatus: after.paymentStatus,
+        cancelReason: after.cancelReason, updatedAt: after.updatedAt.toISOString() })),
+      warning: reviewIds.length ? `${reviewIds.length} cancelled request(s) need payment closure or refund reconciliation. Use the administrator payment review; do not issue another refund blindly.` : undefined,
+    };
+  } catch (error) {
     console.error("Failed to update status:", error);
-    return { success: false, error: error instanceof Error ? error.message : "Failed to update status." };
+    if (error instanceof Prisma.PrismaClientKnownRequestError && ["P2025", "P2034"].includes(error.code)) {
+      return { success: false, error: "Requests changed. Refresh the queue and try again." };
+    }
+    if (error instanceof StatusChangeError || error instanceof MoneyValidationError || (error instanceof Error && /^(Unauthorized|Forbidden)/.test(error.message))) {
+      return { success: false, error: error.message };
+    }
+    return { success: false, error: "Failed to update requests. Refresh the queue before retrying." };
   }
 }
 

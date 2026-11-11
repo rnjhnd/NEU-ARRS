@@ -82,7 +82,7 @@ export default async function FinancePage() {
               Financial Analytics
             </h1>
             <p className="text-white/80 text-lg font-medium max-w-xl">
-              Monitor revenue streams, payment methods, and historical financial trends.
+              Review settled request values, payment methods, and requests requiring amount review.
             </p>
           </div>
         </div>
