@@ -124,8 +124,17 @@ and sorting cover the whole snapshot; table pages show ten students. Limits of
 need a dedicated paged directory service. No new migration is added. Release the
 directory API and client together and reload open staff directory tabs.
 
-Run `npm run test:navigation` for 73 isolated Chrome checks: nine navigation,
-twenty student history, sixteen staff queue, thirteen finance, and fifteen directory checks, all
+The [document/settings refactor](docs/remediation/17-document-settings-validation.md)
+adds exact-centavo price validation, administrator-only versioned configuration
+saves with audit records, read-only catalog loading, explicit standard-document
+initialization, and recoverable drafts. Student reads expose only active catalog
+fields and request-availability settings. Deploy the new configuration API/actions
+and clients together, then reload open tabs. No new migration is needed. Role-change
+concurrency and durable session revocation remain batch-18 authentication work.
+
+Run `npm run test:navigation` for 91 isolated Chrome checks: nine navigation,
+twenty student history, sixteen staff queue, thirteen finance, fifteen directory,
+and eighteen configuration checks, all
 using synthetic auth/data/action responses. Finance coverage includes actual
 CSV/PNG downloads. No real financial operation is used by these checks.
 

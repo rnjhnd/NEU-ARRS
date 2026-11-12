@@ -6,6 +6,10 @@ shared by initial rendering and a staff-only refresh API. Earlier monetary,
 workflow, notification, and navigation changes are preserved. No real account,
 provider, database, deployment, or Git history was changed.
 
+Follow-up: [batch 17](17-document-settings-validation.md) reuses the bounded
+account-page reader for role management and adds validated document/operational
+settings controls. The directory's data and monetary contracts remain unchanged.
+
 ## 1. Codebase architecture and design
 
 | Priority | Location | Finding and implemented recommendation |

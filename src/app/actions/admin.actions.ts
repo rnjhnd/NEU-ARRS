@@ -11,6 +11,8 @@ import { scheduleNotificationDelivery } from "@/lib/notification-wakeup";
 import { finishCancellationRefunds } from "@/lib/cancellation-refunds";
 import { getStatusChangeError, isStatusReversal } from "@/lib/request-workflow";
 import { confirmCashCollection, MoneyValidationError } from "@/lib/monetary-ledger";
+import { readPublicSetting } from "@/lib/configuration-data";
+import { readClerkAccounts } from "@/lib/clerk-account-snapshot";
 
 const UpdateStatusSchema = z.object({
   requestIds: z.array(z.string().cuid()).min(1).max(50).refine(ids => new Set(ids).size === ids.length),
@@ -130,110 +132,32 @@ export async function updateRequestStatus(formData: FormData) {
   }
 }
 
-export async function getDocumentConfigs() {
-  const configs = await prisma.documentConfig.findMany({
-    orderBy: { createdAt: "asc" }
-  });
-  
-  if (configs.length === 0) {
-    // Seed initial values if empty
-    const defaultConfigs = [
-      { typeId: "TOR", label: "Transcript of Records", description: "Official academic history", price: 15000 },
-      { typeId: "GOOD_MORAL", label: "Good Moral Certificate", description: "Behavioral clearance", price: 5000 },
-      { typeId: "DIPLOMA", label: "Official Diploma", description: "Graduation certificate", price: 50000 },
-      { typeId: "ENROLLMENT", label: "Cert. of Enrollment", description: "Current academic status", price: 10000 }
-    ];
-    
-    await prisma.documentConfig.createMany({ data: defaultConfigs });
-    return prisma.documentConfig.findMany({ orderBy: { createdAt: "asc" } });
-  }
-  
-  return configs;
-}
-
-export async function updateDocumentConfig(formData: FormData) {
-  try {
-    await requireAdmin();
-    
-    const id = formData.get("id") as string;
-    const label = formData.get("label") as string;
-    const description = formData.get("description") as string;
-    const priceStr = formData.get("price") as string;
-    const isActiveStr = formData.get("isActive") as string;
-    
-    if (!id || !label || !description) return { success: false, error: "Missing fields" };
-    
-    await prisma.documentConfig.update({
-      where: { id },
-      data: {
-        label,
-        description,
-        price: isNaN(parseInt(priceStr)) ? 0 : parseInt(priceStr) * 100, // convert pesos to centavos
-        isActive: isActiveStr === "true"
-      }
-    });
-    
-    revalidatePath("/admin/documents");
-    revalidatePath("/dashboard/new");
-    return { success: true };
-  } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
-  }
-}
-
-export async function createDocumentConfig(formData: FormData) {
-  try {
-    await requireAdmin();
-    
-    const label = formData.get("label") as string;
-    const description = formData.get("description") as string;
-    const priceStr = formData.get("price") as string;
-    const isActiveStr = formData.get("isActive") as string;
-    
-    if (!label || !description) return { success: false, error: "Missing fields" };
-    
-    const finalTypeId = formData.get("typeId") ? (formData.get("typeId") as string) : label;
-    
-    const newConfig = await prisma.documentConfig.create({
-      data: {
-        typeId: finalTypeId.toUpperCase().replace(/[^A-Z0-9]/ig, '_'),
-        label,
-        description,
-        price: isNaN(parseInt(priceStr)) ? 0 : parseInt(priceStr) * 100, // convert pesos to centavos
-        isActive: isActiveStr === "true"
-      }
-    });
-    
-    revalidatePath("/admin/documents");
-    revalidatePath("/dashboard/new");
-    return { success: true, config: newConfig };
-  } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
-  }
-}
-
-export async function updateUserRole(userId: string, role: "admin" | "employee" | "student") {
+export async function updateUserRole(userId: string, role: "admin" | "employee" | "student", expectedRole: "admin" | "employee" | "student"): Promise<{ success: true } | { success: false; code: "auth" | "invalid" | "conflict" | "unavailable"; error: string }> {
   try {
     const callerId = await requireAdmin();
+    if (!z.string().min(1).max(255).safeParse(userId).success || !z.enum(["admin", "employee", "student"]).safeParse(role).success || !z.enum(["admin", "employee", "student"]).safeParse(expectedRole).success) return { success: false, code: "invalid", error: "Invalid user or role." };
     
     // Prevent admins from changing their own role (accidental self-demotion)
     if (callerId === userId) {
-      return { success: false, error: "You cannot change your own role. Contact another administrator." };
+      return { success: false, code: "invalid", error: "You cannot change your own role. Contact another administrator." };
     }
     
     const client = await clerkClient();
 
-    // Prevent demoting the last remaining admin — system must always have at least one
+    // Reject an observed last-administrator demotion. Cross-provider concurrency
+    // and durable session-revocation recovery require the auth-batch workflow.
     const targetUser = await client.users.getUser(userId);
     const targetCurrentRole = targetUser.publicMetadata?.role as string | undefined;
+    if ((targetCurrentRole ?? "student") !== expectedRole) return { success: false, code: "conflict", error: "The account role changed. Refresh before trying again." };
     if (targetCurrentRole === "admin" && role !== "admin") {
-      const allUsers = await client.users.getUserList({ limit: 500 });
-      const adminCount = allUsers.data.filter(
+      const allUsers = await readClerkAccounts(client.users);
+      const adminCount = allUsers.filter(
         u => (u.publicMetadata?.role as string) === "admin"
       ).length;
       if (adminCount <= 1) {
         return {
           success: false,
+          code: "invalid",
           error: "Cannot demote the last administrator. Promote another user to admin first."
         };
       }
@@ -245,7 +169,8 @@ export async function updateUserRole(userId: string, role: "admin" | "employee" 
       }
     });
     
-    // Revoke all active sessions for this user to enforce instant role change
+    // Attempt revocation after the metadata write. Full session pagination and
+    // durable recovery for uncertain provider writes are auth-batch follow-ups.
     const sessions = await client.sessions.getSessionList({ userId });
     for (const session of sessions.data) {
       if (session.status === "active") {
@@ -257,32 +182,12 @@ export async function updateUserRole(userId: string, role: "admin" | "employee" 
     revalidatePath("/admin/students");
     return { success: true };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    const denied = error instanceof Error && /^(Unauthorized|Forbidden)/.test(error.message);
+    return { success: false, code: denied ? "auth" : "unavailable", error: denied ? "Administrator authorization required." : "Role change could not be confirmed. Refresh the account list and review active sessions before retrying." };
   }
 }
 
 export async function getSystemSetting(key: string) {
-  try {
-    const setting = await prisma.systemSettings.findUnique({ where: { key } });
-    return { success: true, value: setting ? setting.value : null };
-  } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
-  }
-}
-
-export async function updateSystemSetting(key: string, value: string) {
-  try {
-    await requireAdmin();
-    
-    await prisma.systemSettings.upsert({
-      where: { key },
-      update: { value },
-      create: { key, value }
-    });
-    
-    revalidatePath("/", "layout");
-    return { success: true };
-  } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
-  }
+  try { return { success: true, value: await readPublicSetting(key) }; }
+  catch { return { success: false, value: null, error: "Request settings are unavailable." }; }
 }

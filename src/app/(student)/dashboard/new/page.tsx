@@ -1,50 +1,21 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RequestForm } from "./request-form";
-import { getDocumentConfigs, getSystemSetting } from "@/app/actions/admin.actions";
-import { DocumentConfig } from "@prisma/client";
-import { AlertCircle } from "lucide-react";
+import { readPublicSetting, loadStudentCatalog } from "@/lib/configuration-data";
+import type { StudentCatalogItem } from "@/lib/configuration-model";
 
 export const metadata = { title: "New Document Request" };
 
 export default async function NewRequestPage() {
-  // Check Maintenance Mode
-  const maintenanceSetting = await getSystemSetting("MAINTENANCE_MODE");
-  const isMaintenanceMode = maintenanceSetting.success && maintenanceSetting.value === "true";
-
-  if (isMaintenanceMode) {
-    return (
-      <div className="max-w-2xl mx-auto flex flex-col items-center justify-center text-center mt-20 space-y-6">
-        <div className="p-6 bg-red-500/10 rounded-full text-red-500">
-          <AlertCircle className="w-16 h-16" />
-        </div>
-        <h2 className="text-3xl font-extrabold tracking-tight">System Under Maintenance</h2>
-        <p className="text-muted-foreground text-lg max-w-xl">
-          The registrar's office is currently not accepting new document requests. Please check back later. If you have an existing request, you can still track its status from your dashboard.
-        </p>
-      </div>
-    );
-  }
-
-  // Fetch configs
-  const configs = await getDocumentConfigs();
-  const activeConfigs = configs.filter((c: DocumentConfig) => c.isActive);
-
-  // Fetch payment methods
-  const paymentSetting = await getSystemSetting("PAYMENT_METHODS");
-  const paymentMethods = paymentSetting.success && paymentSetting.value 
-    ? JSON.parse(paymentSetting.value) 
-    : { online: true, cash: true };
-
-  return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      <div>
-        <h2 className="text-3xl font-extrabold tracking-tight">Request Document</h2>
-        <p className="text-muted-foreground mt-1 text-lg">
-          Select the documents you need and proceed to checkout.
-        </p>
-      </div>
-
-      <RequestForm documentConfigs={activeConfigs} paymentMethods={paymentMethods} />
-    </div>
-  );
+  let paused = false, unavailable = false;
+  let catalog: StudentCatalogItem[] = [], methods = { online: true, cash: true };
+  try {
+    paused = (await readPublicSetting("MAINTENANCE_MODE")) === "true";
+    if (!paused) {
+      const [items, payments] = await Promise.all([loadStudentCatalog(), readPublicSetting("PAYMENT_METHODS")]);
+      catalog = items; methods = JSON.parse(payments);
+    }
+  } catch { unavailable = true; }
+  if (unavailable) return <main className="space-y-3 p-6"><h1 className="text-2xl font-bold">Request settings unavailable</h1><p>The request catalog or payment settings could not be verified. Please try again later or contact the registrar. Existing request history remains available.</p></main>;
+  if (paused) return <main className="space-y-3 p-6"><h1 className="text-2xl font-bold">New requests paused</h1><p>The registrar is currently not accepting new document requests. Your existing request history remains available.</p></main>;
+  if (!catalog.length) return <main className="space-y-3 p-6"><h1 className="text-2xl font-bold">No documents available</h1><p>No active documents have been configured. Please contact the registrar.</p></main>;
+  return <div className="mx-auto max-w-6xl space-y-8"><header><h1 className="text-3xl font-bold">Request Document</h1><p className="text-muted-foreground">Select a document and a payment method to continue.</p></header><RequestForm documentConfigs={catalog} paymentMethods={methods} /></div>;
 }

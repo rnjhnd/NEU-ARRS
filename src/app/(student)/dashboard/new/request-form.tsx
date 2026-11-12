@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { createRequest } from "@/app/actions/request.actions";
 import { toast } from "sonner";
-import { Purpose, DocumentConfig } from "@prisma/client";
+import { Purpose } from "@prisma/client";
+import type { StudentCatalogItem } from "@/lib/configuration-model";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, FileText, CreditCard, Landmark, Loader2 } from "lucide-react";
@@ -24,7 +25,7 @@ export function RequestForm({
   documentConfigs, 
   paymentMethods 
 }: { 
-  documentConfigs: DocumentConfig[];
+  documentConfigs: StudentCatalogItem[];
   paymentMethods: { online: boolean; cash: boolean };
 }) {
   const router = useRouter();

@@ -24,9 +24,9 @@ vi.mock("@/lib/prisma", () => ({
       create: vi.fn(),
       updateMany: vi.fn(),
     },
-    documentConfig: { findUnique: vi.fn(), findMany: vi.fn() },
+    documentConfig: { findUnique: vi.fn(), findMany: vi.fn(), count: vi.fn(), create: vi.fn(), createMany: vi.fn(), update: vi.fn() },
     cronJobState: { upsert: vi.fn(), findUnique: vi.fn(), updateMany: vi.fn() },
-    systemSettings: { findMany: vi.fn() },
+    systemSettings: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn() },
     notificationOutbox: { create: vi.fn(), findMany: vi.fn(), findUnique: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
   },
 }));

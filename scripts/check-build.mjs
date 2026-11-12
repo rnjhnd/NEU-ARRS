@@ -12,7 +12,7 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const db = await PGlite.create();
 const server = new PGLiteSocketServer({ db, host: "127.0.0.1", port: 0, maxConnections: 10 });
 
-// A build may execute page data loaders (including document-config seeding).
+// A build may execute page data loaders.
 // Always use this owned, in-memory database, never any supplied datasource URL.
 try {
   const migrations = resolve(root, "prisma/migrations");

@@ -1,9 +1,9 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { Prisma, type PrismaClient } from "@prisma/client";
 import prisma from "./prisma";
-import { DIRECTORY_ACCOUNT_LIMIT, directorySchema, directoryTotals, type DirectoryActor, type DirectoryStudent, type StudentDirectory } from "./student-directory-model";
+import { readClerkAccounts, AccountSnapshotError, type AccountProvider } from "./clerk-account-snapshot";
+import { DIRECTORY_ACCOUNT_LIMIT, directorySchema, directoryTotals, type DirectoryActor, type StudentDirectory } from "./student-directory-model";
 
-const PROVIDER_PAGE_SIZE = 500;
 const SNAPSHOT_BYTE_LIMIT = 2_000_000;
 export class DirectoryLoadError extends Error {
   constructor(readonly status: 401 | 403 | 413 | 503) {
@@ -19,36 +19,19 @@ export async function requireDirectoryActor(): Promise<DirectoryActor> {
   if (role !== "admin" && role !== "employee") throw new DirectoryLoadError(403);
   return { actorId: userId, role };
 }
-export type DirectoryProvider = { getUserList: (params: { limit: number; offset: number; orderBy: "+created_at" }) => Promise<{
-  totalCount: number; data: { id: string; firstName: string | null; lastName: string | null; imageUrl: string;
-    publicMetadata: { role?: unknown }; primaryEmailAddressId: string | null; emailAddresses: { id: string; emailAddress: string }[] }[];
-}> };
+export type DirectoryProvider = AccountProvider;
 async function readStudents(provider: DirectoryProvider) {
-  const students: Omit<DirectoryStudent, "requestCount" | "collectedCentavos" | "unverifiedCount">[] = [];
-  const seen = new Set<string>();
-  let expected: number | undefined;
-  const started = Date.now();
-  for (let offset = 0; offset < DIRECTORY_ACCOUNT_LIMIT; offset += PROVIDER_PAGE_SIZE) {
-    const { data, totalCount } = await provider.getUserList({ limit: PROVIDER_PAGE_SIZE, offset, orderBy: "+created_at" });
-    if (!Number.isSafeInteger(totalCount) || totalCount < 0 || (expected !== undefined && expected !== totalCount) || Date.now() - started > 20_000) throw new DirectoryLoadError(503);
-    if (totalCount > DIRECTORY_ACCOUNT_LIMIT) throw new DirectoryLoadError(413);
-    expected = totalCount;
-    if (data.length !== Math.min(PROVIDER_PAGE_SIZE, totalCount - offset)) throw new DirectoryLoadError(503);
-    for (const user of data) {
-      if (seen.has(user.id)) throw new DirectoryLoadError(503);
-      seen.add(user.id);
-      const role = user.publicMetadata.role;
-      // Unset roles are students in the existing portal; unknown roles are excluded.
-      if (role !== undefined && role !== null && role !== "student") continue;
-      const email = user.emailAddresses.find(email => email.id === user.primaryEmailAddressId)?.emailAddress ?? null;
-      let imageUrl: string | null = null;
-      try { if (new URL(user.imageUrl).protocol === "https:") imageUrl = user.imageUrl; } catch { /* Use the existing avatar fallback. */ }
-      students.push({ id: user.id, name: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "Unnamed Student", email, imageUrl });
-    }
-    if (seen.size === totalCount) return students;
-  }
-  throw new DirectoryLoadError(503);
+  let accounts: Awaited<ReturnType<AccountProvider["getUserList"]>>["data"];
+  try { accounts = await readClerkAccounts(provider); }
+  catch (error) { if (error instanceof AccountSnapshotError) throw new DirectoryLoadError(error.status); throw error; }
+  return accounts.filter(user => user.publicMetadata.role == null || user.publicMetadata.role === "student").map(user => {
+    let imageUrl: string | null = null;
+    try { if (new URL(user.imageUrl).protocol === "https:") imageUrl = user.imageUrl; } catch { /* Shared avatar fallback. */ }
+    return { id: user.id, name: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "Unnamed Student", imageUrl,
+      email: user.emailAddresses.find(email => email.id === user.primaryEmailAddressId)?.emailAddress ?? null };
+  });
 }
+
 type Aggregate = { studentId: string; requestCount: bigint; collectedCentavos: bigint; unverifiedCount: bigint };
 export async function loadDirectoryAggregates(ids: string[], db: PrismaClient = prisma) {
   if (ids.length > DIRECTORY_ACCOUNT_LIMIT || new Set(ids).size !== ids.length) throw new DirectoryLoadError(503);

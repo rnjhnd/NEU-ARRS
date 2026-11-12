@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Prisma, Request } from "@prisma/client";
+import { defaultEmailTemplates } from "./configuration-defaults.mjs";
 
 export const notificationContentSchema = z.object({
   studentName: z.string().max(200), documentType: z.string().max(100),
@@ -25,13 +26,7 @@ export async function enqueueRequestNotification(tx: Prisma.TransactionClient, r
       } else templates = z.record(z.string(), z.string().min(1).max(10000)).parse(raw);
     } catch { /* Invalid mail settings use safe defaults; delivery remains queued. */ }
   }
-  const defaults: Record<string, string> = {
-    PENDING_PAYMENT: "Your request is awaiting payment or registrar review.",
-    PROCESSING: "We are processing your document. Please allow 3-5 business days for completion.",
-    READY_FOR_PICKUP: `Your document is ready for pickup at ${location} between ${hours}. Please bring your valid Student ID.`,
-    COMPLETED: "Your document request has been completed and claimed. Thank you for using NEU-ARRS.",
-    CANCELLED: "Your document request is cancelled. Contact the registrar about any unconfirmed payment or refund.",
-  };
+  const defaults: Record<string, string> = defaultEmailTemplates({ location, hours });
   const content = notificationContentSchema.parse({
     studentName: request.studentName.slice(0, 200), documentType: request.documentType.slice(0, 100), status: request.status, cancelReason: request.cancelReason?.slice(0, 1000) ?? null,
     customMessage: correction
