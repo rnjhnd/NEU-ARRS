@@ -20,7 +20,7 @@ const notifications = "20261111000500_notification_outbox";
 const history = "20261111000600_student_history_pagination";
 const finance = "20261111000700_finance_period_index";
 const money = "20261111000800_verified_money";
-const currentMigrations = [initial, expand, contract, checkout, cleanup, notifications, history, finance, money];
+const currentMigrations = [initial, expand, contract, checkout, cleanup, notifications, history, finance, money, "20261112000100_role_change_recovery", "20261112000200_staff_queue_pagination"];
 const migration = name => readFile(resolve(root, "prisma/migrations", name, "migration.sql"), "utf8");
 const verifiedMapping = [{ studentId: "legacy_student", studentName: "Synthetic Student", studentNumber: "22-12345-123" }];
 const native = process.argv.includes("--native");
@@ -153,6 +153,8 @@ const checks = [
         await client.exec(await migration(history));
         await client.exec(await migration(finance));
         await client.exec(await migration(money));
+        await client.exec(await migration("20261112000100_role_change_recovery"));
+        await client.exec(await migration("20261112000200_staff_queue_pagination"));
       }
       await expectNoDrift(url);
       const after = (await client.query('SELECT * FROM "Request" ORDER BY "id"')).rows;

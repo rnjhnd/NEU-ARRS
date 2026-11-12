@@ -1,56 +1,47 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
+import { cache } from "react";
+import prisma from "./prisma";
+import { effectiveRole } from "./role-policy";
 
-/**
- * Ensures the user is authenticated. 
- * If not, it throws an error or returns unauthorized, which can be caught in Server Actions.
- * Returns the Clerk userId.
- */
-export async function requireAuth() {
-  const { userId } = await auth();
-
-  if (!userId) {
-    throw new Error("Unauthorized: You must be logged in to perform this action.");
+export class AccessError extends Error {
+  constructor(readonly status: 401 | 403 | 503) {
+    super(status === 401 ? "Unauthorized: Sign in again." : status === 403 ? "Forbidden: Account access is not permitted." : "Authentication unavailable: Try again later.");
   }
-
-  return userId;
 }
-
-/**
- * Ensures the user is authenticated AND has the "admin" role.
- * Returns the Clerk userId.
- */
+// React cache deduplicates one RSC render only. Actions and route handlers verify
+// afresh, without a cross-request cache or JWT-role fallback.
+export const getVerifiedActor = cache(async () => {
+  const { userId, sessionId } = await auth();
+  if (!userId || !sessionId) throw new AccessError(401);
+  try {
+    const client = await clerkClient();
+    const session = await client.sessions.getSession(sessionId);
+    if (session.id !== sessionId || session.userId !== userId || session.status !== "active" || !Number.isFinite(session.expireAt) || session.expireAt <= Date.now()) throw new AccessError(401);
+    const user = await client.users.getUser(userId);
+    if (user.id !== userId || user.banned || user.locked) throw new AccessError(403);
+    const policy = await prisma.roleAccess.findUnique({ where: { userId } });
+    const role = effectiveRole(user.publicMetadata, policy);
+    if (!role) throw new AccessError(403);
+    return { userId, role };
+  } catch (error) {
+    if (error instanceof AccessError) throw error;
+    if (error && typeof error === "object" && "status" in error && error.status === 404) throw new AccessError(401);
+    throw new AccessError(503);
+  }
+});
+export async function requireAuth() { return (await getVerifiedActor()).userId; }
 export async function requireAdmin() {
-  const { userId, sessionClaims } = await auth();
-
-  if (!userId) {
-    throw new Error("Unauthorized: You must be logged in to perform this action.");
-  }
-
-  const role = sessionClaims?.metadata?.role;
-
-  if (role !== "admin") {
-    throw new Error("Forbidden: You do not have the required admin permissions.");
-  }
-
-  return userId;
+  const actor = await getVerifiedActor();
+  if (actor.role !== "admin") throw new AccessError(403);
+  return actor.userId;
 }
-
-/**
- * Ensures the user is authenticated AND has either the "admin" or "employee" role.
- * Returns the Clerk userId.
- */
 export async function requireEmployeeOrAdmin() {
-  const { userId, sessionClaims } = await auth();
-
-  if (!userId) {
-    throw new Error("Unauthorized: You must be logged in to perform this action.");
-  }
-
-  const role = sessionClaims?.metadata?.role;
-
-  if (role !== "admin" && role !== "employee") {
-    throw new Error("Forbidden: You do not have the required staff permissions.");
-  }
-
-  return userId;
+  const actor = await getVerifiedActor();
+  if (actor.role !== "admin" && actor.role !== "employee") throw new AccessError(403);
+  return actor.userId;
+}
+export async function requireStudent() {
+  const actor = await getVerifiedActor();
+  if (actor.role !== "student") throw new AccessError(403);
+  return actor.userId;
 }

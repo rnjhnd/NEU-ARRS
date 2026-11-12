@@ -4,12 +4,15 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { currentUser } from "@clerk/nextjs/server";
 import { ProfileDetails } from "@/components/profile-details";
-import { displayRole } from "@/lib/profile-identity";
+import { getVerifiedActor } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
+  const actor = await getVerifiedActor();
+  if (actor.role !== "student") redirect("/admin");
   const user = await currentUser();
   const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Student";
-  const role = displayRole(user?.publicMetadata?.role);
+  const role = actor.role;
   const serverUser = user ? {
     id: user.id,
     name,

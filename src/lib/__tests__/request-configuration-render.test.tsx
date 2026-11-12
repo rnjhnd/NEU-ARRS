@@ -1,7 +1,7 @@
 import React from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { requireAuth } from "@/lib/auth";
+import { requireStudent as requireAuth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import Page from "@/app/(student)/dashboard/new/page";
 

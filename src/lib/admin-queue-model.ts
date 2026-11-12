@@ -2,13 +2,30 @@ import { z } from "zod";
 import { csvCell } from "./csv";
 import { studentRequestSchema, toStudentRequest, type StudentRequestRow } from "./student-request-model";
 
-export const ADMIN_QUEUE_URL = "/api/admin/requests?format=queue-v1";
+export const ADMIN_QUEUE_URL = "/api/admin/requests?format=queue-v2";
 export const QUEUE_PAGE_SIZE = 10;
+export const QUEUE_EXPORT_LIMIT = 5000;
+export const QUEUE_RESPONSE_BYTES = 5_000_000;
+export const queueQuerySchema = z.object({ page: z.number().int().min(1).max(1_000_000).default(1),
+  status: z.enum(["ALL", "PENDING_PAYMENT", "PROCESSING", "READY_FOR_PICKUP", "COMPLETED", "CANCELLED"]).default("ALL"),
+  search: z.string().trim().max(200).default(""), sort: z.enum(["studentName", "documentType", "paymentStatus", "updatedAt", "status"]).default("updatedAt"), direction: z.enum(["asc", "desc"]).default("desc") }).strict();
+export type QueueQuery = z.infer<typeof queueQuerySchema>;
+export const DEFAULT_QUEUE_QUERY = queueQuerySchema.parse({});
+export const queueExportSchema = z.object({ from: z.iso.date().optional(), to: z.iso.date().optional() }).strict()
+  .refine(q => Boolean(q.from) === Boolean(q.to) && (!q.from || q.from <= q.to!), "Choose a valid creation-date range.");
+export type QueueExportQuery = z.infer<typeof queueExportSchema>;
+export function adminQueueURL(query: QueueQuery) {
+  const params = new URLSearchParams({ format: "queue-v2" });
+  for (const key of ["page", "status", "search", "sort", "direction"] as const) if (query[key] !== DEFAULT_QUEUE_QUERY[key]) params.set(key, String(query[key]));
+  return "/api/admin/requests?" + params;
+}
 export const queueItemSchema = studentRequestSchema.extend({ studentName: z.string(), studentNumber: z.string(), studentEmail: z.string().nullable() });
 export const adminQueueSchema = z.object({
   actorId: z.string().min(1), role: z.enum(["admin", "employee"]),
-  emailLookupFailed: z.boolean(), items: z.array(queueItemSchema),
-}).refine(queue => new Set(queue.items.map(item => item.id)).size === queue.items.length, "Duplicate requests");
+  query: queueQuerySchema, total: z.number().int().nonnegative(), totalPages: z.number().int().min(1),
+  summary: z.object({ total: z.number().int().nonnegative(), pending: z.number().int().nonnegative(), processing: z.number().int().nonnegative(), ready: z.number().int().nonnegative() }).strict(),
+  emailLookupFailed: z.boolean(), items: z.array(queueItemSchema).max(QUEUE_PAGE_SIZE),
+}).strict().refine(queue => new Set(queue.items.map(item => item.id)).size === queue.items.length && queue.query.page <= queue.totalPages && queue.totalPages === Math.max(1, Math.ceil(queue.total / QUEUE_PAGE_SIZE)) && queue.total <= queue.summary.total && queue.items.length === Math.min(QUEUE_PAGE_SIZE, Math.max(0, queue.total - (queue.query.page - 1) * QUEUE_PAGE_SIZE)) && queue.summary.pending + queue.summary.processing + queue.summary.ready <= queue.summary.total, "Invalid page or duplicate requests");
 export type QueueItem = z.infer<typeof queueItemSchema>;
 export type AdminQueue = z.infer<typeof adminQueueSchema>;
 export type QueueSort = { key: "studentName" | "documentType" | "paymentStatus" | "updatedAt" | "status"; direction: "asc" | "desc" };

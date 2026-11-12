@@ -5,14 +5,13 @@ import prisma from "@/lib/prisma";
 import { requireAdmin, requireEmployeeOrAdmin } from "@/lib/auth";
 import { Prisma, RequestStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { clerkClient } from "@clerk/nextjs/server";
 import { enqueueRequestNotification, loadNotificationSettings } from "@/lib/notification-content";
 import { scheduleNotificationDelivery } from "@/lib/notification-wakeup";
 import { finishCancellationRefunds } from "@/lib/cancellation-refunds";
 import { getStatusChangeError, isStatusReversal } from "@/lib/request-workflow";
 import { confirmCashCollection, MoneyValidationError } from "@/lib/monetary-ledger";
 import { readPublicSetting } from "@/lib/configuration-data";
-import { readClerkAccounts } from "@/lib/clerk-account-snapshot";
+import { runRoleChange, recoverRoleChange, roleFailure } from "@/lib/role-operations";
 
 const UpdateStatusSchema = z.object({
   requestIds: z.array(z.string().cuid()).min(1).max(50).refine(ids => new Set(ids).size === ids.length),
@@ -132,59 +131,20 @@ export async function updateRequestStatus(formData: FormData) {
   }
 }
 
-export async function updateUserRole(userId: string, role: "admin" | "employee" | "student", expectedRole: "admin" | "employee" | "student"): Promise<{ success: true } | { success: false; code: "auth" | "invalid" | "conflict" | "unavailable"; error: string }> {
+export async function updateUserRole(userId: string, role: "admin" | "employee" | "student", expectedRole: "admin" | "employee" | "student", intentId: string, expectedOperationId = "unmanaged") {
   try {
-    const callerId = await requireAdmin();
-    if (!z.string().min(1).max(255).safeParse(userId).success || !z.enum(["admin", "employee", "student"]).safeParse(role).success || !z.enum(["admin", "employee", "student"]).safeParse(expectedRole).success) return { success: false, code: "invalid", error: "Invalid user or role." };
-    
-    // Prevent admins from changing their own role (accidental self-demotion)
-    if (callerId === userId) {
-      return { success: false, code: "invalid", error: "You cannot change your own role. Contact another administrator." };
-    }
-    
-    const client = await clerkClient();
-
-    // Reject an observed last-administrator demotion. Cross-provider concurrency
-    // and durable session-revocation recovery require the auth-batch workflow.
-    const targetUser = await client.users.getUser(userId);
-    const targetCurrentRole = targetUser.publicMetadata?.role as string | undefined;
-    if ((targetCurrentRole ?? "student") !== expectedRole) return { success: false, code: "conflict", error: "The account role changed. Refresh before trying again." };
-    if (targetCurrentRole === "admin" && role !== "admin") {
-      const allUsers = await readClerkAccounts(client.users);
-      const adminCount = allUsers.filter(
-        u => (u.publicMetadata?.role as string) === "admin"
-      ).length;
-      if (adminCount <= 1) {
-        return {
-          success: false,
-          code: "invalid",
-          error: "Cannot demote the last administrator. Promote another user to admin first."
-        };
-      }
-    }
-    
-    await client.users.updateUserMetadata(userId, {
-      publicMetadata: {
-        role: role
-      }
-    });
-    
-    // Attempt revocation after the metadata write. Full session pagination and
-    // durable recovery for uncertain provider writes are auth-batch follow-ups.
-    const sessions = await client.sessions.getSessionList({ userId });
-    for (const session of sessions.data) {
-      if (session.status === "active") {
-        await client.sessions.revokeSession(session.id);
-      }
-    }
-    
-    revalidatePath("/admin/settings");
-    revalidatePath("/admin/students");
-    return { success: true };
-  } catch (error: unknown) {
-    const denied = error instanceof Error && /^(Unauthorized|Forbidden)/.test(error.message);
-    return { success: false, code: denied ? "auth" : "unavailable", error: denied ? "Administrator authorization required." : "Role change could not be confirmed. Refresh the account list and review active sessions before retrying." };
-  }
+    const actorId = await requireAdmin();
+    const result = await runRoleChange(actorId, { targetId: userId, previousRole: expectedRole, nextRole: role, intentId, expectedOperationId });
+    if (result.success) { try { revalidatePath("/admin/settings"); revalidatePath("/admin/students"); } catch { /* Already committed. */ } }
+    return result;
+  } catch (error) { return roleFailure(error); }
+}
+export async function resumeRoleChange(operationId: string) {
+  try {
+    const actorId = await requireAdmin();
+    if (!/^role_[a-f0-9]{64}$/.test(operationId)) return { success: false as const, code: "invalid" as const, error: "Invalid role operation." };
+    return await recoverRoleChange(actorId, operationId, undefined, undefined, true);
+  } catch (error) { return roleFailure(error); }
 }
 
 export async function getSystemSetting(key: string) {

@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { getVerifiedActor, AccessError } from "./auth";
 import type { PrismaClient } from "@prisma/client";
 import prisma from "./prisma";
 import { legacyDocumentLabels } from "./student-request-model";
@@ -6,13 +6,13 @@ import { verifiedCollection } from "./monetary-ledger";
 import { DEFAULT_FINANCE_QUERY, financeQuerySchema, financeRange, FINANCE_ROW_LIMIT, manilaDay, type FinanceDataset, type FinanceQuery } from "./finance-model";
 
 export class FinanceLoadError extends Error {
-  constructor(readonly status: 400 | 401 | 403 | 413) { super(status === 413 ? "Report exceeds 5,000 requests. Choose a shorter period." : status === 400 ? "Choose dates on or before the report day." : "Administrator access required."); }
+  constructor(readonly status: 400 | 401 | 403 | 413 | 503) { super(status === 413 ? "Report exceeds 5,000 requests. Choose a shorter period." : status === 400 ? "Choose dates on or before the report day." : "Administrator access required."); }
 }
 export async function requireFinanceActor() {
-  const { userId, sessionClaims } = await auth();
-  if (!userId) throw new FinanceLoadError(401);
-  if (sessionClaims?.metadata?.role !== "admin") throw new FinanceLoadError(403);
-  return userId;
+  let actor;
+  try { actor = await getVerifiedActor(); } catch (error) { if (error instanceof AccessError) throw new FinanceLoadError(error.status); throw error; }
+  if (actor.role !== "admin") throw new FinanceLoadError(403);
+  return actor.userId;
 }
 export const financeSelect = { id: true, documentType: true, purpose: true, paymentMethod: true, paymentStatus: true, status: true, createdAt: true,
   money: { select: { collectedCentavos: true, currency: true, method: true } } } as const;

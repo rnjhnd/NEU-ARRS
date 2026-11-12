@@ -1,5 +1,9 @@
 # Batch 17: Document and settings validation/refactoring
 
+Follow-up: [batch 18](18-authentication-role-session.md) implements the deferred
+current-session verification, durable role operations/revocation, and student-entry
+hardening. Its role-recovery migration is required before releasing that batch.
+
 Implemented locally on 2026-11-12 after the batch-1–16 checkpoint `7949461`,
 following [batch 16](16-student-directory.md). Document and operational-setting
 reads/writes now share explicit schemas, administrator authorization, versioned

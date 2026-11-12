@@ -10,6 +10,14 @@ import { isSettledMoneyState } from "../monetary-ledger";
 
 const { mockAuth } = vi.hoisted(() => ({ mockAuth: vi.fn() }));
 vi.mock("@clerk/nextjs/server", () => ({ auth: mockAuth, clerkClient: vi.fn() }));
+vi.mock("@/lib/auth", async importOriginal => {
+  const actual = await importOriginal<typeof import("@/lib/auth")>();
+  return { ...actual, getVerifiedActor: async () => {
+    const fixture = await mockAuth();
+    if (!fixture?.userId) throw new actual.AccessError(401);
+    return { userId: fixture.userId, role: fixture.sessionClaims?.metadata?.role };
+  } };
+});
 let db: PGlite, socket: PGLiteSocketServer, client: PrismaClient;
 const source: { row: Request; amount: number | null }[] = [];
 beforeAll(async () => {

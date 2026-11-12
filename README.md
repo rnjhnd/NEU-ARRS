@@ -1,26 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NEU-ARRS
 
-## Getting Started
+Academic document requests, registrar processing, and campus pickup, built with
+Next.js, Clerk, Prisma/Neon, and PayMongo.
 
-Use Node.js 24 (`.nvmrc` and `package.json` match CI), then run `npm ci`.
+## Getting started
 
-First, run the development server:
+Use Node.js 24 and npm 11.19.1 or newer; the repository declares its npm baseline
+in `packageManager`. Run `npm ci` to install the lockfile and generate Prisma.
+Installs enforce peer compatibility and reviewed dependency install scripts.
+The default Prisma configuration does not load application env files or select a
+runtime database. Database operator commands use their explicit migration config.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+With the intended application services configured, run `npm run dev` and open
+[localhost:3000](http://localhost:3000). Application routes live under `src/app/`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local verification and CI
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Command | Checks |
+| --- | --- |
+| `npm run typecheck` | Generate Next.js route types, then run TypeScript |
+| `npm test` | Unit and disposable database integration tests, at most two workers |
+| `npm run test:watch` | Interactive Vitest watch mode |
+| `npm run check` | Type checking, lint, and Vitest |
+| `npm run verify` | Quality checks, security audit, disposable migrations, Chrome regression, production build and cron HTTP smoke |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The complete verification command needs Google Chrome and network access for the
+npm audit and any uncached build fonts. Checks use synthetic providers and owned
+databases; the command does not migrate or connect to the application's database.
+CI repeats these checks in independent jobs, including native PostgreSQL 17 and
+an installed Chrome channel, and publishes synthetic browser diagnostics on failure.
+Require **CI required checks** in GitHub branch protection to enforce every job.
+See [batch 19](docs/remediation/19-tooling-ci.md) for install-script review, action
+pins, module configuration, and remaining dependency lifecycle limitations.
 
 ## Dependency and build checks
 
@@ -97,8 +108,8 @@ PostgreSQL instances. Read the rollout notes before release.
 The [staff queue refactoring](docs/remediation/13-admin-queue-refactoring.md)
 adds a shared authenticated read model, safer selection/version handling,
 guarded status/payment-review dialogs, and escaped CSV exports. Staff tabs must
-reload after the API/dashboard upgrade. Full staff server pagination remains a
-separate performance follow-up.
+reload after the API/dashboard upgrade. [Batch 20](docs/remediation/20-final-cleanup-performance.md) completes staff
+server pagination and adds a separate date-bounded CSV endpoint.
 
 The [finance reporting remediation](docs/remediation/14-finance-reporting.md)
 introduced submitted-date reports in Manila and consistent CSV/PNG exports. It
@@ -130,13 +141,26 @@ saves with audit records, read-only catalog loading, explicit standard-document
 initialization, and recoverable drafts. Student reads expose only active catalog
 fields and request-availability settings. Deploy the new configuration API/actions
 and clients together, then reload open tabs. No new migration is needed. Role-change
-concurrency and durable session revocation remain batch-18 authentication work.
+concurrency and durable session revocation are addressed in
+[batch 18](docs/remediation/18-authentication-role-session.md), which adds a required
+role-recovery migration. Apply `20261112000100_role_change_recovery` before releasing
+that batch. Fresh server session/role checks, managed-account access fences, durable
+role recovery, and account-scoped student submissions now protect those flows.
+Resume pending role work from Settings; the existing daily cron schedule is unchanged.
 
-Run `npm run test:navigation` for 91 isolated Chrome checks: nine navigation,
-twenty student history, sixteen staff queue, thirteen finance, fifteen directory,
-and eighteen configuration checks, all
+Run `npm run test:navigation` for 114 isolated Chrome checks: nine navigation,
+twenty student history, twenty-three staff queue, thirteen finance, fifteen directory,
+twenty configuration, and fourteen authentication/student-entry checks, all
 using synthetic auth/data/action responses. Finance coverage includes actual
 CSV/PNG downloads. No real financial operation is used by these checks.
+
+The [final cleanup and performance review](docs/remediation/20-final-cleanup-performance.md)
+removes deprecated email components and unused UI wrappers. Apply the eleventh
+migration, `20261112000200_staff_queue_pagination`, before releasing the queue
+API/client together, and reload staff tabs. CSV exports allow optional Manila
+creation dates and reject results above 5,000 requests or 5 MB. Read the report
+for indexing/locking considerations, validation, and outstanding release checks.
+ESLint 9 lifecycle support remains an upstream toolchain follow-up.
 
 ## Learn More
 

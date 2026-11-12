@@ -1,7 +1,7 @@
 export const ACCOUNT_LIMIT = 5000;
 export type AccountProvider = { getUserList: (params: { limit: number; offset: number; orderBy: "+created_at" }) => Promise<{
   totalCount: number; data: { id: string; firstName: string | null; lastName: string | null; imageUrl: string;
-    publicMetadata: { role?: unknown }; primaryEmailAddressId: string | null; emailAddresses: { id: string; emailAddress: string }[] }[];
+    publicMetadata: { role?: unknown; roleOperationId?: unknown }; primaryEmailAddressId: string | null; emailAddresses: { id: string; emailAddress: string }[] }[];
 }> };
 export class AccountSnapshotError extends Error { constructor(readonly status: 413 | 503) { super("A complete account snapshot is unavailable."); } }
 export async function readClerkAccounts(provider: AccountProvider) {

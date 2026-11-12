@@ -1,12 +1,14 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileNav } from "./mobile-nav";
 import { Sidebar } from "./sidebar";
-import { displayRole } from "@/lib/profile-identity";
+import { getVerifiedActor } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { sessionClaims } = await auth();
-  const role = displayRole(sessionClaims?.metadata?.role);
+  const actor = await getVerifiedActor();
+  if (actor.role === "student") redirect("/dashboard");
+  const role = actor.role;
   const user = await currentUser();
   const serverUser = user ? {
     id: user.id,

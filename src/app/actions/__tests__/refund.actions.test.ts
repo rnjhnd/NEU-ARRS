@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Prisma, type Request } from "@prisma/client";
 import prisma from "@/lib/prisma";
-import { requireAuth, requireEmployeeOrAdmin } from "@/lib/auth";
+import { requireStudent as requireAuth, requireEmployeeOrAdmin } from "@/lib/auth";
 import { refundPayment, type RefundResult } from "@/lib/paymongo";
 import { updateRequestStatus } from "../admin.actions";
 import { cancelStudentRequest } from "../request.actions";

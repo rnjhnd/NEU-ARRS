@@ -9,6 +9,37 @@ datasource db {
   provider = "postgresql"
 }
 
+enum RoleChangeStage {
+  PREPARED
+  APPLYING
+  REVOKING
+  COMPLETE
+  REJECTED
+}
+
+model RoleAccess {
+  userId      String   @id
+  role        String
+  operationId String
+  blocked     Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+}
+
+model RoleChangeOperation {
+  id           String          @id
+  actorId      String
+  targetId     String
+  previousRole String
+  previousOperationId String
+  nextRole     String
+  stage        RoleChangeStage @default(PREPARED)
+  activeKey    String?         @unique
+  leaseToken   String?
+  leaseUntil   DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
 
 enum RequestStatus {
   PENDING_PAYMENT
@@ -62,6 +93,8 @@ model Request {
 
   @@unique([studentId, submissionKey])
   @@index([studentId])
+  @@index([updatedAt(sort: Desc), id], map: "Request_staff_queue_idx")
+  @@index([status, updatedAt(sort: Desc), id], map: "Request_staff_status_queue_idx")
   @@index([createdAt, id], map: "Request_finance_period_idx")
   @@index([studentId, updatedAt(sort: Desc), id], map: "Request_student_history_idx")
   @@index([studentId, status], map: "Request_student_summary_idx")

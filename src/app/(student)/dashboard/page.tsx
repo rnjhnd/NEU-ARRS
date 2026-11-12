@@ -1,7 +1,5 @@
-import { auth, currentUser, clerkClient } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { currentUser } from "@clerk/nextjs/server";
+import { requireStudent } from "@/lib/auth";
 import { Suspense } from "react";
 import { Plus } from "lucide-react";
 import { getSystemSetting } from "@/app/actions/admin.actions";
@@ -83,24 +81,10 @@ function DashboardSkeleton() {
 }
 
 export default async function StudentDashboardPage() {
-  const { userId, sessionClaims } = await auth();
+  const userId = await requireStudent();
   const user = await currentUser();
   const maintenanceSetting = await getSystemSetting("MAINTENANCE_MODE");
-  const isMaintenanceMode = maintenanceSetting?.value === "true";
-
-  if (!userId) {
-    redirect("/sign-in");
-  }
-
-  // Set default role as 'student' if no role is explicitly assigned yet
-  if (!sessionClaims?.metadata?.role) {
-    const client = await clerkClient();
-    await client.users.updateUserMetadata(userId, {
-      publicMetadata: {
-        role: "student"
-      }
-    });
-  }
+  const isMaintenanceMode = !maintenanceSetting.success || maintenanceSetting.value === "true";
 
   return (
     <div className="space-y-8 w-full">

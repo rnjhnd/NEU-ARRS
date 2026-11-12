@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import prisma from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
+import { requireStudent } from "@/lib/auth";
 import { Prisma, Purpose, PaymentStatus, RequestStatus } from "@prisma/client";
 import { CheckoutError, requireDocument, requireRequestAvailability, resumeCheckout } from "@/lib/checkout";
 
@@ -21,11 +21,14 @@ const CreateRequestSchema = z.object({
 export async function createRequest(formData: FormData) {
   let requestId: string | undefined;
   try {
-    const studentId = await requireAuth();
+    const studentId = await requireStudent();
+    if (!(formData instanceof FormData)) return { success: false, code: "invalid" as const, error: "Invalid request form." };
+    const allowed = ["submissionKey", "studentName", "studentNumber", "documentType", "purpose", "paymentMethod"];
+    if (allowed.some(key => formData.getAll(key).length !== 1)) return { success: false, code: "invalid" as const, error: "Invalid request fields." };
     const parsed = CreateRequestSchema.safeParse(Object.fromEntries(
       ["submissionKey", "studentName", "studentNumber", "documentType", "purpose", "paymentMethod"].map(key => [key, formData.get(key)]),
     ));
-    if (!parsed.success) return { success: false, error: "Invalid form data. Refresh the form and check your student details." };
+    if (!parsed.success) return { success: false, code: "invalid" as const, error: "Invalid form data. Refresh the form and check your student details." };
     const input = parsed.data;
     const where = { studentId_submissionKey: { studentId, submissionKey: input.submissionKey } };
     let request = await prisma.request.findUnique({ where });
@@ -61,7 +64,7 @@ export async function createRequest(formData: FormData) {
 
 export async function cancelStudentRequest(requestId: string, reason: string) {
   try {
-    const studentId = await requireAuth();
+    const studentId = await requireStudent();
     const input = z.object({ id: z.string().cuid(), reason: z.string().trim().min(1).max(1000) }).safeParse({ id: requestId, reason });
     if (!input.success) return { success: false, error: "A valid request and cancellation reason are required." };
     reason = input.data.reason;
@@ -107,7 +110,7 @@ export async function cancelStudentRequest(requestId: string, reason: string) {
 
 export async function createRepaymentSession(requestId: string) {
   try {
-    const studentId = await requireAuth();
+    const studentId = await requireStudent();
     if (!z.string().cuid().safeParse(requestId).success) return { success: false, error: "Invalid request." };
     return { success: true, redirectUrl: await resumeCheckout(requestId, studentId) };
   } catch (error) {

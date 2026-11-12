@@ -2,7 +2,7 @@ import React from "react";
 import { beforeEach, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import prisma from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
+import { getVerifiedActor } from "@/lib/auth";
 import ReceiptPage from "@/app/(print)/receipt/[id]/page";
 import type { Request, RequestMoney } from "@prisma/client";
 import { moneyFixture } from "./money-fixture";
@@ -13,7 +13,7 @@ vi.mock("next/navigation", () => ({ notFound: () => { throw new Error("NEXT_HTTP
 const render = async () => renderToStaticMarkup(await ReceiptPage({ params: Promise.resolve({ id: "request" }) }));
 beforeEach(() => {
   vi.resetAllMocks(); vi.stubGlobal("React", React);
-  vi.mocked(requireAuth).mockResolvedValue("student");
+  vi.mocked(getVerifiedActor).mockResolvedValue({ userId: "student", role: "student" });
   getUser.mockResolvedValue({ firstName: "Synthetic", lastName: "Student", publicMetadata: {}, emailAddresses: [{ emailAddress: "synthetic@example.invalid" }] });
   vi.mocked(prisma.documentConfig.findUnique).mockResolvedValue(null);
 });
@@ -32,17 +32,17 @@ it.each([0, 15050])("renders exact verified centavos %s without using rounded le
 });
 it("blocks a receipt with no canonical collection even when legacy money and a quote exist", async () => {
   vi.mocked(prisma.request.findUnique).mockResolvedValue({ ...paid(null), amountPaid: 15050, quotedAmountCentavos: 15050 });
-  const html = await render(); expect(html).toContain("Receipt Amount Needs Verification"); expect(html).not.toContain("Print Receipt"); expect(getUser).toHaveBeenCalledTimes(1);
+  const html = await render(); expect(html).toContain("Receipt Amount Needs Verification"); expect(html).not.toContain("Print Receipt"); expect(getUser).not.toHaveBeenCalled();
 });
 it("denies another student's receipt before exposing its data", async () => {
   vi.mocked(prisma.request.findUnique).mockResolvedValue({ ...paid(), studentId: "another_student" });
-  await expect(render()).rejects.toThrow("404"); expect(getUser).toHaveBeenCalledTimes(1);
+  await expect(render()).rejects.toThrow("404"); expect(getUser).not.toHaveBeenCalled();
 });
 it("allows an authenticated administrator and rejects an unpaid request", async () => {
-  vi.mocked(requireAuth).mockResolvedValue("admin"); getUser.mockResolvedValue({ firstName: "Synthetic", lastName: "Admin", publicMetadata: { role: "admin" }, emailAddresses: [] });
+  vi.mocked(getVerifiedActor).mockResolvedValue({ userId: "admin", role: "admin" }); getUser.mockResolvedValue({ firstName: "Synthetic", lastName: "Admin", publicMetadata: { role: "admin" }, emailAddresses: [] });
   vi.mocked(prisma.request.findUnique).mockResolvedValue(paid()); expect(await render()).toContain("₱150.50");
   vi.mocked(prisma.request.findUnique).mockResolvedValue({ ...paid(), paymentStatus: "UNPAID" }); expect(await render()).toContain("Receipt Not Available");
 });
 it("requires authentication before accessing the database", async () => {
-  vi.mocked(requireAuth).mockRejectedValue(new Error("Unauthorized")); await expect(render()).rejects.toThrow("Unauthorized"); expect(prisma.request.findUnique).not.toHaveBeenCalled();
+  vi.mocked(getVerifiedActor).mockRejectedValue(new Error("Unauthorized")); await expect(render()).rejects.toThrow("Unauthorized"); expect(prisma.request.findUnique).not.toHaveBeenCalled();
 });

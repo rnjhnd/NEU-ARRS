@@ -11,3 +11,5 @@ function subscribe(changed: () => void) {
 export function usePathname() {
   return useSyncExternalStore(subscribe, () => location.pathname, () => "/");
 }
+const router = { push: navigate, replace: navigate, refresh: () => window.dispatchEvent(new Event("popstate")) };
+export function useRouter() { return router; }

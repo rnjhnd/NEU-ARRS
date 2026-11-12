@@ -1,8 +1,9 @@
 import { documentsSnapshotSchema, settingsSnapshotSchema } from "./configuration-model";
 import { z } from "zod";
+import { roleOperationSchema } from "./role-policy";
 
-export const roleUserSchema = z.object({ id: z.string().min(1), name: z.string(), email: z.string().nullable(), role: z.enum(["admin", "employee", "student", "unknown"]) }).strict();
-export const rolesSnapshotSchema = z.object({ actorId: z.string().min(1), asOf: z.iso.datetime(), users: z.array(roleUserSchema).max(5000) }).strict()
+export const roleUserSchema = z.object({ id: z.string().min(1), name: z.string(), email: z.string().nullable(), role: z.enum(["admin", "employee", "student", "unknown"]), roleVersion: z.string().default("unmanaged"), blocked: z.boolean().default(false) }).strict();
+export const rolesSnapshotSchema = z.object({ actorId: z.string().min(1), asOf: z.iso.datetime(), users: z.array(roleUserSchema).max(5000), operation: roleOperationSchema.nullable().default(null) }).strict()
   .refine(data => new Set(data.users.map(user => user.id)).size === data.users.length, "Duplicate accounts");
 export type RolesSnapshot = z.infer<typeof rolesSnapshotSchema>;
 export class ConfigurationRefreshError extends Error { constructor(readonly status: number) { super("Configuration could not be refreshed. Verify it before making changes."); } }

@@ -4,11 +4,12 @@ export default defineConfig({
   testDir: "./scripts/navigation-checks",
   testMatch: "**/*.pw.ts", // Kept separate from Vitest's *.test/spec discovery.
   workers: 1,
+  forbidOnly: Boolean(process.env.CI),
   retries: 0,
   timeout: 20_000,
   expect: { timeout: 5000 },
   outputDir: "./test-results/navigation",
-  reporter: "list",
+  reporter: process.env.CI ? [["list"], ["github"], ["html", { open: "never" }]] : "list",
   use: {
     channel: "chrome",
     headless: true,

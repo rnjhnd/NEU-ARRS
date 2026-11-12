@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs/server";
+import { requireStudent, AccessError } from "@/lib/auth";
 import { loadStudentHistory } from "@/lib/student-request-data";
 import { historyQuerySchema } from "@/lib/student-request-model";
 
@@ -7,10 +7,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   try {
-    const user = await currentUser();
-    if (!user) {
-      return new NextResponse("Unauthorized", { status: 401, headers: { "Cache-Control": "private, no-store" } });
-    }
+    const userId = await requireStudent();
 
     const params = new URL(request.url).searchParams;
     if (params.get("format") !== "history-v2") {
@@ -24,9 +21,9 @@ export async function GET(request: Request) {
     if (!parsed.success || ["page", "sort", "direction", "format"].some(key => params.getAll(key).length > 1)) {
       return NextResponse.json({ error: "Invalid history query." }, { status: 400, headers: { "Cache-Control": "private, no-store" } });
     }
-    return NextResponse.json(await loadStudentHistory(user.id, parsed.data), { headers: { "Cache-Control": "private, no-store" } });
+    return NextResponse.json(await loadStudentHistory(userId, parsed.data), { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     console.error("Error fetching student requests:", { error: error instanceof Error ? error.name : "UnknownError" });
-    return new NextResponse("Internal Server Error", { status: 500, headers: { "Cache-Control": "private, no-store" } });
+    return new NextResponse("Internal Server Error", { status: error instanceof AccessError ? error.status : 500, headers: { "Cache-Control": "private, no-store" } });
   }
 }

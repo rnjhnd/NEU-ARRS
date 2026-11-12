@@ -8,4 +8,6 @@ export const createDocumentConfig = (form: FormData) => action<ConfigResult<Conf
 export const updateDocumentConfig = (form: FormData) => action<ConfigResult<ConfigDocument>>("document", Object.fromEntries(form));
 export const updateSystemSetting = (form: FormData) => action<ConfigResult<SettingEntry>>("setting", Object.fromEntries(form));
 export const initializeDocumentDefaults = () => action<ConfigResult<number>>("defaults", {});
-export const updateUserRole = (id: string, role: string, expectedRole: string) => action<{ success: true } | { success: false; code: string; error: string }>("role", { id, role, expectedRole });
+export const updateUserRole = (id: string, role: string, expectedRole: string, intentId: string, expectedOperationId: string) => action<{ success: true } | { success: false; code: string; error: string }>("role", { id, role, expectedRole, intentId, expectedOperationId });
+
+export const resumeRoleChange = (operationId: string) => action<{ success: true } | { success: false; code: string; error: string }>("role-recovery", { operationId });

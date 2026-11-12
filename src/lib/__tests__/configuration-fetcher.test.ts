@@ -1,3 +1,4 @@
+import prisma from "@/lib/prisma";
 import { beforeEach, expect, it, vi } from "vitest";
 import { CONFIG_URL, SETTING_KEYS } from "../configuration-model";
 import { fetchDocuments, fetchRoles, fetchSettings } from "../configuration-fetcher";
@@ -6,9 +7,9 @@ import { requireAdmin } from "@/lib/auth";
 const { getUserList } = vi.hoisted(() => ({ getUserList: vi.fn() }));
 vi.mock("@clerk/nextjs/server", () => ({ clerkClient: async () => ({ users: { getUserList } }) }));
 const head = { actorId: "admin", asOf: "2026-11-12T00:00:00Z" };
-beforeEach(() => { vi.resetAllMocks(); vi.mocked(requireAdmin).mockResolvedValue("admin"); });
+beforeEach(() => { vi.resetAllMocks(); vi.mocked(requireAdmin).mockResolvedValue("admin"); vi.mocked(prisma.roleAccess.findMany).mockResolvedValue([]); vi.mocked(prisma.roleChangeOperation.findUnique).mockResolvedValue(null); });
 it("accepts validated same-actor snapshots for each area", async () => {
-  const documents = { ...head, items: [] }, settings = { ...head, entries: SETTING_KEYS.map(key => ({ key, value: null, version: null, valid: true })) }, roles = { ...head, users: [] };
+  const documents = { ...head, items: [] }, settings = { ...head, entries: SETTING_KEYS.map(key => ({ key, value: null, version: null, valid: true })) }, roles = { ...head, users: [], operation: null };
   for (const [area, fn, body] of [["documents", fetchDocuments, documents], ["settings", fetchSettings, settings], ["roles", fetchRoles, roles]] as const) {
     vi.mocked(fetch).mockResolvedValueOnce(Response.json(body)); expect(await fn([CONFIG_URL + area, "admin"])).toEqual(body);
   }

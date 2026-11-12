@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { createRequest } from "@/app/actions/request.actions";
 import { toast } from "sonner";
@@ -19,16 +20,21 @@ const PurposeOptions = [
   { id: "PERSONAL", label: "Personal Copy" },
   { id: "OTHER", label: "Other Reason" }
 ];
-const submissionStorageKey = "neu-arrs:new-request:v1";
+type RequestFormProps = { actorId: string; documentConfigs: StudentCatalogItem[]; paymentMethods: { online: boolean; cash: boolean } };
+export function RequestForm(props: RequestFormProps) {
+  const { isLoaded, user } = useUser();
+  if (!isLoaded) return <p role="status">Verifying your account...</p>;
+  if (!user || user.id !== props.actorId || user.publicMetadata.role != null && user.publicMetadata.role !== "student") return <p role="alert">Account access changed. Reload your dashboard before submitting.</p>;
+  return <StudentRequestForm key={props.actorId} {...props} />;
+}
 
-export function RequestForm({ 
-  documentConfigs, 
-  paymentMethods 
-}: { 
-  documentConfigs: StudentCatalogItem[];
-  paymentMethods: { online: boolean; cash: boolean };
-}) {
+function StudentRequestForm({ actorId, documentConfigs, paymentMethods }: RequestFormProps) {
   const router = useRouter();
+  const submissionStorageKey = "neu-arrs:new-request:v2:" + actorId;
+  const active = useRef(true);
+  const frozenForm = useRef<FormData | null>(null);
+  const [uncertain, setUncertain] = useState(false);
+  useEffect(() => { active.current = true; return () => { active.current = false; }; }, []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submittingRef = useRef(false);
   const submissionKeyRef = useRef<string | null>(null);
@@ -57,21 +63,23 @@ export function RequestForm({
 
     submittingRef.current = true;
     setIsSubmitting(true);
-    if (!submissionKeyRef.current) {
-      try { submissionKeyRef.current = sessionStorage.getItem(submissionStorageKey); } catch { /* Storage may be unavailable. */ }
-      submissionKeyRef.current ??= crypto.randomUUID();
-      try { sessionStorage.setItem(submissionStorageKey, submissionKeyRef.current); } catch { /* Keep the key in memory. */ }
-    }
-    const formData = new FormData();
-    formData.append("submissionKey", submissionKeyRef.current);
-    formData.append("studentName", studentName);
-    formData.append("studentNumber", studentNumber);
-    formData.append("documentType", documentType);
-    formData.append("purpose", purpose);
-    formData.append("paymentMethod", paymentMethod);
-
     try {
-      const result = await createRequest(formData);
+      if (!submissionKeyRef.current) {
+        try {
+          const stored = sessionStorage.getItem(submissionStorageKey);
+          if (stored && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(stored)) submissionKeyRef.current = stored;
+        } catch { /* Storage may be unavailable. */ }
+        submissionKeyRef.current ??= crypto.randomUUID();
+        try { sessionStorage.setItem(submissionStorageKey, submissionKeyRef.current); } catch { /* Keep the key in memory. */ }
+      }
+      if (!frozenForm.current) {
+        const form = new FormData();
+        for (const [key, value] of Object.entries({ submissionKey: submissionKeyRef.current, studentName, studentNumber, documentType, purpose, paymentMethod })) form.set(key, value);
+        frozenForm.current = form;
+      }
+      setUncertain(true);
+      const result = await createRequest(frozenForm.current);
+      if (!active.current) return;
       if (result.success || result.requestId) {
         try { sessionStorage.removeItem(submissionStorageKey); } catch { /* The server still guards replays. */ }
         if (result.success) toast.success("Your document request has been successfully submitted.");
@@ -79,13 +87,15 @@ export function RequestForm({
         if (result.redirectUrl) window.location.assign(result.redirectUrl);
         else router.push("/dashboard");
       } else {
+        if (result.code === "invalid") { frozenForm.current = null; setUncertain(false); }
         toast.error(result.error || "Failed to submit your request.");
       }
     } catch {
+      if (!active.current) return;
       toast.error("Submission could not be confirmed. Retry with the same details or check your dashboard first.");
     } finally {
       submittingRef.current = false;
-      setIsSubmitting(false);
+      if (active.current) setIsSubmitting(false);
     }
   };
 
@@ -93,7 +103,7 @@ export function RequestForm({
     <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
       
       {/* Left Column: Form Fields */}
-      <Card className="lg:col-span-2 shadow-sm border-border bg-card rounded-3xl">
+      <fieldset disabled={isSubmitting || uncertain} className="min-w-0 lg:col-span-2"><Card className="lg:col-span-2 shadow-sm border-border bg-card rounded-3xl">
         <CardContent className="p-6 sm:p-8 space-y-8">
         
         {/* Student Details Section */}
@@ -104,6 +114,7 @@ export function RequestForm({
               <label htmlFor="studentName" className="block text-sm font-semibold mb-4">Full Name</label>
               <input
                 id="studentName"
+                maxLength={200}
                 type="text"
                 value={studentName}
                 onChange={(e) => setStudentName(e.target.value)}
@@ -116,6 +127,7 @@ export function RequestForm({
               <label htmlFor="studentNumber" className="block text-sm font-semibold mb-4">Student Number</label>
               <input
                 id="studentNumber"
+                maxLength={12}
                 type="text"
                 value={studentNumber}
                 onChange={(e) => {
@@ -135,10 +147,11 @@ export function RequestForm({
           <label className="block text-base font-bold tracking-tight mb-6">2. Document Type <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {documentConfigs.map((doc) => (
-              <motion.div
+              <motion.button type="button"
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
                 key={doc.typeId}
+                aria-pressed={documentType === doc.typeId}
                 onClick={() => setDocumentType(doc.typeId)}
                 className={`relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 ${
                   documentType === doc.typeId 
@@ -167,7 +180,7 @@ export function RequestForm({
                     </motion.div>
                   )}
                 </div>
-              </motion.div>
+              </motion.button>
             ))}
           </div>
         </div>
@@ -177,10 +190,11 @@ export function RequestForm({
           <label className="block text-base font-bold tracking-tight mb-6">3. Purpose of Request <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {PurposeOptions.map((opt) => (
-              <motion.div
+              <motion.button type="button"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 key={opt.id}
+                aria-pressed={purpose === opt.id}
                 onClick={() => setPurpose(opt.id as Purpose)}
                 className={`cursor-pointer rounded-xl border px-4 py-3 text-center text-sm font-semibold transition-all duration-300 ${
                   purpose === opt.id 
@@ -189,7 +203,7 @@ export function RequestForm({
                 }`}
               >
                 {opt.label}
-              </motion.div>
+              </motion.button>
             ))}
           </div>
         </div>
@@ -199,9 +213,10 @@ export function RequestForm({
           <label className="block text-base font-bold tracking-tight mb-6">4. Payment Method <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {paymentMethods.online && (
-              <motion.div
+              <motion.button type="button"
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
+                aria-pressed={paymentMethod === "online"}
                 onClick={() => setPaymentMethod("online")}
                 className={`relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 ${
                   paymentMethod === "online" 
@@ -225,13 +240,14 @@ export function RequestForm({
                     <Check className="w-5 h-5" />
                   </motion.div>
                 )}
-              </motion.div>
+              </motion.button>
             )}
 
             {paymentMethods.cash && (
-              <motion.div
+              <motion.button type="button"
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
+                aria-pressed={paymentMethod === "cash"}
                 onClick={() => setPaymentMethod("cash")}
                 className={`relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 ${
                   paymentMethod === "cash" 
@@ -255,7 +271,7 @@ export function RequestForm({
                     <Check className="w-5 h-5" />
                   </motion.div>
                 )}
-              </motion.div>
+              </motion.button>
             )}
             {!paymentMethods.online && !paymentMethods.cash && (
               <div className="col-span-1 sm:col-span-2 p-4 text-center text-sm text-red-500 bg-red-500/10 rounded-xl">
@@ -268,6 +284,7 @@ export function RequestForm({
         </CardContent>
       </Card>
 
+      </fieldset>
       {/* Right Column: Sticky Order Summary */}
       <div className="lg:col-span-1 lg:sticky lg:top-24 space-y-6">
         <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl p-6 relative">
@@ -307,6 +324,7 @@ export function RequestForm({
           )}
         </Card>
 
+        {uncertain && <p role="status">Submission may already be saved. Retry the same details or check your dashboard before creating another request.</p>}
         <div className="flex flex-col gap-3">
           <Button 
             type="submit" 
@@ -318,7 +336,7 @@ export function RequestForm({
               <span className="flex items-center gap-2">
                 <Loader2 className="w-5 h-5 animate-spin" /> Processing...
               </span>
-            ) : "Submit Request"}
+            ) : uncertain ? "Retry same request" : "Submit Request"}
           </Button>
           <Button 
             type="button" 
@@ -328,7 +346,7 @@ export function RequestForm({
             disabled={isSubmitting}
             className="w-full rounded-2xl hover:bg-muted font-semibold"
           >
-            Cancel
+            {uncertain ? "Check dashboard" : "Cancel"}
           </Button>
         </div>
       </div>

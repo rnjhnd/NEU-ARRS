@@ -1,4 +1,4 @@
-import { requireAuth } from "@/lib/auth";
+import { getVerifiedActor } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { clerkClient } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
@@ -10,7 +10,7 @@ export const metadata = { title: "Document Receipt" };
 
 export default async function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const userId = await requireAuth();
+  const { userId, role } = await getVerifiedActor();
   
   const request = await prisma.request.findUnique({
     where: { id: id }, include: { money: true }
@@ -22,8 +22,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
 
   // Authenticate ownership/administrator permission before exposing receipt data.
   const client = await clerkClient();
-  const viewingUser = await client.users.getUser(userId);
-  const isAdmin = viewingUser.publicMetadata?.role === "admin";
+  const isAdmin = role === "admin";
   
   if (request.studentId !== userId && !isAdmin) {
     return notFound();

@@ -13,6 +13,15 @@ export async function smokeMigratedDatabase(connectionString) {
   const suffix = randomUUID();
   try {
     await assert.rejects(client.$transaction(async tx => {
+      const roleOperation = await tx.roleChangeOperation.create({ data: {
+        id: `role-smoke:${suffix}`, actorId: "migration_test_admin", targetId: "migration_test_student",
+        previousRole: "student", previousOperationId: "unmanaged", nextRole: "employee", activeKey: "global",
+      } });
+      const access = await tx.roleAccess.create({ data: { userId: `role-smoke:${suffix}`, role: "employee", operationId: roleOperation.id } });
+      assert.equal(access.blocked, true);
+      await tx.roleChangeOperation.update({ where: { id: roleOperation.id }, data: { stage: "COMPLETE", activeKey: null } });
+      await tx.roleAccess.update({ where: { userId: access.userId, operationId: roleOperation.id }, data: { blocked: false } });
+      assert.equal((await tx.roleAccess.findUnique({ where: { userId: access.userId } })).blocked, false);
       const document = await tx.documentConfig.create({ data: {
         typeId: `MIGRATION_SMOKE_${suffix}`, label: "Migration test document", description: "Synthetic test only", price: 15050,
       } });

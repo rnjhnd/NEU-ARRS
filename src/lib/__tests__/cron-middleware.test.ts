@@ -69,18 +69,18 @@ describe("Existing user route protection", () => {
     await middleware(request("/dashboard"), event);
     expect(spies.protect).toHaveBeenCalledOnce();
   });
-  it("continues to redirect students away from staff routes", async () => {
+  it("authenticates staff routes and leaves role verification to the DAL", async () => {
     const response = await middleware(request("/admin/finance"), event);
-    expect(response?.headers.get("location")).toBe("https://example.invalid/dashboard");
+    expect(response?.headers.get("x-middleware-next")).toBe("1"); expect(spies.protect).toHaveBeenCalledOnce();
   });
-  it("continues to restrict employees to allowed staff routes", async () => {
+  it("does not treat an employee JWT as authoritative routing data", async () => {
     spies.role = "employee";
     const response = await middleware(request("/admin/finance"), event);
-    expect(response?.headers.get("location")).toBe("https://example.invalid/admin");
+    expect(response?.headers.get("x-middleware-next")).toBe("1"); expect(spies.protect).toHaveBeenCalledOnce();
   });
-  it("continues to redirect administrators away from student routes", async () => {
+  it("does not redirect using potentially stale admin JWT metadata", async () => {
     spies.role = "admin";
     const response = await middleware(request("/dashboard"), event);
-    expect(response?.headers.get("location")).toBe("https://example.invalid/admin");
+    expect(response?.headers.get("x-middleware-next")).toBe("1"); expect(spies.protect).toHaveBeenCalledOnce();
   });
 });

@@ -2,8 +2,18 @@
   "name": "temp-app",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "packageManager": "npm@11.19.1",
   "engines": {
-    "node": "24.x"
+    "node": "24.x",
+    "npm": ">=11.19.1"
+  },
+  "allowScripts": {
+    "@clerk/shared": false,
+    "@prisma/engines@7.10.1": true,
+    "fsevents@2.3.3": true,
+    "prisma@7.10.1": true,
+    "unrs-resolver@1.12.2": true
   },
   "scripts": {
     "dev": "next dev",
@@ -11,6 +21,11 @@
     "build:check": "node scripts/check-build.mjs",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run typecheck && npm run lint && npm test",
+    "verify": "npm run check && npm run audit:security && npm run test:migrations && npm run test:navigation && npm run build:check -- --smoke-cron",
     "audit:security": "npm audit --audit-level=low",
     "test:migrations": "node scripts/test-migrations.mjs",
     "test:navigation": "playwright test --config playwright.navigation.config.ts",
@@ -26,7 +41,6 @@
     "@clerk/themes": "^2.4.57",
     "@prisma/adapter-pg": "7.10.1",
     "@prisma/client": "7.10.1",
-    "@react-email/components": "^1.0.12",
     "@react-email/render": "2.3.1",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
@@ -40,7 +54,6 @@
     "next-themes": "^0.4.6",
     "pg": "^8.21.0",
     "react": "19.2.9",
-    "react-day-picker": "^10.0.1",
     "react-dom": "19.2.9",
     "recharts": "^3.8.1",
     "sonner": "^2.0.7",
@@ -58,7 +71,6 @@
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "dotenv": "^17.4.2",
     "eslint": "9.39.5",
     "eslint-config-next": "16.4.6",
     "prisma": "7.10.1",
@@ -67,9 +79,6 @@
     "vitest": "4.1.12"
   },
   "overrides": {
-    "@react-email/components": {
-      "@react-email/render": "$@react-email/render"
-    },
     "@typescript-eslint/typescript-estree": {
       "minimatch": "11.0.7"
     }

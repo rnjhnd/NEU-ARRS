@@ -1,11 +1,12 @@
+import { fixtureQueue } from "../../../scripts/admin-queue-fixture/model";
 import { beforeEach, expect, it, vi } from "vitest";
 import { adminQueueSchema, mergeQueueChanges, queueCSV, queueSnapshotChanged, queueView, toQueueItem, type AdminQueue, type QueueItem } from "../admin-queue-model";
-import { fetchAdminQueue } from "../admin-queue-fetcher";
+import { fetchAdminQueue, fetchQueueExport } from "../admin-queue-fetcher";
 
 const row: QueueItem = { id: "request_a", studentName: "Stored Student", studentNumber: "22-12345-123", studentEmail: "student@example.invalid",
   documentType: "Document", purpose: "PERSONAL", paymentMethod: "online", paymentStatus: "PAID", status: "PENDING_PAYMENT", cancelReason: null,
   createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" };
-const queue: AdminQueue = { actorId: "staff_a", role: "employee", emailLookupFailed: false, items: [row] };
+const queue: AdminQueue = fixtureQueue({ actorId: "staff_a", role: "employee", emailLookupFailed: false, items: [row] });
 beforeEach(() => vi.resetAllMocks());
 
 it("serializes the minimal queue DTO without provider or order internals", () => {
@@ -76,4 +77,39 @@ it("rejects malformed data and followed login redirects", async () => {
   const redirected = Response.json(queue); Object.defineProperty(redirected, "redirected", { value: true });
   vi.mocked(fetch).mockResolvedValue(redirected);
   await expect(fetchAdminQueue(["/api/admin/requests", "staff_a", "employee"])).rejects.toMatchObject({ status: 401 });
+});
+
+it("rejects truncated pages and inconsistent whole-queue metadata", () => {
+  for (const invalid of [
+    { ...queue, items: [] }, { ...queue, totalPages: 2 },
+    { ...queue, summary: { ...queue.summary, total: 0 } },
+    { ...queue, summary: { ...queue.summary, pending: 2 } },
+    { ...queue, query: { ...queue.query, page: 2 } },
+  ]) expect(adminQueueSchema.safeParse(invalid).success).toBe(false);
+});
+
+const exportHeaders = { "Content-Type": "text/csv; charset=utf-8", "X-Queue-Actor": "staff_a", "X-Queue-Role": "employee", "X-Queue-Email-Lookup-Failed": "1" };
+const exportCSV = "\uFEFF" + queueCSV([row]);
+const download = () => fetchQueueExport("staff_a", "employee", { from: "2026-01-01", to: "2026-01-31" }, new AbortController().signal);
+it("downloads only a verified staff CSV and sends an independent date query", async () => {
+  vi.mocked(fetch).mockResolvedValue(new Response(exportCSV, { headers: exportHeaders }));
+  expect(await download()).toEqual({ csv: exportCSV.replace(/^\uFEFF/, ""), emailLookupFailed: true });
+  expect(fetch).toHaveBeenCalledWith("/api/admin/requests/export?format=queue-export-v1&from=2026-01-01&to=2026-01-31", expect.objectContaining({ cache: "no-store" }));
+});
+it.each([400, 401, 403, 404, 413, 503])("rejects export HTTP %s without downloading a partial file", async status => {
+  vi.mocked(fetch).mockResolvedValue(new Response(exportCSV, { status }));
+  await expect(download()).rejects.toMatchObject({ status });
+});
+it("rejects export identity mismatches, login redirects, invalid content and oversized CSV", async () => {
+  const redirected = new Response(exportCSV, { headers: exportHeaders }); Object.defineProperty(redirected, "redirected", { value: true });
+  for (const [response, status] of [
+    [new Response(exportCSV, { headers: { ...exportHeaders, "X-Queue-Actor": "staff_b" } }), 403],
+    [new Response(exportCSV, { headers: { ...exportHeaders, "X-Queue-Role": "admin" } }), 403],
+    [redirected, 401],
+    [new Response(exportCSV, { headers: { ...exportHeaders, "Content-Type": "text/html" } }), 502],
+    [new Response("partial", { headers: exportHeaders }), 502],
+    [new Response(exportCSV + "a".repeat(5_000_000), { headers: exportHeaders }), 502],
+  ] as const) {
+    vi.mocked(fetch).mockResolvedValue(response); await expect(download()).rejects.toMatchObject({ status });
+  }
 });

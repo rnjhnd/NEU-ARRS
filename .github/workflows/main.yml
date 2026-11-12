@@ -1,57 +1,82 @@
-name: CI Pipeline
+﻿name: CI Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   dependency-security:
     name: Dependency Security Audit
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: '24'
-          cache: 'npm'
-      # Audit the complete lockfile, including development dependencies. This
-      # runs independently so unrelated lint failures cannot skip the audit.
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      # Independent lockfile audit; application test failures cannot skip it.
       - run: npm run audit:security
 
   test:
     name: Type Check, Lint, and Test
     runs-on: ubuntu-latest
-
+    timeout-minutes: 15
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: '24'
-          cache: 'npm'
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Postinstall generates Prisma without loading application env files.
+      - run: npm run check
 
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Generate Prisma Client
-        run: npx prisma generate
-
-      - name: Type Check
-        run: npx tsc --noEmit
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Run Unit Tests
-        run: npx vitest run
+  browser:
+    name: Isolated Chrome Regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Install Chrome and OS dependencies
+        run: npx playwright install --with-deps chrome
+      - name: Run synthetic browser checks
+        run: npm run test:navigation
+      - name: Keep synthetic failure diagnostics
+        if: failure() && !cancelled()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: isolated-chrome-failures
+          path: |
+            playwright-report/
+            test-results/navigation/
+          if-no-files-found: ignore
+          retention-days: 7
 
   migrations:
     name: Migration Replay and Prisma Schema Drift
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:17
@@ -67,14 +92,16 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     env:
-      # Dedicated disposable service credentials; no repository secrets.
+      # Disposable loopback service; never repository database credentials.
       MIGRATION_TEST_DATABASE_URL: postgresql://migration_test:migration_test_only@127.0.0.1:5432/neu_arrs_migration_test?sslmode=disable
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: '24'
-          cache: 'npm'
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
       - run: npm ci
       - name: Validate Prisma Schema
         run: npx prisma validate --config scripts/prisma-test.config.ts
@@ -88,5 +115,39 @@ jobs:
         run: npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code --config scripts/prisma-test.config.ts
       - name: Exercise Actual Prisma Client
         run: node scripts/smoke-migrations.mjs
-      - name: Verify Production Cron Authentication and Empty Run
-        run: npm run build:check -- --smoke-cron
+
+  build:
+    name: Production Build and Cron HTTP Smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build:check -- --smoke-cron
+
+  required-checks:
+    name: CI required checks
+    if: always()
+    needs: [dependency-security, test, browser, migrations, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    env:
+      AUDIT: ${{ needs.dependency-security.result }}
+      QUALITY: ${{ needs.test.result }}
+      BROWSER: ${{ needs.browser.result }}
+      MIGRATIONS: ${{ needs.migrations.result }}
+      BUILD: ${{ needs.build.result }}
+    steps:
+      - name: Require every verification job to succeed
+        run: |
+          for result in "$AUDIT" "$QUALITY" "$BROWSER" "$MIGRATIONS" "$BUILD"; do
+            if [[ "$result" != "success" ]]; then
+              exit 1
+            fi
+          done

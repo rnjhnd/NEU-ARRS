@@ -85,8 +85,8 @@ it.each(["", "format=old&area=settings", "format=config-v1&area=secret", "format
   expect(prisma.systemSettings.findMany).not.toHaveBeenCalled(); expect(getUserList).not.toHaveBeenCalled();
 });
 it("validates roles at runtime and rejects stale/self role changes without provider writes", async () => {
-  expect(await updateUserRole("target", "owner" as "admin", "student")).toMatchObject({ success: false, code: "invalid" });
-  expect(await updateUserRole("admin", "student", "admin")).toMatchObject({ success: false, code: "invalid" });
-  getUser.mockResolvedValue({ publicMetadata: { role: "employee" } }); expect(await updateUserRole("target", "admin", "student")).toMatchObject({ success: false, code: "conflict" });
+  expect(await updateUserRole("target", "owner" as "admin", "student", "c8d27620-6311-423a-a369-000000000001")).toMatchObject({ success: false, code: "invalid" });
+  expect(await updateUserRole("admin", "student", "admin", "c8d27620-6311-423a-a369-000000000001")).toMatchObject({ success: false, code: "invalid" });
+  expect(await updateUserRole("target", "admin", "student", "invalid-intent")).toMatchObject({ success: false, code: "invalid" });
   expect(updateUserMetadata).not.toHaveBeenCalled();
 });

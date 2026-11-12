@@ -4,15 +4,15 @@ import { canonicalSetting, createDocumentSchema, settingDefault, SETTING_KEYS, t
 import type { RolesSnapshot } from "../../src/lib/configuration-fetcher";
 
 const version = "2026-11-12T00:00:00.000Z";
-type State = { documents: ConfigDocument[]; settings: SettingEntry[]; users: RolesSnapshot["users"]; unavailable: boolean; status: number; malformed: boolean;
+type State = { operation: RolesSnapshot["operation"]; pendingRole: boolean; documents: ConfigDocument[]; settings: SettingEntry[]; users: RolesSnapshot["users"]; unavailable: boolean; status: number; malformed: boolean;
   actionMode: "ok" | "throw" | "conflict" | "auth"; delay: number; dropAfterCommit: boolean; calls: { kind: string; form: Record<string, string> }[]; reads: string[] };
 const test = base.extend<{ state: State }, { fixtureURL: string }>({
   fixtureURL: [async ({ browserName }, provide) => { if (browserName !== "chromium") throw new Error("Chrome required"); const server = await startComponentFixture("configuration-fixture"); try { await provide(server.url); } finally { await server.close(); } }, { scope: "worker" }],
   state: async ({ page, fixtureURL }, provide) => {
-    const state: State = { documents: Array.from({ length: 9 }, (_, i) => ({ id: "config_" + i, typeId: "CODE_" + i, label: "Document " + i, description: "Official synthetic record", price: i === 0 ? 0 : 15050, isActive: true, updatedAt: version })),
-      settings: SETTING_KEYS.map(key => ({ key, value: settingDefault(key), valid: true, version })), users: [{ id: "admin_synthetic", name: "Current Admin", email: "admin@example.invalid", role: "admin" }, { id: "target", name: "Target Student", email: "primary@example.invalid", role: "student" }],
+    const state: State = { operation: null, pendingRole: false, documents: Array.from({ length: 9 }, (_, i) => ({ id: "config_" + i, typeId: "CODE_" + i, label: "Document " + i, description: "Official synthetic record", price: i === 0 ? 0 : 15050, isActive: true, updatedAt: version })),
+      settings: SETTING_KEYS.map(key => ({ key, value: settingDefault(key), valid: true, version })), users: [{ id: "admin_synthetic", name: "Current Admin", email: "admin@example.invalid", role: "admin", roleVersion: "unmanaged", blocked: false }, { id: "target", name: "Target Student", email: "primary@example.invalid", role: "student", roleVersion: "unmanaged", blocked: false }],
       unavailable: false, status: 200, malformed: false, actionMode: "ok", delay: 0, dropAfterCommit: false, calls: [], reads: [] };
-    const snapshots = () => ({ documents: { actorId: "admin_synthetic", asOf: version, items: state.documents }, settings: { actorId: "admin_synthetic", asOf: version, entries: state.settings }, roles: { actorId: "admin_synthetic", asOf: version, users: state.users } });
+    const snapshots = () => ({ documents: { actorId: "admin_synthetic", asOf: version, items: state.documents }, settings: { actorId: "admin_synthetic", asOf: version, entries: state.settings }, roles: { actorId: "admin_synthetic", asOf: version, users: state.users, operation: state.operation } });
     const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
     await page.route("**/*", route => { if (new URL(route.request().url()).origin === fixtureURL) return route.continue(); errors.push("Unexpected outbound request"); return route.abort(); });
     await page.route("**/fixture/bootstrap", route => route.fulfill({ json: state.unavailable ? {} : snapshots() }));
@@ -25,6 +25,16 @@ const test = base.extend<{ state: State }, { fixtureURL: string }>({
       if (state.delay) await new Promise(done => setTimeout(done, state.delay));
       if (state.actionMode === "throw") return route.fulfill({ status: 500, json: {} });
       if (state.actionMode !== "ok") return route.fulfill({ json: { success: false, code: state.actionMode, error: state.actionMode === "conflict" ? "Configuration changed. Refresh before saving." : "Administrator access required." } });
+      if (call.kind === "role" && state.pendingRole) {
+        state.operation = { id: "role_" + "a".repeat(64), targetId: call.form.id, previousRole: "student", nextRole: "employee", stage: "REVOKING" };
+        state.users = state.users.map(user => user.id === call.form.id ? { ...user, blocked: true, role: "unknown" } : user);
+        return route.fulfill({ json: { success: false, code: "unavailable", operation: state.operation, error: "Role recovery is incomplete. The account remains blocked." } });
+      }
+      if (call.kind === "role-recovery") {
+        state.operation = null; state.pendingRole = false;
+        state.users = state.users.map(user => user.id === "target" ? { ...user, role: "employee", blocked: false } : user);
+        return route.fulfill({ json: { success: true } });
+      }
       let data: ConfigDocument | SettingEntry | number | undefined;
       const nextVersion = new Date(Date.parse(version) + state.calls.length * 1000).toISOString();
       if (call.kind === "create") {
@@ -124,4 +134,18 @@ test("protected-route 404 clears all settings panels before session hooks change
 test("a late document save cannot affect a different account and the phone editor fits", async ({ page, state }, info) => {
   await create(page); const dialog = await page.getByRole("dialog").boundingBox(); if (!dialog) throw new Error("Dialog missing"); expect(dialog.x).toBeGreaterThanOrEqual(0); expect(dialog.x + dialog.width).toBeLessThanOrEqual(391); await page.screenshot({ path: info.outputPath("document-editor.png") });
   state.delay = 800; await page.getByRole("button", { name: "Save document", exact: true }).click(); await page.evaluate(() => window.dispatchEvent(new Event("synthetic-account-switch"))); await page.waitForLoadState("networkidle"); await expect(page.getByRole("alert")).toContainText("account or role changed"); await expect(page.getByText("Document saved.", { exact: false })).toHaveCount(0);
+});
+
+test("a durable pending role operation disables new changes and can be resumed", async ({ page, fixtureURL, state }) => {
+  state.pendingRole = true; await settings(page, fixtureURL);
+  await page.getByRole("combobox", { name: "Role for Target Student" }).selectOption("employee"); await page.getByRole("button", { name: "Save role", exact: true }).last().click();
+  await page.getByRole("button", { name: "Confirm role", exact: true }).click(); await expect(page.getByRole("dialog").getByRole("alert")).toContainText("recovery is incomplete");
+  await page.getByRole("button", { name: "Cancel", exact: true }).click(); await page.getByRole("button", { name: "Refresh accounts" }).click();
+  await expect(page.getByRole("button", { name: "Resume role recovery" })).toBeVisible(); await expect(page.getByRole("button", { name: "Save role", exact: true }).last()).toBeDisabled();
+  await page.getByRole("button", { name: "Resume role recovery" }).click(); await expect(page.getByText("Role recovery completed.")).toBeVisible(); await expect(page.getByRole("button", { name: "Resume role recovery" })).toHaveCount(0);
+  expect(state.calls.map(call => call.kind)).toEqual(["role", "role-recovery"]); expect(state.calls[0].form.intentId).toMatch(/^[a-f0-9-]{36}$/);
+});
+test("an observed role version change makes a pending confirmation stale", async ({ page, fixtureURL, state }) => {
+  await page.clock.install(); await settings(page, fixtureURL); await page.getByRole("combobox", { name: "Role for Target Student" }).selectOption("employee"); await page.getByRole("button", { name: "Save role", exact: true }).last().click();
+  state.users[1].roleVersion = "new-operation"; await page.clock.runFor(61_000); await page.evaluate(() => window.dispatchEvent(new Event("focus"))); await expect(page.getByRole("dialog").getByRole("alert")).toContainText("account role changed"); await expect(page.getByRole("button", { name: "Confirm role", exact: true })).toBeDisabled(); expect(state.calls).toHaveLength(0);
 });

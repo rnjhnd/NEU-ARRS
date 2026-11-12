@@ -103,6 +103,12 @@ PostgreSQL service job were configured but not executed from this workspace.
 
 ## Remaining maintenance work
 
+**Follow-up:** [batch 19](19-tooling-ci.md) repairs the strict-install lockfile,
+enables peer/install-script enforcement, makes module loading explicit, and adds
+complete CI/browser checks. Batch 18 cleared the application lint errors. The
+ESLint-9 lifecycle and deprecated email-component issues below remain separate
+maintenance concerns; the historical lint/module warnings are no longer current.
+
 - Full application lint currently reports 55 errors and 30 warnings in existing
   files (hook patterns, explicit any, static component definitions, refs, and
   related quality issues). This batch does not edit those components. The normal
@@ -128,3 +134,9 @@ PostgreSQL service job were configured but not executed from this workspace.
 The next recommended application batch is checkout creation/retry idempotency
 and payment-order integrity. Durable notifications/refunds, canonical monetary
 storage, cron authentication, and broader UI refactoring remain separate items.
+
+Follow-up: [batch 20](20-final-cleanup-performance.md) closes the deprecated
+email-component follow-up using native markup and the maintained renderer; it
+also removes unused direct dependencies. Strict clean installation and a full
+audit pass with zero advisories. ESLint lifecycle support remains open as noted
+in batches 19 and 20.

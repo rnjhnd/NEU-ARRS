@@ -9,16 +9,21 @@ export async function startNavigationFixture() {
 }
 
 export async function startComponentFixture(name) {
-  if (!["navigation-fixture", "request-list-fixture", "admin-queue-fixture", "finance-fixture", "student-directory-fixture", "configuration-fixture"].includes(name)) throw new Error("Unknown component fixture.");
+  if (!["navigation-fixture", "request-list-fixture", "admin-queue-fixture", "finance-fixture", "student-directory-fixture", "configuration-fixture", "authentication-fixture"].includes(name)) throw new Error("Unknown component fixture.");
   const shared = normalizePath(fileURLToPath(new URL("./", import.meta.url)));
   const root = normalizePath(fileURLToPath(new URL("../" + name + "/", import.meta.url)));
   const workspace = normalizePath(resolve(root, "../.."));
   const server = await createServer({
     configFile: false, root, envDir: root, envPrefix: "NAVIGATION_FIXTURE_",
-    cacheDir: workspace + "/node_modules/.cache/navigation-checks",
+    cacheDir: workspace + "/node_modules/.cache/navigation-checks/" + name,
     server: { host: "127.0.0.1", port: 0, strictPort: true, hmr: false, fs: { allow: [workspace] } },
     resolve: {
       alias: [
+        ...(name === "authentication-fixture" ? [
+          { find: "@/app/actions/request.actions", replacement: root + "actions.ts" },
+          { find: "@clerk/nextjs/errors", replacement: root + "clerk-errors.ts" },
+          { find: "@clerk/nextjs", replacement: root + "clerk.tsx" },
+        ] : []),
         ...(name === "configuration-fixture" ? [
           { find: "@/app/actions/configuration.actions", replacement: root + "actions.ts" },
           { find: "@/app/actions/admin.actions", replacement: root + "actions.ts" },

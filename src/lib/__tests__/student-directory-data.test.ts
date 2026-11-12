@@ -3,6 +3,14 @@ import prisma from "@/lib/prisma";
 import { loadStudentDirectory, type DirectoryProvider } from "../student-directory-data";
 import { GET } from "@/app/api/admin/students/route";
 
+vi.mock("@/lib/auth", async importOriginal => {
+  const actual = await importOriginal<typeof import("@/lib/auth")>();
+  return { ...actual, getVerifiedActor: async () => {
+    const fixture = await mockAuth();
+    if (!fixture?.userId) throw new actual.AccessError(401);
+    return { userId: fixture.userId, role: fixture.sessionClaims?.metadata?.role };
+  } };
+});
 const { mockAuth, getUserList } = vi.hoisted(() => ({ mockAuth: vi.fn(), getUserList: vi.fn<DirectoryProvider["getUserList"]>() }));
 vi.mock("@clerk/nextjs/server", () => ({ auth: mockAuth, clerkClient: async () => ({ users: { getUserList } }) }));
 function user(id: string, role: unknown = "student") {

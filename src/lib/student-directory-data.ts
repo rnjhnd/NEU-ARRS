@@ -1,4 +1,5 @@
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { getVerifiedActor, AccessError } from "./auth";
+import { clerkClient } from "@clerk/nextjs/server";
 import { Prisma, type PrismaClient } from "@prisma/client";
 import prisma from "./prisma";
 import { readClerkAccounts, AccountSnapshotError, type AccountProvider } from "./clerk-account-snapshot";
@@ -13,11 +14,10 @@ export class DirectoryLoadError extends Error {
   }
 }
 export async function requireDirectoryActor(): Promise<DirectoryActor> {
-  const { userId, sessionClaims } = await auth();
-  if (!userId) throw new DirectoryLoadError(401);
-  const role = sessionClaims?.metadata?.role;
-  if (role !== "admin" && role !== "employee") throw new DirectoryLoadError(403);
-  return { actorId: userId, role };
+  let actor;
+  try { actor = await getVerifiedActor(); } catch (error) { if (error instanceof AccessError) throw new DirectoryLoadError(error.status); throw error; }
+  if (actor.role !== "admin" && actor.role !== "employee") throw new DirectoryLoadError(403);
+  return { actorId: actor.userId, role: actor.role };
 }
 export type DirectoryProvider = AccountProvider;
 async function readStudents(provider: DirectoryProvider) {

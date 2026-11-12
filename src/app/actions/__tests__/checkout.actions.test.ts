@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Prisma, type CheckoutAttempt, type DocumentConfig, type Request } from "@prisma/client";
 import prisma from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
+import { requireStudent as requireAuth } from "@/lib/auth";
 import { createRepaymentSession, createRequest } from "../request.actions";
 
 const NOW = new Date("2026-11-11T04:00:00Z");

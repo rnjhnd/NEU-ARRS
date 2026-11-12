@@ -162,3 +162,8 @@ The primary-address choice also follows the
 Version-matched Next.js route/testing guides were read from
 `node_modules/next/dist/docs/`; the React review covered stable components, hooks,
 typed props, accessible controls, and asynchronous cleanup.
+
+Follow-up: [batch 20](20-final-cleanup-performance.md) replaces the full-feed
+read with ten-row server pages and exact global summaries, adds a separate
+size-limited CSV endpoint, and introduces the staff queue index migration. The
+figures and performance limits above describe this batch's historical baseline.

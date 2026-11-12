@@ -35,8 +35,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <ClerkThemeProvider>
-            <SessionGuard />
-            {children}
+            <SessionGuard>{children}</SessionGuard>
             <Toaster />
           </ClerkThemeProvider>
         </ThemeProvider>

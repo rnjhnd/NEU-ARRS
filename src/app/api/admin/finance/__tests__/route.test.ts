@@ -4,6 +4,14 @@ import prisma from "@/lib/prisma";
 import type { Request as PrismaRequest } from "@prisma/client";
 import { GET } from "../route";
 
+vi.mock("@/lib/auth", async importOriginal => {
+  const actual = await importOriginal<typeof import("@/lib/auth")>();
+  return { ...actual, getVerifiedActor: async () => {
+    const fixture = await mockAuth();
+    if (!fixture?.userId) throw new actual.AccessError(401);
+    return { userId: fixture.userId, role: fixture.sessionClaims?.metadata?.role };
+  } };
+});
 const { mockAuth } = vi.hoisted(() => ({ mockAuth: vi.fn() }));
 vi.mock("@clerk/nextjs/server", () => ({ auth: mockAuth }));
 const row: PrismaRequest = { id: "request_a", studentId: "private", studentName: "Private Student", studentNumber: "private", documentType: "GOOD_MORAL", purpose: "PERSONAL", paymentMethod: "online", paymentStatus: "PAID", status: "PROCESSING", cancelReason: null,

@@ -4,7 +4,7 @@ import { useSignUp, useClerk } from "@clerk/nextjs";
 import { ArrowLeft, Loader2, KeyRound, Mail, User, ShieldCheck, Zap, Clock, Eye, EyeOff } from "lucide-react";
 import { LogoIcon } from "@/components/logo-icon";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isClerkAPIResponseError } from "@clerk/nextjs/errors";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ export default function SignUpPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
   const clerk = useClerk();
+  const busy = useRef(false);
 
   // Handle standard registration
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +35,8 @@ export default function SignUpPage() {
       toast.error("Please fill in all the required fields to create your account.");
       return;
     }
-    if (!signUp) return;
+    if (!signUp || busy.current) return;
+    busy.current = true;
     setIsManualLoading(true);
 
     try {
@@ -46,7 +48,6 @@ export default function SignUpPage() {
       });
 
       if (createError) {
-        console.error(createError);
         toast.error(createError.longMessage || "An error occurred during sign-up. Please try again.");
         return;
       }
@@ -54,7 +55,6 @@ export default function SignUpPage() {
       // Send the OTP
       const { error: sendError } = await signUp.verifications.sendEmailCode();
       if (sendError) {
-        console.error(sendError);
         toast.error(sendError.longMessage || "Failed to send the verification code. Please check your email address.");
         return;
       }
@@ -62,7 +62,6 @@ export default function SignUpPage() {
       setPendingVerification(true);
       toast.success("Verification code sent. Please check your inbox.");
     } catch (err: unknown) {
-      console.error(err);
       if (isClerkAPIResponseError(err)) {
         const msg = err.errors[0]?.longMessage || err.errors[0]?.message;
         toast.error(msg || "An error occurred during sign-up. Please try again.");
@@ -70,6 +69,7 @@ export default function SignUpPage() {
         toast.error("An unexpected error occurred during sign-up.");
       }
     } finally {
+      busy.current = false;
       setIsManualLoading(false);
     }
   };
@@ -77,7 +77,8 @@ export default function SignUpPage() {
   // Handle OTP verification
   const onPressVerify = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!signUp) return;
+    if (!signUp || busy.current) return;
+    busy.current = true;
     setIsManualLoading(true);
 
     try {
@@ -86,7 +87,6 @@ export default function SignUpPage() {
       });
 
       if (error) {
-        console.error(error);
         toast.error(error.longMessage || "Invalid verification code. Please try again.");
         return;
       }
@@ -98,7 +98,6 @@ export default function SignUpPage() {
         toast.error("Additional verification is required to complete sign-up.");
       }
     } catch (err: unknown) {
-      console.error(err);
       if (isClerkAPIResponseError(err)) {
         const msg = err.errors[0]?.longMessage || err.errors[0]?.message;
         toast.error(msg || "Invalid verification code. Please try again.");
@@ -106,13 +105,15 @@ export default function SignUpPage() {
         toast.error("An unexpected error occurred. Please try again later.");
       }
     } finally {
+      busy.current = false;
       setIsManualLoading(false);
     }
   };
 
   // Handle Google OAuth sign up
   const handleGoogleSignUp = async () => {
-    if (!signUp) return;
+    if (!signUp || busy.current) return;
+    busy.current = true;
     setIsGoogleLoading(true);
     try {
       await clerk.client.signIn.authenticateWithRedirect({
@@ -121,11 +122,11 @@ export default function SignUpPage() {
         redirectUrlComplete: "/",
       });
     } catch (err: unknown) {
-      if (err && typeof err === 'object' && 'digest' in err && typeof (err as any).digest === 'string' && (err as any).digest.includes("NEXT_REDIRECT")) {
+      if (err && typeof err === 'object' && 'digest' in err && typeof err.digest === 'string' && err.digest.includes("NEXT_REDIRECT")) {
         throw err;
       }
-      console.error(err);
       toast.error("An unexpected error occurred. Please try again later.");
+      busy.current = false;
       setIsGoogleLoading(false);
     }
   };
@@ -360,6 +361,7 @@ export default function SignUpPage() {
                   <span className="text-muted-foreground">Didn&apos;t receive a code? </span>
                   <button 
                     onClick={() => {
+                      if (busy.current) return;
                       setPendingVerification(false);
                       setCode("");
                     }} 

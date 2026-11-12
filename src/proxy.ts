@@ -18,9 +18,9 @@ function getRateLimiter() {
 
 const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)", "/sso-callback(.*)", "/api/webhooks(.*)"]);
 
-const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 
-const isStudentRoute = createRouteMatcher(["/dashboard(.*)", "/receipt(.*)", "/api/student(.*)"]);
+
+
 
 const sessionMiddleware = clerkMiddleware(async (auth, req) => {
   // Only apply rate limiting to API routes or mutating requests (POST, PUT, DELETE, etc.)
@@ -59,32 +59,7 @@ const sessionMiddleware = clerkMiddleware(async (auth, req) => {
   // Protect all other routes
   await auth.protect();
 
-  // Role-based access control for /admin
-  if (isAdminRoute(req)) {
-    const { sessionClaims } = await auth();
-    const role = sessionClaims?.metadata?.role;
-    
-    if (role === "admin") {
-      return;
-    } else if (role === "employee") {
-      const path = req.nextUrl.pathname;
-      if (path === "/admin" || path.startsWith("/admin/students")) {
-        return;
-      }
-      return NextResponse.redirect(new URL("/admin", req.url));
-    } else {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
-    }
-  }
-
-  // Prevent staff from accessing the student portal
-  if (isStudentRoute(req)) {
-    const { sessionClaims } = await auth();
-    const role = sessionClaims?.metadata?.role;
-    if (role === "admin" || role === "employee") {
-      return NextResponse.redirect(new URL("/admin", req.url));
-    }
-  }
+  return NextResponse.next();
 });
 
 export default function proxy(request: NextRequest, event: NextFetchEvent) {

@@ -4,7 +4,7 @@ import { useSignIn, useClerk } from "@clerk/nextjs";
 import { Loader2, KeyRound, Mail, Eye, EyeOff } from "lucide-react";
 import { LogoIcon } from "@/components/logo-icon";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ export default function SignInPage() {
   const router = useRouter();
   const { signIn } = useSignIn();
   const clerk = useClerk();
+  const busy = useRef(false);
 
   // Handle standard email/password login
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,7 +31,8 @@ export default function SignInPage() {
       toast.error("Please enter both your email address and password to sign in.");
       return;
     }
-    if (!signIn) return;
+    if (!signIn || busy.current) return;
+    busy.current = true;
     setIsManualLoading(true);
 
     try {
@@ -40,7 +42,6 @@ export default function SignInPage() {
       });
 
       if (error) {
-        console.error(error);
         const msg = error.longMessage || error.message || "";
         const code = error.code;
         
@@ -61,7 +62,6 @@ export default function SignInPage() {
         toast.error("Additional verification is required to complete sign-in.");
       }
     } catch (err: unknown) {
-      console.error(err);
       if (isClerkAPIResponseError(err)) {
         const firstError = err.errors[0];
         const msg = firstError?.longMessage || firstError?.message || "";
@@ -78,13 +78,15 @@ export default function SignInPage() {
         toast.error("An unexpected error occurred during sign-in.");
       }
     } finally {
+      busy.current = false;
       setIsManualLoading(false);
     }
   };
 
   // Handle Google OAuth login
   const handleGoogleSignIn = async () => {
-    if (!signIn) return;
+    if (!signIn || busy.current) return;
+    busy.current = true;
     setIsGoogleLoading(true);
     try {
       await clerk.client.signIn.authenticateWithRedirect({
@@ -93,11 +95,11 @@ export default function SignInPage() {
         redirectUrlComplete: "/",
       });
     } catch (err: unknown) {
-      if (err && typeof err === 'object' && 'digest' in err && typeof (err as any).digest === 'string' && (err as any).digest.includes("NEXT_REDIRECT")) {
+      if (err && typeof err === 'object' && 'digest' in err && typeof err.digest === 'string' && err.digest.includes("NEXT_REDIRECT")) {
         throw err;
       }
-      console.error(err);
       toast.error("An unexpected error occurred. Please try again later.");
+      busy.current = false;
       setIsGoogleLoading(false);
     }
   };

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { KeyedMutator } from "swr";
 import { toast } from "sonner";
 import { updateRequestStatus } from "@/app/actions/admin.actions";
-import { mergeQueueChanges, type AdminQueue, type QueueItem } from "@/lib/admin-queue-model";
+import { mergeQueueChanges, type AdminQueue, type QueueItem, type QueueChange } from "@/lib/admin-queue-model";
 
 export type QueueUpdate = {
   status: QueueItem["status"]; cancelReason?: string; isOverride?: boolean; overrideReason?: string;
@@ -13,7 +13,10 @@ export type QueueUpdate = {
 export type QueueUpdateResult = { success: true } | { success: false; error: string };
 export type SaveQueueUpdate = (snapshot: QueueItem[], update: QueueUpdate) => Promise<QueueUpdateResult>;
 
-export function useQueueUpdate(mutate: KeyedMutator<AdminQueue>, blocked: boolean, sessionValid: boolean, onCommitted: () => void, requireRefresh: () => void) {
+export function useQueueUpdate({ mutate, blocked, sessionValid, onCommitted, requireRefresh, fallbackQueue, patchPages }: {
+  mutate: KeyedMutator<AdminQueue>; blocked: boolean; sessionValid: boolean; onCommitted: () => void; requireRefresh: () => void;
+  fallbackQueue: AdminQueue; patchPages: (changes: QueueChange[]) => Promise<void>;
+}) {
   const [pending, setPending] = useState(false);
   const inFlight = useRef(false);
   const active = useRef(false);
@@ -45,7 +48,8 @@ export function useQueueUpdate(mutate: KeyedMutator<AdminQueue>, blocked: boolea
       // A committed action remains successful even if cache refresh fails.
       void (async () => {
         try {
-          await mutate(current => current ? mergeQueueChanges(current, result.changes ?? []) : current, { revalidate: false });
+          await mutate(current => mergeQueueChanges(current ?? fallbackQueue, result.changes ?? []), { revalidate: false });
+          await patchPages(result.changes ?? []);
           await mutate();
         } catch { if (active.current) toast.warning("Changes were saved. Refresh the queue before another update."); }
       })();
