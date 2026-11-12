@@ -130,10 +130,23 @@ const checks = [
       const before = await insertLegacyRows(client);
       if (native) {
         await prisma(["migrate", "resolve", "--applied", initial], url);
-        assert.match(await prisma(["migrate", "deploy"], url, 1), /Verified student identity backfill required/);
+        const failedDeploy = await prisma(["migrate", "deploy"], url, 1);
+        assert.ok(failedDeploy.includes(`Applying migration \`${contract}\``), failedDeploy);
+        const { rows: failedAttempts } = await client.query('SELECT finished_at, rolled_back_at FROM "_prisma_migrations" WHERE migration_name = $1', [contract]);
+        assert.equal(failedAttempts.length, 1, "Prisma must record the failed contract attempt");
+        assert.equal(failedAttempts[0].finished_at, null);
+        assert.equal(failedAttempts[0].rolled_back_at, null);
       } else {
         await client.exec(await migration(expand));
-        await assert.rejects(client.exec(await migration(contract)), /Verified student identity backfill required/);
+      }
+      // Prisma can hide the guard's error when it tries to record failure logs
+      // inside the aborted SQL transaction. Verify the exact database rejection
+      // directly, rather than accepting a generic transaction-aborted message.
+      try {
+        await assert.rejects(client.exec(await migration(contract)), {
+          code: "P0001", message: /Verified student identity backfill required/,
+        });
+      } finally {
         await client.exec("ROLLBACK");
       }
       assert.equal((await client.query('SELECT COUNT(*)::int AS count FROM "Request" WHERE "status"::text = \'PENDING\'')).rows[0].count, 3);

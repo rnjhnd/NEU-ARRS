@@ -170,3 +170,17 @@ Clerk query behavior was checked against its
 Version-matched Next Route Handler guidance was read from the installed
 `node_modules/next/dist/docs/`. React and Postgres review guidance informed the
 effect cleanup, bounded serialization, query binding, and short transactions.
+
+## First remote CI follow-up
+
+After pushing checkpoint `dcb58a5`,
+[run 479](https://github.com/rnjhnd/NEU-ARRS/actions/runs/43172536195) passed the
+dependency audit, quality checks, and production build/cron checks. Its native
+PostgreSQL test exposed a CLI-diagnostic assertion issue: the database rejected
+the missing-identity upgrade correctly, but Prisma reported a subsequent aborted
+transaction error instead of the original guard message. The test correction
+verifies the failed contract history and independently requires the exact
+database SQLSTATE/message before testing recovery; it does not accept any
+generic failure or alter migration SQL. See the
+[native migration follow-up](04-migration-alignment.md#native-ci-follow-up-with-prisma-7101).
+The follow-up commit's CI results establish whether all remote checks pass.

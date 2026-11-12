@@ -181,3 +181,19 @@ Prisma releases; use the installed CLI and Prisma v7 documentation:
 - https://www.prisma.io/docs/orm/v7/prisma-migrate/workflows/baselining
 - https://www.prisma.io/docs/orm/v7/prisma-migrate/workflows/development-and-production
 - https://www.postgresql.org/docs/current/sql-altertype.html
+
+## Native CI follow-up with Prisma 7.10.1
+
+The first native PostgreSQL 17 CI run after batches 18-20 confirmed that the
+identity guard rejects an unverified legacy upgrade. Prisma's attempt to log
+that failure inside the aborted transaction obscured the original exception in
+its CLI output, which only reported `current transaction is aborted`. A generic
+transaction error alone is insufficient evidence to choose migration recovery.
+Inspect database logs, migration history, and schema/data state before using the
+verified-guard recovery procedure above.
+
+The disposable test now checks Prisma's failed contract record, then independently
+executes the contract against the same unverified fixture and requires SQLSTATE
+`P0001` with the exact identity-guard message. It rolls back explicitly before
+checking data preservation, verified backfill, operator resolve/redeploy, and
+zero drift. No applied migration SQL or production recovery rule was changed.
