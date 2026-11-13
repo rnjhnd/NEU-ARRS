@@ -79,6 +79,39 @@ test("mismatched and malformed session snapshots cannot reveal private content",
   state.sessionBody = { userId: "other_student", role: "student" }; await page.goto(fixtureURL + "?screen=session"); await expect(page.getByRole("heading", { name: "Account access restricted" })).toBeVisible();
   state.sessionBody = {}; await page.reload(); await expect(page.getByRole("heading", { name: "Account access unavailable" })).toBeVisible(); expect(state.signouts).toBe(0);
 });
+
+test("verified student leaves the staff portal without revealing its content or signing out", async ({ page, fixtureURL, state }) => {
+  await page.goto(fixtureURL + "?screen=session");
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/session", async route => { await pending; await route.fulfill({ json: state.sessionBody }); });
+  await page.getByRole("button", { name: "Navigate staff" }).click();
+  await expect(page).toHaveURL(fixtureURL + "/admin");
+  await expect(page.getByText("Verified private content")).toHaveCount(0);
+  release();
+  await expect(page).toHaveURL(fixtureURL + "/dashboard");
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Account access restricted" })).toHaveCount(0);
+  expect(state.signouts).toBe(0);
+});
+
+for (const role of ["employee", "admin"]) test(`verified ${role} leaves the student portal for the staff workspace`, async ({ page, fixtureURL, state }) => {
+  state.sessionBody = { userId: "student_synthetic", role };
+  await page.goto(fixtureURL + "?screen=session");
+  await expect(page).toHaveURL(fixtureURL + "/admin");
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  expect(state.signouts).toBe(0);
+});
+
+test("a mismatched account cannot trigger a role-based portal redirect", async ({ page, fixtureURL, state }) => {
+  state.sessionBody = { userId: "other_student", role: "admin" };
+  await page.goto(fixtureURL + "?screen=session");
+  await expect(page.getByRole("heading", { name: "Account access restricted" })).toBeVisible();
+  await expect(page).toHaveURL(fixtureURL + "/dashboard/guard-check");
+  await expect(page.getByText("Verified private content")).toHaveCount(0);
+  expect(state.signouts).toBe(0);
+});
 test("sign-in double activation is guarded and finalization precedes navigation", async ({ page, fixtureURL, state }) => {
   state.delay = 200; await page.goto(fixtureURL + "?screen=signin"); await page.getByLabel(/^Email address$/i).fill("synthetic@example.invalid"); await page.getByLabel("Password", { exact: true }).fill("synthetic-password-not-real");
   await page.locator("form").evaluate(form => { form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })); form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })); });
