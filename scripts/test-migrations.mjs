@@ -20,7 +20,7 @@ const notifications = "20261111000500_notification_outbox";
 const history = "20261111000600_student_history_pagination";
 const finance = "20261111000700_finance_period_index";
 const money = "20261111000800_verified_money";
-const currentMigrations = [initial, expand, contract, checkout, cleanup, notifications, history, finance, money, "20261112000100_role_change_recovery", "20261112000200_staff_queue_pagination"];
+const currentMigrations = [initial, expand, contract, checkout, cleanup, notifications, history, finance, money, "20261112000100_role_change_recovery", "20261112000200_staff_queue_pagination", "20261113000100_request_identity_review", "20261113000200_financial_dates"];
 const migration = name => readFile(resolve(root, "prisma/migrations", name, "migration.sql"), "utf8");
 const verifiedMapping = [{ studentId: "legacy_student", studentName: "Synthetic Student", studentNumber: "22-12345-123" }];
 const native = process.argv.includes("--native");
@@ -124,6 +124,29 @@ const checks = [
       assert.deepEqual(rows.map(row => row.migration_name), currentMigrations);
     });
   }],
+  ["financial-date upgrade preserves canonical money and leaves historical occurrence/completion dates unknown", async () => {
+    await withDatabase(async (client, url) => {
+      for (const name of currentMigrations.slice(0, -1)) await client.exec(await migration(name));
+      await client.exec(`INSERT INTO "Request" ("id", "studentId", "studentName", "studentNumber", "documentType", "purpose", "paymentMethod", "paymentStatus", "status", "updatedAt") VALUES
+        ('financial_upgrade_online','financial_upgrade_student','Synthetic','26-00001-001','TOR','PERSONAL','online','REFUNDED','CANCELLED','2026-11-12'),
+        ('financial_upgrade_cash','financial_upgrade_student','Synthetic','26-00001-001','TOR','PERSONAL','cash','CASH_ON_PICKUP','COMPLETED','2026-11-12');
+        INSERT INTO "AuditLog" ("id","adminId","action","details","requestId") VALUES
+        ('financial_collection','synthetic','TEST_COLLECTION','{}','financial_upgrade_online'),
+        ('financial_refund','synthetic','TEST_REFUND','{}','financial_upgrade_online'),
+        ('financial_cash','synthetic','TEST_CASH','{}','financial_upgrade_cash');
+        INSERT INTO "RequestMoney" ("requestId","method","collectedCentavos","source","reference","evidenceId","paidAt","refundedCentavos","refundEvidenceId","refundVerifiedAt") VALUES
+        ('financial_upgrade_online','online',15050,'PAYMONGO_PAYMENT','synthetic_online_reference','financial_collection','2026-11-10',15050,'financial_refund','2026-11-11'),
+        ('financial_upgrade_cash','cash',0,'CASH_CONFIRMATION','synthetic_cash_reference','financial_cash',NULL,NULL,NULL,NULL);`);
+      const before = (await client.query('SELECT * FROM "RequestMoney" ORDER BY "requestId"')).rows;
+      await client.exec(await migration(currentMigrations.at(-1)));
+      assert.deepEqual((await client.query('SELECT * FROM "RequestMoney" ORDER BY "requestId"')).rows, before);
+      assert.equal((await client.query('SELECT count(*)::int AS count FROM "MoneyMovementDate"')).rows[0].count, 0);
+      assert.equal((await client.query('SELECT count(*)::int AS count FROM "RequestCompletion"')).rows[0].count, 0);
+      await assert.rejects(client.query(`UPDATE "RequestMoney" SET "paidAt"='2026-11-12' WHERE "requestId"='financial_upgrade_online'`), error => error.code === "23514");
+      await expectNoDrift(url);
+      await smokeMigratedDatabase(url);
+    });
+  }],
   ["populated legacy upgrade refuses unknown identities, then preserves records after verified backfill", async () => {
     await withDatabase(async (client, url) => {
       await client.exec(await migration(initial));
@@ -168,11 +191,14 @@ const checks = [
         await client.exec(await migration(money));
         await client.exec(await migration("20261112000100_role_change_recovery"));
         await client.exec(await migration("20261112000200_staff_queue_pagination"));
+        await client.exec(await migration("20261113000100_request_identity_review"));
+        await client.exec(await migration("20261113000200_financial_dates"));
       }
       await expectNoDrift(url);
       const after = (await client.query('SELECT * FROM "Request" ORDER BY "id"')).rows;
       assert.equal((await client.query('SELECT COUNT(*)::int AS count FROM "RequestMoney"')).rows[0].count, 0, "No collection may be inferred from legacy units or workflow state");
       assert.equal(after.length, before.length);
+      assert.equal((await client.query('SELECT COUNT(*)::int AS count FROM "RequestIdentityReview"')).rows[0].count, 0, "Historical identities must not be automatically attested");
       for (let i = 0; i < before.length; i++) {
         for (const field of ["id", "studentId", "documentType", "paymentMethod", "paymentStatus", "amountPaid", "paymongoCheckoutId", "paymongoPaymentId", "createdAt"]) {
           assert.deepEqual(after[i][field], before[i][field], `Preserve ${field} for ${before[i].id}`);

@@ -18,7 +18,7 @@ const row: PrismaRequest = { id: "request_a", studentId: "private", studentName:
   amountPaid: 99999, quotedAmountCentavos: 15050, paymongoPaymentId: "private", paymongoCheckoutId: "private", paymongoPaymentType: "card", submissionKey: "private", notificationVersion: 0,
   createdAt: new Date("2026-11-11T00:00:00.000Z"), updatedAt: new Date("2026-11-11T01:00:00.000Z") };
 const joined = { ...row, money: { collectedCentavos: 15050, currency: "PHP", method: "online" } };
-const call = (query = "period=7days") => GET(new Request("http://localhost/api/admin/finance?format=finance-v2&" + query));
+const call = (query = "period=7days") => GET(new Request("http://localhost/api/admin/finance?format=finance-v3&" + query));
 beforeEach(() => { vi.resetAllMocks(); mockAuth.mockResolvedValue({ userId: "admin_a", sessionClaims: { metadata: { role: "admin" } } });
   vi.mocked(prisma.request.findMany).mockResolvedValue([joined]); vi.mocked(prisma.documentConfig.findMany).mockResolvedValue([]); vi.spyOn(console, "error").mockImplementation(() => {}); });
 afterEach(() => vi.restoreAllMocks());
@@ -31,13 +31,13 @@ it("filters dates in the query, selects no PII/legacy values, and imposes a row 
   const result = await loadFinanceData({ period: "7days" }, prisma, new Date("2026-11-11T12:00:00Z"));
   expect(prisma.request.findMany).toHaveBeenCalledWith({ select: financeSelect, orderBy: [{ createdAt: "asc" }, { id: "asc" }], take: 5001,
     where: { createdAt: { gte: new Date("2026-11-04T16:00:00Z"), lt: new Date("2026-11-11T16:00:00Z"), lte: new Date("2026-11-11T12:00:00Z") } } });
-  expect(result.items[0]).toMatchObject({ collectedCentavos: 15050, documentType: "Good Moral Certificate" });
+  expect(result.items[0]).toMatchObject({ collectedCentavos: 15050, documentTypeId: "GOOD_MORAL", documentLabel: "Good Moral Certificate" });
   for (const key of ["studentId", "studentName", "studentNumber", "amountPaid", "paymongoPaymentId", "updatedAt", "submissionKey"]) expect(result.items[0]).not.toHaveProperty(key);
 });
 it("does not infer a value from legacy amounts or current document prices", async () => {
   vi.mocked(prisma.request.findMany).mockResolvedValue([{ ...row, quotedAmountCentavos: null, amountPaid: 15000 }]);
   vi.mocked(prisma.documentConfig.findMany).mockResolvedValue([{ id: "config", typeId: "GOOD_MORAL", label: "Configured", price: 99000, description: "Synthetic", isActive: true, createdAt: new Date(), updatedAt: new Date() }]);
-  const data = await loadFinanceData(); expect(data.items[0]).toMatchObject({ collectedCentavos: null, documentType: "Configured" });
+  const data = await loadFinanceData(); expect(data.items[0]).toMatchObject({ collectedCentavos: null, documentTypeId: "GOOD_MORAL", documentLabel: "Configured" });
 });
 it("fails oversized reports rather than silently truncating totals", async () => {
   vi.mocked(prisma.request.findMany).mockResolvedValue(Array.from({ length: 5001 }, (_, i) => ({ ...row, id: String(i) })));

@@ -5,7 +5,7 @@ import { DEFAULT_HISTORY_QUERY, type HistoryQuery, type StudentHistory, type Stu
 const owner = "user_student123";
 function rows(count = 13): StudentRequest[] {
   return Array.from({ length: count }, (_, index) => ({
-    id: "c" + String(index).padStart(24, "0"), documentType: "Document " + String(index).padStart(2, "0"), purpose: "PERSONAL",
+    id: "c" + String(index).padStart(24, "0"), documentTypeId: "SYNTHETIC_DOCUMENT", documentLabel: "Document " + String(index).padStart(2, "0"), purpose: "PERSONAL",
     paymentMethod: "online", paymentStatus: "UNPAID", status: "PENDING_PAYMENT", cancelReason: null,
     createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z",
   }));
@@ -42,7 +42,7 @@ const test = base.extend<Fixture, { fixtureURL: string }>({
       errors.push("Unexpected outbound request"); return route.abort();
     });
     await page.route("**/fixture/bootstrap", route => route.fulfill({ json: historyPage(state.history) }));
-    await page.route(url => url.origin === fixtureURL && url.pathname === "/api/student/requests" && url.searchParams.get("format") === "history-v2", async route => {
+    await page.route(url => url.origin === fixtureURL && url.pathname === "/api/student/requests" && url.searchParams.get("format") === "history-v3", async route => {
       const params = new URL(route.request().url()).searchParams;
       state.reads.push(params.toString());
       const query: HistoryQuery = { page: Number(params.get("page") ?? 1), sort: (params.get("sort") ?? "updatedAt") as HistoryQuery["sort"], direction: (params.get("direction") ?? "desc") as HistoryQuery["direction"] };
@@ -59,7 +59,7 @@ const test = base.extend<Fixture, { fixtureURL: string }>({
       const saved = { ...state.history.items.find(item => item.id === id)!, status: "CANCELLED" as const, cancelReason: reason, updatedAt: "2026-11-11T00:00:00.000Z" };
       state.history = { ...state.history, items: state.history.items.map(item => item.id === id ? saved : item) };
       if (state.cancelMode === "success-read-fails") state.refreshStatus = 500;
-      return route.fulfill({ json: { success: true, request: saved, warning: "Synthetic payment reconciliation warning" } });
+      return route.fulfill({ json: { success: true, request: { id: saved.id, status: saved.status, paymentStatus: saved.paymentStatus, cancelReason: saved.cancelReason, updatedAt: saved.updatedAt }, warning: "Synthetic payment reconciliation warning" } });
     });
     await page.route("**/fixture/pay", async route => {
       state.pays++;
@@ -76,6 +76,18 @@ test.beforeEach(async ({ page, fixtureURL, state }) => {
   await page.goto(fixtureURL);
   await expect(page.getByText("Request History", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: /^View request / })).toHaveCount(10);
+});
+
+test("paid and cash requests awaiting registrar action do not ask the student to pay again", async ({ page, state }) => {
+  for (const paymentStatus of ["PAID", "CASH_ON_PICKUP"] as const) {
+    const item = { ...rows(1)[0], paymentStatus, paymentMethod: paymentStatus === "PAID" ? "online" : "cash" };
+    state.history.items = [item]; await page.reload();
+    await expect(page.getByText("Awaiting Registrar", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "View request " + item.id, exact: true }).click();
+    await expect(page.getByText("The registrar must verify your academic identity against school records before processing. Payment does not replace identity verification.", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Pay Now", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Cancel Request", exact: true })).toBeEnabled();
+  }
 });
 
 test("sorting retains keyboard focus and returns to the first page", async ({ page }) => {
@@ -244,7 +256,7 @@ test("server pages keep whole-history counts and send page and sort parameters",
   expect(state.reads.some(query => query.includes("page=2"))).toBe(true);
   await page.getByRole("button", { name: "Document Type", exact: true }).click();
   await expect(page.getByText("Page 1 of 2", { exact: true })).toBeVisible();
-  expect(state.reads.some(query => query.includes("page=1&sort=documentType&direction=asc"))).toBe(true);
+  expect(state.reads.some(query => query.includes("page=1&sort=documentLabel&direction=asc"))).toBe(true);
 });
 
 test("a slow or failed page change retains verified rows and disables stale actions until recovery", async ({ page, state }) => {
@@ -264,9 +276,9 @@ test("a slow or failed page change retains verified rows and disables stale acti
 
 test("a late response for an older sort cannot replace the current page", async ({ page, state }) => {
   state.delay = 700;
-  const late = page.waitForResponse(response => new URL(response.url()).searchParams.get("sort") === "documentType");
+  const late = page.waitForResponse(response => new URL(response.url()).searchParams.get("sort") === "documentLabel");
   await page.getByRole("button", { name: "Document Type", exact: true }).click();
-  await expect.poll(() => state.reads.some(query => query.includes("sort=documentType"))).toBe(true);
+  await expect.poll(() => state.reads.some(query => query.includes("sort=documentLabel"))).toBe(true);
   state.delay = 10;
   await page.getByRole("button", { name: "Status", exact: true }).click();
   await expect(page.getByRole("columnheader", { name: "Status", exact: true })).toHaveAttribute("aria-sort", "ascending");

@@ -5,19 +5,24 @@ import { requireAdmin, requireEmployeeOrAdmin } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { refundPayment } from "@/lib/paymongo";
 import { scheduleNotificationDelivery } from "@/lib/notification-wakeup";
+import { identityReviewFixture } from "@/lib/__tests__/identity-review-fixture";
+import type { ReviewedRequest } from "@/lib/request-identity";
+import { changeRequestStatus } from "@/lib/services/staff-requests";
+import { parseStatusChange } from "@/lib/request-commands";
 
 const { clerkClient } = vi.hoisted(() => ({ clerkClient: vi.fn() }));
 vi.mock("@clerk/nextjs/server", () => ({ clerkClient }));
 vi.mock("@/lib/paymongo", () => ({ refundPayment: vi.fn() }));
 
-function fixture(overrides: Partial<Request> = {}): Request {
+function fixture(overrides: Partial<Request & ReviewedRequest> = {}): Request & ReviewedRequest {
   return {
     id: "cm0x2a3bc000008mia76m2p2g", studentId: "student123", studentName: "Test Student",
     submissionKey: null, quotedAmountCentavos: 15050, notificationVersion: 0, studentNumber: "22-12345-123", documentType: "TOR", purpose: "PERSONAL",
     paymentMethod: "online", paymentStatus: "PAID", status: "PENDING_PAYMENT",
     paymongoPaymentId: "pay_test123", paymongoCheckoutId: "cs_test123", paymongoPaymentType: "gcash",
     amountPaid: 151, cancelReason: null, createdAt: new Date("2026-11-11T00:00:00Z"),
-    updatedAt: new Date("2026-11-11T00:00:00Z"), ...overrides,
+    updatedAt: new Date("2026-11-11T00:00:00Z"),
+    identityReview: identityReviewFixture({ studentId: "student123", studentName: "Test Student", studentNumber: "22-12345-123" }), ...overrides,
   };
 }
 function form(requests: Request[] = [fixture()], newStatus: RequestStatus = "PROCESSING", extra: Record<string, string | undefined> = {}) {
@@ -46,6 +51,12 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks());
 
 describe("Staff authorization and overrides", () => {
+  it("requires a verified administrator capability even for an internal override service call", async () => {
+    const parsed = parseStatusChange(form(undefined, "COMPLETED", override)); expect(parsed.success).toBe(true);
+    if (!parsed.success) throw new Error("Invalid synthetic command");
+    await expect(changeRequestStatus({ userId: "employee123", canOverride: false }, parsed.data)).rejects.toThrow("Administrator override required");
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
   it("returns only committed status/payment versions needed for queue recovery", async () => {
     const result = await updateRequestStatus(form());
     expect(result.success).toBe(true);

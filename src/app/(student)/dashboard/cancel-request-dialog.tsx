@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Request } from "@prisma/client";
 import { toast } from "sonner";
 import { cancelStudentRequest } from "@/app/actions/request.actions";
-import type { StudentRequest } from "@/lib/student-request-model";
+import { studentRequestChangeSchema, type StudentRequest, type StudentRequestChange } from "@/lib/student-request-model";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export function CancelRequestDialog({ request, onClose, onCommitted, canCancel }: {
-  request: StudentRequest; onClose: () => void; onCommitted: (saved: Request) => void; canCancel: boolean;
+  request: StudentRequest; onClose: () => void; onCommitted: (saved: StudentRequestChange) => void; canCancel: boolean;
 }) {
   const [reason, setReason] = useState("");
   const [pending, setPending] = useState(false);
@@ -25,10 +24,11 @@ export function CancelRequestDialog({ request, onClose, onCommitted, canCancel }
     try {
       const result = await cancelStudentRequest(request.id, reason.trim());
       if (!active.current) return;
-      if (!result.success || !result.request) { setError(result.error || "Cancellation was not confirmed. Refresh before retrying."); return; }
+      const saved = studentRequestChangeSchema.safeParse(result.request);
+      if (!result.success || !saved.success || saved.data.id !== request.id || saved.data.status !== "CANCELLED") { setError(result.error || "Cancellation was not confirmed. Refresh before retrying."); return; }
       toast.success("Request cancelled successfully.");
       if (result.warning) toast.warning(result.warning);
-      onCommitted(result.request);
+      onCommitted(saved.data);
       onClose();
     } catch { setError("Cancellation could not be confirmed. Refresh the history before trying again."); }
     finally { inFlight.current = false; setPending(false); }

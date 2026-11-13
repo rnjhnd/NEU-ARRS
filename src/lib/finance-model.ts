@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { studentRequestSchema } from "./student-request-model";
 import { csvCell } from "./csv";
-import { isSettledMoneyState } from "./monetary-ledger";
+import { isSettledMoneyState } from "./money-policy";
 export { formatPHP } from "./money-format";
 
-export const FINANCE_URL = "/api/admin/finance?format=finance-v2";
+export const FINANCE_URL = "/api/admin/finance?format=finance-v3";
 export const FINANCE_ROW_LIMIT = 5000;
 export const REPORT_TIME_ZONE = "Manila (UTC+08:00)";
 const DAY = 86_400_000;
@@ -16,7 +16,7 @@ export const financeQuerySchema = z.object({
 }).transform(query => query.period === "custom" ? { period: "custom" as const, from: query.from! < query.to! ? query.from! : query.to!, to: query.from! < query.to! ? query.to! : query.from! } : { period: query.period });
 export type FinanceQuery = z.infer<typeof financeQuerySchema>;
 export const DEFAULT_FINANCE_QUERY = financeQuerySchema.parse({});
-export const financeItemSchema = studentRequestSchema.pick({ id: true, documentType: true, purpose: true, paymentMethod: true, paymentStatus: true, status: true, createdAt: true })
+export const financeItemSchema = studentRequestSchema.pick({ id: true, documentTypeId: true, documentLabel: true, purpose: true, paymentMethod: true, paymentStatus: true, status: true, createdAt: true })
   .extend({ collectedCentavos: z.number().int().nonnegative().max(2_147_483_647).nullable() });
 export type FinanceItem = z.infer<typeof financeItemSchema>;
 export const financeDatasetSchema = z.object({ actorId: z.string().min(1), asOf: z.iso.datetime(), query: financeQuerySchema, items: z.array(financeItemSchema).max(FINANCE_ROW_LIMIT) })
@@ -62,7 +62,7 @@ export function buildFinanceReport(data: FinanceDataset) {
     total += item.collectedCentavos;
     if (item.paymentMethod === "online") online += item.collectedCentavos; else cash += item.collectedCentavos;
     trend.set(key, trend.get(key)! + item.collectedCentavos);
-    documents.set(item.documentType, (documents.get(item.documentType) ?? 0) + item.collectedCentavos);
+    documents.set(item.documentLabel, (documents.get(item.documentLabel) ?? 0) + item.collectedCentavos);
   }
   const byDocument = [...documents].map(([name, centavos]) => ({ key: "document:" + name, name, centavos })).sort((a, b) => b.centavos - a.centavos || a.name.localeCompare(b.name));
   const displayDocuments = byDocument.length <= 12 ? byDocument : [...byDocument.slice(0, 12), { key: "other-documents", name: "Other documents", centavos: byDocument.slice(12).reduce((sum, item) => sum + item.centavos, 0) }];
@@ -74,8 +74,8 @@ export function buildFinanceReport(data: FinanceDataset) {
 export type FinanceReport = ReturnType<typeof buildFinanceReport>;
 export function financeCSV(data: FinanceDataset) {
   const report = buildFinanceReport(data);
-  const headers = ["Reference ID", "Document", "Purpose", "Payment Method", "Payment Status", "Request Status", "Submitted Date (Manila UTC+08)", "Settled Request Value (PHP)", "Value Basis", "Review", "Report As Of (UTC)"];
-  return [headers, ...report.settled.map(item => [item.id, item.documentType, item.purpose, item.paymentMethod, item.paymentStatus, item.status,
+  const headers = ["Reference ID", "Document Type ID", "Document Label", "Purpose", "Payment Method", "Payment Status", "Request Status", "Submitted Date (Manila UTC+08)", "Settled Request Value (PHP)", "Value Basis", "Review", "Report As Of (UTC)"];
+  return [headers, ...report.settled.map(item => [item.id, item.documentTypeId, item.documentLabel, item.purpose, item.paymentMethod, item.paymentStatus, item.status,
     manilaDay(item.createdAt), item.collectedCentavos === null ? "" : (item.collectedCentavos / 100).toFixed(2), item.collectedCentavos === null ? "Unverified" : "Verified collection",
     item.collectedCentavos === null ? "Original collection evidence requires review" : "", data.asOf])].map(row => row.map(csvCell).join(",")).join("\r\n");
 }

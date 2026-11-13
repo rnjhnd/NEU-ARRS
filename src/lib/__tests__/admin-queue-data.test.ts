@@ -32,6 +32,15 @@ beforeAll(async () => {
 afterAll(async () => { await client?.$disconnect(); await socket?.stop(); await db?.close(); });
 beforeEach(() => { vi.clearAllMocks(); vi.mocked(getVerifiedActor).mockResolvedValue({ userId: "staff", role: "admin" }); });
 const load = (changes: Partial<QueueQuery> = {}) => loadAdminQueue({ ...DEFAULT_QUEUE_QUERY, ...changes }, client, provider);
+it("keeps document identifiers stable when configured display labels change", async () => {
+  try {
+    await client.documentConfig.update({ where: { typeId: "TOR" }, data: { label: "Renamed transcript" } });
+    const queue = await load({ search: "Renamed transcript" });
+    expect(queue.items.length).toBeGreaterThan(0);
+    expect(queue.items.every(item => item.documentTypeId === "TOR" && item.documentLabel === "Renamed transcript")).toBe(true);
+    expect(queue.items[0]).not.toHaveProperty("documentType");
+  } finally { await client.documentConfig.update({ where: { typeId: "TOR" }, data: { label: "Alpha Transcript" } }); }
+});
 it("reads one ten-row page with global counts and at most ten profile IDs", async () => {
   const queue = await load(); expect(adminQueueSchema.safeParse(queue).success).toBe(true); expect(queue.items).toHaveLength(10); expect(queue.totalPages).toBe(101); expect(queue.summary.total).toBe(1007);
   expect(queue.summary.pending).toBe(source.filter(r => r.status === "PENDING_PAYMENT").length);
@@ -52,7 +61,7 @@ it("uses an ordered index scan without a full sort for default staff pages", asy
     expect(plan).toContain('"Actual Rows":10');
   }
 });
-it.each((["studentName", "documentType", "paymentStatus", "updatedAt", "status"] as const).flatMap(sort => (["asc", "desc"] as const).map(direction => ({ sort, direction }))))("orders pages deterministically by $sort $direction", async ({ sort, direction }) => {
+it.each((["studentName", "documentLabel", "paymentStatus", "updatedAt", "status"] as const).flatMap(sort => (["asc", "desc"] as const).map(direction => ({ sort, direction }))))("orders pages deterministically by $sort $direction", async ({ sort, direction }) => {
   const first = await load({ sort, direction }), second = await load({ sort, direction, page: 2 });
   expect(new Set([...first.items, ...second.items].map(item => item.id)).size).toBe(20);
   const value = (item: typeof first.items[number]) => sort === "updatedAt" ? item.updatedAt : item[sort].toLowerCase();

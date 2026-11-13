@@ -9,7 +9,7 @@ export async function startNavigationFixture() {
 }
 
 export async function startComponentFixture(name) {
-  if (!["navigation-fixture", "request-list-fixture", "admin-queue-fixture", "finance-fixture", "student-directory-fixture", "configuration-fixture", "authentication-fixture"].includes(name)) throw new Error("Unknown component fixture.");
+  if (!["navigation-fixture", "request-list-fixture", "admin-queue-fixture", "finance-fixture", "movement-fixture", "student-directory-fixture", "configuration-fixture", "authentication-fixture"].includes(name)) throw new Error("Unknown component fixture.");
   const shared = normalizePath(fileURLToPath(new URL("./", import.meta.url)));
   const root = normalizePath(fileURLToPath(new URL("../" + name + "/", import.meta.url)));
   const workspace = normalizePath(resolve(root, "../.."));
@@ -19,6 +19,7 @@ export async function startComponentFixture(name) {
     server: { host: "127.0.0.1", port: 0, strictPort: true, hmr: false, fs: { allow: [workspace] } },
     resolve: {
       alias: [
+        ...(name === "movement-fixture" ? [{ find: "@/app/actions/money-date.actions", replacement: root + "actions.ts" }] : []),
         ...(name === "authentication-fixture" ? [
           { find: "@/app/actions/request.actions", replacement: root + "actions.ts" },
           { find: "@clerk/nextjs/errors", replacement: root + "clerk-errors.ts" },
@@ -30,6 +31,7 @@ export async function startComponentFixture(name) {
         ] : []),
         ...(name === "request-list-fixture" ? [{ find: "@/app/actions/request.actions", replacement: root + "request-actions.ts" }] : []),
         ...(name === "admin-queue-fixture" ? [
+          { find: "@/app/actions/identity.actions", replacement: root + "actions.ts" },
           { find: "@/app/actions/admin.actions", replacement: root + "actions.ts" },
           { find: "@/app/actions/payment-reconciliation.actions", replacement: root + "actions.ts" },
         ] : []),

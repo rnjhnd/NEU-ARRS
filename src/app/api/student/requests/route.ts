@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     const userId = await requireStudent();
 
     const params = new URL(request.url).searchParams;
-    if (params.get("format") !== "history-v2") {
+    if (params.get("format") !== "history-v3") {
       return NextResponse.json({ error: "Refresh the dashboard to load the current request history." }, { status: 409, headers: { "Cache-Control": "private, no-store" } });
     }
     const page = params.get("page");

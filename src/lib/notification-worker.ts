@@ -1,3 +1,4 @@
+import "server-only";
 import { createHash, randomUUID } from "node:crypto";
 import { Prisma, type NotificationOutbox } from "@prisma/client";
 import { render } from "@react-email/render";

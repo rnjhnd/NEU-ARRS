@@ -1,11 +1,9 @@
 import { Prisma } from "@prisma/client";
-import { legacyDocumentLabels } from "./student-request-model";
+import { requestDocumentLabelSQL } from "./document-identity-sql";
 import type { QueueQuery } from "./admin-queue-model";
 
-export const queueDocumentLabel = Prisma.sql`COALESCE(d."label", CASE r."documentType"
-  ${Prisma.join(Object.entries(legacyDocumentLabels).map(([key, label]) => Prisma.sql`WHEN ${key} THEN ${label}`), " ")}
-  ELSE replace(r."documentType", '_', ' ') END)`;
-const sortColumns = { studentName: Prisma.sql`lower(r."studentName") COLLATE "C"`, documentType: Prisma.sql`lower(${queueDocumentLabel}) COLLATE "C"`,
+export const queueDocumentLabel = requestDocumentLabelSQL;
+const sortColumns = { studentName: Prisma.sql`lower(r."studentName") COLLATE "C"`, documentLabel: Prisma.sql`lower(${queueDocumentLabel}) COLLATE "C"`,
   paymentStatus: Prisma.sql`r."paymentStatus"::text COLLATE "C"`, status: Prisma.sql`r."status"::text COLLATE "C"`, updatedAt: Prisma.sql`r."updatedAt"` };
 export function queueWhere(query: QueueQuery, emailIds: string[]) {
   const status = query.status === "ALL" ? Prisma.empty : Prisma.sql`AND r."status" = ${query.status}::"RequestStatus"`;

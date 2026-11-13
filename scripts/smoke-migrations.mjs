@@ -47,6 +47,17 @@ export async function smokeMigratedDatabase(connectionString) {
         documentType: document.typeId, purpose: "PERSONAL", paymentMethod: "online",
         submissionKey: suffix, quotedAmountCentavos: 15050,
       } });
+      assert.equal((await tx.request.findUnique({ where: { id: pending.id }, include: { identityReview: true } })).identityReview, null);
+      const identityProof = await tx.auditLog.create({ data: {
+        adminId: "migration_test_registrar", action: "STUDENT_IDENTITY_VERIFIED", details: "Synthetic school record", requestId: pending.id,
+      } });
+      const identity = await tx.requestIdentityReview.create({ data: {
+        requestId: pending.id, studentId: pending.studentId, studentName: pending.studentName, studentNumber: pending.studentNumber,
+        verifiedBy: identityProof.adminId, verifiedAt: identityProof.createdAt, evidenceId: identityProof.id,
+      } });
+      assert.equal(identity.studentNumber, pending.studentNumber);
+      await tx.requestIdentityReview.delete({ where: { requestId: pending.id } });
+      assert.ok(await tx.auditLog.findUnique({ where: { id: identityProof.id } }));
       assert.equal((await tx.request.findUnique({ where: {
         studentId_submissionKey: { studentId: pending.studentId, submissionKey: suffix },
       } })).id, pending.id);
@@ -117,6 +128,17 @@ export async function smokeMigratedDatabase(connectionString) {
       const claimedNotice = await tx.notificationOutbox.update({ where: { id: notice.id, state: "QUEUED" }, data: { state: "IN_FLIGHT", attempts: { increment: 1 }, leaseToken: suffix } });
       assert.equal(claimedNotice.attempts, 1);
       await tx.notificationOutbox.update({ where: { id: notice.id, state: "IN_FLIGHT", leaseToken: suffix }, data: { state: "SENT", providerEmailId: suffix, sentAt: new Date(), leaseToken: null } });
+      const financial = await tx.request.create({ data: {
+        studentId: "migration_test_student", studentName: "Synthetic Student", studentNumber: "22-12345-123", documentType: document.typeId,
+        purpose: "PERSONAL", paymentMethod: "cash", paymentStatus: "PAID", status: "COMPLETED", quotedAmountCentavos: 15050,
+      } });
+      const financialEvidence = await tx.auditLog.create({ data: { adminId: "system:migration-test", requestId: financial.id, action: "SMOKE_CASH_COMPLETION", details: "Synthetic original receipt and completion only" } });
+      await tx.requestMoney.create({ data: { requestId: financial.id, method: "cash", collectedCentavos: 15050, source: "CASH_CONFIRMATION", reference: "cash-smoke:" + suffix, evidenceId: financialEvidence.id } });
+      const financialDate = await tx.moneyMovementDate.create({ data: { requestId: financial.id, kind: "COLLECTION", occurredAt: financialEvidence.createdAt, evidenceId: financialEvidence.id } });
+      assert.equal(financialDate.kind, "COLLECTION");
+      const completion = await tx.requestCompletion.create({ data: { requestId: financial.id, completedAt: financialEvidence.createdAt, evidenceId: financialEvidence.id } });
+      const repeatCompletion = await tx.requestCompletion.upsert({ where: { requestId: financial.id }, update: {}, create: { requestId: financial.id, completedAt: new Date(), evidenceId: financialEvidence.id } });
+      assert.equal(repeatCompletion.completedAt.getTime(), completion.completedAt.getTime());
       // Roll back every synthetic record. This verifies the actual generated
       // Prisma client and adapter, not mocked database methods.
       throw new RollbackSmoke();

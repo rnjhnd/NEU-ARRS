@@ -2,7 +2,7 @@ import { beforeEach, expect, it, vi } from "vitest";
 import { buildFinanceReport, financeCSV, financeDatasetSchema, financeQuerySchema, financeRange, financeURL, formatPHP, isSettledRequest, manilaDay, shiftDay, type FinanceDataset, type FinanceItem } from "../finance-model";
 import { fetchFinanceData } from "../finance-fetcher";
 
-const row: FinanceItem = { id: "request_a", documentType: "Document", purpose: "PERSONAL", paymentMethod: "online", paymentStatus: "PAID", status: "PROCESSING", collectedCentavos: 15050, createdAt: "2026-11-10T16:00:00.000Z" };
+const row: FinanceItem = { id: "request_a", documentTypeId: "SYNTHETIC_DOCUMENT", documentLabel: "Document", purpose: "PERSONAL", paymentMethod: "online", paymentStatus: "PAID", status: "PROCESSING", collectedCentavos: 15050, createdAt: "2026-11-10T16:00:00.000Z" };
 const dataset: FinanceDataset = { actorId: "admin_a", asOf: "2026-11-11T12:00:00.000Z", query: { period: "7days" }, items: [row] };
 beforeEach(() => vi.resetAllMocks());
 
@@ -36,7 +36,7 @@ it("retains exact cents, accepts zero quotes, and flags unknown values without i
   expect(formatPHP(15050)).toContain("150.50");
 });
 it("keeps total, method, timeline and document values consistent", () => {
-  const items = Array.from({ length: 30 }, (_, i) => ({ ...row, id: String(i), documentType: "Document " + i, collectedCentavos: 10001 + i,
+  const items = Array.from({ length: 30 }, (_, i) => ({ ...row, id: String(i), documentTypeId: "SYNTHETIC_DOCUMENT", documentLabel: "Document " + i, collectedCentavos: 10001 + i,
     paymentMethod: i % 2 ? "cash" : "online", paymentStatus: i % 2 ? "CASH_ON_PICKUP" as const : "PAID" as const, status: "COMPLETED" as const }));
   const report = buildFinanceReport({ ...dataset, items });
   for (const points of [report.methods, report.trend, report.documents]) expect(points.reduce((sum, point) => sum + point.centavos, 0)).toBe(report.total);
@@ -69,7 +69,7 @@ it("returns real zeros for empty snapshots without treating unknown rows as mone
   expect(report).toMatchObject({ total: 0, needsReview: 0, knownCount: 0 }); expect(report.trend).toHaveLength(7);
 });
 it("exports the same cohort with escaped cells, declared price basis and truthful submitted dates", () => {
-  const csv = financeCSV({ ...dataset, items: [{ ...row, documentType: '=HYPERLINK("x")' }, { ...row, id: "excluded", status: "CANCELLED" }] });
+  const csv = financeCSV({ ...dataset, items: [{ ...row, documentTypeId: "SYNTHETIC_DOCUMENT", documentLabel: '=HYPERLINK("x")' }, { ...row, id: "excluded", status: "CANCELLED" }] });
   expect(csv).toContain('"\'=HYPERLINK(""x"")"'); expect(csv).toContain('"150.50"'); expect(csv).toContain("2026-11-11");
   expect(csv).not.toContain("Date Paid"); expect(csv).not.toContain("excluded");
 });

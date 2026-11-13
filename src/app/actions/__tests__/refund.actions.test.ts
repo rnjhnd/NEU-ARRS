@@ -5,6 +5,7 @@ import { requireStudent as requireAuth, requireEmployeeOrAdmin } from "@/lib/aut
 import { refundPayment, type RefundResult } from "@/lib/paymongo";
 import { updateRequestStatus } from "../admin.actions";
 import { cancelStudentRequest } from "../request.actions";
+import { studentRequestChangeSchema } from "@/lib/student-request-model";
 import { moneyFixture } from "@/lib/__tests__/money-fixture";
 
 vi.mock("@/lib/paymongo", () => ({ refundPayment: vi.fn() }));
@@ -84,6 +85,15 @@ describe.each([
     vi.mocked(refundPayment).mockResolvedValueOnce(outcomes[0]);
     expect((await cancel()).success).toBe(true);
     expect(refundPayment).toHaveBeenCalledOnce();
+  });
+  it("returns only ISO status-change fields after cancellation, without ORM/payment internals", async () => {
+    vi.mocked(refundPayment).mockResolvedValueOnce(outcomes[0]);
+    const result = await cancel(); expect(result.success).toBe(true);
+    if (!result.success) throw new Error("Synthetic cancellation failed");
+    const change = "request" in result ? result.request : result.changes[0];
+    expect(studentRequestChangeSchema.safeParse(change).success).toBe(true);
+    expect(Object.keys(change).sort()).toEqual(["cancelReason", "id", "paymentStatus", "status", "updatedAt"]);
+    expect(typeof change.updatedAt).toBe("string");
   });
 
   it.each([

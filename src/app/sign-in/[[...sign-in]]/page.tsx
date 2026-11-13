@@ -19,10 +19,14 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isManualLoading, setIsManualLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationError, setVerificationError] = useState<string | null>(null);
   const router = useRouter();
   const { signIn } = useSignIn();
   const clerk = useClerk();
   const busy = useRef(false);
+  const needsDeviceVerification = signIn?.status === "needs_client_trust" &&
+    signIn.supportedSecondFactors.some(factor => factor.strategy === "email_code");
 
   // Handle standard email/password login
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,6 +38,7 @@ export default function SignInPage() {
     if (!signIn || busy.current) return;
     busy.current = true;
     setIsManualLoading(true);
+    setVerificationError(null);
 
     try {
       const { error } = await signIn.create({
@@ -58,6 +63,11 @@ export default function SignInPage() {
       if (signIn.status === "complete") {
         await signIn.finalize();
         router.push("/");
+      } else if (signIn.status === "needs_client_trust" && signIn.supportedSecondFactors.some(factor => factor.strategy === "email_code")) {
+        setPassword("");
+        setVerificationCode("");
+        const sent = await signIn.mfa.sendEmailCode();
+        setVerificationError(sent.error ? "The verification code could not be sent. Try requesting another code." : null);
       } else {
         toast.error("Additional verification is required to complete sign-in.");
       }
@@ -77,6 +87,48 @@ export default function SignInPage() {
       } else {
         toast.error("An unexpected error occurred during sign-in.");
       }
+    } finally {
+      busy.current = false;
+      setIsManualLoading(false);
+    }
+  };
+
+  const handleDeviceVerification = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!signIn || busy.current || !/^\d{6}$/.test(verificationCode)) return;
+    busy.current = true;
+    setIsManualLoading(true);
+    setVerificationError(null);
+    try {
+      const verified = await signIn.mfa.verifyEmailCode({ code: verificationCode });
+      if (verified.error || signIn.status !== "complete") {
+        setVerificationError("The code could not be verified. Check it and try again.");
+        return;
+      }
+      const finalized = await signIn.finalize();
+      if (finalized.error) {
+        setVerificationError("Sign-in could not be completed. Please try again.");
+        return;
+      }
+      router.push("/");
+    } catch {
+      setVerificationError("Verification is unavailable. Please try again.");
+    } finally {
+      busy.current = false;
+      setIsManualLoading(false);
+    }
+  };
+
+  const resendDeviceCode = async () => {
+    if (!signIn || !needsDeviceVerification || busy.current) return;
+    busy.current = true;
+    setIsManualLoading(true);
+    try {
+      const sent = await signIn.mfa.sendEmailCode();
+      setVerificationError(sent.error ? "The verification code could not be sent. Please wait and try again." : null);
+      if (!sent.error) toast.success("A new verification code has been requested.");
+    } catch {
+      setVerificationError("The verification code could not be sent. Please try again.");
     } finally {
       busy.current = false;
       setIsManualLoading(false);
@@ -145,6 +197,32 @@ export default function SignInPage() {
         </div>
 
         <div className="bg-background/70 backdrop-blur-xl border border-primary/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(10,92,54,0.1)] rounded-2xl p-8 space-y-6">
+          {verificationError && <p role="alert" className="text-sm text-destructive">{verificationError}</p>}
+          {needsDeviceVerification ? (
+            <>
+              <div className="space-y-2">
+                <h1 className="text-2xl font-bold">Verify this device</h1>
+                <p id="device-verification-help" className="text-sm text-muted-foreground">Enter the six-digit code sent to your email to complete sign-in on this device.</p>
+              </div>
+              <form onSubmit={handleDeviceVerification} className="space-y-5">
+                <Label htmlFor="deviceCode">Verification code</Label>
+                <Input id="deviceCode" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} required
+                  aria-describedby="device-verification-help" value={verificationCode} disabled={isManualLoading}
+                  onChange={event => setVerificationCode(event.target.value.replace(/\D/g, ""))} />
+                <Button type="submit" className="w-full" disabled={isManualLoading || verificationCode.length !== 6}>
+                  {isManualLoading ? "Verifying..." : "Verify and sign in"}
+                </Button>
+              </form>
+              <div className="flex flex-wrap justify-between gap-3">
+                <Button type="button" variant="ghost" disabled={isManualLoading} onClick={resendDeviceCode}>Send another code</Button>
+                <Button type="button" variant="ghost" disabled={isManualLoading} onClick={() => {
+                  if (busy.current || !signIn) return;
+                  signIn.reset(); setPassword(""); setVerificationCode(""); setVerificationError(null);
+                }}>Start over</Button>
+              </div>
+            </>
+          ) : (
+          <>
           
           <Button 
             type="button" 
@@ -242,6 +320,8 @@ export default function SignInPage() {
               Sign up
             </Link>
           </div>
+          </>
+          )}
         </div>
       </div>
     </div>

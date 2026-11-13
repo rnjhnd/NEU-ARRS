@@ -1,16 +1,11 @@
 import type { Prisma, Request, RequestMoney } from "@prisma/client";
+import "server-only";
+import { validCentavos, verifiedCollection } from "./money-policy";
+export { validCentavos, verifiedCollection, isSettledMoneyState } from "./money-policy";
 
 export class MoneyValidationError extends Error {}
-export function validCentavos(value: unknown): value is number { return typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 2_147_483_647; }
-export function verifiedCollection(money: Pick<RequestMoney, "currency" | "method" | "collectedCentavos"> | null | undefined, method: string) {
-  return money?.currency === "PHP" && money.method === method && validCentavos(money.collectedCentavos) ? money.collectedCentavos : null;
-}
 export function providerPaidAt(value: number | null | undefined) {
   return value !== undefined && value !== null && Number.isInteger(value) && value >= 0 && value * 1000 <= Date.now() + 300_000 ? new Date(value * 1000) : null;
-}
-export function isSettledMoneyState(item: Pick<Request, "status" | "paymentMethod" | "paymentStatus">) {
-  if (item.status === "CANCELLED" || item.paymentStatus === "REFUNDED") return false;
-  return item.paymentMethod === "online" ? item.paymentStatus === "PAID" : item.paymentMethod === "cash" && item.status === "COMPLETED" && ["PAID", "CASH_ON_PICKUP"].includes(item.paymentStatus);
 }
 type Collection = Pick<RequestMoney, "requestId" | "method" | "collectedCentavos" | "source" | "reference" | "evidenceId"> & { paidAt?: Date | null };
 export async function recordCollection(tx: Prisma.TransactionClient, input: Collection) {

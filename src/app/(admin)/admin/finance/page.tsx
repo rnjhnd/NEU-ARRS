@@ -1,4 +1,5 @@
 import { requireAdmin } from "@/lib/auth";
+import Link from "next/link";
 import { Suspense } from "react";
 import { FinanceData } from "./finance-data";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -88,6 +89,7 @@ export default async function FinancePage() {
         </div>
       </div>
       
+      <Link href="/admin/finance/movements" className="inline-flex rounded border px-4 py-2 font-semibold underline">Money Movements — transaction-date report</Link>
       <Suspense fallback={<FinanceSkeleton />}>
         <FinanceData />
       </Suspense>

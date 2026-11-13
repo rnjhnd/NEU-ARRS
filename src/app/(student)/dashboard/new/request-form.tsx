@@ -42,14 +42,14 @@ function StudentRequestForm({ actorId, documentConfigs, paymentMethods }: Reques
   // Form State
   const [studentName, setStudentName] = useState<string>("");
   const [studentNumber, setStudentNumber] = useState<string>("");
-  const [documentType, setDocumentType] = useState<string>("");
+  const [documentTypeId, setDocumentTypeId] = useState<string>("");
   const [purpose, setPurpose] = useState<Purpose | "">("");
   const [paymentMethod, setPaymentMethod] = useState<"online" | "cash" | "">("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submittingRef.current) return;
-    if (!studentName || !studentNumber || !documentType || !purpose || !paymentMethod) {
+    if (!studentName || !studentNumber || !documentTypeId || !purpose || !paymentMethod) {
       toast.error("Please complete all required fields before submitting.");
       return;
     }
@@ -74,7 +74,7 @@ function StudentRequestForm({ actorId, documentConfigs, paymentMethods }: Reques
       }
       if (!frozenForm.current) {
         const form = new FormData();
-        for (const [key, value] of Object.entries({ submissionKey: submissionKeyRef.current, studentName, studentNumber, documentType, purpose, paymentMethod })) form.set(key, value);
+        for (const [key, value] of Object.entries({ submissionKey: submissionKeyRef.current, studentName, studentNumber, documentType: documentTypeId, purpose, paymentMethod })) form.set(key, value);
         frozenForm.current = form;
       }
       setUncertain(true);
@@ -108,6 +108,7 @@ function StudentRequestForm({ actorId, documentConfigs, paymentMethods }: Reques
         
         {/* Student Details Section */}
         <div className="space-y-2">
+          <p className="rounded border p-3 text-sm">Enter the name and student number on your school records. Registrar staff must verify that this identity belongs to your account before processing your request. Payment does not replace this review.</p>
           <label className="block text-base font-bold tracking-tight mb-6">1. Student Details <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
@@ -151,30 +152,30 @@ function StudentRequestForm({ actorId, documentConfigs, paymentMethods }: Reques
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
                 key={doc.typeId}
-                aria-pressed={documentType === doc.typeId}
-                onClick={() => setDocumentType(doc.typeId)}
+                aria-pressed={documentTypeId === doc.typeId}
+                onClick={() => setDocumentTypeId(doc.typeId)}
                 className={`relative cursor-pointer rounded-2xl border p-5 transition-all duration-300 ${
-                  documentType === doc.typeId 
+                  documentTypeId === doc.typeId
                     ? "border-primary bg-primary/5 ring-1 ring-primary shadow-md" 
                     : "border-border/50 bg-background hover:bg-primary/5 hover:border-primary/30"
                 }`}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-4">
-                    <div className={`p-2.5 rounded-xl ${documentType === doc.typeId ? "bg-primary/20 text-primary dark:text-primary" : "bg-muted text-muted-foreground"}`}>
+                    <div className={`p-2.5 rounded-xl ${documentTypeId === doc.typeId ? "bg-primary/20 text-primary dark:text-primary" : "bg-muted text-muted-foreground"}`}>
                       <FileText className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className={`font-bold text-sm ${documentType === doc.typeId ? "text-primary dark:text-primary" : "text-foreground"}`}>
+                      <h4 className={`font-bold text-sm ${documentTypeId === doc.typeId ? "text-primary dark:text-primary" : "text-foreground"}`}>
                         {doc.label}
                       </h4>
                       <p className="text-xs text-muted-foreground mt-0.5 mb-1.5">{doc.description}</p>
-                      <span className={`text-sm font-extrabold ${documentType === doc.typeId ? "text-primary dark:text-primary" : "text-foreground"}`}>
+                      <span className={`text-sm font-extrabold ${documentTypeId === doc.typeId ? "text-primary dark:text-primary" : "text-foreground"}`}>
                         ₱{(doc.price / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}
                       </span>
                     </div>
                   </div>
-                  {documentType === doc.typeId && (
+                  {documentTypeId === doc.typeId && (
                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-4 right-4 text-primary dark:text-primary">
                       <Check className="w-5 h-5" />
                     </motion.div>
@@ -292,14 +293,14 @@ function StudentRequestForm({ actorId, documentConfigs, paymentMethods }: Reques
           
           <h4 className="font-extrabold text-lg mb-6 tracking-tight">Order Summary</h4>
           
-          {documentType ? (
+          {documentTypeId ? (
             <div className="space-y-4 relative z-10">
               <div className="flex justify-between items-start text-sm">
                 <span className="text-muted-foreground font-medium pr-4">
-                  {documentConfigs.find(d => d.typeId === documentType)?.label || "Selected Document"}
+                  {documentConfigs.find(d => d.typeId === documentTypeId)?.label || "Selected Document"}
                 </span>
                 <span className="font-bold text-foreground">
-                  ₱{((documentConfigs.find(d => d.typeId === documentType)?.price || 0) / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}
+                  ₱{((documentConfigs.find(d => d.typeId === documentTypeId)?.price || 0) / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}
                 </span>
               </div>
               
@@ -313,7 +314,7 @@ function StudentRequestForm({ actorId, documentConfigs, paymentMethods }: Reques
               <div className="border-t border-border/50 pt-4 mt-4 flex justify-between items-center">
                 <span className="font-extrabold text-base">Total Due</span>
                 <span className="text-2xl font-black text-primary dark:text-primary">
-                  ₱{((documentConfigs.find(d => d.typeId === documentType)?.price || 0) / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}
+                  ₱{((documentConfigs.find(d => d.typeId === documentTypeId)?.price || 0) / 100).toLocaleString(undefined, {minimumFractionDigits: 2})}
                 </span>
               </div>
             </div>
@@ -329,7 +330,7 @@ function StudentRequestForm({ actorId, documentConfigs, paymentMethods }: Reques
           <Button 
             type="submit" 
             size="lg"
-            disabled={isSubmitting || !documentType || !purpose || !paymentMethod}
+            disabled={isSubmitting || !documentTypeId || !purpose || !paymentMethod}
             className="w-full bg-primary hover:bg-primary/90 text-white shadow-[0_4px_20px_rgba(10,92,54,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] rounded-2xl h-14 text-lg font-bold"
           >
             {isSubmitting ? (

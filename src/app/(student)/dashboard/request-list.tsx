@@ -1,7 +1,6 @@
 ﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Request } from "@prisma/client";
 import { useUser } from "@clerk/nextjs";
 import { FileText, Plus } from "lucide-react";
 import useSWR, { useSWRConfig } from "swr";
@@ -10,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { createRepaymentSession } from "@/app/actions/request.actions";
 import { fetchStudentHistory, HistoryRefreshError } from "@/lib/student-request-fetcher";
-import { DEFAULT_HISTORY_QUERY, historyRefreshInterval, mergeCancelledRequest, REQUEST_PAGE_SIZE, STUDENT_HISTORY_URL, studentHistoryURL, toStudentRequest, type HistoryQuery, type RequestSortKey, type StudentHistory } from "@/lib/student-request-model";
+import { DEFAULT_HISTORY_QUERY, historyRefreshInterval, mergeCancelledRequest, REQUEST_PAGE_SIZE, STUDENT_HISTORY_URL, studentHistoryURL, type StudentRequestChange, type HistoryQuery, type RequestSortKey, type StudentHistory } from "@/lib/student-request-model";
 import { NewRequestButton } from "./new-request-button";
 import { RequestHistoryTable } from "./request-history-table";
 import { CancelRequestDialog } from "./cancel-request-dialog";
@@ -62,9 +61,9 @@ function StudentRequestHistory({ initialHistory, isMaintenanceMode }: { initialH
       const before = old.get(item.id);
       if (before && Date.parse(before.updatedAt) > Date.parse(item.updatedAt)) return before;
       if (before && before.status !== item.status) {
-        if (item.status === "READY_FOR_PICKUP") toast.success("Update! Your " + item.documentType + " is now Ready for Pickup!");
-        else if (item.status === "COMPLETED") toast.success("Success! Your request for " + item.documentType + " is completed.");
-        else if (item.status === "PROCESSING") toast.info("Your " + item.documentType + " is now being processed.");
+        if (item.status === "READY_FOR_PICKUP") toast.success("Update! Your " + item.documentLabel + " is now Ready for Pickup!");
+        else if (item.status === "COMPLETED") toast.success("Success! Your request for " + item.documentLabel + " is completed.");
+        else if (item.status === "PROCESSING") toast.info("Your " + item.documentLabel + " is now being processed.");
       }
       return item;
     });
@@ -80,16 +79,14 @@ function StudentRequestHistory({ initialHistory, isMaintenanceMode }: { initialH
     setQuery(current => ({ ...current, page })); setExpandedId(null);
   }
   async function refresh() { try { await mutate(); } catch { /* SWR retains the last verified data and exposes its error. */ } }
-  async function recordCancellation(saved: Request) {
+  async function recordCancellation(saved: StudentRequestChange) {
     // Cache/refresh failures cannot turn a committed cancellation into a failed action.
     try {
-      const label = items.find(item => item.id === saved.id)?.documentType;
-      const item = toStudentRequest({ ...saved, createdAt: new Date(saved.createdAt), updatedAt: new Date(saved.updatedAt) }, label);
       // Other cached pages/sorts may contain this same row. Patch them too;
       // SWR revalidates active subscriptions and invalidates deduped reads.
       await mutatePages<StudentHistory>(key => Array.isArray(key) && key[1] === initialHistory.studentId &&
         typeof key[0] === "string" && key[0].startsWith(STUDENT_HISTORY_URL),
-      current => current ? mergeCancelledRequest(current, item) : current, { revalidate: true });
+      current => current ? mergeCancelledRequest(current, saved) : current, { revalidate: true });
     } catch { toast.warning("Cancellation was saved. Refresh the history before taking another action."); }
   }
   async function pay(id: string) {

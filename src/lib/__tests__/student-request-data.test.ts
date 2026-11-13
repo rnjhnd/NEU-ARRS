@@ -53,9 +53,9 @@ it("bounds rows, scopes ownership, and reports full-history counts with the real
   expect(indexes.rows.map(row => row.indexname)).toEqual(expect.arrayContaining(["Request_student_history_idx", "Request_student_summary_idx"]));
 });
 
-it.each(["id", "documentType", "purpose", "updatedAt", "paymentStatus", "status"] as const)("sorts %s globally in both directions with stable page boundaries", async sort => {
+it.each(["id", "documentLabel", "purpose", "updatedAt", "paymentStatus", "status"] as const)("sorts %s globally in both directions with stable page boundaries", async sort => {
   for (const direction of ["asc", "desc"] as const) {
-    const expected = source.map((row, i) => ({ ...row, documentType: labels[i % 3] })).sort((a, b) => {
+    const expected = source.map((row, i) => ({ ...row, documentLabel: labels[i % 3] })).sort((a, b) => {
       const left = sort === "updatedAt" ? a.updatedAt.getTime() : a[sort];
       const right = sort === "updatedAt" ? b.updatedAt.getTime() : b[sort];
       const result = left < right ? -1 : left > right ? 1 : 0;
