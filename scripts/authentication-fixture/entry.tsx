@@ -17,7 +17,7 @@ function Fixture() {
   const [user, setUser] = useState<FixtureUser | null>(initialUser);
   const path = usePathname();
   return <ThemeProvider attribute="class"><AuthFixture.Provider value={{ user, signOut: async () => { await fetch("/fixture/signout", { method: "POST" }); setUser(null); } }}>
-    <nav className="flex gap-3 p-3"><button onClick={() => setUser({ ...initialUser, id: "other_student" })}>Switch student</button><button onClick={() => setUser({ ...initialUser, publicMetadata: { role: "employee" } })}>Change role</button><button onClick={() => navigate("/dashboard/guard-other")}>Navigate protected</button></nav>
+    <nav className="flex gap-3 p-3"><button onClick={() => setUser({ ...initialUser, id: "other_student" })}>Switch student</button><button onClick={() => setUser({ ...initialUser, publicMetadata: { role: "employee" } })}>Change role</button><button onClick={() => navigate("/dashboard/guard-other")}>Navigate protected</button><button onClick={() => navigate("/admin")}>Navigate staff</button></nav>
     {screen === "session" ? <SessionGuard><p>Verified private content</p></SessionGuard> : screen === "signin" ? <SignIn /> : screen === "signup" ? <SignUp /> : path === "/dashboard" ? <p>Dashboard reached</p> : <main className="p-4"><RequestForm actorId="student_synthetic" documentConfigs={[{ typeId: "TOR", label: "Transcript", description: "Synthetic official record", price: 15050, isActive: true }]} paymentMethods={{ online: false, cash: true }} /></main>}
     <Toaster />
   </AuthFixture.Provider></ThemeProvider>;
