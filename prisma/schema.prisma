@@ -90,6 +90,8 @@ model Request {
   checkoutAttempt     CheckoutAttempt?
   notificationVersion Int            @default(0)
   notifications       NotificationOutbox[]
+  identityReview      RequestIdentityReview?
+  completion          RequestCompletion?
 
   @@unique([studentId, submissionKey])
   @@index([studentId])
@@ -101,6 +103,20 @@ model Request {
   @@index([status])
   @@index([paymentStatus])
   @@index([paymentMethod, status, paymentStatus, createdAt, id], map: "Request_cleanup_scan_idx")
+}
+
+// A registrar attestation applies only to this exact request/account identity.
+// Removing an active attestation never removes its immutable AuditLog evidence.
+model RequestIdentityReview {
+  requestId     String   @id
+  request       Request  @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  studentId     String
+  studentName   String
+  studentNumber String
+  verifiedBy    String
+  verifiedAt    DateTime @default(now())
+  evidenceId    String   @unique
+  evidence      AuditLog @relation("IdentityEvidence", fields: [evidenceId], references: [id], onDelete: Restrict)
 }
 
 enum MoneySource {
@@ -126,6 +142,35 @@ model RequestMoney {
   refundEvidenceId   String?     @unique
   refundEvidence     AuditLog?   @relation("RefundEvidence", fields: [refundEvidenceId], references: [id], onDelete: Restrict)
   refundVerifiedAt   DateTime?
+  dates              MoneyMovementDate[]
+
+  @@index([paidAt, requestId], map: "RequestMoney_paid_date_idx")
+}
+
+enum MoneyMovementKind {
+  COLLECTION
+  REFUND
+}
+
+model MoneyMovementDate {
+  requestId  String
+  money      RequestMoney @relation(fields: [requestId], references: [requestId], onDelete: Restrict)
+  kind       MoneyMovementKind
+  occurredAt DateTime
+  recordedAt DateTime @default(now())
+  evidenceId String @unique
+  evidence   AuditLog @relation("MovementDateEvidence", fields: [evidenceId], references: [id], onDelete: Restrict)
+
+  @@id([requestId, kind])
+  @@index([kind, occurredAt, requestId], map: "MoneyMovementDate_period_idx")
+}
+
+model RequestCompletion {
+  requestId   String @id
+  request     Request @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  completedAt DateTime
+  evidenceId  String @unique
+  evidence    AuditLog @relation("CompletionEvidence", fields: [evidenceId], references: [id], onDelete: Restrict)
 }
 
 enum NotificationState {
@@ -210,6 +255,9 @@ model AuditLog {
   createdAt DateTime @default(now())
   collectionMoney RequestMoney? @relation("CollectionEvidence")
   refundMoney RequestMoney? @relation("RefundEvidence")
+  identityReview RequestIdentityReview? @relation("IdentityEvidence")
+  movementDate MoneyMovementDate? @relation("MovementDateEvidence")
+  completion RequestCompletion? @relation("CompletionEvidence")
 
   @@index([adminId])
   @@index([requestId])

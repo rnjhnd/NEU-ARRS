@@ -1,3 +1,4 @@
+import "server-only";
 import { createHash, randomUUID } from "node:crypto";
 import { clerkClient } from "@clerk/nextjs/server";
 import { Prisma, type PrismaClient, type RoleChangeOperation } from "@prisma/client";

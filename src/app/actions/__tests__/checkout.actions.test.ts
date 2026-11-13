@@ -24,6 +24,13 @@ function form(changes: Record<string, string | undefined> = {}) {
   Object.entries({ submissionKey: KEY, studentName: base.studentName, studentNumber: base.studentNumber, documentType: "TOR", purpose: "PERSONAL", paymentMethod: "online", ...changes }).forEach(([key, value]) => { if (value !== undefined) data.set(key, value); });
   return data;
 }
+
+it("does not accept client-supplied identity verification while creating a request", async () => {
+  expect(await createRequest(form({ paymentMethod: "cash", identityVerified: "true", identityReview: "forged", studentId: "different_account" }))).toMatchObject({ success: true });
+  expect(prisma.request.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ studentId: "mock_student_id" }) }));
+  const data = vi.mocked(prisma.request.create).mock.calls[0][0].data;
+  expect(data).not.toHaveProperty("identityVerified"); expect(data).not.toHaveProperty("identityReview");
+});
 function seed(changes: Partial<Request> = {}) {
   const row = { ...base, ...changes };
   orders.push(row);

@@ -1,95 +1,86 @@
-# Implementation Plan: NEU Academic Record Request System (NEU-ARRS)
+# NEU-ARRS remediation and release checklist
 
-Welcome to the development journey of the NEU-ARRS! As an engineering mentor, I've broken down this project into highly granular, step-by-step milestones. This approach ensures we maintain strict type safety, secure authorization, and clean architecture throughout the process. 
+Reviewed 2026-11-13 against the current working source. Checked items below mean
+local implementation/validation, unless explicitly described as historical hosted
+work. They do not assert a new production deployment. See [spec.md](spec.md) for
+the current contract and [README.md](README.md) for executable check commands.
+Original planning copies were preserved locally before this D2 rewrite.
 
-## Phase 1: Environment & Foundation
-**Goal:** Establish a robust Next.js foundation with strict typing and formatting.
+## Completed source work
 
-- [x] **Step 1.1: Initialize Next.js** 
-  - *Action:* Run `npx create-next-app@latest` ensuring App Router, TypeScript, and Tailwind CSS are enabled.
-  - *Why:* The App Router offers server-centric routing and React Server Components (RSCs), which significantly reduce the client-side JavaScript bundle and improve performance. TypeScript enforces type safety, catching errors at compile time.
-- [x] **Step 1.2: Linter & Formatter Setup**
-  - *Action:* Configure ESLint and Prettier.
-  - *Why:* Enforces consistent code style across the team and prevents bikeshedding on formatting during PR reviews.
-- [x] **Step 1.3: Environment Variables**
-  - *Action:* Create `.env.local` to securely store Clerk, Neon PostgreSQL, and PayMongo credentials.
+- [x] Original batches 1-20: guarded refunds/webhooks/workflow, migration alignment,
+  checkout recovery, cron safety, durable notifications, navigation/state,
+  pagination, finance, verified money, directory, configuration, roles and CI.
+- [x] S6: per-request registrar school-record review; audited verify/revoke and
+  identity/payment gates for ordinary, bulk and override fulfillment.
+- [x] P8: retain submitted-date Settled Request Values; add transaction-date Money
+  Movements, explicit undated evidence, immutable date/completion provenance.
+- [x] A2/Q2: thin authorized actions, server-only services, pure client money
+  predicates, explicit document ID/label DTOs and versioned read contracts.
+- [x] D2: replace stale specifications/checklists, remove their contradictory
+  ignore entries, correct README guidance, preserve originals and remove the
+  retired email palette branch. Keep migration history,
+  older-client rejection tests and frozen durable payload contracts intact.
 
-## Phase 2: Database Setup & Prisma ORM
-**Goal:** Model our data layer securely using Prisma and deploy it to Neon's serverless Postgres.
+## Local verification baseline
 
-- [x] **Step 2.1: Initialize Prisma**
-  - *Action:* Run `npx prisma init` to set up our database connection.
-- [x] **Step 2.2: Define the Schema**
-  - *Action:* Translate the models and enums from `spec.md` (e.g., `Request`, `DocumentType`, `RequestStatus`) into `prisma/schema.prisma`.
-  - *Why:* Prisma provides type-safe database access. By defining strict enums, we prevent invalid states from ever entering our database.
-- [x] **Step 2.3: Migration & Client Generation**
-  - *Action:* Run `npx prisma migrate dev` to push the schema to Neon and generate the Prisma Client.
-  - *Why:* Neon is serverless, meaning it scales instantly and handles connection pooling efficiently for edge deployments like Vercel.
+The pre-D2 combined S6/P8/A2/Q2 source passed the following checks; dated batch
+reports retain their original results. D2's fresh results are recorded separately
+in [the D2 report](docs/remediation/24-documentation-compatibility-cleanup.md).
 
-## Phase 3: Authentication & Authorization (Clerk)
-**Goal:** Secure the application using Clerk, implementing role-based access control (RBAC).
+- [x] TypeScript and ESLint.
+- [x] 852 tests in 44 Vitest files, including disposable transaction tests.
+- [x] All 128 synthetic Chrome navigation/component checks.
+- [x] Five disposable migration scenarios, including evidence/date upgrade guards.
+- [x] Isolated production build using synthetic providers and an owned database.
+- [x] Git whitespace check. No dependency/schema change in A2/Q2 or D2.
 
-- [x] **Step 3.1: Clerk Setup**
-  - *Action:* Install `@clerk/nextjs` and wrap the root layout in `<ClerkProvider>`.
-- [x] **Step 3.2: Middleware Configuration**
-  - *Action:* Create `middleware.ts` to protect all routes by default. Implement logic to check Clerk's User Metadata (`role: "admin"` vs `role: "student"`).
-  - *Why:* Middleware runs at the Edge, blocking unauthorized users before they even hit our server infrastructure.
-- [x] **Step 3.3: Server-Side Auth Utilities**
-  - *Action:* Create utility functions (e.g., `requireAuth()`, `requireAdmin()`) to be used inside Server Actions.
-  - *Why:* Client-side checks are easily bypassed. We must *always* re-verify the user's identity and role on the server before performing any database read/writes.
+Synthetic fixtures validate application behavior, not real registrar procedures,
+live payment delivery, inbox receipt or a hosted scheduled job. Build-check
+`.next` output is verification-only and must not be deployed.
 
-## Phase 4: Shared UI Components & Layouts
-**Goal:** Build a cohesive, modern UI using Tailwind CSS and headless accessible components.
+## Pending coordinated release and acceptance
 
-- [x] **Step 4.1: Component Library Setup**
-  - *Action:* Integrate a headless UI library like `shadcn/ui` for accessible, styled base components (Buttons, Inputs, Tables).
-- [x] **Step 4.2: Layouts**
-  - *Action:* Design the `(student)` and `(admin)` route groups with distinct navigation layouts.
-- [x] **Step 4.3: Toast Notifications**
-  - *Action:* Implement a toast notification provider (like `sonner`) for visual user feedback.
+- [x] Review the combined local source and record a local audit checkpoint commit
+  under the owner's instruction. Push/deployment remain separate steps.
+- [ ] Push through the approved workflow and obtain current remote required CI
+  checks, including native PostgreSQL migration verification.
+- [ ] Verify the intended application database, back up and rehearse the upgrade;
+  apply pending `20261113000100_request_identity_review` and
+  `20261113000200_financial_dates` through the explicit migration datasource.
+  Earlier hosted recovery verified 11 migrations; this source prepares 13.
+- [ ] Deploy matching actions/read APIs/clients after the approved migration;
+  reload old dashboard/queue/finance tabs for current DTO formats.
+- [ ] Verify the locally committed Device Trust fix and current combined code in
+  the deployed app, including signed-in student/employee/admin behavior.
+- [ ] Train registrar staff and accept the real school-record review procedure;
+  ensure existing in-progress requests receive review before further fulfillment.
+- [ ] Exercise an approved actual PayMongo test-mode checkout/webhook/refund
+  roundtrip; confirm evidence and duplicate/recovery behavior without real charges.
+- [ ] Reconcile historical money/dates only from reviewed original evidence where
+  applicable. Unknown/unresolvable history stays explicitly unknown.
+- [ ] Accept both finance reports/receipts using actual known-date and undated
+  evidence, including Manila boundaries and preserved completion history.
+- [ ] Complete appropriate sender/domain configuration and confirm actual inbox
+  delivery, or explicitly defer broader notifications within test-sender limits.
+- [ ] Observe natural daily cleanup/notification runs and saved results. Do not
+  invoke production cleanup as a connectivity check.
+- [ ] Review Clerk production key/domain requirements for the intended release.
+- [ ] Record any explicit owner-approved operational deferrals and their limits.
 
-## Phase 5: Student Dashboard & Request Flow
-**Goal:** Enable students to view history and submit new document requests securely.
+## Separate post-batch-20 follow-ups
 
-- [x] **Step 5.1: Student Dashboard UI**
-  - *Action:* Build the table/list displaying the student's past requests. Fetch data directly from Prisma via Server Components.
-- [x] **Step 5.2: Multi-Step Request Form**
-  - *Action:* Create a client-side form with state management for Document Type -> Purpose -> Payment Method.
-- [x] **Step 5.3: The `createRequest` Server Action**
-  - *Action:* Implement the Server Action. It must:
-    1. Authenticate the student.
-    2. Validate form inputs (e.g., using `zod`).
-    3. Create the Prisma record. If cash, set to `PENDING`. If online, set to `PENDING_PAYMENT` and trigger Phase 6.
+Prior recovery restored the production database/Redis and the owner confirmed
+that the dashboard loaded. Preview containment disabled automatic previews and
+removed shared production credentials from Preview scope. Those facts are not
+proof that the newest local source has been deployed.
 
-## Phase 6: PayMongo Integration
-**Goal:** Seamlessly handle online payments via the PayMongo Checkout API.
+- [ ] Resume additional post-batch-20 environment/readiness work after original
+  audit closure, including isolated Preview resources and credential scopes.
+- [ ] Keep automatic Preview deployments disabled until isolated test resources,
+  provider configuration and acceptance are ready; do not reuse production data.
+- [ ] Continue dependency/toolchain maintenance, including ESLint lifecycle review.
 
-- [x] **Step 6.1: Checkout Session Action**
-  - *Action:* Implement `createCheckoutSession`. Call PayMongo's `POST /v1/checkout_sessions` API. 
-  - *Crucial detail:* Inject `requestId` and `studentId` into the PayMongo `metadata` object.
-  - *Why:* The Checkout API minimizes PCI compliance risk by offloading credit card handling to PayMongo.
-- [x] **Step 6.2: Webhook Route Handler**
-  - *Action:* Create `app/api/webhooks/paymongo/route.ts`.
-  - *Action:* Implement cryptographic signature verification using the `Paymongo-Signature` header.
-  - *Action:* Listen for `checkout.session.payment.paid`, extract the `metadata`, and update the Request status to `PENDING` securely in Prisma.
-  - *Why:* Webhooks are asynchronous and can be spoofed. Cryptographic verification ensures the event genuinely came from PayMongo.
-
-## Phase 7: Admin (Registrar) Dashboard
-**Goal:** Empower registrars to process the document queue efficiently.
-
-- [x] **Step 7.1: Admin Queue UI**
-  - *Action:* Build a comprehensive data table fetching all requests. Implement client-side filtering (by status, date, payment).
-- [x] **Step 7.2: Status Management Action**
-  - *Action:* Implement the `updateRequestStatus` Server Action. Ensure strict `requireAdmin()` authorization.
-- [x] **Step 7.3: Cancellation & Bulk Processing**
-  - *Action:* Add ability to cancel requests (requiring a reason) and select multiple rows to advance their status simultaneously.
-
-## Phase 8: Polish, Testing & CI/CD
-**Goal:** Ensure enterprise-grade reliability before deployment.
-
-- [x] **Step 8.1: Test Coverage**
-  - *Action:* Write tests (e.g., using Vitest) for core business logic, especially the webhook handler and role-based Server Actions.
-- [x] **Step 8.2: CI Pipeline**
-  - *Action:* Set up GitHub Actions to run type checking (`tsc --noEmit`), linting, and tests on every pull request.
-- [x] **Step 8.3: Deployment**
-  - *Action:* Deploy the application to Vercel, securely mapping all environment variables.
+All 27 original finding implementations are addressed locally after D2. Full
+original acceptance remains pending the release/operational checks above or
+explicitly agreed deferrals. No paid resource or purchase is part of this work.

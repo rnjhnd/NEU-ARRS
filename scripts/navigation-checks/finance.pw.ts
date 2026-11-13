@@ -5,7 +5,7 @@ import { financeQuerySchema, financeRange, type FinanceDataset, type FinanceItem
 
 const asOf = "2026-11-11T12:00:00.000Z";
 function rows(): FinanceItem[] {
-  const item: FinanceItem = { id: "online", documentType: "Document", purpose: "PERSONAL", paymentMethod: "online", paymentStatus: "PAID", status: "PROCESSING", collectedCentavos: 15050, createdAt: "2026-11-10T16:00:00.000Z" };
+  const item: FinanceItem = { id: "online", documentTypeId: "SYNTHETIC_DOCUMENT", documentLabel: "Document", purpose: "PERSONAL", paymentMethod: "online", paymentStatus: "PAID", status: "PROCESSING", collectedCentavos: 15050, createdAt: "2026-11-10T16:00:00.000Z" };
   return [item, { ...item, id: "zero_cash", paymentMethod: "cash", paymentStatus: "CASH_ON_PICKUP", status: "COMPLETED", collectedCentavos: 0, createdAt: "2026-11-09T16:00:00.000Z" },
     { ...item, id: "cash", paymentMethod: "cash", paymentStatus: "CASH_ON_PICKUP", status: "COMPLETED", collectedCentavos: 20025, createdAt: "2026-11-10T15:59:59.999Z" },
     { ...item, id: "legacy", collectedCentavos: null, createdAt: "2026-11-08T00:00:00.000Z" }, { ...item, id: "cancelled", status: "CANCELLED" },
@@ -87,7 +87,7 @@ test("a failed initial snapshot shows no fabricated totals and can recover", asy
   state.status = 200; await page.getByRole("button", { name: "Refresh report" }).click(); await expect(kpi(page, "Known Settled Value")).toContainText("350.75");
 });
 test("CSV reflects the applied cohort, escaped labels, zero prices and review rows", async ({ page, state }) => {
-  state.items[0] = { ...state.items[0], documentType: '=HYPERLINK("x")' }; await page.getByRole("button", { name: "Refresh report" }).click();
+  state.items[0] = { ...state.items[0], documentTypeId: "SYNTHETIC_DOCUMENT", documentLabel: '=HYPERLINK("x")' }; await page.getByRole("button", { name: "Refresh report" }).click();
   const downloaded = page.waitForEvent("download"); await page.getByRole("button", { name: "Export CSV" }).click();
   const path = await (await downloaded).path(); if (!path) throw new Error("No CSV path"); const csv = await readFile(path, "utf8");
   expect(csv).toContain('"\'=HYPERLINK(""x"")"'); expect(csv).toContain('"150.50"'); expect(csv).toContain('"0.00"'); expect(csv).toContain('"","Unverified"');

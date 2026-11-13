@@ -9,6 +9,7 @@ import { queueSnapshotChanged, queueStatusLabels, type QueueItem } from "@/lib/a
 import { CancelledPaymentReview } from "./cancelled-payment-review";
 import { QueueStatusBadge } from "./queue-table";
 import type { SaveQueueUpdate } from "./use-queue-update";
+import { IdentityReview } from "./identity-review";
 
 export type QueueDialog = { mode: "details" | "cancel" | "cash"; snapshot: QueueItem[] };
 export function QueueUpdateDialog({ dialog, current, canOverride, pending, blocked, save, onClose, onRefresh, onReconciled, onReviewPending }: {
@@ -38,12 +39,13 @@ export function QueueUpdateDialog({ dialog, current, canOverride, pending, block
         <QueueStatusBadge status={item.status} />
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 break-words">{[
           ["Reference ID", item.id], ["Student Name", item.studentName], ["Student Number", item.studentNumber], ["Student Email", item.studentEmail ?? "No email available"],
-          ["Document", item.documentType], ["Purpose", item.purpose.replace(/_/g, " ")], ["Payment", item.paymentMethod + " / " + item.paymentStatus],
+          ["Document", item.documentLabel], ["Purpose", item.purpose.replace(/_/g, " ")], ["Payment", item.paymentMethod + " / " + item.paymentStatus],
           ["Submitted", format(new Date(item.createdAt), "MMM d, yyyy h:mm a")], ["Last Updated", format(new Date(item.updatedAt), "MMM d, yyyy h:mm a")],
           ["Cancellation reason", item.cancelReason ?? "None"],
         ].map(([label, value]) => <div key={label}><dt className="text-xs text-muted-foreground">{label}</dt><dd className="text-sm">{value}</dd></div>)}</dl>
         {item.status === "COMPLETED" && <a href={"/receipt/" + item.id} target="_blank" rel="noreferrer" className="text-sm underline">View Official Receipt</a>}
         {canOverride && item.status === "CANCELLED" && item.paymentMethod === "online" && <CancelledPaymentReview request={item} disabled={blocked || changed || pending} onPendingChange={onReviewPending} onReconciled={onReconciled} />}
+        <IdentityReview request={item} disabled={blocked || changed || pending} onPendingChange={onReviewPending} onSaved={onReconciled} />
       </>}
       <form className="space-y-4" onSubmit={async event => {
         event.preventDefault(); if (invalid) return;
@@ -67,7 +69,7 @@ export function QueueUpdateDialog({ dialog, current, canOverride, pending, block
         {changed && <p role="alert">These requests changed. Close and reopen the dialog after refreshing the queue.</p>}
         {blocked && <div role="alert">Refresh the queue before updating a request. <Button type="button" size="sm" variant="outline" disabled={pending} onClick={onRefresh}>Refresh queue</Button></div>}
         {error && <p role="alert" className="text-destructive">{error}</p>}
-        <p className="text-xs text-muted-foreground">{canOverride ? "Overrides require a reason and cannot bypass payment eligibility." : "Employees can use normal workflow transitions. Contact an administrator for corrections."}</p>
+        <p className="text-xs text-muted-foreground">{canOverride ? "Overrides require a reason and cannot bypass payment or academic identity checks." : "Employees can use normal workflow transitions after identity verification. Contact an administrator for corrections."}</p>
         <DialogFooter><Button type="button" variant="ghost" disabled={pending} onClick={onClose}>Close</Button>
           <Button type="submit" variant={status === "CANCELLED" ? "destructive" : "default"} disabled={Boolean(invalid)}>{pending ? "Saving..." : details ? "Save Changes" : dialog.mode === "cash" ? "Cash Collected — Complete" : "Confirm Cancellation"}</Button>
         </DialogFooter>

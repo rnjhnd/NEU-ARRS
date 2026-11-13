@@ -34,9 +34,16 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllEnvs());
 async function order(overrides: Partial<Request> = {}) {
-  return client.request.create({ data: { id: "c" + String(serial++).padStart(24, "0"), studentId: "synthetic_student", studentName: "Synthetic", studentNumber: "22-12345-123", documentType: "TOR", purpose: "PERSONAL",
+  const row = await client.request.create({ data: { id: "c" + String(serial++).padStart(24, "0"), studentId: "synthetic_student", studentName: "Synthetic", studentNumber: "22-12345-123", documentType: "TOR", purpose: "PERSONAL",
     paymentMethod: "online", paymentStatus: "UNPAID", status: "PENDING_PAYMENT", paymongoCheckoutId: "cs_synthetic" + serial, quotedAmountCentavos: 15050,
     amountPaid: 151, createdAt: originalVersion, updatedAt: originalVersion, ...overrides } });
+  // These financial tests exercise cash collection after registrar preparation.
+  if (row.paymentMethod === "cash" && row.status === "READY_FOR_PICKUP") {
+    const proof = await client.auditLog.create({ data: { adminId: "synthetic_registrar", requestId: row.id, action: "STUDENT_IDENTITY_VERIFIED", details: "Synthetic school record fixture" } });
+    await client.requestIdentityReview.create({ data: { requestId: row.id, studentId: row.studentId, studentName: row.studentName, studentNumber: row.studentNumber,
+      verifiedBy: "synthetic_registrar", verifiedAt: proof.createdAt, evidenceId: proof.id } });
+  }
+  return row;
 }
 function checkout(row: Request) {
   return checkoutPaidSchema.parse({ id: row.paymongoCheckoutId, type: "checkout_session", attributes: { metadata: { requestId: row.id, studentId: row.studentId }, livemode: false,
@@ -82,6 +89,18 @@ it("rolls back an entire cash batch instead of guessing a missing historical amo
   expect(await client.requestMoney.count({ where: { requestId: { in: [known.id, unknown.id] } } })).toBe(0);
   expect((await client.request.findUniqueOrThrow({ where: { id: known.id } })).status).toBe("READY_FOR_PICKUP");
   expect((await client.request.findUniqueOrThrow({ where: { id: unknown.id } })).amountPaid).toBe(15000);
+  expect(await client.requestCompletion.count({ where: { requestId: { in: [known.id, unknown.id] } } })).toBe(0);
+});
+it("retains first recorded completion evidence through a correction and re-completion", async () => {
+  const row = await order({ paymentMethod: "cash", paymentStatus: "CASH_ON_PICKUP", status: "READY_FOR_PICKUP", paymongoCheckoutId: null });
+  expect(await updateRequestStatus(completion([row]))).toMatchObject({ success: true });
+  const first = await client.requestCompletion.findUniqueOrThrow({ where: { requestId: row.id } });
+  const correction = completion([await client.request.findUniqueOrThrow({ where: { id: row.id } })]);
+  correction.set("newStatus", "READY_FOR_PICKUP"); correction.set("isOverride", "true"); correction.set("overrideReason", "Synthetic pickup correction");
+  expect(await updateRequestStatus(correction)).toMatchObject({ success: true });
+  expect(await updateRequestStatus(completion([await client.request.findUniqueOrThrow({ where: { id: row.id } })]))).toMatchObject({ success: true });
+  expect(await client.requestCompletion.findUniqueOrThrow({ where: { requestId: row.id } })).toEqual(first);
+  expect(await client.requestMoney.count({ where: { requestId: row.id } })).toBe(1);
 });
 it("records only a matching confirmed full refund and rolls back a mismatched refund", async () => {
   const row = await order(); await recordCheckoutPayment("evt_refund" + row.id, false, checkout(row));

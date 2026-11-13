@@ -2,7 +2,6 @@
 
 import { Printer, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { formatPHP } from "@/lib/money-format";
 
@@ -11,6 +10,7 @@ interface ReceiptProps {
     transactionId: string;
     dateRecorded: string;
     paidAt: string | null;
+    completedAt?: string | null;
     studentName: string;
     studentEmail: string;
     documentLabel: string;
@@ -25,7 +25,8 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
     window.print();
   };
 
-  const formattedDate = format(new Date(receipt.dateRecorded), "PPP 'at' p");
+  const displayTime = (value: string) => new Date(value).toLocaleString("en-PH", { timeZone: "Asia/Manila" });
+  const formattedDate = displayTime(receipt.dateRecorded);
   const priceFormatted = formatPHP(receipt.amountCentavos);
 
   return (
@@ -80,7 +81,9 @@ export function ReceiptClient({ receipt }: ReceiptProps) {
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Payment Details</h3>
             <p className="text-slate-800 text-sm"><span className="text-slate-500 mr-2">Method:</span> <span className="font-semibold uppercase">{receipt.paymentMethod}</span></p>
             <p className="text-slate-800 mt-1 text-sm"><span className="text-slate-500 mr-2">Collection verified:</span> <span className="font-semibold">{formattedDate}</span></p>
-            <p className="text-slate-800 mt-1 text-sm"><span className="text-slate-500 mr-2">Payment date:</span> {receipt.paidAt ? format(new Date(receipt.paidAt), "PPP 'at' p") : "Not recorded"}</p>
+            <p className="text-slate-800 mt-1 text-sm"><span className="text-slate-500 mr-2">Payment date:</span> {receipt.paidAt ? displayTime(receipt.paidAt) : "Not recorded"}</p>
+            <p className="text-slate-800 mt-1 text-sm"><span className="text-slate-500 mr-2">First recorded completion:</span> {receipt.completedAt ? displayTime(receipt.completedAt) : "Not recorded"}</p>
+            <p className="mt-1 text-xs text-slate-500">Dates shown in Manila (UTC+08:00).</p>
           </div>
         </div>
 

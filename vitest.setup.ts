@@ -1,4 +1,5 @@
 import { vi } from "vitest";
+vi.mock("server-only", () => ({}));
 
 // Mock Prisma
 vi.mock("@/lib/prisma", () => ({
@@ -9,7 +10,11 @@ vi.mock("@/lib/prisma", () => ({
     $queryRaw: vi.fn(),
     $executeRaw: vi.fn(),
     requestMoney: { findUnique: vi.fn(), create: vi.fn(), update: vi.fn() },
+    requestIdentityReview: { upsert: vi.fn(), delete: vi.fn() },
+    moneyMovementDate: { create: vi.fn() },
+    requestCompletion: { upsert: vi.fn() },
     request: {
+      count: vi.fn(),
       findMany: vi.fn(),
       findUnique: vi.fn(),
       update: vi.fn(),

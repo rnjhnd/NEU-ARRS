@@ -12,7 +12,7 @@ const text: React.CSSProperties = { color: "#334155", fontSize: 15, lineHeight: 
 function statusPalette(status: string) {
   if (["READY_FOR_PICKUP", "COMPLETED"].includes(status)) return { background: "#ecfdf5", color: "#065f46", border: "#10b981" };
   if (status === "CANCELLED") return { background: "#fef2f2", color: "#991b1b", border: "#ef4444" };
-  if (["PENDING_PAYMENT", "PENDING", "PROCESSING"].includes(status)) return { background: "#fffbeb", color: "#92400e", border: "#eab308" };
+  if (["PENDING_PAYMENT", "PROCESSING"].includes(status)) return { background: "#fffbeb", color: "#92400e", border: "#eab308" };
   return { background: "#f8fafc", color: "#334155", border: "#64748b" };
 }
 

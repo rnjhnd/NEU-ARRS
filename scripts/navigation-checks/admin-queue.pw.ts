@@ -7,12 +7,13 @@ import type { QueueItem } from "../../src/lib/admin-queue-model";
 
 function rows(): QueueItem[] {
   return Array.from({ length: 13 }, (_, i) => ({ id: "c" + String(i).padStart(24, "0"), studentName: "Student " + String(i).padStart(2, "0"), studentNumber: "22-12345-123", studentEmail: "synthetic" + i + "@example.invalid",
-    documentType: "Document " + i, purpose: "PERSONAL", paymentMethod: i === 1 ? "cash" : "online", paymentStatus: i === 1 ? "CASH_ON_PICKUP" : "PAID",
+    identityVerified: true, identityVerifiedAt: "2026-01-01T00:00:00.000Z",
+    documentTypeId: "SYNTHETIC_DOCUMENT", documentLabel: "Document " + i, purpose: "PERSONAL", paymentMethod: i === 1 ? "cash" : "online", paymentStatus: i === 1 ? "CASH_ON_PICKUP" : "PAID",
     status: i === 1 ? "READY_FOR_PICKUP" : i === 2 ? "COMPLETED" : i === 3 ? "CANCELLED" : "PENDING_PAYMENT", cancelReason: i === 3 ? "Synthetic original reason" : null,
     createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" }));
 }
 type Submission = { requestIds: string[]; expectedVersions: string; newStatus: QueueItem["status"]; cancelReason: string | null; isOverride: string; overrideReason: string | null; confirmCashCollected: string; sendCorrectionEmail: string };
-type State = { queue: QueueSource; readDelay: number; readURLs: string[]; exportStatus: number; exportDelay: number; exportURLs: string[]; status: number; malformed: boolean; mode: "success" | "reject" | "abort" | "success-read-fails"; actionDelay: number; submissions: Submission[]; reviews: number; reviewFails: boolean; reads: number };
+type State = { queue: QueueSource; readDelay: number; readURLs: string[]; exportStatus: number; exportDelay: number; exportURLs: string[]; status: number; malformed: boolean; mode: "success" | "reject" | "abort" | "success-read-fails"; actionDelay: number; submissions: Submission[]; reviews: number; reviewFails: boolean; reads: number; identityReviews: Record<string, string>[]; identityReviewFails: boolean };
 const test = base.extend<{ state: State }, { fixtureURL: string }>({
   fixtureURL: [async ({ browserName }, provide) => {
     if (browserName !== "chromium") throw new Error("Chrome required.");
@@ -20,7 +21,7 @@ const test = base.extend<{ state: State }, { fixtureURL: string }>({
     try { await provide(server.url); } finally { await server.close(); }
   }, { scope: "worker" }],
   state: async ({ page, fixtureURL }, provide) => {
-    const state: State = { readDelay: 0, readURLs: [], exportStatus: 200, exportDelay: 0, exportURLs: [], queue: { actorId: "staff_synthetic", role: "admin", emailLookupFailed: false, items: rows() }, status: 200, malformed: false, mode: "success", actionDelay: 600, submissions: [], reviews: 0, reviewFails: false, reads: 0 };
+    const state: State = { readDelay: 0, readURLs: [], exportStatus: 200, exportDelay: 0, exportURLs: [], queue: { actorId: "staff_synthetic", role: "admin", emailLookupFailed: false, items: rows() }, status: 200, malformed: false, mode: "success", actionDelay: 600, submissions: [], reviews: 0, reviewFails: false, reads: 0, identityReviews: [], identityReviewFails: false };
     const errors: string[] = [];
     page.on("pageerror", error => errors.push(error.message));
     await page.route("**/*", route => { if (new URL(route.request().url()).origin === fixtureURL) return route.continue(); errors.push("Unexpected outbound request"); return route.abort(); });
@@ -49,10 +50,73 @@ const test = base.extend<{ state: State }, { fixtureURL: string }>({
     });
     await page.route("**/fixture/review", async route => { state.reviews++; await new Promise(done => setTimeout(done, 600));
       return route.fulfill({ json: state.reviewFails ? { success: false, error: "Synthetic review failure" } : { success: true, resolved: false, message: "Synthetic reconciliation review required" } }); });
+    await page.route("**/fixture/identity-review", async route => {
+      const body: Record<string, string> = route.request().postDataJSON(); state.identityReviews.push(body);
+      await new Promise(done => setTimeout(done, state.actionDelay));
+      if (state.identityReviewFails) return route.fulfill({ json: { success: false, error: "Synthetic identity review conflict. Refresh before retrying." } });
+      const timestamp = new Date().toISOString();
+      state.queue.items = state.queue.items.map(item => item.id === body.requestId ? { ...item,
+        identityVerified: body.decision === "verify", identityVerifiedAt: body.decision === "verify" ? timestamp : null, updatedAt: timestamp } : item);
+      return route.fulfill({ json: { success: true } });
+    });
     await provide(state); expect(errors).toEqual([]);
   },
 });
 test.beforeEach(async ({ page, fixtureURL, state }) => { expect(state.queue.actorId).toBe("staff_synthetic"); await page.goto(fixtureURL); await page.waitForLoadState("networkidle"); await expect(page.getByRole("button", { name: /^View request / })).toHaveCount(10); });
+
+test("registrar verification requires explicit records review, refreshes versions and can be revoked", async ({ page, state }) => {
+  const id = rows()[0].id; state.queue.role = "employee";
+  state.queue.items[0] = { ...state.queue.items[0], identityVerified: false, identityVerifiedAt: null };
+  await page.reload(); await expect(page.getByText("Identity review required", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "View request " + id, exact: true }).click();
+  let dialog = page.getByRole("dialog", { name: "Request Details" });
+  await expect(dialog.getByLabel("Update Status").locator('option[value="PROCESSING"]')).toBeDisabled();
+  const verify = dialog.getByRole("button", { name: "Verify student identity", exact: true }); await expect(verify).toBeDisabled();
+  await dialog.getByLabel("Review reference or reason", { exact: true }).fill("Checked synthetic school record TEST-001");
+  await expect(verify).toBeDisabled();
+  await dialog.getByRole("checkbox", { name: /I checked school records/ }).check(); await verify.dblclick();
+  await expect(dialog).toBeHidden(); expect(state.identityReviews).toHaveLength(1);
+  expect(state.identityReviews[0]).toMatchObject({ decision: "verify", recordsChecked: "true", requestId: id });
+  await expect(page.getByText("Identity review required", { exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "View request " + id, exact: true }).click(); dialog = page.getByRole("dialog", { name: "Request Details" });
+  await expect(dialog.getByLabel("Update Status").locator('option[value="PROCESSING"]')).toBeEnabled();
+  await dialog.getByLabel("Revocation reason", { exact: true }).fill("School record match requires correction");
+  await dialog.getByRole("checkbox", { name: /I confirm this attestation must be revoked/ }).check();
+  await dialog.getByRole("button", { name: "Revoke identity verification", exact: true }).click();
+  await expect(dialog).toBeHidden(); expect(state.identityReviews).toHaveLength(2);
+  await expect(page.getByText("Identity review required", { exact: true })).toBeVisible();
+});
+
+test("a rejected identity review retains the pending state and shows its failure", async ({ page, state }) => {
+  const id = rows()[0].id; state.identityReviewFails = true;
+  state.queue.items[0] = { ...state.queue.items[0], identityVerified: false, identityVerifiedAt: null };
+  await page.getByRole("button", { name: "Refresh queue", exact: true }).click();
+  await expect(page.getByText("Identity review required", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "View request " + id, exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Request Details" });
+  await dialog.getByLabel("Review reference or reason", { exact: true }).fill("Checked synthetic school record TEST-001");
+  await dialog.getByRole("checkbox", { name: /I checked school records/ }).check();
+  await dialog.getByRole("button", { name: "Verify student identity", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toContainText("identity review conflict");
+  await expect(dialog.getByLabel("Update Status").locator('option[value="PROCESSING"]')).toBeDisabled();
+  expect(state.queue.items[0].identityVerified).toBe(false); expect(state.submissions).toHaveLength(0);
+});
+
+test("a current review on an older completed request preserves its workflow history", async ({ page, state }) => {
+  const id = rows()[2].id;
+  state.queue.items[2] = { ...state.queue.items[2], identityVerified: false, identityVerifiedAt: null };
+  await page.getByRole("button", { name: "Refresh queue", exact: true }).click();
+  await expect(page.getByRole("button", { name: "View request " + id, exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: "View request " + id, exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Request Details" });
+  await expect(dialog.getByText("A review recorded now does not establish that identity was verified before the earlier completion or cancellation.", { exact: true })).toBeVisible();
+  await dialog.getByLabel("Review reference or reason", { exact: true }).fill("Current check of synthetic school record TEST-001");
+  await dialog.getByRole("checkbox", { name: /I checked school records/ }).check();
+  await dialog.getByRole("button", { name: "Verify student identity", exact: true }).click();
+  await expect(dialog).toBeHidden(); expect(state.queue.items[2].status).toBe("COMPLETED");
+  expect(state.queue.items[2].createdAt).toBe(rows()[2].createdAt); expect(state.queue.items[2].identityVerified).toBe(true);
+  expect(state.submissions).toHaveLength(0);
+});
 
 test("sort focus, page clamping, and filter changes keep selection confined to the visible page", async ({ page, state }) => {
   await page.getByRole("checkbox", { name: "Select this page", exact: true }).check();
@@ -219,7 +283,7 @@ test("authorization failure during a pending update recovers without stuck contr
 });
 
 test("export downloads the full verified queue with escaped data", async ({ page, state }) => {
-  state.queue.items[0] = { ...state.queue.items[0], studentName: 'Last, "First"', documentType: "=1+1" };
+  state.queue.items[0] = { ...state.queue.items[0], studentName: 'Last, "First"', documentTypeId: "SYNTHETIC_DOCUMENT", documentLabel: "=1+1" };
   await page.getByRole("button", { name: "Refresh queue", exact: true }).click();
   const download = page.waitForEvent("download"); await page.getByRole("button", { name: "Export all CSV", exact: true }).click();
   const file = await download; const path = await file.path(); if (!path) throw new Error("Missing CSV file");

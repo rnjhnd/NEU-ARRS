@@ -1,7 +1,7 @@
 import { getVerifiedActor, AccessError } from "./auth";
 import type { PrismaClient } from "@prisma/client";
 import prisma from "./prisma";
-import { legacyDocumentLabels } from "./student-request-model";
+import { documentIdentity } from "./document-identity";
 import { verifiedCollection } from "./monetary-ledger";
 import { DEFAULT_FINANCE_QUERY, financeQuerySchema, financeRange, FINANCE_ROW_LIMIT, manilaDay, type FinanceDataset, type FinanceQuery } from "./finance-model";
 
@@ -27,7 +27,7 @@ export async function loadFinanceData(input: FinanceQuery = DEFAULT_FINANCE_QUER
   if (rows.length > FINANCE_ROW_LIMIT) throw new FinanceLoadError(413);
   const configs = rows.length ? await db.documentConfig.findMany({ where: { typeId: { in: [...new Set(rows.map(row => row.documentType))] } }, select: { typeId: true, label: true } }) : [];
   const labels = new Map(configs.map(config => [config.typeId, config.label]));
-  return { actorId, asOf, query, items: rows.map(row => ({ id: row.id, documentType: labels.get(row.documentType) ?? legacyDocumentLabels[row.documentType] ?? row.documentType.replace(/_/g, " "),
+  return { actorId, asOf, query, items: rows.map(row => ({ id: row.id, ...documentIdentity(row.documentType, labels.get(row.documentType)),
     purpose: row.purpose, paymentMethod: row.paymentMethod, paymentStatus: row.paymentStatus, status: row.status, createdAt: row.createdAt.toISOString(),
     collectedCentavos: verifiedCollection(row.money, row.paymentMethod) })) };
 }

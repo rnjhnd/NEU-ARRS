@@ -1,3 +1,4 @@
+import "server-only";
 import { Prisma, type Request } from "@prisma/client";
 import { z } from "zod";
 import prisma from "./prisma";

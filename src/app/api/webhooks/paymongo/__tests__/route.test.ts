@@ -4,6 +4,7 @@ import { NextRequest } from "next/server";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { POST } from "../route";
+import { identityReviewFixture } from "@/lib/__tests__/identity-review-fixture";
 
 const MOCK_SECRET = "whsk_test_mock";
 const NOW = new Date("2026-11-11T04:00:00Z");
@@ -77,7 +78,7 @@ beforeEach(() => {
   vi.mocked(prisma.$transaction).mockImplementation(async callback => callback(prisma));
   vi.mocked(prisma.auditLog.findUnique).mockResolvedValue(null);
   vi.mocked(prisma.auditLog.create).mockResolvedValue(receipt);
-  vi.mocked(prisma.request.findUnique).mockResolvedValue({ ...unpaidRequest });
+  vi.mocked(prisma.request.findUnique).mockResolvedValue({ ...unpaidRequest, ...{ identityReview: identityReviewFixture(unpaidRequest) } });
   vi.mocked(prisma.request.updateMany).mockResolvedValue({ count: 1 });
 });
 

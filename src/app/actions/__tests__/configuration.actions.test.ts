@@ -2,7 +2,8 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import prisma from "@/lib/prisma";
 import { requireAdmin, requireAuth } from "@/lib/auth";
 import { createDocumentConfig, initializeDocumentDefaults, updateDocumentConfig, updateSystemSetting } from "../configuration.actions";
-import { getSystemSetting, updateUserRole } from "../admin.actions";
+import { updateUserRole } from "../admin.actions";
+import { getRequestSetting } from "@/lib/configuration-data";
 import { loadAdminDocuments, loadAdminSettings, loadStudentCatalog } from "@/lib/configuration-data";
 import { GET } from "@/app/api/admin/configuration/route";
 import type { DocumentConfig } from "@prisma/client";
@@ -62,10 +63,10 @@ it.each([["UNSUPPORTED", "{}"], ["PAYMENT_METHODS", '{"online":false,"cash":fals
   expect(await updateSystemSetting(settingForm(key, value))).toMatchObject({ success: false, code: "invalid" }); expect(prisma.$transaction).not.toHaveBeenCalled();
 });
 it("makes public setting reads authenticated and limits them to request-availability controls", async () => {
-  vi.mocked(requireAuth).mockRejectedValueOnce(new Error("Unauthorized")); expect(await getSystemSetting("MAINTENANCE_MODE")).toMatchObject({ success: false });
-  expect(await getSystemSetting("EMAIL_TEMPLATES")).toMatchObject({ success: false });
-  expect(await getSystemSetting("API_SECRET")).toMatchObject({ success: false }); expect(prisma.systemSettings.findUnique).not.toHaveBeenCalled();
-  expect(await getSystemSetting("MAINTENANCE_MODE")).toEqual({ success: true, value: "false" });
+  vi.mocked(requireAuth).mockRejectedValueOnce(new Error("Unauthorized")); expect(await getRequestSetting("MAINTENANCE_MODE")).toMatchObject({ success: false });
+  expect(await getRequestSetting("EMAIL_TEMPLATES")).toMatchObject({ success: false });
+  expect(await getRequestSetting("API_SECRET")).toMatchObject({ success: false }); expect(prisma.systemSettings.findUnique).not.toHaveBeenCalled();
+  expect(await getRequestSetting("MAINTENANCE_MODE")).toEqual({ success: true, value: "false" });
 });
 it("never seeds a catalog during reads and exposes only active catalog fields to students", async () => {
   expect(await loadStudentCatalog()).toEqual([]); expect(await loadAdminDocuments()).toMatchObject({ items: [] });
@@ -74,7 +75,7 @@ it("never seeds a catalog during reads and exposes only active catalog fields to
 });
 it("rejects unsafe setting reader failures without leaking stored/SQL data", async () => {
   vi.mocked(prisma.systemSettings.findUnique).mockRejectedValue(new Error("private connection details"));
-  expect(JSON.stringify(await getSystemSetting("MAINTENANCE_MODE"))).not.toContain("private");
+  expect(JSON.stringify(await getRequestSetting("MAINTENANCE_MODE"))).not.toContain("private");
 });
 it("rejects oversized complete catalog responses explicitly", async () => {
   vi.mocked(prisma.documentConfig.findMany).mockResolvedValue(Array.from({ length: 1000 }, (_, i) => ({ ...record, id: "config_" + i, typeId: "CODE_" + i, description: "文".repeat(2000) })));

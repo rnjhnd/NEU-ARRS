@@ -21,7 +21,7 @@ export async function reconcileMoney(client, input, { apply = false, actorId = "
     const plannedReferences = new Set();
     for (const entry of manifest) {
       const order = rows.find(row => row.id === entry.requestId);
-      const { rows: existingRows } = await client.query(`SELECT *, to_char("verifiedAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "verifiedAt", to_char("paidAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "paidAt" FROM "RequestMoney" WHERE "requestId" = $1`, [entry.requestId]);
+      const { rows: existingRows } = await client.query(`SELECT *, to_char("verifiedAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "verifiedAt", to_char("paidAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "paidAt" FROM "RequestMoney" WHERE "requestId" = $1 ${apply ? "FOR UPDATE" : ""}`, [entry.requestId]);
       const existing = existingRows[0];
       let evidence = existing;
       if (entry.collectionAuditId) {
@@ -40,6 +40,10 @@ export async function reconcileMoney(client, input, { apply = false, actorId = "
       plannedReferences.add(evidence.reference);
       if (existing && ["currency", "method", "collectedCentavos", "reference"].some(field => existing[field] !== evidence[field])) throw new Error("Canonical collection conflicts. Existing amounts were not overwritten.");
       if (existing?.paidAt && evidence.paidAt && new Date(existing.paidAt).getTime() !== new Date(evidence.paidAt).getTime()) throw new Error("Payment dates conflict; no date was overwritten.");
+      if (evidence.paidAt) {
+        const { rows: dates } = await client.query('SELECT "kind", "occurredAt" FROM "MoneyMovementDate" WHERE "requestId"=$1', [entry.requestId]);
+        if (dates.some(date => date.kind === "COLLECTION" ? new Date(date.occurredAt).getTime() !== Date.parse(evidence.paidAt) : new Date(date.occurredAt).getTime() < Date.parse(evidence.paidAt))) throw new Error("Payment date conflicts with recorded movement-date evidence.");
+      }
       const { rows: references } = await client.query('SELECT "requestId" FROM "RequestMoney" WHERE "reference"=$1 AND "requestId"<>$2', [evidence.reference, entry.requestId]);
       if (references.length) throw new Error("This receipt/payment is already assigned to another request.");
       let refund;

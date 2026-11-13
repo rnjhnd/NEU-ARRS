@@ -1,5 +1,11 @@
 import type { updateRequestStatus as Update } from "../../src/app/actions/admin.actions";
 import type { reconcileCancelledRequest as Review } from "../../src/app/actions/payment-reconciliation.actions";
+import type { reviewRequestIdentity as IdentityReview } from "../../src/app/actions/identity.actions";
+
+export const reviewRequestIdentity: typeof IdentityReview = async form => {
+  const response = await fetch("/fixture/identity-review", { method: "POST", body: JSON.stringify(Object.fromEntries(form)) });
+  return response.json();
+};
 
 export const updateRequestStatus: typeof Update = async form => {
   const response = await fetch("/fixture/update", { method: "POST", body: JSON.stringify({

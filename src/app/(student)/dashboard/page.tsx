@@ -2,7 +2,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { requireStudent } from "@/lib/auth";
 import { Suspense } from "react";
 import { Plus } from "lucide-react";
-import { getSystemSetting } from "@/app/actions/admin.actions";
+import { getRequestSetting } from "@/lib/configuration-data";
 import { NewRequestButton } from "./new-request-button";
 import { DashboardData } from "./dashboard-data";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -83,7 +83,7 @@ function DashboardSkeleton() {
 export default async function StudentDashboardPage() {
   const userId = await requireStudent();
   const user = await currentUser();
-  const maintenanceSetting = await getSystemSetting("MAINTENANCE_MODE");
+  const maintenanceSetting = await getRequestSetting("MAINTENANCE_MODE");
   const isMaintenanceMode = !maintenanceSetting.success || maintenanceSetting.value === "true";
 
   return (

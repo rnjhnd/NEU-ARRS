@@ -20,7 +20,7 @@ export function isAllowedTransition(from: RequestStatus, to: RequestStatus) {
   return ALLOWED_TRANSITIONS[from].includes(to);
 }
 
-type WorkflowRequest = Pick<Request, "status" | "paymentStatus" | "paymentMethod">;
+type WorkflowRequest = Pick<Request, "status" | "paymentStatus" | "paymentMethod"> & { identityVerified?: boolean };
 
 /** Shared display/server policy. Authorization is always enforced by the action. */
 export function getStatusChangeError(
@@ -40,6 +40,7 @@ export function getStatusChangeError(
       ? "Paid online requests cannot return to awaiting payment."
       : null;
   }
+  if (request.identityVerified !== true) return "Registrar verification against school records is required before fulfillment.";
   if (request.paymentMethod === "online") {
     return request.paymentStatus === "PAID" ? null : "Online payment must be verified before fulfillment.";
   }

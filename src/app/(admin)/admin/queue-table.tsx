@@ -25,7 +25,7 @@ export function QueueTable({ items, selection, disabled, sort, onSort, onToggle,
       <TableHead><input type="checkbox" aria-label="Select this page" checked={items.length > 0 && items.every(item => selection.has(item.id))}
         disabled={disabled || !items.length} onChange={onTogglePage} /></TableHead>
       <SortableHeader title="Student" field="studentName" sort={sort} onSort={onSort} />
-      <SortableHeader title="Document" field="documentType" sort={sort} onSort={onSort} />
+      <SortableHeader title="Document" field="documentLabel" sort={sort} onSort={onSort} />
       <SortableHeader title="Payment" field="paymentStatus" sort={sort} onSort={onSort} />
       <SortableHeader title="Last Updated" field="updatedAt" sort={sort} onSort={onSort} />
       <SortableHeader title="Status" field="status" sort={sort} onSort={onSort} />
@@ -33,10 +33,10 @@ export function QueueTable({ items, selection, disabled, sort, onSort, onToggle,
     <TableBody>{items.length === 0 ? <TableRow><TableCell colSpan={6} className="h-40 text-center">No requests match this view.</TableCell></TableRow> : items.map(item => <TableRow key={item.id} className={selection.has(item.id) ? "bg-primary/10" : ""}>
       <TableCell><input type="checkbox" aria-label={"Select request " + item.id} checked={selection.has(item.id)} disabled={disabled} onChange={() => onToggle(item)} /></TableCell>
       <TableCell><button type="button" aria-label={"View request " + item.id} className="text-left font-semibold underline-offset-4 hover:underline" onClick={() => onDetails(item)} disabled={disabled}>{item.studentName || "Unknown Student"}</button><p className="text-xs text-muted-foreground">{item.studentNumber}</p></TableCell>
-      <TableCell>{item.documentType}<p className="text-xs text-muted-foreground">{item.purpose.replace(/_/g, " ")}</p></TableCell>
+      <TableCell>{item.documentLabel}<p className="text-xs text-muted-foreground">{item.purpose.replace(/_/g, " ")}</p></TableCell>
       <TableCell><span className="capitalize">{item.paymentMethod}</span><p className="text-xs text-muted-foreground">{item.paymentStatus.replace(/_/g, " ")}</p></TableCell>
       <TableCell>{format(new Date(item.updatedAt), "MMM d, yyyy")}<p className="text-xs text-muted-foreground">{format(new Date(item.updatedAt), "h:mm a")}</p></TableCell>
-      <TableCell><QueueStatusBadge status={item.status} /></TableCell>
+      <TableCell><QueueStatusBadge status={item.status} />{!item.identityVerified && item.status !== "CANCELLED" && item.status !== "COMPLETED" && <p className="text-xs text-amber-700 dark:text-amber-400">Identity review required</p>}</TableCell>
     </TableRow>)}</TableBody>
   </Table>;
 }

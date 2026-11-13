@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fetchStudentHistory } from "../student-request-fetcher";
 import { DEFAULT_HISTORY_QUERY, historyQuerySchema, historyRefreshInterval, mergeCancelledRequest, studentHistorySchema, studentHistoryURL, toStudentRequest, type StudentRequest } from "../student-request-model";
 
-const row: StudentRequest = { id: "request_a", documentType: "Transcript", purpose: "PERSONAL", status: "PENDING_PAYMENT",
+const row: StudentRequest = { id: "request_a", documentTypeId: "TOR", documentLabel: "Transcript", purpose: "PERSONAL", status: "PENDING_PAYMENT",
   paymentMethod: "online", paymentStatus: "UNPAID", cancelReason: null, createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" };
 const history = { studentId: "user_student123", items: [row], summary: { total: 1, active: 1, completed: 0 }, query: DEFAULT_HISTORY_QUERY, totalPages: 1 };
 beforeEach(() => vi.resetAllMocks());
@@ -12,15 +12,15 @@ describe("Student request display contract", () => {
     const source = { ...row, documentType: "GOOD_MORAL", purpose: "PERSONAL" as const, status: "PENDING_PAYMENT" as const,
       paymentStatus: "UNPAID" as const, createdAt: new Date(row.createdAt), updatedAt: new Date(row.updatedAt),
       paymongoPaymentId: "private_provider_reference", studentNumber: "private_number" };
-    expect(toStudentRequest(source)).toEqual({ ...row, documentType: "Good Moral Certificate" });
-    expect(toStudentRequest(source, "Configured Label").documentType).toBe("Configured Label");
+    expect(toStudentRequest(source)).toEqual({ ...row, documentTypeId: "GOOD_MORAL", documentLabel: "Good Moral Certificate" });
+    expect(toStudentRequest(source, "Configured Label")).toMatchObject({ documentTypeId: "GOOD_MORAL", documentLabel: "Configured Label" });
   });
   it("rejects malformed timestamps and status values", () => {
     expect(studentHistorySchema.safeParse({ ...history, items: [{ ...row, updatedAt: "invalid" }] }).success).toBe(false);
     expect(studentHistorySchema.safeParse({ ...history, items: [{ ...row, status: "UNKNOWN" }] }).success).toBe(false);
   });
   it("builds a canonical page URL and rejects unbounded or untrusted sort queries", () => {
-    expect(studentHistoryURL({ page: 2, sort: "status", direction: "asc" })).toContain("format=history-v2&page=2&sort=status&direction=asc");
+    expect(studentHistoryURL({ page: 2, sort: "status", direction: "asc" })).toContain("format=history-v3&page=2&sort=status&direction=asc");
     for (const query of [{ page: -1 }, { page: 100001 }, { page: 1.5 }, { sort: "studentId" }, { direction: "DESC NULLS FIRST" }]) {
       expect(historyQuerySchema.safeParse(query).success).toBe(false);
     }

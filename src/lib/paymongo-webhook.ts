@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import prisma from "./prisma";
 import { providerPaidAt, recordCollection } from "./monetary-ledger";
+import { hasVerifiedRequestIdentity, identityReviewSelect } from "./request-identity";
 
 const providerId = (prefix: string) => z.string().max(100).regex(new RegExp(`^${prefix}_[a-zA-Z0-9]+$`));
 const centavos = z.number().int().min(100).max(2_147_483_647);
@@ -70,10 +71,12 @@ export async function recordCheckoutPayment(eventId: string, livemode: boolean, 
         return { outcome: "duplicate" };
       }
 
+      await tx.$queryRaw`SELECT "id" FROM "Request" WHERE "id" = ${metadata.requestId} FOR UPDATE`;
       const request = await tx.request.findUnique({
         where: { id: metadata.requestId },
         select: {
-          id: true, studentId: true, paymentMethod: true, status: true,
+          id: true, studentId: true, studentName: true, studentNumber: true, paymentMethod: true, status: true,
+          identityReview: { select: identityReviewSelect },
           paymentStatus: true, paymongoCheckoutId: true, paymongoPaymentId: true,
           quotedAmountCentavos: true,
         },
@@ -122,7 +125,7 @@ export async function recordCheckoutPayment(eventId: string, livemode: boolean, 
           },
           data: {
             paymentStatus: "PAID",
-            status: "PROCESSING",
+            status: hasVerifiedRequestIdentity(request) ? "PROCESSING" : "PENDING_PAYMENT",
             notificationVersion: { increment: 1 },
             paymongoPaymentId: payment.id,
             paymongoPaymentType: payment.attributes.source?.type ?? "online",

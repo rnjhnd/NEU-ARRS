@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ReceiptClient } from "./receipt-client";
 import { RequestStatus } from "@prisma/client";
 import { verifiedCollection } from "@/lib/monetary-ledger";
+import { documentIdentity } from "@/lib/document-identity";
 
 export const metadata = { title: "Document Receipt" };
 
@@ -13,7 +14,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
   const { userId, role } = await getVerifiedActor();
   
   const request = await prisma.request.findUnique({
-    where: { id: id }, include: { money: true }
+    where: { id: id }, include: { money: { include: { dates: { where: { kind: "COLLECTION" } } } }, completion: true }
   });
 
   if (!request) {
@@ -52,12 +53,13 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
     where: { typeId: request.documentType }
   });
 
-  const documentLabel = config?.label || request.documentType.replace("_", " ");
+  const { documentLabel } = documentIdentity(request.documentType, config?.label);
 
   const receiptData = {
     transactionId: request.id,
     dateRecorded: request.money!.verifiedAt.toISOString(),
-    paidAt: request.money!.paidAt?.toISOString() ?? null,
+    paidAt: (request.money!.paidAt ?? request.money!.dates?.find(date => date.kind === "COLLECTION")?.occurredAt)?.toISOString() ?? null,
+    completedAt: request.completion?.completedAt.toISOString() ?? null,
     studentName,
     studentEmail,
     documentLabel,

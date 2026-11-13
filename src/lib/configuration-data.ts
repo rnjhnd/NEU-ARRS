@@ -1,3 +1,4 @@
+import "server-only";
 import prisma from "./prisma";
 import { requireAdmin, requireAuth } from "./auth";
 import { canonicalSetting, DOCUMENT_LIMIT, documentSchema, documentsSnapshotSchema, SETTING_KEYS, settingDefault, settingsSnapshotSchema, type SettingEntry, type StudentCatalogItem } from "./configuration-model";
@@ -41,4 +42,9 @@ export async function readPublicSetting(key: unknown) {
   if (key !== "MAINTENANCE_MODE" && key !== "PAYMENT_METHODS") throw new ConfigurationReadError("This setting is not available to students.");
   const row = await prisma.systemSettings.findUnique({ where: { key }, select: { value: true } });
   return canonicalSetting(key, row?.value ?? settingDefault(key));
+}
+/** Structured availability read for server rendering; never an admin action. */
+export async function getRequestSetting(key: unknown) {
+  try { return { success: true, value: await readPublicSetting(key) }; }
+  catch { return { success: false, value: null, error: "Request settings are unavailable." }; }
 }

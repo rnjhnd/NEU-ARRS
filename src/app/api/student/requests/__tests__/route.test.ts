@@ -48,7 +48,7 @@ it("scopes the query to the authenticated owner and returns only display data", 
   expect(data.items[0]).not.toHaveProperty("studentName");
   expect(data.items[0]).not.toHaveProperty("quotedAmountCentavos");
 });
-it.each(["", "?format=history-v1"])("requires older tabs to refresh without loading an unbounded history (%s)", async suffix => {
+it.each(["", "?format=history-v1", "?format=history-v2"])("requires older tabs to refresh without loading an unbounded history (%s)", async suffix => {
   vi.mocked(requireStudent).mockResolvedValue("user_student123");
   const response = await GET(new Request("http://localhost/api/student/requests" + suffix));
   expect(response.status).toBe(409);

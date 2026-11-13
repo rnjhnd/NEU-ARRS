@@ -4,7 +4,8 @@ import { adminQueueSchema, mergeQueueChanges, queueCSV, queueSnapshotChanged, qu
 import { fetchAdminQueue, fetchQueueExport } from "../admin-queue-fetcher";
 
 const row: QueueItem = { id: "request_a", studentName: "Stored Student", studentNumber: "22-12345-123", studentEmail: "student@example.invalid",
-  documentType: "Document", purpose: "PERSONAL", paymentMethod: "online", paymentStatus: "PAID", status: "PENDING_PAYMENT", cancelReason: null,
+  identityVerified: true, identityVerifiedAt: "2026-01-01T00:00:00.000Z",
+  documentTypeId: "SYNTHETIC_DOCUMENT", documentLabel: "Document", purpose: "PERSONAL", paymentMethod: "online", paymentStatus: "PAID", status: "PENDING_PAYMENT", cancelReason: null,
   createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" };
 const queue: AdminQueue = fixtureQueue({ actorId: "staff_a", role: "employee", emailLookupFailed: false, items: [row] });
 beforeEach(() => vi.resetAllMocks());
@@ -13,12 +14,13 @@ it("serializes the minimal queue DTO without provider or order internals", () =>
   const source = { ...row, studentId: "private", paymongoPaymentId: "private", submissionKey: "private", documentType: "GOOD_MORAL",
     createdAt: new Date(row.createdAt), updatedAt: new Date(row.updatedAt) };
   const dto = toQueueItem(source, row.studentEmail);
-  expect(dto.documentType).toBe("Good Moral Certificate");
+  expect(dto.documentTypeId).toBe("GOOD_MORAL"); expect(dto.documentLabel).toBe("Good Moral Certificate");
+  expect(dto.identityVerified).toBe(false); expect(dto.identityVerifiedAt).toBeNull();
   for (const key of ["studentId", "paymongoPaymentId", "submissionKey"]) expect(dto).not.toHaveProperty(key);
   expect(adminQueueSchema.safeParse({ ...queue, items: [dto] }).success).toBe(true);
 });
-it("rejects duplicate IDs, invalid dates, and unsupported staff roles", () => {
-  for (const invalid of [{ ...queue, items: [row, row] }, { ...queue, items: [{ ...row, updatedAt: "invalid" }] }, { ...queue, role: "student" }]) {
+it("rejects duplicate IDs, invalid dates, inconsistent identity attestations, and unsupported staff roles", () => {
+  for (const invalid of [{ ...queue, items: [row, row] }, { ...queue, items: [{ ...row, updatedAt: "invalid" }] }, { ...queue, items: [{ ...row, identityVerifiedAt: null }] }, { ...queue, role: "student" }]) {
     expect(adminQueueSchema.safeParse(invalid).success).toBe(false);
   }
 });
@@ -49,7 +51,7 @@ it("merges committed versions without overwriting newer payment/status data", ()
   expect(queue.items[0].status).toBe("PENDING_PAYMENT");
 });
 it("escapes CSV quotes, commas and newlines and neutralizes spreadsheet formulas", () => {
-  const csv = queueCSV([{ ...row, studentName: 'Last, "First"', documentType: '=HYPERLINK("https://example.invalid")', cancelReason: "line1\nline2", studentEmail: null }]);
+  const csv = queueCSV([{ ...row, studentName: 'Last, "First"', documentLabel: '=HYPERLINK("https://example.invalid")', cancelReason: "line1\nline2", studentEmail: null }]);
   expect(csv).toContain('"Last, ""First"""');
   expect(csv).toContain('"\'=HYPERLINK(""https://example.invalid"")"');
   expect(csv).toContain('"line1\nline2"');
