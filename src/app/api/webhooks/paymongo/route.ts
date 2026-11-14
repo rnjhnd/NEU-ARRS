@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { checkoutPaidSchema, paymongoEventSchema, recordCheckoutPayment } from "@/lib/paymongo-webhook";
+import { checkoutNamespaceEnvelope, ownsPaymongoNamespace, PaymongoNamespaceError, paymongoNamespaceSettings } from "@/lib/paymongo-namespace";
 
 export const runtime = "nodejs";
 
@@ -56,6 +57,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Webhook service is not configured" }, { status: 503 });
     }
     const livemode = keyMode[1] === "live";
+    const namespace = paymongoNamespaceSettings();
     const signatureHeader = req.headers.get("Paymongo-Signature");
     if (!signatureHeader) {
       return NextResponse.json({ error: "Missing signature" }, { status: 401 });
@@ -81,6 +83,11 @@ export async function POST(req: NextRequest) {
     if (attributes.type !== "checkout_session.payment.paid") {
       return NextResponse.json({ success: true, outcome: "ignored" });
     }
+    const routing = checkoutNamespaceEnvelope.safeParse(attributes.data);
+    if (!routing.success) return NextResponse.json({ error: "Invalid checkout routing payload" }, { status: 400 });
+    if (!ownsPaymongoNamespace(routing.data.attributes.metadata, namespace)) {
+      return NextResponse.json({ success: true, outcome: "ignored", reason: "foreign_namespace" });
+    }
     const checkout = checkoutPaidSchema.safeParse(attributes.data);
     if (!checkout.success) {
       return NextResponse.json({ error: "Invalid checkout payment payload" }, { status: 400 });
@@ -92,6 +99,9 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json({ success: true, ...result });
   } catch (error) {
+    if (error instanceof PaymongoNamespaceError) {
+      return NextResponse.json({ error: "Webhook service is not configured" }, { status: 503 });
+    }
     if (error instanceof PayloadTooLargeError) {
       return NextResponse.json({ error: "Payload too large" }, { status: 413 });
     }

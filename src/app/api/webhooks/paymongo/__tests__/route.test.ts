@@ -4,6 +4,7 @@ import { NextRequest } from "next/server";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { POST } from "../route";
+vi.mock("server-only", () => ({}));
 
 const MOCK_SECRET = "whsk_test_mock";
 const NOW = new Date("2026-11-11T04:00:00Z");
@@ -68,6 +69,8 @@ function request(payload: unknown, options: { rawBody?: string; timestamp?: numb
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.stubEnv("PAYMONGO_NAMESPACE", "neu-arrs");
+  vi.stubEnv("PAYMONGO_ACCEPT_LEGACY", "true");
   vi.useFakeTimers();
   vi.setSystemTime(NOW);
   vi.stubEnv("PAYMONGO_WEBHOOK_SECRET", MOCK_SECRET);
@@ -85,6 +88,67 @@ afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
+});
+
+describe("Authenticated namespace dispatch", () => {
+  const noDatabaseCalls = () => {
+    for (const method of [prisma.$transaction, prisma.$queryRaw, prisma.request.findUnique,
+      prisma.request.updateMany, prisma.auditLog.findUnique, prisma.auditLog.create, prisma.requestMoney.create]) {
+      expect(method).not.toHaveBeenCalled();
+    }
+  };
+  it.each([
+    { receiver: "neu-arrs", legacy: "true", sender: "neu-arrs-demo" },
+    { receiver: "neu-arrs-demo", legacy: "false", sender: "neu-arrs" },
+    { receiver: "neu-arrs-demo", legacy: "false", sender: undefined },
+  ])("ignores a foreign event before database access ($receiver <- $sender)", async ({ receiver, legacy, sender }) => {
+    vi.stubEnv("PAYMONGO_NAMESPACE", receiver); vi.stubEnv("PAYMONGO_ACCEPT_LEGACY", legacy);
+    const event = paidEvent(); if (sender) Object.assign(event.data.attributes.data.attributes.metadata, { appNamespace: sender });
+    const response = await POST(request(event));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ success: true, outcome: "ignored", reason: "foreign_namespace" });
+    noDatabaseCalls();
+  });
+  it.each(["neu-arrs", "neu-arrs-demo"])("applies an owned marked event (%s)", async namespace => {
+    vi.stubEnv("PAYMONGO_NAMESPACE", namespace); vi.stubEnv("PAYMONGO_ACCEPT_LEGACY", "false");
+    const event = paidEvent(); Object.assign(event.data.attributes.data.attributes.metadata, { appNamespace: namespace });
+    expect(await (await POST(request(event))).json()).toMatchObject({ success: true, outcome: "applied" });
+    expect(prisma.$transaction).toHaveBeenCalledOnce();
+  });
+  it("keeps unknown IDs in an owned namespace in audited payment review", async () => {
+    const event = paidEvent(); Object.assign(event.data.attributes.data.attributes.metadata, { appNamespace: "neu-arrs" });
+    vi.mocked(prisma.request.findUnique).mockResolvedValue(null);
+    expect(await (await POST(request(event))).json()).toMatchObject({ outcome: "review", reason: "request_not_found" });
+    expect(prisma.auditLog.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ action: "PAYMONGO_PAYMENT_REVIEW" }) }));
+  });
+  it.each([null, 123, "", "../demo", "x".repeat(65)])("rejects malformed routing metadata (%j)", async appNamespace => {
+    const event = paidEvent(); Object.assign(event.data.attributes.data.attributes.metadata, { appNamespace });
+    expect((await POST(request(event))).status).toBe(400); noDatabaseCalls();
+  });
+  it.each([undefined, "", "Not Valid"])("fails closed without valid namespace configuration (%j)", async namespace => {
+    vi.stubEnv("PAYMONGO_NAMESPACE", namespace);
+    expect((await POST(request(paidEvent()))).status).toBe(503); noDatabaseCalls();
+  });
+  it("rejects a demo configured to accept original legacy events", async () => {
+    vi.stubEnv("PAYMONGO_NAMESPACE", "neu-arrs-demo");
+    expect((await POST(request(paidEvent()))).status).toBe(503); noDatabaseCalls();
+  });
+  it("returns a configuration error when the legacy policy is omitted, preserving provider retries", async () => {
+    vi.stubEnv("PAYMONGO_ACCEPT_LEGACY", undefined);
+    expect((await POST(request(paidEvent()))).status).toBe(503); noDatabaseCalls();
+  });
+  it("does not let a foreign namespace bypass signature, timestamp or mode checks", async () => {
+    const event = paidEvent(); Object.assign(event.data.attributes.data.attributes.metadata, { appNamespace: "neu-arrs-demo" });
+    expect((await POST(request(event, { header: "invalid" }))).status).toBe(401);
+    expect((await POST(request(event, { timestamp: NOW.getTime() / 1000 - 301 }))).status).toBe(401);
+    event.data.attributes.livemode = true;
+    expect((await POST(request(event))).status).toBe(400); noDatabaseCalls();
+  });
+  it("rejects namespace tampering using a signature made for the original bytes", async () => {
+    const event = paidEvent(), header = signature(JSON.stringify(event), NOW.getTime() / 1000);
+    Object.assign(event.data.attributes.data.attributes.metadata, { appNamespace: "neu-arrs-demo" });
+    expect((await POST(request(event, { header }))).status).toBe(401); noDatabaseCalls();
+  });
 });
 
 describe("Webhook authentication and input boundaries", () => {
