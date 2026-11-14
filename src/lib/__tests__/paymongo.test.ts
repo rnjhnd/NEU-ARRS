@@ -2,6 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Prisma, type Request } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { refundPayment } from "../paymongo";
+import { verifyPaidCheckoutNamespace } from "../paymongo-checkout";
+
+// Namespace/provider-checkout correlation has its own real implementation
+// tests. These unit cases isolate the refund amount/claim/response contract.
+vi.mock("../paymongo-checkout", async importOriginal => ({
+  ...await importOriginal<typeof import("../paymongo-checkout")>(),
+  verifyPaidCheckoutNamespace: vi.fn(),
+}));
 
 const paidRequest: Request = {
   id: "cm0x2a3bc000008mia76m2p2g",
@@ -24,7 +32,7 @@ const paidRequest: Request = {
 
 function paymentResponse(attributes: Record<string, unknown> = {}, id = "pay_test123") {
   return Response.json({
-    data: { id, attributes: { amount: 15050, currency: "PHP", status: "paid", refunds: [], ...attributes } },
+    data: { id, attributes: { amount: 15050, currency: "PHP", status: "paid", livemode: false, refunds: [], ...attributes } },
   });
 }
 
@@ -47,6 +55,7 @@ describe("PayMongo full refunds", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     vi.stubEnv("PAYMONGO_SECRET_KEY", "sk_test_mock");
+    vi.mocked(verifyPaidCheckoutNamespace).mockResolvedValue(true);
     vi.spyOn(console, "error").mockImplementation(() => {});
     vi.mocked(prisma.request.findUnique).mockResolvedValue({ ...paidRequest });
     vi.mocked(prisma.$transaction).mockImplementation(async callback => callback(prisma));
@@ -56,6 +65,19 @@ describe("PayMongo full refunds", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
     vi.restoreAllMocks();
+  });
+
+  it("submits no refund or permanent claim when checkout namespace proof fails", async () => {
+    vi.mocked(verifyPaidCheckoutNamespace).mockResolvedValue(false);
+    expect(await refundPayment(paidRequest.id, "Cancel")).toMatchObject({ status: "failed", error: expect.stringContaining("environment") });
+    expect(fetch).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+  it("does not claim or submit a refund for the wrong provider mode", async () => {
+    vi.mocked(fetch).mockResolvedValue(paymentResponse({ livemode: true }));
+    expect(await refundPayment(paidRequest.id, "Cancel")).toMatchObject({ status: "failed" });
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(vi.mocked(fetch).mock.calls.every(([, options]) => options?.method !== "POST")).toBe(true);
   });
 
   it("refunds the provider's gross centavos, preserving fractional pesos instead of using rounded local amounts", async () => {

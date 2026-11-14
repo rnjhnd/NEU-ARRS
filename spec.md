@@ -82,6 +82,18 @@ correlation and event uniqueness before transactional writes. A paid but
 unverified request stays `PENDING_PAYMENT` with `PAID` financial state; payment
 advances an eligible, reviewed pending request to processing.
 
+Server-configured `PAYMONGO_NAMESPACE` and `PAYMONGO_ACCEPT_LEGACY` bind checkout
+metadata and provider-resource validation to one application. Both settings are
+required. Only the original `neu-arrs` namespace may explicitly accept unmarked
+historical sessions. Signed foreign events are acknowledged before database
+access; owned events retain payment review and deduplication. Checkout retries
+preserve their frozen namespace/payload. Expiry and refund/reconciliation check
+provider checkout ownership before external mutation or monetary recording.
+Original legacy payments without a checkout reference retain their existing
+refund path only under explicit original-app legacy compatibility; the demo
+cannot use that exception. Shared-merchant testing requires the live receiver's
+guard to be reviewed and deployed first; local tests do not satisfy that rollout.
+
 Cancellation claims/audits/notification intent commit before provider work.
 Refunds use authoritative canonical collection amounts and confirmed full-refund
 evidence. Unknown provider outcomes require reconciliation; they are not treated

@@ -41,6 +41,31 @@ separate explicit `MIGRATION_DATABASE_URL`. Keep secrets out of committed files.
 Read the relevant installed `node_modules/next/dist/docs/` guide before changing
 Next.js code, as required by [AGENTS.md](AGENTS.md).
 
+### Payment environment configuration
+
+Online payment services require explicit server-only environment settings:
+
+| Application | `PAYMONGO_NAMESPACE` | `PAYMONGO_ACCEPT_LEGACY` |
+| --- | --- | --- |
+| Original NEU-ARRS | `neu-arrs` | `true` while unmarked historical sessions exist |
+| Isolated demo | `neu-arrs-demo` | `false` |
+
+Both settings are required. Missing/malformed values fail closed; only
+`neu-arrs` may enable legacy compatibility. New checkout metadata is tagged by
+the server. Authenticated foreign-namespace events are acknowledged before
+database access; owned events retain their full payment/correlation checks.
+Frozen checkout attempts are never retagged or resubmitted under another
+namespace. Provider retrieval, expiry, refund and reconciliation enforce the
+same boundary. Each endpoint needs its own webhook signing secret.
+
+This is application-side separation within a shared merchant account, and
+depends on correct per-project configuration. `VERCEL_ENV` cannot distinguish
+the original project from a demo also using a Production target. The live
+receiver must have its reviewed guard and configuration before any shared-
+merchant test checkout is generated. See the
+[namespace implementation and rollout plan](docs/remediation/28-paymongo-namespace-isolation.md).
+Local implementation is not deployment or provider acceptance.
+
 ## Local verification and CI
 
 | Command | Checks |
@@ -63,9 +88,10 @@ application datasource. Browser fixtures use synthetic auth, data and actions;
 they do not prove live Clerk/PayMongo/Resend acceptance. Current full browser
 coverage includes both reports, CSV/PNG downloads and mobile navigation.
 
-`npm run build:check -- --smoke-cron` starts an owned loopback production server
+`npm run build:check -- --smoke-cron` starts owned loopback production servers
 and checks cron authorization, empty runs, lease release and missing-secret
-rejection. Resulting `.next` output contains synthetic verification settings;
+rejection, plus signed webhook namespace isolation in both directions with
+unchanged financial/audit tables. Resulting `.next` output contains synthetic verification settings;
 never deploy it. A release needs a normal build with the intended environment.
 
 CI repeats checks in independent jobs, including native PostgreSQL 17 migration

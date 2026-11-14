@@ -13,6 +13,9 @@ import { recordFullRefund } from "../monetary-ledger";
 import { updateRequestStatus } from "@/app/actions/admin.actions";
 import { reconcileMoney } from "../../../scripts/reconcile-money.mjs";
 import { finishCancellationRefunds } from "../cancellation-refunds";
+import { NextRequest } from "next/server";
+import { createHmac } from "node:crypto";
+import { POST as paymentWebhook } from "@/app/api/webhooks/paymongo/route";
 
 let db: PGlite, socket: PGLiteSocketServer, client: PrismaClient, sql: PgClient;
 let serial = 1;
@@ -49,6 +52,47 @@ function checkout(row: Request) {
   return checkoutPaidSchema.parse({ id: row.paymongoCheckoutId, type: "checkout_session", attributes: { metadata: { requestId: row.id, studentId: row.studentId }, livemode: false,
     payment_intent: { id: "pi_" + row.id, attributes: { amount: 15050, currency: "PHP", status: "succeeded", livemode: false } },
     payments: [{ id: "pay_" + row.id, attributes: { amount: 15050, currency: "PHP", status: "paid", payment_intent_id: "pi_" + row.id, paid_at: Date.parse("2026-11-01T00:00:00Z") / 1000 } }] } });
+}
+async function databaseSnapshot() {
+  const snapshot: Record<string, string[]> = {};
+  for (const table of ["Request", "AuditLog", "RequestMoney", "MoneyMovementDate", "RequestIdentityReview", "RequestCompletion", "NotificationOutbox", "CheckoutAttempt"]) {
+    snapshot[table] = (await sql.query<{ row: string }>('SELECT to_jsonb(t)::text AS row FROM "' + table + '" t')).rows.map(row => row.row).sort();
+  }
+  return snapshot;
+}
+it.each([
+  { receiver: "neu-arrs", legacy: "true", sender: "neu-arrs-demo" },
+  { receiver: "neu-arrs-demo", legacy: "false", sender: "neu-arrs" },
+  { receiver: "neu-arrs-demo", legacy: "false", sender: undefined },
+])("keeps actual database snapshots unchanged for foreign delivery ($receiver <- $sender)", async ({ receiver, legacy, sender }) => {
+  const row = await order();
+  vi.stubEnv("PAYMONGO_NAMESPACE", receiver); vi.stubEnv("PAYMONGO_ACCEPT_LEGACY", legacy);
+  vi.stubEnv("PAYMONGO_SECRET_KEY", "sk_test_namespace"); vi.stubEnv("PAYMONGO_WEBHOOK_SECRET", "synthetic_namespace_secret");
+  const paid = checkout(row); if (sender) paid.attributes.metadata.appNamespace = sender;
+  const body = JSON.stringify({ data: { id: "evt_namespace" + row.id, type: "event", attributes: { type: "checkout_session.payment.paid", livemode: false, data: paid } } });
+  const timestamp = Math.floor(Date.now() / 1000);
+  const signature = createHmac("sha256", "synthetic_namespace_secret").update(timestamp + "." + body).digest("hex");
+  const before = await databaseSnapshot();
+  const response = await paymentWebhook(new NextRequest("https://app.example.invalid/api/webhooks/paymongo", { method: "POST", body,
+    headers: { "Paymongo-Signature": `t=${timestamp},te=${signature},li=` } }));
+  expect(await response.json()).toEqual({ success: true, outcome: "ignored", reason: "foreign_namespace" });
+  expect(prisma.$transaction).not.toHaveBeenCalled(); expect(prisma.request.findUnique).not.toHaveBeenCalled();
+  expect(prisma.auditLog.findUnique).not.toHaveBeenCalled(); expect(fetch).not.toHaveBeenCalled();
+  expect(await databaseSnapshot()).toEqual(before);
+});
+it("records an owned demo payment in the real transaction without bypassing identity review", async () => {
+  const row = await order(); vi.stubEnv("PAYMONGO_NAMESPACE", "neu-arrs-demo"); vi.stubEnv("PAYMONGO_ACCEPT_LEGACY", "false");
+  const paid = checkout(row); paid.attributes.metadata.appNamespace = "neu-arrs-demo";
+  expect(await recordCheckoutPayment("evt_owneddemo" + row.id, false, paid)).toMatchObject({ outcome: "applied" });
+  expect((await client.request.findUniqueOrThrow({ where: { id: row.id } })).status).toBe("PENDING_PAYMENT");
+  expect(await client.requestMoney.findUniqueOrThrow({ where: { requestId: row.id } })).toMatchObject({ collectedCentavos: 15050, source: "PAYMONGO_PAYMENT" });
+});
+function paidCheckoutResource(row: Request) {
+  return Response.json({ data: { id: row.paymongoCheckoutId, type: "checkout_session", attributes: {
+    checkout_url: "https://checkout.paymongo.com/synthetic", livemode: false, status: "active",
+    metadata: { requestId: row.id, studentId: row.studentId }, line_items: [{ amount: 15050, currency: "PHP", quantity: 1 }],
+    payments: [{ id: row.paymongoPaymentId, attributes: { status: "paid" } }],
+  } } });
 }
 async function receipt(row: Request) {
   const payment = row.paymongoPaymentId!;
@@ -117,7 +161,8 @@ it("records only a matching confirmed full refund and rolls back a mismatched re
 it("persists provider collection evidence before a refund POST and commits the confirmed refund atomically", async () => {
   const row = await order({ status: "CANCELLED", paymentStatus: "PAID", paymongoPaymentId: "pay_refundflow" });
   vi.stubEnv("PAYMONGO_SECRET_KEY", "sk_test_synthetic_money");
-  vi.mocked(fetch).mockResolvedValueOnce(Response.json({ data: { id: row.paymongoPaymentId, attributes: { amount: 15050, currency: "PHP", status: "paid", refunds: [] } } }))
+  vi.mocked(fetch).mockResolvedValueOnce(paidCheckoutResource(row))
+    .mockResolvedValueOnce(Response.json({ data: { id: row.paymongoPaymentId, attributes: { amount: 15050, currency: "PHP", status: "paid", livemode: false, refunds: [] } } }))
     .mockImplementationOnce(async () => {
       expect(await client.requestMoney.findUniqueOrThrow({ where: { requestId: row.id } })).toMatchObject({ collectedCentavos: 15050, reference: "paymongo:test:pay_refundflow", refundedCentavos: null });
       return Response.json({ data: { id: "ref_confirmed", attributes: { amount: 15050, currency: "PHP", status: "succeeded", payment_id: row.paymongoPaymentId } } });
@@ -131,9 +176,10 @@ it("rolls back a refund claim and sends no POST when canonical collection confli
   const evidence = await receipt(row);
   await client.requestMoney.create({ data: { requestId: row.id, method: "online", collectedCentavos: 16000, source: "PAYMONGO_PAYMENT", reference: "paymongo:test:pay_refundconflict", evidenceId: evidence.id } });
   vi.stubEnv("PAYMONGO_SECRET_KEY", "sk_test_synthetic_money");
-  vi.mocked(fetch).mockResolvedValueOnce(Response.json({ data: { id: row.paymongoPaymentId, attributes: { amount: 15050, currency: "PHP", status: "paid", refunds: [] } } }));
+  vi.mocked(fetch).mockResolvedValueOnce(paidCheckoutResource(row))
+    .mockResolvedValueOnce(Response.json({ data: { id: row.paymongoPaymentId, attributes: { amount: 15050, currency: "PHP", status: "paid", livemode: false, refunds: [] } } }));
   expect(await finishCancellationRefunds([row], "synthetic_staff", "Cancelled by owner")).toEqual({ reviewIds: [row.id], refundedIds: [] });
-  expect(fetch).toHaveBeenCalledOnce();
+  expect(fetch).toHaveBeenCalledTimes(2);
   expect(await client.auditLog.count({ where: { id: "refund-claim:test:pay_refundconflict" } })).toBe(0);
   expect((await client.requestMoney.findUniqueOrThrow({ where: { requestId: row.id } })).collectedCentavos).toBe(16000);
 });
