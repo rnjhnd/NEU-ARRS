@@ -26,5 +26,7 @@ export function ownsPaymongoNamespace(metadata: { appNamespace?: string }, polic
 // or database access. Foreign apps need not share our request-ID schema.
 export const checkoutNamespaceEnvelope = z.object({
   id: z.string().max(100).regex(/^cs_[a-zA-Z0-9]+$/), type: z.literal("checkout_session"),
-  attributes: z.object({ metadata: z.object(paymongoNamespaceMetadata) }),
+  // Provider-created samples and unrelated checkouts may omit metadata. Route
+  // them as unmarked; owned/legacy payments still require the full paid schema.
+  attributes: z.object({ metadata: z.object(paymongoNamespaceMetadata).default({}) }),
 });

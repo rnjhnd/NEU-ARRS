@@ -113,6 +113,29 @@ describe("Authenticated namespace dispatch", () => {
     expect(await (await POST(request(event))).json()).toMatchObject({ success: true, outcome: "applied" });
     expect(prisma.$transaction).toHaveBeenCalledOnce();
   });
+  it("ignores a signed provider sample with omitted metadata in the isolated demo", async () => {
+    vi.stubEnv("PAYMONGO_NAMESPACE", "neu-arrs-demo"); vi.stubEnv("PAYMONGO_ACCEPT_LEGACY", "false");
+    const event = paidEvent();
+    Reflect.deleteProperty(event.data.attributes.data.attributes, "metadata");
+    Reflect.deleteProperty(event.data.attributes.data.attributes, "payment_intent");
+    const response = await POST(request(event));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ success: true, outcome: "ignored", reason: "foreign_namespace" });
+    noDatabaseCalls();
+  });
+  it("still rejects an original legacy checkout without required payment metadata", async () => {
+    vi.stubEnv("PAYMONGO_NAMESPACE", "neu-arrs"); vi.stubEnv("PAYMONGO_ACCEPT_LEGACY", "true");
+    const event = paidEvent(); Reflect.deleteProperty(event.data.attributes.data.attributes, "metadata");
+    const response = await POST(request(event));
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: "Invalid checkout payment payload" });
+    noDatabaseCalls();
+  });
+  it.each([null, [], "neu-arrs-demo", 123])("rejects malformed metadata containers (%j)", async metadata => {
+    vi.stubEnv("PAYMONGO_NAMESPACE", "neu-arrs-demo"); vi.stubEnv("PAYMONGO_ACCEPT_LEGACY", "false");
+    const event = paidEvent(); Object.assign(event.data.attributes.data.attributes, { metadata });
+    expect((await POST(request(event))).status).toBe(400); noDatabaseCalls();
+  });
   it("keeps unknown IDs in an owned namespace in audited payment review", async () => {
     const event = paidEvent(); Object.assign(event.data.attributes.data.attributes.metadata, { appNamespace: "neu-arrs" });
     vi.mocked(prisma.request.findUnique).mockResolvedValue(null);
@@ -146,6 +169,18 @@ describe("Authenticated namespace dispatch", () => {
     const event = paidEvent(), header = signature(JSON.stringify(event), NOW.getTime() / 1000);
     Object.assign(event.data.attributes.data.attributes.metadata, { appNamespace: "neu-arrs-demo" });
     expect((await POST(request(event, { header }))).status).toBe(401); noDatabaseCalls();
+  });
+  it("logs only bounded field paths and codes for an authenticated invalid payment", async () => {
+    const event = paidEvent();
+    event.data.attributes.data.attributes.payments = Array.from({ length: 10 }, (_, index) => ({
+      ...event.data.attributes.data.attributes.payments[0], id: "pay_invalid" + index,
+      attributes: { ...event.data.attributes.data.attributes.payments[0].attributes, amount: 0 },
+    }));
+    expect((await POST(request(event))).status).toBe(400); noDatabaseCalls();
+    expect(console.warn).toHaveBeenCalledWith("[PayMongo] Rejected signed payload", { stage: "payment",
+      issues: Array.from({ length: 5 }, (_, index) => ({ path: `attributes.payments.${index}.attributes.amount`, code: "too_small" })) });
+    const logged = JSON.stringify(vi.mocked(console.warn).mock.calls);
+    for (const privateValue of [MOCK_SECRET, REQUEST_ID, "user_student123", "pay_invalid"]) expect(logged).not.toContain(privateValue);
   });
 });
 
@@ -259,13 +294,89 @@ describe("Webhook authentication and input boundaries", () => {
     (event: ReturnType<typeof paidEvent>) => { event.data.attributes.data.attributes.payments[0].attributes.amount = 0; },
     (event: ReturnType<typeof paidEvent>) => { event.data.attributes.data.attributes.payments[0].attributes.amount = 150.5; },
     (event: ReturnType<typeof paidEvent>) => { event.data.attributes.data.attributes.payments[0].attributes.currency = "USD"; },
-    (event: ReturnType<typeof paidEvent>) => { event.data.attributes.data.attributes.payment_intent.attributes.status = "processing"; },
     (event: ReturnType<typeof paidEvent>) => { Reflect.deleteProperty(event.data.attributes.data.attributes, "payment_intent"); },
   ])("rejects invalid signed event structures before accessing the database (%#)", async mutate => {
     const event = paidEvent();
     mutate(event);
     expect((await POST(request(event))).status).toBe(400);
     expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+});
+
+describe("Authoritative verification of a stale intent snapshot", () => {
+  function staleEvent() {
+    const event = paidEvent();
+    event.data.attributes.data.attributes.payment_intent.attributes.status = "processing";
+    return event;
+  }
+  const noCollection = () => {
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(prisma.requestMoney.create).not.toHaveBeenCalled();
+    expect(prisma.request.updateMany).not.toHaveBeenCalled();
+  };
+  it.each(["processing", "awaiting_payment_method", "awaiting_next_action"])("verifies a %s event against the exact succeeded provider checkout", async status => {
+    const event = staleEvent(); event.data.attributes.data.attributes.payment_intent.attributes.status = status;
+    const current = paidEvent().data.attributes.data;
+    Object.assign(current.attributes.payments[0].attributes, { paid_at: NOW.getTime() / 1000 });
+    vi.mocked(fetch).mockResolvedValue(Response.json({ data: current }));
+    expect(await (await POST(request(event))).json()).toEqual({ success: true, outcome: "applied" });
+    expect(fetch).toHaveBeenCalledExactlyOnceWith("https://api.paymongo.com/v1/checkout_sessions/cs_test123", expect.objectContaining({
+      cache: "no-store", redirect: "error", headers: { Authorization: "Basic " + Buffer.from("sk_test_mock:").toString("base64") },
+    }));
+    expect(prisma.requestMoney.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({
+      collectedCentavos: 15050, paidAt: NOW, evidenceId: AUDIT_ID,
+    }) }));
+  });
+  it.each(["processing", "succeeded"])("recovers an empty payment-list snapshot (%s) only through exact provider intent proof", async status => {
+    const event = staleEvent(); event.data.attributes.data.attributes.payment_intent.attributes.status = status;
+    event.data.attributes.data.attributes.payments = [];
+    vi.mocked(fetch).mockResolvedValue(Response.json({ data: paidEvent().data.attributes.data }));
+    expect(await (await POST(request(event))).json()).toMatchObject({ outcome: "applied" });
+    expect(fetch).toHaveBeenCalledOnce(); expect(prisma.requestMoney.create).toHaveBeenCalledOnce();
+  });
+  it.each([
+    (current: ReturnType<typeof paidEvent>["data"]["attributes"]["data"]) => { current.id = "cs_other"; },
+    current => { current.attributes.livemode = true; },
+    current => { Object.assign(current.attributes.metadata, { appNamespace: "foreign-app" }); },
+    current => { current.attributes.metadata.requestId = "cm0x2a3bc000008mia76m2p2h"; },
+    current => { current.attributes.metadata.studentId = "another_student"; },
+    current => { current.attributes.payment_intent.id = "pi_other"; },
+    current => { current.attributes.payment_intent.attributes.status = "processing"; },
+    current => { current.attributes.payment_intent.attributes.amount = 16000; current.attributes.payments[0].attributes.amount = 16000; },
+    current => { current.attributes.payment_intent.attributes.livemode = true; },
+    current => { current.attributes.payments[0].id = "pay_other"; },
+    current => { current.attributes.payments[0].attributes.livemode = true; },
+    current => { current.attributes.payments[0].attributes.payment_intent_id = "pi_other"; },
+    current => { Reflect.deleteProperty(current.attributes.payments[0].attributes, "payment_intent_id"); },
+    current => { current.attributes.payments = []; },
+    current => { current.attributes.payments.push({ ...current.attributes.payments[0], id: "pay_second" }); },
+  ] satisfies ((current: ReturnType<typeof paidEvent>["data"]["attributes"]["data"]) => void)[])("preserves retries and records no money for conflicting provider proof (%#)", async mutate => {
+    const current = paidEvent().data.attributes.data; mutate(current);
+    vi.mocked(fetch).mockResolvedValue(Response.json({ data: current }));
+    const response = await POST(request(staleEvent())); expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ error: "Payment verification is temporarily unavailable" }); noCollection();
+  });
+  it.each(["timeout", "non-200", "invalid-json"])("keeps a %s provider read retryable without any financial write", async failure => {
+    if (failure === "timeout") vi.mocked(fetch).mockRejectedValue(new Error("synthetic timeout"));
+    else vi.mocked(fetch).mockResolvedValue(failure === "non-200" ? new Response(null, { status: 503 }) : new Response("not JSON"));
+    expect((await POST(request(staleEvent()))).status).toBe(503); noCollection();
+  });
+  it("does not fetch or write for an unsigned or foreign stale snapshot", async () => {
+    expect((await POST(request(staleEvent(), { header: "invalid" }))).status).toBe(401);
+    const event = staleEvent(); Object.assign(event.data.attributes.data.attributes.metadata, { appNamespace: "foreign-app" });
+    expect(await (await POST(request(event))).json()).toMatchObject({ outcome: "ignored" });
+    expect(fetch).not.toHaveBeenCalled(); noCollection();
+  });
+  it("does not recover malformed payment fields using a provider read", async () => {
+    const event = staleEvent(); event.data.attributes.data.attributes.payments[0].attributes.amount = 0;
+    expect((await POST(request(event))).status).toBe(400); expect(fetch).not.toHaveBeenCalled(); noCollection();
+  });
+  it("keeps a verified stale-event replay idempotent under the original event ID", async () => {
+    vi.mocked(fetch).mockImplementation(async () => Response.json({ data: paidEvent().data.attributes.data }));
+    vi.mocked(prisma.auditLog.findUnique).mockResolvedValueOnce(null).mockResolvedValueOnce(receipt);
+    expect(await (await POST(request(staleEvent()))).json()).toMatchObject({ outcome: "applied" });
+    expect(await (await POST(request(staleEvent()))).json()).toMatchObject({ outcome: "duplicate" });
+    expect(prisma.request.updateMany).toHaveBeenCalledOnce(); expect(prisma.requestMoney.create).toHaveBeenCalledOnce();
   });
 });
 
@@ -384,7 +495,7 @@ describe("Payment reconciliation and replay protection", () => {
   ])("records $change conflicts for review without confirming payment", async ({ change, reason }) => {
     const event = paidEvent();
     const attributes = event.data.attributes.data.attributes;
-    if (change === "no paid payment") attributes.payments = [];
+    if (change === "no paid payment") attributes.payments[0].attributes.status = "failed";
     if (change === "two paid payments") attributes.payments.push({ ...attributes.payments[0], id: "pay_other123" });
     if (change === "amount") attributes.payments[0].attributes.amount = 100;
     if (change === "intent") attributes.payments[0].attributes.payment_intent_id = "pi_other123";
