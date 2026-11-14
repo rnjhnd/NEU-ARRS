@@ -2,7 +2,8 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import prisma from "./prisma";
 import { expireUnpaidCheckout } from "./checkout-expiry";
-import { CheckoutError, checkoutAmountSchema, checkoutSessionSchema, paymongoCheckoutSettings } from "./paymongo-checkout";
+import { CheckoutError, checkoutAmountSchema, checkoutSessionSchema, paymongoCheckoutSettings, verifyPaidCheckoutNamespace } from "./paymongo-checkout";
+import { ownsPaymongoNamespace } from "./paymongo-namespace";
 import { checkoutPaidSchema, recordCheckoutPayment } from "./paymongo-webhook";
 import { providerPaidAt, recordCollection, recordFullRefund } from "./monetary-ledger";
 
@@ -45,6 +46,7 @@ export async function reconcileCancelledPayment(requestId: string, actorId: stri
         const base = checkoutSessionSchema.parse(raw).data;
         if (base.id !== order.paymongoCheckoutId || base.attributes.livemode !== settings.livemode ||
             base.attributes.metadata.requestId !== order.id || base.attributes.metadata.studentId !== order.studentId ||
+            !ownsPaymongoNamespace(base.attributes.metadata, settings.namespace) ||
             (order.quotedAmountCentavos !== null && base.attributes.line_items[0].amount !== order.quotedAmountCentavos)) {
           return review("Provider payment does not match this order. Registrar review is required.");
         }
@@ -81,6 +83,9 @@ export async function reconcileCancelledPayment(requestId: string, actorId: stri
   }
   if (order.paymentStatus !== "PAID" || !/^pay_[a-zA-Z0-9]+$/.test(order.paymongoPaymentId ?? "")) return review("The stored payment reference requires registrar review.");
   const settings = paymongoCheckoutSettings();
+  if (!await verifyPaidCheckoutNamespace(order, order.paymongoPaymentId!, settings)) {
+    return review("The payment environment could not be verified. No financial state was changed.");
+  }
   const response = await fetch(`https://api.paymongo.com/v1/payments/${order.paymongoPaymentId}`, {
     headers: { Authorization: settings.authorization }, cache: "no-store", signal: AbortSignal.timeout(5000),
   });

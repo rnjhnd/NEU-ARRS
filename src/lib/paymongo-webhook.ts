@@ -3,6 +3,7 @@ import { z } from "zod";
 import prisma from "./prisma";
 import { providerPaidAt, recordCollection } from "./monetary-ledger";
 import { hasVerifiedRequestIdentity, identityReviewSelect } from "./request-identity";
+import { ownsPaymongoNamespace, paymongoNamespaceMetadata, paymongoNamespaceSettings } from "./paymongo-namespace";
 
 const providerId = (prefix: string) => z.string().max(100).regex(new RegExp(`^${prefix}_[a-zA-Z0-9]+$`));
 const centavos = z.number().int().min(100).max(2_147_483_647);
@@ -27,6 +28,7 @@ export const checkoutPaidSchema = z.object({
     metadata: z.object({
       requestId: z.string().cuid(),
       studentId: z.string().min(1).max(255),
+      ...paymongoNamespaceMetadata,
     }),
     payment_intent: z.object({
       id: providerId("pi"),
@@ -53,13 +55,16 @@ export const checkoutPaidSchema = z.object({
 });
 
 type CheckoutPaid = z.infer<typeof checkoutPaidSchema>;
-type Outcome = { outcome: "applied" | "already_recorded" | "duplicate" | "review"; reason?: string; paymentRecorded?: boolean };
+type Outcome = { outcome: "applied" | "already_recorded" | "duplicate" | "review" | "ignored"; reason?: string; paymentRecorded?: boolean };
 
 /**
  * The unique audit ID is the durable event receipt. Its insertion and any
  * request update commit together, so a failed transaction remains retryable.
  */
 export async function recordCheckoutPayment(eventId: string, livemode: boolean, checkout: CheckoutPaid, reconciliation?: { actorId: string; reason: string }): Promise<Outcome> {
+  if (!ownsPaymongoNamespace(checkout.attributes.metadata, paymongoNamespaceSettings())) {
+    return { outcome: "ignored", reason: "foreign_namespace" };
+  }
   const auditId = `${reconciliation ? "payment-reconciliation" : "paymongo"}:${livemode ? "live" : "test"}:${eventId}`;
   const { metadata, payment_intent: intent } = checkout.attributes;
   const paidPayments = checkout.attributes.payments.filter(payment => payment.attributes.status === "paid");

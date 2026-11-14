@@ -86,11 +86,11 @@ describe("Admin reconciliation boundary", () => {
   });
   it("ignores forged provider IDs, payment states, and audit actors in the submitted form", async () => {
     row.paymentStatus = "PAID"; row.paymongoPaymentId = "pay_test123";
-    vi.mocked(fetch).mockResolvedValueOnce(payment([]));
+    vi.mocked(fetch).mockResolvedValueOnce(checkout("active", true)).mockResolvedValueOnce(payment([]));
     const data = form({ paymentId: "pay_forged", paymentStatus: "REFUNDED", actorId: "forged_actor" });
     expect(await reconcileCancelledRequest(data)).toMatchObject({ success: true, resolved: false });
     expect(row.paymentStatus).toBe("PAID");
-    expect(vi.mocked(fetch).mock.calls[0][0]).toBe("https://api.paymongo.com/v1/payments/pay_test123");
+    expect(vi.mocked(fetch).mock.calls[1][0]).toBe("https://api.paymongo.com/v1/payments/pay_test123");
     expect(prisma.auditLog.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ adminId: "admin123" }) }));
   });
 });
@@ -117,7 +117,8 @@ describe("Cancelled checkout closure and late payments", () => {
     expect(prisma.request.updateMany).not.toHaveBeenCalled();
   });
   it("records a late provider payment and requests refund review without submitting a refund", async () => {
-    vi.mocked(fetch).mockResolvedValueOnce(checkout("active", true)).mockResolvedValueOnce(checkout("active", true)).mockResolvedValueOnce(payment([]));
+    vi.mocked(fetch).mockResolvedValueOnce(checkout("active", true)).mockResolvedValueOnce(checkout("active", true))
+      .mockResolvedValueOnce(checkout("active", true)).mockResolvedValueOnce(payment([]));
     expect(await submit()).toMatchObject({ success: true, resolved: false });
     expect(row).toMatchObject({ status: "CANCELLED", paymentStatus: "PAID", paymongoPaymentId: "pay_test123", amountPaid: null });
     expect(vi.mocked(fetch).mock.calls.every(call => call[1]?.method !== "POST")).toBe(true);
@@ -143,12 +144,15 @@ describe("Cancelled checkout closure and late payments", () => {
 });
 
 describe("Provider-confirmed refunds without financial POSTs", () => {
-  beforeEach(() => { row.paymentStatus = "PAID"; row.paymongoPaymentId = "pay_test123"; });
+  beforeEach(() => {
+    row.paymentStatus = "PAID"; row.paymongoPaymentId = "pay_test123";
+    vi.mocked(fetch).mockResolvedValueOnce(checkout("active", true));
+  });
   it("marks a verified full refund while leaving the request cancelled", async () => {
     vi.mocked(fetch).mockResolvedValueOnce(payment());
     expect(await submit()).toMatchObject({ success: true, resolved: true });
     expect(row).toMatchObject({ status: "CANCELLED", paymentStatus: "REFUNDED" });
-    expect(fetch).toHaveBeenCalledOnce(); expect(vi.mocked(fetch).mock.calls[0][1]?.method).not.toBe("POST");
+    expect(fetch).toHaveBeenCalledTimes(2); expect(vi.mocked(fetch).mock.calls.every(([, init]) => init?.method !== "POST")).toBe(true);
     expect(prisma.auditLog.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ action: "CANCELLED_REFUND_RECONCILED" }) }));
   });
   it("accepts unique successful partial refunds that exactly total the gross payment", async () => {
