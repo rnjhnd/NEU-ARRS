@@ -7,11 +7,18 @@ Next.js, Clerk, Prisma/Neon, and PayMongo.
 
 [spec.md](spec.md) defines the current architecture, three roles, workflow,
 identity/payment gates, monetary evidence and API contracts.
-[tasks.md](tasks.md) separates completed local work from pending release and
-operational acceptance. Numbered [remediation reports](docs/remediation/) retain
-their dated implementation/validation history; their older counts and contract
-versions are historical. The current source includes S6/P8/A2/Q2/D2 follow-ups
-beyond batches 1-20 and has not yet completed its coordinated production rollout.
+[tasks.md](tasks.md) separates completed remediation/release work from deferred
+real-world acceptance. The controlled-demo release was promoted on **November 15,
+2026** at [neu-arrs.vercel.app](https://neu-arrs.vercel.app), running `3270a70`.
+See the [release record](docs/remediation/30-controlled-demo-release-review.md),
+[all 27 original finding dispositions](docs/remediation/31-audit-closeout.md), and
+[demo/rollback guide](docs/demo-and-rollback-guide.md).
+
+Numbered implementation reports retain their dated history; older test counts,
+contract versions and then-pending rollout statements are historical. The current
+release includes the S6/P8/A2/Q2/D2 follow-ups and subsequent payment integration
+fixes. It is accepted for authorized test identities and test payments, with the
+documented notification/auth/cron limits. Real-student readiness is not claimed.
 
 Important current contracts:
 
@@ -64,7 +71,9 @@ the original project from a demo also using a Production target. The live
 receiver must have its reviewed guard and configuration before any shared-
 merchant test checkout is generated. See the
 [namespace implementation and rollout plan](docs/remediation/28-paymongo-namespace-isolation.md).
-Local implementation is not deployment or provider acceptance.
+The [provider acceptance report](docs/remediation/29-payment-provider-acceptance.md)
+records the genuine isolated test payment/refund, and the release record identifies
+the promoted build. Local tests alone do not establish provider acceptance.
 
 ## Local verification and CI
 
@@ -103,9 +112,11 @@ policy, action pins, overrides and ongoing lifecycle maintenance.
 
 ## Database upgrades and release
 
-There are 13 prepared forward migrations. Earlier hosted recovery verified the
-first 11; S6 identity review and P8 financial dates remain pending application-
-database rollout. Do not rewrite applied migrations or deploy consumers before
+There are 13 forward migrations. Hosted acceptance verified all 13, including
+the S6 identity-review and P8 financial-date additions applied on November 13.
+The separate payment-test target was also aligned before acceptance. This is a
+record of completed work, not an instruction to repeat it. For a new target or
+future upgrade, do not rewrite applied migrations or release consumers before
 their required tables/guards exist.
 
 1. Review [tasks.md](tasks.md), the [migration procedure](docs/remediation/04-migration-alignment.md),
@@ -158,7 +169,9 @@ See [notification recovery](docs/remediation/09-durable-notifications.md).
 ## Remediation history
 
 Historical reports describe each increment at its recorded point in time. Current
-contract versions and pending release status are in the specification/checklist.
+contract versions and current release status are in the specification/checklist.
+The [close-out](docs/remediation/31-audit-closeout.md) preserves original finding
+IDs, implemented corrections, evidence and explicit operational deferrals.
 
 - [Navigation](docs/remediation/10-navigation-state.md),
   [student state](docs/remediation/11-student-request-state.md),

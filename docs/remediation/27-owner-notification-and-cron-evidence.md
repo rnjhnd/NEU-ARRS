@@ -4,6 +4,12 @@ Owner delivery checked 2026-11-14 (Asia/Manila), using application commit
 `8f7aaec252d3a0b775d7189792d1fbfc4bacdf53`. Natural job outcomes checked
 2026-11-15 on live commit `15c330cd70e4213364826da47bdfb2a68b7cf543`.
 
+Release follow-up: later on November 15, the owner authorized promotion of
+`3270a70`. The morning captures below remain evidence for the earlier build;
+they do not assert a natural execution of the newly promoted build. Current
+release/deferral status is in [30](30-controlled-demo-release-review.md) and
+[the close-out](31-audit-closeout.md).
+
 ## Notification outcome
 
 One explicitly synthetic notification was sent to the owner's Resend account

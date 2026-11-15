@@ -1,66 +1,90 @@
-# Controlled demonstration release review
+# Controlled demonstration release record
 
-Reviewed November 15, 2026 (Asia/Manila). Scope: authorized test identities,
-synthetic academic records and test-mode payments. This review does not approve
-real student fulfillment, real charges or general-recipient email delivery.
+Updated November 15, 2026 (Asia/Manila) after separately authorized publication,
+merge, staging checks and promotion. **The controlled-demo release is complete.**
+Authorized test identities, synthetic registrar fixtures and test-mode payments
+define this acceptance; real-student production readiness remains incomplete.
 
-## Reviewed checkpoint and retained checks
+## Released artifact and verification
 
-Application checkpoint: `b34f0629e2714730c4c3c40ccb55d444a780144e`.
-Draft [PR #4](https://github.com/rnjhnd/NEU-ARRS/pull/4) remains unmerged.
-[CI run #486](https://github.com/rnjhnd/NEU-ARRS/actions/runs/43597373363)
-passed all six jobs on a test-merge tree identical to the checkpoint. Retained
-results include 942 tests, 132 Chrome checks, type checking, lint, dependency
-audit with zero reported vulnerabilities, migration replay/zero drift and
-production build with synthetic HTTP checks. Runtime checks were not rerun
-for these documentation-only updates.
-
-| Acceptance item | Evidence and current status |
+| Item | Result |
 | --- | --- |
-| Registrar gate and staff/student separation | Synthetic rehearsal passed; prior authorized read-only role checks retained. See reports 25 and 26. Real school-record approval is unperformed. |
-| PayMongo checkout, signed event, canonical collection, receipt, refund and duplicate handling | Genuine provider test-mode acceptance passed on the separate demo. See report 29. No real charge or inferred historical money date. |
-| Notification delivery | One synthetic owner-only message accepted, delivered and confirmed in Inbox. See report 27. Demo payment notifications remain held for review with sender disabled. |
-| Daily-job completion | November 15 authenticated GET 200 requests correlate with successful completion logs for both routes. Empty notification queue is a valid no-work result. |
-| Scheduler attribution | Active definitions, matching host, time, bearer authentication and user-agent corroborate origin. The owner accepted this limitation for the controlled demo on November 15. Independent provider execution history remains unavailable/unverified for legacy Cron Jobs. |
-| Published source checks | All six required CI jobs passed; no merge or promotion performed. |
+| Live URL | <https://neu-arrs.vercel.app> |
+| Source | `3270a70f0745421f41bcc3cc6e9a63f51f52b7b8`, merged [PR #4](https://github.com/rnjhnd/NEU-ARRS/pull/4) |
+| Production deployment | `dpl_7e9rwRZ6hZ2GgUuUK5wDQDkoZ8TZ`, READY; the staged build was promoted without rebuilding |
+| Source identity | Merge tree matches reviewed head `e7c3b9d`; application code is unchanged from `b34f062` |
+| Required CI | [PR run #487](https://github.com/rnjhnd/NEU-ARRS/actions/runs/43664601774) and [merged-main run #488](https://github.com/rnjhnd/NEU-ARRS/actions/runs/43672408366): all six jobs passed |
+| Quality | TypeScript/lint, 942 tests in 45 files, 132 Chrome checks and complete-lockfile audit with zero reported vulnerabilities |
+| Persistence/build | Five disposable and five native PostgreSQL migration scenarios, zero drift, generated-client smoke, production build and synthetic HTTP checks passed |
+| Hosted schema | All 13 migrations applied; the two additive S6/P8 migrations were backed up, applied and verified on November 13 before release |
 
-## Preserved deployment boundaries
+These results belong to the recorded source and checks. Documentation close-out
+does not rerun the runtime suite or publish a newer application artifact.
 
-The original domain remains on `dpl_9r2H3AVbeEaxQ4ikmW7YqcTrTDXQ`, commit
-`15c330c`, containing the minimal namespace isolation guard. The separate demo
-remains on `dpl_6WXfwjSCs5VahKqqC58GfuX73dm9`. Both aliases were rechecked
-on November 15. These broader application fixes have not been released to the
-original domain. Earlier containment checks retain automatic Preview deployment
-disabled and automatic production-domain assignment disabled.
+## Acceptance results
 
-No schedule, credential, business record, role, environment or deployment was
-changed during this review. The evidence collectors did not invoke a business
-job. Their two one-time local tasks have finished and do not repeat.
+| Item | Evidence and limit |
+| --- | --- |
+| Student | Candidate dashboard loaded two existing requests; direct `/admin` returned to `/dashboard` without staff data. Live postflight confirmed the same routing and loaded history. |
+| Administrator | Queue, request-bound review panel and both finance reports loaded. Unverified identity could not be saved as verified without the required attestation; ordinary status save remained disabled. No review or financial record was changed. |
+| Employee | Queue and review accessible; no administrator override controls or finance link. Both direct finance pages withheld reports; the actual finance API requests returned HTTP 403. Queue access still worked afterward. |
+| Registrar procedure | Synthetic rehearsal passed; real school-record operating acceptance is deferred. See [26](26-synthetic-registrar-acceptance.md). |
+| PayMongo | Genuine PHP 150 test payment, signed event, canonical collection, checkout recovery, receipt, one full test refund and both reports accepted on the isolated demo. The final duplicate HTTP check was locally re-signed, not a provider redelivery. See [29](29-payment-provider-acceptance.md). |
+| Email | One owner-only synthetic message accepted, Delivered and confirmed in Inbox. General recipients remain restricted; isolated payment-demo email is disabled. See [27](27-owner-notification-and-cron-evidence.md). |
+| Daily jobs | November 15 request/completion logs retained successful natural outcomes on then-live `15c330c`. Owner accepted the independent-history limitation for this demo; no natural execution of later `3270a70` is claimed. |
+| Historical evidence | Original requests and legacy gaps preserved. Submission-date reports exclude unknown monetary values; transaction-date reports keep missing dates/evidence unallocated. |
 
-## Remaining release steps
+## Promotion and live postflight
 
-The owner selected **Accept for controlled demo** on November 15 after reviewing
-the successful authenticated responses, correlated completion logs and missing
-independent execution history. This closes the demo's cron-evidence decision
-only. It does not establish independently verified scheduler origin or grant
-permission to commit, publish, merge, deploy or promote.
+The owner explicitly approved promoting the exact tested candidate after all
+three roles passed. The live alias and project Production target were verified
+against `dpl_7e9rwRZ6hZ2GgUuUK5wDQDkoZ8TZ` and source `3270a70`.
 
-The owner separately authorized local review and commit of these three evidence
-reports on November 15. Publishing that documentation checkpoint, merging and
-deploying remain separate actions.
+The public sign-in HTML and live authenticated student dashboard were observed.
+Anonymous non-document finance requests returned Clerk's signed-out
+`protect-rewrite` 404 response without financial data. Browser-style requests
+from a client missing its development-browser state returned the configured
+Clerk handshake. The actual browser completed its existing-session flow and
+rendered the live dashboard. The initial raw HTTP checks assumed different
+client behavior; their samples remain retained as diagnostics. They are not
+reported as five successful raw HTTP assertions or a repeated fresh-user signup.
+See [Clerk's documented non-document protection behavior](https://clerk.com/docs/reference/nextjs/app-router/auth#auth-protect).
 
-1. Publish the reviewed documentation checkpoint only with authorization.
-   Preserve the reviewed application checkpoint and recheck required CI for
-   whatever final source will be merged.
-2. Obtain explicit authorization for PR #4 merge and creation of a new unpromoted
-   Production candidate. Verify that candidate's source, environment boundaries,
-   migrations and authorized role/navigation checks before requesting promotion.
-3. Obtain separate promotion authorization, verify the intended alias and perform
-   bounded post-promotion checks. Preserve rollback information and all historical
-   data; do not infer financial or registrar evidence for legacy records.
+A bounded error/fatal log sample after promotion returned two entries: one known
+`pg` SSL-mode compatibility warning and one expected authorization denial. No
+unclassified failure appeared in that returned sample; this is not exhaustive
+health monitoring or a load test.
 
-This is a review and proposed release sequence, not release authorization.
-Overall original operational acceptance remains incomplete. Real-production
-auth activation, actual registrar procedure acceptance, live payments and a
-verified general-recipient email sender are outside this controlled demo and
-must be completed before claiming real-world readiness.
+No business mutation controls were used during staged/live role checks. No new
+payment/refund/email, registrar attestation, data migration, manual cron run,
+share link or automation-bypass credential was created during promotion/postflight.
+
+## Preserved controls and rollback reference
+
+Automatic Preview deployments remain disabled; saved configuration remains
+Production-only and automatic production-domain assignment remains disabled.
+The daily schedules remain `0 0 * * *` and `5 0 * * *` UTC and now target the
+promoted build. The separate payment demo remains on
+`dpl_6WXfwjSCs5VahKqqC58GfuX73dm9`.
+
+Previous deployment `dpl_9r2H3AVbeEaxQ4ikmW7YqcTrTDXQ`, commit `15c330c`, was
+rechecked READY and retained as a rollback reference. No rollback was performed.
+A later rollback requires current compatibility review and separate authorization;
+it does not undo database/provider activity. See the
+[demo/rollback guide](../demo-and-rollback-guide.md).
+
+## Closure and deferred work
+
+The original 27 implementation dispositions and explicit real-world limits are
+in [31-audit-closeout.md](31-audit-closeout.md). Actual registrar procedure,
+institutional production auth, live-charge readiness, general-recipient sender
+setup and evidence-based legacy reconciliation retain their own statuses.
+Preview enablement, future capacity/toolchain maintenance and the accepted
+scheduler-attribution limit are not silently marked complete.
+
+Local receipts are retained under ignored `scratch/`:
+`production-two-migrations-result.json`, `pr4-staged-release-result-20261115.json`,
+`pr4-staged-student-check.json`, `pr4-staged-admin-check.json`,
+`pr4-staged-employee-check.json`, `pr4-employee-finance-http-statuses.json`,
+`pr4-live-browser-postflight.json`, `pr4-live-runtime-postflight.json`, and
+`pr4-promotion-result-20261115.json`. Private backups and credentials remain private.
