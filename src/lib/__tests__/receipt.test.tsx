@@ -6,13 +6,18 @@ import { getVerifiedActor } from "@/lib/auth";
 import ReceiptPage from "@/app/(print)/receipt/[id]/page";
 import type { Request, RequestMoney } from "@prisma/client";
 import { moneyFixture } from "./money-fixture";
+import { requirePageAccess } from "@/lib/page-access";
 
+// The server page boundary is exercised separately in page-access.test.tsx.
+vi.mock("@/lib/page-access", () => ({ requirePageAccess: vi.fn() }));
+vi.mock("@/components/session-guard", () => ({ SessionPage: ({ children }: { children: React.ReactNode }) => children }));
 const { getUser } = vi.hoisted(() => ({ getUser: vi.fn() }));
 vi.mock("@clerk/nextjs/server", () => ({ clerkClient: async () => ({ users: { getUser } }) }));
 vi.mock("next/navigation", () => ({ notFound: () => { throw new Error("NEXT_HTTP_ERROR_FALLBACK;404"); } }));
 const render = async () => renderToStaticMarkup(await ReceiptPage({ params: Promise.resolve({ id: "request" }) }));
 beforeEach(() => {
   vi.resetAllMocks(); vi.stubGlobal("React", React);
+  vi.mocked(requirePageAccess).mockResolvedValue({ userId: "student", role: "student", sessionId: "session_student" });
   vi.mocked(getVerifiedActor).mockResolvedValue({ userId: "student", role: "student" });
   getUser.mockResolvedValue({ firstName: "Synthetic", lastName: "Student", publicMetadata: {}, emailAddresses: [{ emailAddress: "synthetic@example.invalid" }] });
   vi.mocked(prisma.documentConfig.findUnique).mockResolvedValue(null);

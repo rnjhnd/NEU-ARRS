@@ -1,3 +1,4 @@
+import { withVerifiedPage } from "@/components/verified-page";
 import { requireAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -67,7 +68,7 @@ function FinanceSkeleton() {
   );
 }
 
-export default async function FinancePage() {
+async function FinancePage() {
   await requireAdmin();
 
   return (
@@ -96,3 +97,5 @@ export default async function FinancePage() {
     </div>
   );
 }
+
+export default withVerifiedPage(FinancePage, ["admin"]);

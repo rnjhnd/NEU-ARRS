@@ -1,3 +1,4 @@
+import { withVerifiedPage } from "@/components/verified-page";
 import { currentUser } from "@clerk/nextjs/server";
 import { requireStudent } from "@/lib/auth";
 import { Suspense } from "react";
@@ -80,7 +81,7 @@ function DashboardSkeleton() {
   );
 }
 
-export default async function StudentDashboardPage() {
+async function StudentDashboardPage() {
   const userId = await requireStudent();
   const user = await currentUser();
   const maintenanceSetting = await getRequestSetting("MAINTENANCE_MODE");
@@ -118,3 +119,5 @@ export default async function StudentDashboardPage() {
     </div>
   );
 }
+
+export default withVerifiedPage(StudentDashboardPage, ["student"]);

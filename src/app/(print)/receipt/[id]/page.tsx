@@ -1,3 +1,4 @@
+import { withVerifiedPage } from "@/components/verified-page";
 import { getVerifiedActor } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { clerkClient } from "@clerk/nextjs/server";
@@ -9,7 +10,7 @@ import { documentIdentity } from "@/lib/document-identity";
 
 export const metadata = { title: "Document Receipt" };
 
-export default async function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
+async function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { userId, role } = await getVerifiedActor();
   
@@ -70,3 +71,5 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
 
   return <ReceiptClient receipt={receiptData} />;
 }
+
+export default withVerifiedPage(ReceiptPage, ["student", "employee", "admin"]);

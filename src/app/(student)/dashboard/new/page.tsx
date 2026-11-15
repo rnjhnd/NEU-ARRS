@@ -1,3 +1,4 @@
+import { withVerifiedPage } from "@/components/verified-page";
 import { requireStudent } from "@/lib/auth";
 import { RequestForm } from "./request-form";
 import { readPublicSetting, loadStudentCatalog } from "@/lib/configuration-data";
@@ -5,7 +6,7 @@ import type { StudentCatalogItem } from "@/lib/configuration-model";
 
 export const metadata = { title: "New Document Request" };
 
-export default async function NewRequestPage() {
+async function NewRequestPage() {
   let paused = false, unavailable = false, actorId = "";
   let catalog: StudentCatalogItem[] = [], methods = { online: true, cash: true };
   try {
@@ -21,3 +22,5 @@ export default async function NewRequestPage() {
   if (!catalog.length) return <main className="space-y-3 p-6"><h1 className="text-2xl font-bold">No documents available</h1><p>No active documents have been configured. Please contact the registrar.</p></main>;
   return <div className="mx-auto max-w-6xl space-y-8"><header><h1 className="text-3xl font-bold">Request Document</h1><p className="text-muted-foreground">Select a document and a payment method to continue.</p></header><RequestForm actorId={actorId} documentConfigs={catalog} paymentMethods={methods} /></div>;
 }
+
+export default withVerifiedPage(NewRequestPage, ["student"]);

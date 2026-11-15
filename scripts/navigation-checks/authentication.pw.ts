@@ -1,12 +1,14 @@
 import { test as base, expect, type Page } from "@playwright/test";
 import { startComponentFixture } from "../navigation-fixture/server.mjs";
 type State = { calls: { kind: string; input: Record<string, string> }[]; actionStatus: number; actionBody: object; delay: number;
-  sessionStatus: number; sessionBody: object; signouts: number; sessionCalls: number; signoutStatus: number };
+  sessionStatus: number; sessionBody: object; signouts: number; sessionCalls: number; signoutStatus: number;
+  pageStatus: number; pageBody: object | null; pageCalls: number };
 const test = base.extend<{ state: State }, { fixtureURL: string }>({
   fixtureURL: [async ({ browserName }, provide) => { if (browserName !== "chromium") throw new Error("Chrome required"); const fixture = await startComponentFixture("authentication-fixture"); try { await provide(fixture.url); } finally { await fixture.close(); } }, { scope: "worker" }],
   state: async ({ page, fixtureURL }, provide) => {
     const state: State = { calls: [], actionStatus: 200, actionBody: { success: true, requestId: "synthetic_request", status: "complete" }, delay: 0,
-      sessionStatus: 200, sessionBody: { userId: "student_synthetic", role: "student" }, signouts: 0, sessionCalls: 0, signoutStatus: 200 };
+      sessionStatus: 200, sessionBody: { userId: "student_synthetic", role: "student" }, signouts: 0, sessionCalls: 0, signoutStatus: 200,
+      pageStatus: 200, pageBody: null, pageCalls: 0 };
     const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
     await page.route("**/*", route => { if (new URL(route.request().url()).origin === fixtureURL) return route.continue(); errors.push("Unexpected outbound request"); return route.abort(); });
     await page.route("**/fixture/action", async route => {
@@ -14,6 +16,14 @@ const test = base.extend<{ state: State }, { fixtureURL: string }>({
       await route.fulfill({ status: state.actionStatus, json: state.actionBody });
     });
     await page.route("**/api/session", route => { state.sessionCalls++; return route.fulfill({ status: state.sessionStatus, json: state.sessionBody }); });
+    await page.route("**/fixture/page?*", route => {
+      state.pageCalls++;
+      const actor = state.sessionBody as { userId: string; role: string };
+      const path = new URL(route.request().url()).searchParams.get("path") ?? "";
+      const forbidden = actor.role !== "admin" && /^\/admin\/(finance|settings|documents|notifications)(\/|$)/.test(path);
+      return route.fulfill({ status: forbidden ? 403 : state.pageStatus,
+        json: state.pageBody ?? { ...actor, sessionId: "session_" + actor.userId } });
+    });
     await page.route("**/fixture/signout", route => { state.signouts++; return route.fulfill({ status: state.signoutStatus, json: {} }); });
     await provide(state); expect(errors).toEqual([]);
   },
@@ -90,14 +100,15 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000
   await expect(page.getByText("Verified private content")).toBeVisible();
 });
 
-for (const role of ["student", "employee", "admin"]) test(`${role} navigation preserves its shell and sidebar state while checking the new page`, async ({ page, fixtureURL, state }, info) => {
+for (const role of ["student", "employee", "admin"]) test(`${role} navigation uses the server page result without another session RPC`, async ({ page, fixtureURL, state }, info) => {
   state.sessionBody = { userId: "student_synthetic", role };
   await page.goto(fixtureURL + "?screen=session");
   await expect(page.getByText("Verified private content")).toBeVisible();
+  const sessionCalls = state.sessionCalls;
   await page.getByRole("button", { name: "Collapse fixture sidebar" }).click();
   let release!: () => void;
   const pending = new Promise<void>(resolve => { release = resolve; });
-  await page.route("**/api/session", async route => { await pending; await route.fulfill({ json: state.sessionBody }); });
+  await page.route("**/fixture/page?*", async route => { await pending; const actor = state.sessionBody as { userId: string }; await route.fulfill({ json: { ...actor, sessionId: "session_" + actor.userId } }); });
   await page.getByRole("button", { name: "Navigate protected" }).click();
   try {
     await expect(page.getByRole("heading", { name: role === "student" ? "Student workspace" : "Staff workspace", exact: true })).toBeVisible();
@@ -105,10 +116,77 @@ for (const role of ["student", "employee", "admin"]) test(`${role} navigation pr
     await expect(page.getByRole("status", { name: "Loading page", exact: true })).toBeVisible();
     await expect(page.getByRole("status", { name: "Loading workspace", exact: true })).toHaveCount(0);
     await expect(page.getByText("Verified private content")).toHaveCount(0);
+    expect(state.sessionCalls).toBe(sessionCalls);
     await page.screenshot({ path: info.outputPath(`${role}-navigation.png`), fullPage: true });
   } finally { release(); }
   await expect(page.getByText("Verified private content")).toBeVisible();
   await expect(page.getByRole("button", { name: "Expand fixture sidebar" })).toBeVisible();
+  expect(state.sessionCalls).toBe(sessionCalls);
+});
+
+test("a cached page from an older session stays hidden and can recover with a fresh server result", async ({ page, fixtureURL, state }) => {
+  await page.clock.install();
+  await page.goto(fixtureURL + "?screen=session");
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  state.pageBody = { userId: "student_synthetic", role: "student", sessionId: "old_session" };
+  await page.getByRole("button", { name: "Navigate protected", exact: true }).click();
+  await expect(page.getByRole("status", { name: "Loading page", exact: true })).toBeVisible();
+  await expect(page.getByText("Verified private content")).toHaveCount(0);
+  await page.clock.runFor(15_100);
+  await expect(page.getByRole("alert")).toContainText("This page could not be verified");
+  expect(state.pageCalls).toBeLessThanOrEqual(5);
+  state.pageBody = null;
+  await page.getByRole("button", { name: "Retry page", exact: true }).click();
+  await expect(page.getByText("Verified private content")).toBeVisible();
+});
+
+test("a cached administrator result cannot restore access after a role downgrade", async ({ page, fixtureURL, state }) => {
+  await page.clock.install();
+  state.sessionBody = { userId: "student_synthetic", role: "admin" };
+  await page.goto(fixtureURL + "?screen=session");
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  await page.getByRole("button", { name: "Navigate finance", exact: true }).click();
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  const oldAccess = { userId: "student_synthetic", role: "admin", sessionId: "session_student_synthetic" };
+  let cachedRefreshes = 0;
+  const cached = async (route: import("@playwright/test").Route) => { cachedRefreshes++; await route.fulfill({ json: oldAccess }); };
+  await page.route("**/fixture/page?*", cached);
+  state.sessionBody = { userId: "student_synthetic", role: "employee" };
+  // Settle network revalidation before advancing the recovery deadline. Jumping
+  // across both deadlines can expire an in-flight session request artificially.
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await page.getByRole("button", { name: "Open profile menu for Synthetic Student" }).click();
+  await expect(page.getByText("Employee", { exact: true })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect.poll(() => cachedRefreshes).toBeGreaterThan(0);
+  await expect(page.getByText("Verified private content")).toHaveCount(0);
+  await page.clock.runFor(15_100);
+  await expect(page.getByRole("alert")).toContainText("This page could not be verified");
+  expect(cachedRefreshes).toBeLessThanOrEqual(2);
+  await page.unroute("**/fixture/page?*", cached);
+  await page.getByRole("button", { name: "Retry page", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("Page access restricted");
+  await expect(page.getByText("Verified private content")).toHaveCount(0);
+});
+
+test("an employee's server-denied finance page stays hidden without an extra navigation session RPC", async ({ page, fixtureURL, state }) => {
+  state.sessionBody = { userId: "student_synthetic", role: "employee" };
+  await page.goto(fixtureURL + "?screen=session");
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  const calls = state.sessionCalls;
+  await page.getByRole("button", { name: "Navigate finance", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("Page access restricted");
+  await expect(page.getByText("Verified private content")).toHaveCount(0);
+  expect(state.sessionCalls).toBe(calls);
+});
+
+for (const event of ["focus", "online"]) test(`${event} revalidation still removes revoked access`, async ({ page, fixtureURL, state }) => {
+  await page.goto(fixtureURL + "?screen=session");
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  state.sessionStatus = 403;
+  await page.evaluate(name => window.dispatchEvent(new Event(name)), event);
+  await expect(page.getByRole("heading", { name: "Account access restricted" })).toBeVisible();
+  await expect(page.getByText("Verified private content")).toHaveCount(0);
 });
 
 test("account switching hides the previous shell immediately and rejects a late old-account response", async ({ page, fixtureURL, state }) => {
@@ -168,13 +246,12 @@ test("returning from a public page cannot reuse an earlier access snapshot", asy
   await expect(page.getByRole("heading", { name: "Account access restricted" })).toBeVisible();
 });
 
-test("a denied destination check removes the retained shell as well as private page content", async ({ page, fixtureURL, state }) => {
+test("a server-denied destination cannot reveal private page content", async ({ page, fixtureURL, state }) => {
   await page.goto(fixtureURL + "?screen=session");
   await expect(page.getByText("Verified private content")).toBeVisible();
-  state.sessionStatus = 403;
+  state.pageStatus = 403;
   await page.getByRole("button", { name: "Navigate protected", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Account access restricted" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Student workspace" })).toHaveCount(0);
+  await expect(page.getByRole("alert")).toContainText("Page access restricted");
   await expect(page.getByText("Verified private content")).toHaveCount(0);
 });
 

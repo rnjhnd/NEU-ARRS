@@ -1,3 +1,4 @@
+import { withVerifiedPage } from "@/components/verified-page";
 import { requireAdmin } from "@/lib/auth";
 import { Suspense } from "react";
 import { DocumentsData } from "./documents-data";
@@ -80,7 +81,7 @@ function DocumentsSkeleton() {
   );
 }
 
-export default async function DocumentsPage() {
+async function DocumentsPage() {
   await requireAdmin();
 
   return (
@@ -108,3 +109,5 @@ export default async function DocumentsPage() {
     </div>
   );
 }
+
+export default withVerifiedPage(DocumentsPage, ["admin"]);

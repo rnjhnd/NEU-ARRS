@@ -1,3 +1,4 @@
+import { withVerifiedPage } from "@/components/verified-page";
 import { requireEmployeeOrAdmin } from "@/lib/auth";
 import { Suspense } from "react";
 import { AdminQueueData } from "./admin-queue-data";
@@ -93,7 +94,7 @@ function AdminQueueSkeleton() {
   );
 }
 
-export default async function AdminPage() {
+async function AdminPage() {
   // Ensure the user is an admin before rendering or fetching data
   await requireEmployeeOrAdmin();
 
@@ -122,3 +123,5 @@ export default async function AdminPage() {
     </div>
   );
 }
+
+export default withVerifiedPage(AdminPage, ["admin", "employee"]);
