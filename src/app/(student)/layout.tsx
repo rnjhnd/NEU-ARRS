@@ -6,6 +6,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { ProfileDetails } from "@/components/profile-details";
 import { getVerifiedActor } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { SessionPage } from "@/components/session-guard";
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
   const actor = await getVerifiedActor();
@@ -59,7 +60,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
       {/* Main Content Area */}
       <main className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-          {children}
+          <SessionPage>{children}</SessionPage>
         </div>
       </main>
     </div>

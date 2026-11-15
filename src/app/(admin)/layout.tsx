@@ -4,6 +4,7 @@ import { MobileNav } from "./mobile-nav";
 import { Sidebar } from "./sidebar";
 import { getVerifiedActor } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { SessionPage } from "@/components/session-guard";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const actor = await getVerifiedActor();
@@ -47,7 +48,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           
           <main className="flex-1 p-4 xl:p-6">
             <div className="max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-              {children}
+              <SessionPage>{children}</SessionPage>
             </div>
           </main>
         </div>
