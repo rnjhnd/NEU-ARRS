@@ -1,9 +1,12 @@
 # NEU-ARRS application specification
 
-Current source contract, reviewed 2026-11-13. This document describes the working
-source, including locally completed S6, P8 and A2/Q2 remediation. It does not
-assert that this source or its pending migrations are deployed. See [tasks.md](tasks.md)
-for validation and rollout status. Earlier planning copies are historical only.
+Current source contract, reconciled 2026-11-15 with released commit `3270a70`.
+The controlled-demo release and all 13 hosted migrations are complete. This
+contract includes S6/P8/A2/Q2 and subsequent payment integration fixes; it does
+not establish real-world production acceptance. See [tasks.md](tasks.md), the
+[release record](docs/remediation/30-controlled-demo-release-review.md) and
+[original audit close-out](docs/remediation/31-audit-closeout.md). Earlier planning
+copies and dated batch implementation notes are historical.
 
 ## Stack and structure
 
@@ -81,6 +84,11 @@ The PayMongo webhook validates raw-body signatures, timestamp/mode/schema/size,
 correlation and event uniqueness before transactional writes. A paid but
 unverified request stays `PENDING_PAYMENT` with `PAID` financial state; payment
 advances an eligible, reviewed pending request to processing.
+
+Genuine event snapshots may retain a processing intent and an empty payment
+list. Recovery uses private provider reads and requires an exactly matching
+succeeded checkout and uniquely correlated paid payment. Unavailable/conflicting
+proof stays retryable without financial writes; an intent alone is not payment.
 
 Server-configured `PAYMONGO_NAMESPACE` and `PAYMONGO_ACCEPT_LEGACY` bind checkout
 metadata and provider-resource validation to one application. Both settings are
@@ -177,9 +185,10 @@ daily fallback. Provider acceptance is not inbox delivery. General recipients
 require appropriate verified sender configuration; the Resend test sender is
 restricted. See [notification recovery](docs/remediation/09-durable-notifications.md).
 
-There are 13 prepared migrations, including the pending identity-review and
-financial-date additions. Default Prisma generation/validation selects no
-application datasource. Operator commands require explicit
+There are 13 forward migrations, all verified applied to the intended hosted
+application target and the separate payment-test target. Identity-review and
+financial-date additions are no longer pending for those targets. Default Prisma
+generation/validation selects no application datasource. Operator commands require explicit
 `MIGRATION_DATABASE_URL` through `prisma.migration.config.ts`; never use an
 implicit application database or rewrite applied migration history. Review,
 backup and rehearse upgrades before an approved application-database rollout.
@@ -187,6 +196,8 @@ backup and rehearse upgrades before an approved application-database rollout.
 create S6 registrar attestations. See [migration procedure](docs/remediation/04-migration-alignment.md).
 
 Use [README.md](README.md) for verification commands and safe release guidance.
-Synthetic/disposable test success is local evidence; remote CI, hosted migrations,
-real registrar/provider/inbox acceptance and natural cron observation remain
-separate requirements tracked in [tasks.md](tasks.md).
+Synthetic/disposable checks, exact merged-source CI, hosted migrations, genuine
+test-mode provider acceptance, owner-only Inbox delivery, scoped registrar/role
+checks and natural-job observations retain their individual evidence and limits
+in [tasks.md](tasks.md). Actual school-record procedure, production auth, live
+charges and general-recipient email readiness remain separately deferred.

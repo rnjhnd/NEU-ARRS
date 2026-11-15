@@ -1,86 +1,103 @@
 # NEU-ARRS remediation and release checklist
 
-Reviewed 2026-11-13 against the current working source. Checked items below mean
-local implementation/validation, unless explicitly described as historical hosted
-work. They do not assert a new production deployment. See [spec.md](spec.md) for
-the current contract and [README.md](README.md) for executable check commands.
-Original planning copies were preserved locally before this D2 rewrite.
+Reconciled November 15, 2026 (Asia/Manila) with promoted commit `3270a70`.
+The controlled-demo release is complete. Real-world production acceptance remains
+incomplete; unchecked items below are scoped operational prerequisites or future
+maintenance, not additional mandatory demo remediation batches.
 
-## Completed source work
+Use the [27-finding close-out](docs/remediation/31-audit-closeout.md) for each
+original ID, priority, implementation location, evidence and deferral. See
+[spec.md](spec.md) for the current contract and [README.md](README.md) for checks.
 
-- [x] Original batches 1-20: guarded refunds/webhooks/workflow, migration alignment,
-  checkout recovery, cron safety, durable notifications, navigation/state,
-  pagination, finance, verified money, directory, configuration, roles and CI.
-- [x] S6: per-request registrar school-record review; audited verify/revoke and
-  identity/payment gates for ordinary, bulk and override fulfillment.
-- [x] P8: retain submitted-date Settled Request Values; add transaction-date Money
-  Movements, explicit undated evidence, immutable date/completion provenance.
-- [x] A2/Q2: thin authorized actions, server-only services, pure client money
-  predicates, explicit document ID/label DTOs and versioned read contracts.
-- [x] D2: replace stale specifications/checklists, remove their contradictory
-  ignore entries, correct README guidance, preserve originals and remove the
-  retired email palette branch. Keep migration history,
-  older-client rejection tests and frozen durable payload contracts intact.
+## Completed implementation
 
-## Local verification baseline
+- [x] Original batches 1-20: payment/refund/webhook/workflow guards, migration
+  alignment, checkout recovery, cron safety, durable notifications, UI/state,
+  pagination, reporting, canonical money, directory, configuration, roles and CI.
+- [x] S6: request-bound, audited registrar review; identity/payment gates apply to
+  ordinary, bulk and override fulfillment.
+- [x] P8: separate submission-date and evidenced transaction-date reports;
+  immutable date/completion provenance and explicit undated/unknown evidence.
+- [x] A2/Q2: authorized thin actions, server-only services and explicit ISO DTOs
+  with stable document IDs separate from labels.
+- [x] D2: current planning/contracts and removal of unreachable application
+  literals, while retaining applied migrations, compatibility fixtures and
+  frozen provider payloads.
+- [x] Device Trust/verified-account routing follow-ups and payment environment
+  namespaces, stale provider-event recovery and bounded diagnostics.
 
-The pre-D2 combined S6/P8/A2/Q2 source passed the following checks; dated batch
-reports retain their original results. D2's fresh results are recorded separately
-in [the D2 report](docs/remediation/24-documentation-compatibility-cleanup.md).
+## Completed migration, CI and release
 
-- [x] TypeScript and ESLint.
-- [x] 852 tests in 44 Vitest files, including disposable transaction tests.
-- [x] All 128 synthetic Chrome navigation/component checks.
-- [x] Five disposable migration scenarios, including evidence/date upgrade guards.
-- [x] Isolated production build using synthetic providers and an owned database.
-- [x] Git whitespace check. No dependency/schema change in A2/Q2 or D2.
+- [x] Intended hosted target identified; native backup/restore and additive
+  migration acceptance recorded. All 13 migrations applied; zero schema drift,
+  repeat-deploy no-op and preserved historical evidence verified. Do not reapply
+  completed work on the basis of older batch notes.
+- [x] Separate test datasource/auth prepared and aligned before payment testing.
+- [x] Reviewed checkpoint published through PR #4; [PR CI #487](https://github.com/rnjhnd/NEU-ARRS/actions/runs/43664601774)
+  and exact [merged-main CI #488](https://github.com/rnjhnd/NEU-ARRS/actions/runs/43672408366)
+  passed all six jobs.
+- [x] Release quality: TypeScript, lint, 942 tests in 45 files and 132 synthetic
+  Chrome checks; complete-lockfile audit reported zero vulnerabilities.
+- [x] Five disposable and five native PostgreSQL migration scenarios, zero drift,
+  generated-client smoke and isolated production build/HTTP checks passed.
+- [x] Exact Production candidate checked with student, admin and employee
+  sessions. Student `/admin` redirected; employee queue/review worked and both
+  finance APIs returned 403; admin reports retained legacy evidence gaps.
+- [x] Owner separately authorized promotion of the existing tested build.
+  `dpl_7e9rwRZ6hZ2GgUuUK5wDQDkoZ8TZ`, commit `3270a70`, serves
+  <https://neu-arrs.vercel.app> without a rebuild.
+- [x] Live student dashboard/redirect and anonymous finance protection verified;
+  bounded runtime sample contained the known TLS warning and expected auth
+  denial, with no unclassified entries. No exhaustive health claim.
+- [x] Previous deployment retained READY as rollback reference; no rollback run.
+  Manual release settings, Preview containment and daily schedules preserved.
 
-Synthetic fixtures validate application behavior, not real registrar procedures,
-live payment delivery, inbox receipt or a hosted scheduled job. Build-check
-`.next` output is verification-only and must not be deployed.
+## Completed controlled-demo acceptance
 
-## Pending coordinated release and acceptance
+- [x] Synthetic registrar rehearsal passed; hosted review gates checked without
+  making a real school-record attestation.
+- [x] Genuine isolated PayMongo test checkout, signed event, canonical collection,
+  checkout recovery, receipt, one full test refund and report/reconciliation
+  behavior accepted. The final duplicate HTTP replay was locally re-signed and
+  remains labelled separately from the genuine provider delivery.
+- [x] Both finance reports accepted with known-date/undated test evidence;
+  existing mixed-unit amounts and unknown dates were not guessed or backfilled.
+- [x] One synthetic owner-only notification accepted by the app/provider,
+  marked Delivered and confirmed in Inbox. Broader sending explicitly deferred.
+- [x] Natural November 15 cleanup/notification outcomes retained from previous
+  live commit `15c330c`. Owner accepted the independent-scheduler-history limit
+  for this demo. No natural execution of promoted `3270a70` is claimed yet.
+- [x] [Release record](docs/remediation/30-controlled-demo-release-review.md),
+  [close-out](docs/remediation/31-audit-closeout.md) and
+  [demo/rollback guide](docs/demo-and-rollback-guide.md) record scope and limits.
 
-- [x] Review the combined local source and record a local audit checkpoint commit
-  under the owner's instruction. Push/deployment remain separate steps.
-- [ ] Push through the approved workflow and obtain current remote required CI
-  checks, including native PostgreSQL migration verification.
-- [ ] Verify the intended application database, back up and rehearse the upgrade;
-  apply pending `20261113000100_request_identity_review` and
-  `20261113000200_financial_dates` through the explicit migration datasource.
-  Earlier hosted recovery verified 11 migrations; this source prepares 13.
-- [ ] Deploy matching actions/read APIs/clients after the approved migration;
-  reload old dashboard/queue/finance tabs for current DTO formats.
-- [ ] Verify the locally committed Device Trust fix and current combined code in
-  the deployed app, including signed-in student/employee/admin behavior.
-- [ ] Train registrar staff and accept the real school-record review procedure;
-  ensure existing in-progress requests receive review before further fulfillment.
-- [ ] Exercise an approved actual PayMongo test-mode checkout/webhook/refund
-  roundtrip; confirm evidence and duplicate/recovery behavior without real charges.
-- [ ] Reconcile historical money/dates only from reviewed original evidence where
-  applicable. Unknown/unresolvable history stays explicitly unknown.
-- [ ] Accept both finance reports/receipts using actual known-date and undated
-  evidence, including Manila boundaries and preserved completion history.
-- [ ] Complete appropriate sender/domain configuration and confirm actual inbox
-  delivery, or explicitly defer broader notifications within test-sender limits.
-- [ ] Observe natural daily cleanup/notification runs and saved results. Do not
-  invoke production cleanup as a connectivity check.
-- [ ] Review Clerk production key/domain requirements for the intended release.
-- [ ] Record any explicit owner-approved operational deferrals and their limits.
+## Deferred real-world operational acceptance
 
-## Separate post-batch-20 follow-ups
+- [ ] **O1:** registrar approval/training for actual school-record review and
+  review of affected in-progress requests before further fulfillment.
+- [ ] **O2:** institutional production authentication/domain and authorized
+  real-user provisioning accepted by the application/identity owner.
+- [ ] **O3:** live merchant/payment operations and a separately approved real-money
+  acceptance plan. Successful test-mode transactions do not close this item.
+- [ ] **O4:** authorized verified sending domain/sender and general-recipient
+  delivery/recovery acceptance. The current owner-only sender limit remains.
+- [ ] **O5:** affected historical identity/money/date evidence reviewed where
+  original evidence exists. Unresolvable values remain explicitly unknown.
 
-Prior recovery restored the production database/Redis and the owner confirmed
-that the dashboard loaded. Preview containment disabled automatic previews and
-removed shared production credentials from Preview scope. Those facts are not
-proof that the newest local source has been deployed.
+## Containment, evidence limits and maintenance
 
-- [ ] Resume additional post-batch-20 environment/readiness work after original
-  audit closure, including isolated Preview resources and credential scopes.
-- [ ] Keep automatic Preview deployments disabled until isolated test resources,
-  provider configuration and acceptance are ready; do not reuse production data.
-- [ ] Continue dependency/toolchain maintenance, including ESLint lifecycle review.
+- [x] Database/Redis recovery and temporary Preview containment were completed
+  separately after batch 20. Shared saved variables remain Production-only.
+- [x] Automatic Preview deployments remain disabled. Their deliberate future
+  enablement requires isolated services/credentials and acceptance (**L2**).
+- [ ] Independent legacy scheduler execution history remains unverified (**L1**).
+  The completed demo accepts that limit; further observation of the promoted
+  build is normal operational follow-up, not a claim that it already occurred.
+- [ ] Review explicit TLS verification configuration before a future driver
+  behavior change (**M1**); no TLS/credential change is authorized here.
+- [ ] Continue advisory/toolchain lifecycle checks (**M2**) and revisit bounded
+  pagination/directory/report capacity when actual volume requires it (**M3**).
 
-All 27 original finding implementations are addressed locally after D2. Full
-original acceptance remains pending the release/operational checks above or
-explicitly agreed deferrals. No paid resource or purchase is part of this work.
+This checklist records completion and deferrals. It grants no standing permission
+to commit/publish further changes, migrate data, promote/rollback, change account
+roles, initiate provider transactions or purchase resources.

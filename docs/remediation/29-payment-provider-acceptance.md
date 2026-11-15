@@ -1,7 +1,9 @@
 # Isolated PayMongo payment acceptance
 
 Verified 2026-11-14 (Asia/Manila). The controlled demonstration payment batch is
-complete. Overall release and real-world operational acceptance remain open.
+complete. The subsequent controlled-demo release was promoted on November 15;
+see [30](30-controlled-demo-release-review.md). Real-world operational acceptance
+remains open. The integration run below retains its original November 14 scope.
 
 ## Existing work preserved
 
@@ -103,19 +105,16 @@ Deployment: `dpl_6WXfwjSCs5VahKqqC58GfuX73dm9`.
 
 ## Remaining scope
 
-Remote CI run [#486](https://github.com/rnjhnd/NEU-ARRS/actions/runs/43597373363)
-passed all six jobs, including 942 tests, 132 Chrome checks, migration replay
-and zero drift, dependency audit and production build/HTTP smoke. Its test-merge
-tree exactly matches checkpoint `b34f062`. Draft PR
-[#4](https://github.com/rnjhnd/NEU-ARRS/pull/4) remains unmerged.
+Subsequent [PR #4](https://github.com/rnjhnd/NEU-ARRS/pull/4) publication/merge,
+exact [merged-main CI #488](https://github.com/rnjhnd/NEU-ARRS/actions/runs/43672408366),
+staged role checks and separately authorized promotion are complete. Source
+`3270a70` now serves the original domain. See
+[30](30-controlled-demo-release-review.md) for the release/postflight and
+[31](31-audit-closeout.md) for every original finding's disposition.
 
-November 15 captures retained successful daily-job outcomes; independent
-scheduler attribution remains limited as documented in
-`27-owner-notification-and-cron-evidence.md`. The owner accepted that evidence
-limitation for the controlled demo. Separate release authorization, merge,
-staged candidate validation and promotion remain unperformed. See
-`30-controlled-demo-release-review.md`. The original site has not received
-these broader application fixes.
+November 15 natural-job outcomes were retained from the previous build; the
+owner accepted the independent scheduler-history limit for the demo. That
+limit remains explicit in [27](27-owner-notification-and-cron-evidence.md).
 Real school-record operations, live payments and broader email delivery are
 outside the selected controlled-demonstration scope; their real-world acceptance
 has not been claimed.
