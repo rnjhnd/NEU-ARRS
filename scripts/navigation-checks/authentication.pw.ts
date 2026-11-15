@@ -66,6 +66,29 @@ test("ignores another account's or malformed stored intent", async ({ page, fixt
 test("a client role change hides a student draft", async ({ page, fixtureURL }) => {
   await page.goto(fixtureURL); await fillRequest(page); await page.getByRole("button", { name: "Change role" }).click(); await expect(page.getByRole("alert")).toContainText("Account access changed"); await expect(page.locator("form")).toHaveCount(0);
 });
+for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }]) test(`pending access shows public workspace placeholders at ${viewport.width}px without private content`, async ({ page, fixtureURL, state }, info) => {
+  await page.setViewportSize(viewport);
+  const dark = viewport.width === 1440;
+  await page.emulateMedia({ colorScheme: dark ? "dark" : "light", reducedMotion: "reduce" });
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/session", async route => { await pending; await route.fulfill({ json: state.sessionBody }); });
+  await page.goto(fixtureURL + "?screen=session");
+  const loading = page.getByRole("status", { name: "Loading workspace", exact: true });
+  try {
+    await expect(loading).toBeVisible();
+    await expect(loading).toHaveAttribute("aria-busy", "true");
+    await expect(page.getByText("NEU ARRS", { exact: true })).toBeVisible();
+    await expect(page.getByText("Verified private content")).toHaveCount(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    const skeletons = loading.locator('[data-slot="skeleton"]');
+    expect(await skeletons.evaluateAll(elements => elements.every(element => getComputedStyle(element).animationName === "none"))).toBe(true);
+    await page.screenshot({ path: info.outputPath(`workspace-loading-${dark ? "dark" : "light"}.png`), fullPage: true });
+  } finally { release(); }
+  await expect(loading).toHaveCount(0);
+  await expect(page.getByText("Verified private content")).toBeVisible();
+});
+
 test("session outages hide private content without signing out, then recover", async ({ page, fixtureURL, state }) => {
   await page.clock.install(); state.sessionStatus = 503; await page.goto(fixtureURL + "?screen=session"); await expect(page.getByText("Your session could not be verified.", { exact: false })).toBeVisible();
   await expect(page.getByText("Verified private content")).toHaveCount(0); expect(state.signouts).toBe(0);
