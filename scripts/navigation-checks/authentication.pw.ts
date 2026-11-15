@@ -1,20 +1,20 @@
 import { test as base, expect, type Page } from "@playwright/test";
 import { startComponentFixture } from "../navigation-fixture/server.mjs";
 type State = { calls: { kind: string; input: Record<string, string> }[]; actionStatus: number; actionBody: object; delay: number;
-  sessionStatus: number; sessionBody: object; signouts: number };
+  sessionStatus: number; sessionBody: object; signouts: number; sessionCalls: number; signoutStatus: number };
 const test = base.extend<{ state: State }, { fixtureURL: string }>({
   fixtureURL: [async ({ browserName }, provide) => { if (browserName !== "chromium") throw new Error("Chrome required"); const fixture = await startComponentFixture("authentication-fixture"); try { await provide(fixture.url); } finally { await fixture.close(); } }, { scope: "worker" }],
   state: async ({ page, fixtureURL }, provide) => {
     const state: State = { calls: [], actionStatus: 200, actionBody: { success: true, requestId: "synthetic_request", status: "complete" }, delay: 0,
-      sessionStatus: 200, sessionBody: { userId: "student_synthetic", role: "student" }, signouts: 0 };
+      sessionStatus: 200, sessionBody: { userId: "student_synthetic", role: "student" }, signouts: 0, sessionCalls: 0, signoutStatus: 200 };
     const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
     await page.route("**/*", route => { if (new URL(route.request().url()).origin === fixtureURL) return route.continue(); errors.push("Unexpected outbound request"); return route.abort(); });
     await page.route("**/fixture/action", async route => {
       state.calls.push(route.request().postDataJSON()); if (state.delay) await new Promise(done => setTimeout(done, state.delay));
       await route.fulfill({ status: state.actionStatus, json: state.actionBody });
     });
-    await page.route("**/api/session", route => route.fulfill({ status: state.sessionStatus, json: state.sessionBody }));
-    await page.route("**/fixture/signout", route => { state.signouts++; return route.fulfill({ json: {} }); });
+    await page.route("**/api/session", route => { state.sessionCalls++; return route.fulfill({ status: state.sessionStatus, json: state.sessionBody }); });
+    await page.route("**/fixture/signout", route => { state.signouts++; return route.fulfill({ status: state.signoutStatus, json: {} }); });
     await provide(state); expect(errors).toEqual([]);
   },
 });
@@ -66,7 +66,7 @@ test("ignores another account's or malformed stored intent", async ({ page, fixt
 test("a client role change hides a student draft", async ({ page, fixtureURL }) => {
   await page.goto(fixtureURL); await fillRequest(page); await page.getByRole("button", { name: "Change role" }).click(); await expect(page.getByRole("alert")).toContainText("Account access changed"); await expect(page.locator("form")).toHaveCount(0);
 });
-for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }]) test(`pending access shows public workspace placeholders at ${viewport.width}px without private content`, async ({ page, fixtureURL, state }, info) => {
+for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }]) test(`initial access uses a neutral transition at ${viewport.width}px without private content`, async ({ page, fixtureURL, state }, info) => {
   await page.setViewportSize(viewport);
   const dark = viewport.width === 1440;
   await page.emulateMedia({ colorScheme: dark ? "dark" : "light", reducedMotion: "reduce" });
@@ -81,12 +81,101 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000
     await expect(page.getByText("NEU ARRS", { exact: true })).toBeVisible();
     await expect(page.getByText("Verified private content")).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    const skeletons = loading.locator('[data-slot="skeleton"]');
-    expect(await skeletons.evaluateAll(elements => elements.every(element => getComputedStyle(element).animationName === "none"))).toBe(true);
-    await page.screenshot({ path: info.outputPath(`workspace-loading-${dark ? "dark" : "light"}.png`), fullPage: true });
+    await expect(loading.locator('[data-slot="skeleton"]')).toHaveCount(0);
+    expect(await loading.locator("svg").evaluateAll(elements => elements.every(element => getComputedStyle(element).animationName === "none"))).toBe(true);
+    await expect(page.getByRole("heading", { name: "Student workspace" })).toHaveCount(0);
+    await page.screenshot({ path: info.outputPath(`access-transition-${dark ? "dark" : "light"}.png`), fullPage: true });
   } finally { release(); }
   await expect(loading).toHaveCount(0);
   await expect(page.getByText("Verified private content")).toBeVisible();
+});
+
+for (const role of ["student", "employee", "admin"]) test(`${role} navigation preserves its shell and sidebar state while checking the new page`, async ({ page, fixtureURL, state }, info) => {
+  state.sessionBody = { userId: "student_synthetic", role };
+  await page.goto(fixtureURL + "?screen=session");
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  await page.getByRole("button", { name: "Collapse fixture sidebar" }).click();
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/session", async route => { await pending; await route.fulfill({ json: state.sessionBody }); });
+  await page.getByRole("button", { name: "Navigate protected" }).click();
+  try {
+    await expect(page.getByRole("heading", { name: role === "student" ? "Student workspace" : "Staff workspace", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Expand fixture sidebar" })).toBeVisible();
+    await expect(page.getByRole("status", { name: "Loading page", exact: true })).toBeVisible();
+    await expect(page.getByRole("status", { name: "Loading workspace", exact: true })).toHaveCount(0);
+    await expect(page.getByText("Verified private content")).toHaveCount(0);
+    await page.screenshot({ path: info.outputPath(`${role}-navigation.png`), fullPage: true });
+  } finally { release(); }
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Expand fixture sidebar" })).toBeVisible();
+});
+
+test("account switching hides the previous shell immediately and rejects a late old-account response", async ({ page, fixtureURL, state }) => {
+  await page.goto(fixtureURL + "?screen=session");
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/session", async route => { await pending; await route.fulfill({ json: state.sessionBody }); });
+  await page.getByRole("button", { name: "Switch student" }).click();
+  await expect(page.getByRole("heading", { name: "Student workspace" })).toHaveCount(0);
+  await expect(page.getByText("Verified private content")).toHaveCount(0);
+  release();
+  await expect(page.getByRole("heading", { name: "Account access restricted" })).toBeVisible();
+});
+
+test("logout reaches the public page without starting an anonymous workspace check", async ({ page, fixtureURL, state }) => {
+  await page.goto(fixtureURL + "?screen=session");
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  const calls = state.sessionCalls;
+  await page.getByRole("button", { name: "Open profile menu for Synthetic Student" }).click();
+  await page.getByRole("menuitem", { name: "Log out", exact: true }).click();
+  await expect(page.getByText("Public home")).toBeVisible();
+  await expect(page.getByText("Verified private content")).toHaveCount(0);
+  expect(state.signouts).toBe(1);
+  expect(state.sessionCalls).toBe(calls);
+});
+
+test("failed logout keeps the current workspace and permits a deliberate retry", async ({ page, fixtureURL, state }) => {
+  await page.goto(fixtureURL + "?screen=session");
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  state.signoutStatus = 503;
+  await page.getByRole("button", { name: "Open profile menu for Synthetic Student" }).click();
+  await page.getByRole("menuitem", { name: "Log out", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("Sign-out could not be confirmed");
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  state.signoutStatus = 200;
+  await page.getByRole("menuitem", { name: "Log out", exact: true }).click();
+  await expect(page.getByText("Public home")).toBeVisible();
+  expect(state.signouts).toBe(2);
+});
+
+test("returning from a public page cannot reuse an earlier access snapshot", async ({ page, fixtureURL, state }) => {
+  await page.goto(fixtureURL + "?screen=session");
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  expect(state.sessionCalls).toBeGreaterThan(0);
+  await page.getByRole("button", { name: "Navigate public", exact: true }).click();
+  await expect(page.getByText("Public home")).toBeVisible();
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/session", async route => { await pending; await route.fulfill({ status: 403, json: {} }); });
+  await page.getByRole("button", { name: "Return protected", exact: true }).click();
+  try {
+    await expect(page.getByRole("status", { name: "Loading workspace", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Student workspace" })).toHaveCount(0);
+    await expect(page.getByText("Verified private content")).toHaveCount(0);
+  } finally { release(); }
+  await expect(page.getByRole("heading", { name: "Account access restricted" })).toBeVisible();
+});
+
+test("a denied destination check removes the retained shell as well as private page content", async ({ page, fixtureURL, state }) => {
+  await page.goto(fixtureURL + "?screen=session");
+  await expect(page.getByText("Verified private content")).toBeVisible();
+  state.sessionStatus = 403;
+  await page.getByRole("button", { name: "Navigate protected", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Account access restricted" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Student workspace" })).toHaveCount(0);
+  await expect(page.getByText("Verified private content")).toHaveCount(0);
 });
 
 test("session outages hide private content without signing out, then recover", async ({ page, fixtureURL, state }) => {
