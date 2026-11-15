@@ -103,9 +103,19 @@ Deployment: `dpl_6WXfwjSCs5VahKqqC58GfuX73dm9`.
 
 ## Remaining scope
 
-Capture successful natural daily-job outcomes and obtain required remote CI for
-the reviewed checkpoint, then perform the separate final release review and
-promotion. The original site has not received these broader application fixes.
+Remote CI run [#486](https://github.com/rnjhnd/NEU-ARRS/actions/runs/43597373363)
+passed all six jobs, including 942 tests, 132 Chrome checks, migration replay
+and zero drift, dependency audit and production build/HTTP smoke. Its test-merge
+tree exactly matches checkpoint `b34f062`. Draft PR
+[#4](https://github.com/rnjhnd/NEU-ARRS/pull/4) remains unmerged.
+
+November 15 captures retained successful daily-job outcomes; independent
+scheduler attribution remains limited as documented in
+`27-owner-notification-and-cron-evidence.md`. The owner accepted that evidence
+limitation for the controlled demo. Separate release authorization, merge,
+staged candidate validation and promotion remain unperformed. See
+`30-controlled-demo-release-review.md`. The original site has not received
+these broader application fixes.
 Real school-record operations, live payments and broader email delivery are
 outside the selected controlled-demonstration scope; their real-world acceptance
 has not been claimed.

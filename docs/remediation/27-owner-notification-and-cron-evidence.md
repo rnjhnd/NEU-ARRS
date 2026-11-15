@@ -1,7 +1,8 @@
 # Owner-only notification delivery and daily-job evidence
 
-Checked 2026-11-14 (Asia/Manila), using application commit
-`8f7aaec252d3a0b775d7189792d1fbfc4bacdf53`.
+Owner delivery checked 2026-11-14 (Asia/Manila), using application commit
+`8f7aaec252d3a0b775d7189792d1fbfc4bacdf53`. Natural job outcomes checked
+2026-11-15 on live commit `15c330cd70e4213364826da47bdfb2a68b7cf543`.
 
 ## Notification outcome
 
@@ -65,7 +66,7 @@ mailbox. General-recipient delivery still needs a verified sending domain;
 this test does not remove that limitation. See the
 [Resend domain restriction](https://resend.com/docs/knowledge-base/403-error-resend-dev-domain).
 
-## Daily-job evidence and remaining gap
+## Daily-job evidence: November 14 preparation
 
 Read-only queries of the original hosted database observed new job activity on
 November 14:
@@ -88,17 +89,66 @@ outside that window. A read-only observability-query attempt returned HTTP
 400 and supplied no usable outcome evidence. No paid observability feature
 was enabled, no schedule was changed, and no cron HTTP route was invoked.
 
-Successful natural-run acceptance therefore remains pending. On the next
-morning, **November 15**, capture the two jobs' filtered runtime logs near
+At that checkpoint, successful natural-run acceptance remained pending. The next
+morning's plan was to capture the two jobs' filtered runtime logs near
 **08:50 AM**, then check again near **09:05 AM**, retaining the first results.
-Verify the live deployment, actual invocation time, HTTP result and each
-route's completion log/result. This spans Hobby's hour-level timing without
+The plan required verifying the live deployment, actual invocation time, HTTP
+result and each route's completion log/result. It spanned Hobby's hour-level timing without
 manually executing business jobs or changing the daily schedules. See
 [Vercel's cron logging and timing guidance](https://vercel.com/docs/schedules/cron-jobs/manage-cron-jobs).
 
-This is a prepared collection plan. No automatic collection task or reminder
-has been scheduled. The next check requires an active session during the stated
-window; an expired or missed log window must remain an evidence gap.
+The owner subsequently authorized unattended collection. Two one-time Windows
+tasks were registered under the existing signed-in account after a successful
+scheduled preflight. No password was stored. These collectors only read Vercel
+logs and the original database; they never call the cron routes.
+
+## November 15 retained outcomes
+
+Both collectors ran at their configured Manila times, **08:50** and **09:05**,
+with exit code 0 and zero missed runs. Both samples resolved live deployment
+`dpl_9r2H3AVbeEaxQ4ikmW7YqcTrTDXQ`; neither log response was truncated.
+The first sample retained cleanup evidence before notification execution. The
+second retained successful requests and matching completion logs for both jobs:
+
+| Job | Request / completion, Manila time | HTTP and application result |
+| --- | --- | --- |
+| cleanup-unpaid | 08:46:56.118 / 08:47:04.835 | GET 200; success true, scanned 1, review 1, cancelled 0, failed 0, hasMore false |
+| deliver-notifications | 08:54:19.163 / 08:54:24.166 | GET 200; worker completed, processed 0, accepted 0, retrying 0, review 0 |
+
+Each completion was correlated to its request by request ID. Read-only database
+snapshots corroborated the same job activity with released leases, no cursors,
+two original requests and no notification outbox rows. The notification run
+validly had no work; it does not demonstrate a scheduled email delivery. Cleanup
+retained a review case rather than cancelling it, with no reported failures.
+
+Successful outcomes are now evidenced, independently of lease release. The
+collectors neither triggered the jobs nor changed application settings.
+
+## Scheduler attribution limit
+
+An authenticated, read-only `vercel crons ls` confirmed both deployed definitions
+active, with schedules `0 0 * * *` and `5 0 * * *`, no pending local changes,
+and a host matching both captured requests. The request timing is consistent
+with those daily hours. Both requests used the expected cron user-agent and
+passed routes protected by the configured bearer secret. No operator invocation
+was made during this observation.
+
+These signals strongly support scheduler attribution, but are not a separately
+verified provider execution record. The request-log schema contains no scheduler
+execution ID or trigger-origin field. The authenticated Vercel Cron Jobs page
+labels the feature Legacy, shows both jobs Active and both invocation/duration
+metrics unavailable, and directs users to Schedules for execution history.
+No scheduler migration, paid feature, manual run or security-setting change
+was performed to close this gap.
+
+Scheduler origin therefore remains explicitly unverified under the earlier
+independent-history criterion. On November 15, the owner accepted the saved
+corroborating evidence and this limitation for the controlled demonstration.
+The demo's cron-evidence gate is satisfied under that scoped acceptance; no
+independent provider execution record is claimed. This decision does not
+authorize committing, publishing, merging or deploying. Waiting for another
+daily run alone would not add the missing history field. A stricter criterion
+for future real-world use needs a separately reviewed evidence strategy.
 
 ## Validation and retained evidence
 
@@ -109,9 +159,14 @@ rows and local environment digests, zero active sessions and a released lease.
 
 Detailed local evidence is retained under ignored `scratch/`:
 `owner-notification-result.json`, `owner-notification-postflight-result.json`,
-`owner-notification-baseline.json`, `owner-notification-preview.html`, and
-`notifications-cron-preflight-20261114.json`.
+`owner-notification-baseline.json`, `owner-notification-preview.html`,
+`notifications-cron-preflight-20261114.json`,
+`cron-capture-scheduling-result.json`, `cron-natural-run-20261115-0850.json`,
+`cron-natural-run-20261115-0905.json`, `cron-scheduler-origin-inspection.json`
+and `cron-capture-review-result.json`.
 
-Full original operational acceptance remains incomplete. Natural cron outcomes,
-genuine PayMongo acceptance, real school-record checks and separate release
-authorization must retain their individual statuses.
+Full original operational acceptance remains incomplete. Natural cron outcomes
+and owner-only delivery have passed; independent scheduler attribution remains
+limited as above. Genuine PayMongo test acceptance is recorded separately in
+`29-payment-provider-acceptance.md`. Real school-record checks, broader email,
+live payments and separate release authorization retain their own statuses.
