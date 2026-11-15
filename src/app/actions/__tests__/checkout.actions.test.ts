@@ -49,7 +49,7 @@ function resource(changes: Partial<ReturnType<typeof attributes>> = {}) {
 function attributes() {
   return {
     checkout_url: "https://checkout.paymongo.com/cs_test123#synthetic", livemode: false, status: "active",
-    metadata: { requestId: ID, studentId: base.studentId },
+    metadata: { requestId: ID, studentId: base.studentId } as { requestId: string; studentId: string; appNamespace?: string },
     line_items: [{ amount: 15050, currency: "PHP", quantity: 1 }],
     payments: [] as { attributes: { status: string } }[],
     payment_intent: { attributes: { status: "awaiting_payment_method" } },
@@ -115,6 +115,10 @@ beforeEach(() => {
 afterEach(() => { vi.useRealTimers(); vi.unstubAllEnvs(); vi.restoreAllMocks(); });
 
 describe("Order creation and intent replay", () => {
+  it("takes the namespace from server configuration, ignoring a forged form marker", async () => {
+    expect(await createRequest(form({ appNamespace: "another_app", PAYMONGO_NAMESPACE: "forged" }))).toMatchObject({ success: true });
+    expect(JSON.parse(String(vi.mocked(fetch).mock.calls[0][1]?.body)).data.attributes.metadata).toEqual({ requestId: ID, studentId: base.studentId, appNamespace: "neu-arrs" });
+  });
   it("uses server pricing, persists the attempt before POST, and ignores submitted price or student IDs", async () => {
     vi.mocked(fetch).mockImplementationOnce(async () => {
       expect(attempts).toHaveLength(1);
@@ -189,6 +193,32 @@ describe("Order creation and intent replay", () => {
 });
 
 describe("Checkout resumption, uncertainty, and races", () => {
+  it("does not replay a persisted attempt under a different namespace", async () => {
+    seed(); vi.mocked(fetch).mockRejectedValueOnce(new Error("Synthetic timeout"));
+    await createRepaymentSession(ID);
+    const payload = structuredClone(attempts[0].payload);
+    vi.stubEnv("PAYMONGO_NAMESPACE", "neu-arrs-demo"); vi.stubEnv("PAYMONGO_ACCEPT_LEGACY", "false");
+    vi.setSystemTime(new Date(NOW.getTime() + 31_000));
+    expect(await createRepaymentSession(ID)).toMatchObject({ success: false, error: expect.stringContaining("environment") });
+    expect(attempts[0].payload).toEqual(payload); expect(fetch).toHaveBeenCalledOnce();
+  });
+  it("replays an original unmarked frozen payload unchanged only in original legacy mode", async () => {
+    seed(); vi.mocked(fetch).mockRejectedValueOnce(new Error("Synthetic timeout"));
+    await createRepaymentSession(ID);
+    const payload = attempts[0].payload as { data: { attributes: { metadata: { appNamespace?: string } } } };
+    delete payload.data.attributes.metadata.appNamespace;
+    vi.setSystemTime(new Date(NOW.getTime() + 31_000));
+    expect(await createRepaymentSession(ID)).toMatchObject({ success: true });
+    expect(JSON.parse(String(vi.mocked(fetch).mock.calls[1][1]?.body))).toEqual(payload);
+    expect(payload.data.attributes.metadata).not.toHaveProperty("appNamespace");
+  });
+  it.each(["neu-arrs", undefined])("does not save or expose a foreign/unmarked known session in the demo (%j)", async namespace => {
+    seed({ paymongoCheckoutId: "cs_test123" });
+    vi.stubEnv("PAYMONGO_NAMESPACE", "neu-arrs-demo"); vi.stubEnv("PAYMONGO_ACCEPT_LEGACY", "false");
+    vi.mocked(fetch).mockResolvedValue(respond({ metadata: { ...attributes().metadata, appNamespace: namespace } }));
+    expect(await createRepaymentSession(ID)).toMatchObject({ success: false });
+    expect(prisma.request.updateMany).not.toHaveBeenCalled(); expect(attempts).toHaveLength(0);
+  });
   it.each([undefined, "http://insecure.invalid", "https://user:password@example.invalid"])("rejects an unconfigured or insecure application origin (%s)", async origin => {
     seed();
     vi.stubEnv("NEXT_PUBLIC_APP_URL", origin);

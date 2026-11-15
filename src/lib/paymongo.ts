@@ -3,6 +3,7 @@ import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import prisma from "./prisma";
 import { providerPaidAt, recordCollection } from "./monetary-ledger";
+import { paymongoCheckoutSettings, verifyPaidCheckoutNamespace } from "./paymongo-checkout";
 
 const paymentIdSchema = z.string().regex(/^pay_[a-zA-Z0-9]+$/);
 const centavosSchema = z.number().int().min(100).max(2_147_483_647);
@@ -12,6 +13,7 @@ const paymentSchema = z.object({
     attributes: z.object({
       amount: centavosSchema,
       currency: z.literal("PHP"),
+      livemode: z.boolean(),
       status: z.literal("paid"),
       refunds: z.array(z.unknown()).max(1000),
       paid_at: z.number().int().nonnegative().max(253402300799).nullish(),
@@ -54,7 +56,7 @@ export async function refundPayment(requestId: string, reason: string): Promise<
   try {
     const request = await prisma.request.findUnique({
       where: { id: requestId },
-      select: { paymongoPaymentId: true, paymentStatus: true, paymentMethod: true, status: true },
+      select: { id: true, studentId: true, paymongoCheckoutId: true, quotedAmountCentavos: true, paymongoPaymentId: true, paymentStatus: true, paymentMethod: true, status: true },
     });
 
     if (!request || !request.paymongoPaymentId || request.paymentStatus !== "PAID" || request.paymentMethod !== "online" || request.status !== "CANCELLED") {
@@ -66,8 +68,9 @@ export async function refundPayment(requestId: string, reason: string): Promise<
       return { status: "failed", error: "Refund service is not configured." };
     }
 
+    const settings = paymongoCheckoutSettings();
     const headers = {
-      Authorization: `Basic ${Buffer.from(`${secretKey}:`).toString("base64")}`,
+      Authorization: settings.authorization,
       Accept: "application/json",
     };
     let targetPaymentId = request.paymongoPaymentId;
@@ -97,6 +100,9 @@ export async function refundPayment(requestId: string, reason: string): Promise<
     if (!paymentIdSchema.safeParse(targetPaymentId).success) {
       return { status: "failed", error: "Invalid stored payment reference." };
     }
+    if (!await verifyPaidCheckoutNamespace(request, targetPaymentId, settings)) {
+      return { status: "failed", error: "The payment environment could not be verified. No refund was submitted." };
+    }
 
     const paymentRes = await fetch(`https://api.paymongo.com/v1/payments/${targetPaymentId}`, {
       headers,
@@ -108,7 +114,7 @@ export async function refundPayment(requestId: string, reason: string): Promise<
     }
 
     const payment = paymentSchema.safeParse(await paymentRes.json());
-    if (!payment.success || payment.data.data.id !== targetPaymentId) {
+    if (!payment.success || payment.data.data.id !== targetPaymentId || payment.data.data.attributes.livemode !== settings.livemode) {
       return { status: "failed", error: "Invalid or unpaid payment response." };
     }
     const amountCentavos = payment.data.data.attributes.amount;

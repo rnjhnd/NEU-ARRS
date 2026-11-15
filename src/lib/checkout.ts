@@ -2,12 +2,14 @@ import "server-only";
 import { Prisma, type Request } from "@prisma/client";
 import { z } from "zod";
 import prisma from "./prisma";
-import { CheckoutError, checkoutSessionSchema as sessionSchema, checkoutAmountSchema as amount, paymongoCheckoutId as sessionId, paymongoCheckoutSettings as providerSettings } from "./paymongo-checkout";
+import { CheckoutError, checkoutMetadataSchema, checkoutSessionSchema as sessionSchema, checkoutAmountSchema as amount, paymongoCheckoutId as sessionId, paymongoCheckoutSettings as providerSettings } from "./paymongo-checkout";
+import { ownsPaymongoNamespace } from "./paymongo-namespace";
 import { reconcileCancelledPayment } from "./cancelled-payment-reconciliation";
 
 export { CheckoutError } from "./paymongo-checkout";
 const retryWindowMs = 23 * 60 * 60 * 1000; // Margin before PayMongo's 24-hour key expiry.
 const leaseMs = 30_000;
+const frozenCheckoutSchema = z.object({ data: z.object({ attributes: z.object({ metadata: checkoutMetadataSchema }) }) });
 export function checkoutEligible(request: Request, studentId: string) {
   return request.studentId === studentId && request.paymentMethod === "online" &&
     request.status === "PENDING_PAYMENT" && request.paymentStatus === "UNPAID" && request.paymongoPaymentId === null;
@@ -35,7 +37,7 @@ export async function requireDocument(typeId: string, method: "online" | "cash")
   return config;
 }
 
-function payloadFor(request: Request, label: string, quotedAmountCentavos: number) {
+function payloadFor(request: Request, label: string, quotedAmountCentavos: number, namespace: string) {
   const configuredUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (!configuredUrl) throw new CheckoutError("Online payment return URLs are not configured.");
   const base = new URL(configuredUrl);
@@ -49,7 +51,7 @@ function payloadFor(request: Request, label: string, quotedAmountCentavos: numbe
     payment_method_types: ["gcash", "paymaya", "card", "dob"],
     line_items: [{ currency: "PHP", amount: quotedAmountCentavos, description: `Purpose: ${request.purpose.replace(/_/g, " ")}`, name: label, quantity: 1 }],
     success_url: `${base.origin}/dashboard?payment=success`, cancel_url: `${base.origin}/dashboard?payment=cancelled`,
-    metadata: { requestId: request.id, studentId: request.studentId },
+    metadata: { requestId: request.id, studentId: request.studentId, appNamespace: namespace },
   } } };
 }
 
@@ -70,7 +72,7 @@ async function prepareAttempt(request: Request, provider: ReturnType<typeof prov
   const config = await requireDocument(request.documentType, "online");
   const quote = amount.safeParse(request.quotedAmountCentavos);
   if (!quote.success) throw new CheckoutError("The request price requires registrar review.");
-  const payload = payloadFor(request, config.label, quote.data);
+  const payload = payloadFor(request, config.label, quote.data, provider.namespace.name);
   try {
     return await prisma.$transaction(async tx => {
       const saved = await tx.request.update({
@@ -105,6 +107,11 @@ export async function resumeCheckout(requestId: string, studentId: string): Prom
     const prepared = await prepareAttempt(request, provider);
     request = prepared.request;
     const { attempt } = prepared;
+    const frozen = frozenCheckoutSchema.safeParse(attempt.payload);
+    if (!frozen.success || !ownsPaymongoNamespace(frozen.data.data.attributes.metadata, provider.namespace) ||
+        frozen.data.data.attributes.metadata.requestId !== request.id || frozen.data.data.attributes.metadata.studentId !== studentId) {
+      throw new CheckoutError("The saved payment environment requires registrar review. No new payment session was submitted.");
+    }
     const now = new Date();
     if (attempt.livemode !== provider.livemode || attempt.credentialFingerprint !== provider.credentialFingerprint || now.getTime() - attempt.createdAt.getTime() >= retryWindowMs || attempt.createdAt > now) {
       throw new CheckoutError("The unconfirmed payment session requires registrar review. Do not submit another payment.");
@@ -123,6 +130,7 @@ export async function resumeCheckout(requestId: string, studentId: string): Prom
   const url = new URL(attributes.checkout_url);
   if (url.protocol !== "https:" || url.hostname !== "checkout.paymongo.com" || url.port || url.username || url.password ||
       attributes.metadata.requestId !== request.id || attributes.metadata.studentId !== studentId || attributes.livemode !== provider.livemode ||
+      !ownsPaymongoNamespace(attributes.metadata, provider.namespace) ||
       (request.quotedAmountCentavos !== null && attributes.line_items[0].amount !== request.quotedAmountCentavos)) {
     throw new CheckoutError("The payment session could not be reconciled. Please contact the registrar.");
   }

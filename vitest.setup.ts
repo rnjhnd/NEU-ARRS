@@ -1,4 +1,9 @@
-import { vi } from "vitest";
+import { beforeEach, vi } from "vitest";
+beforeEach(() => {
+  // Existing fixtures model the original application's unmarked checkouts.
+  vi.stubEnv("PAYMONGO_NAMESPACE", "neu-arrs");
+  vi.stubEnv("PAYMONGO_ACCEPT_LEGACY", "true");
+});
 vi.mock("server-only", () => ({}));
 
 // Mock Prisma

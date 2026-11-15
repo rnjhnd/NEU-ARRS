@@ -1,5 +1,6 @@
 import type { Request } from "@prisma/client";
 import { checkoutSessionSchema, paymongoCheckoutId, paymongoCheckoutSettings } from "./paymongo-checkout";
+import { ownsPaymongoNamespace } from "./paymongo-namespace";
 
 type ExpiryOrder = Pick<Request, "id" | "studentId" | "paymongoCheckoutId" | "quotedAmountCentavos">;
 export type ExpiryResult =
@@ -21,7 +22,7 @@ export async function expireUnpaidCheckout(order: ExpiryOrder): Promise<ExpiryRe
   const checkoutId = order.paymongoCheckoutId;
   if (!paymongoCheckoutId.safeParse(checkoutId).success) return { kind: "review", reason: "invalid_checkout_reference" };
   try {
-    const { livemode, authorization } = paymongoCheckoutSettings();
+    const { livemode, authorization, namespace } = paymongoCheckoutSettings();
     const url = `https://api.paymongo.com/v1/checkout_sessions/${checkoutId}`;
     const headers = { Authorization: authorization, Accept: "application/json" };
     const retrieve = async () => {
@@ -30,6 +31,7 @@ export async function expireUnpaidCheckout(order: ExpiryOrder): Promise<ExpiryRe
       const session = checkoutSessionSchema.parse(await response.json()).data;
       if (session.id !== checkoutId || session.attributes.livemode !== livemode ||
           session.attributes.metadata.requestId !== order.id || session.attributes.metadata.studentId !== order.studentId ||
+          !ownsPaymongoNamespace(session.attributes.metadata, namespace) ||
           (order.quotedAmountCentavos !== null && session.attributes.line_items[0].amount !== order.quotedAmountCentavos)) {
         throw new Error("Provider session correlation failed");
       }

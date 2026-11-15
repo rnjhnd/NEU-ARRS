@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PGlite } from "@electric-sql/pglite";
 import { PGLiteSocketServer } from "@electric-sql/pglite-socket";
-import { smokeCleanup } from "./smoke-cleanup.mjs";
+import { smokeCleanup, smokePaymentNamespace } from "./smoke-cleanup.mjs";
 
 if (process.argv.slice(2).some(argument => argument !== "--smoke-cron")) throw new Error("Unknown build-check option.");
 
@@ -52,6 +52,8 @@ try {
         NEXT_PUBLIC_APP_URL: "http://127.0.0.1:3000",
         PAYMONGO_SECRET_KEY: "sk_test_build_verification_only",
         PAYMONGO_WEBHOOK_SECRET: "build_verification_only",
+        PAYMONGO_NAMESPACE: "neu-arrs-build-check",
+        PAYMONGO_ACCEPT_LEGACY: "false",
         RESEND_API_KEY: "re_build_verification_only",
         RESEND_FROM_EMAIL: "verification@example.invalid",
         UPSTASH_REDIS_REST_URL: "",
@@ -67,7 +69,10 @@ try {
     child.once("close", status => { clearTimeout(timer); resolveCode(status ?? 1); });
   });
   if (code !== 0) throw new Error(`Production build failed with exit ${code}.`);
-  if (process.argv.includes("--smoke-cron")) await smokeCleanup({ root, env: buildEnv, db });
+  if (process.argv.includes("--smoke-cron")) {
+    await smokeCleanup({ root, env: buildEnv, db });
+    await smokePaymentNamespace({ root, env: buildEnv, db });
+  }
 } finally {
   await server.stop();
   await db.close();

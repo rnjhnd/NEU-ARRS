@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { checkoutPaidSchema, paymongoEventSchema, recordCheckoutPayment } from "@/lib/paymongo-webhook";
+import { paymongoEventSchema, recordCheckoutPayment } from "@/lib/paymongo-webhook";
+import { checkoutNamespaceEnvelope, ownsPaymongoNamespace, PaymongoNamespaceError, paymongoNamespaceSettings } from "@/lib/paymongo-namespace";
+import { verifyWebhookCheckout, WebhookVerificationUnavailable } from "@/lib/paymongo-webhook-verification";
 
 export const runtime = "nodejs";
 
@@ -48,6 +50,15 @@ function isValidSignature(rawBody: Buffer, header: string, secret: string, livem
   return crypto.timingSafeEqual(expected, Buffer.from(signature, "hex"));
 }
 
+function invalidPayload(message: string, stage: "event" | "environment" | "routing" | "payment",
+  issues: { path: PropertyKey[]; code: string }[] = []) {
+  // Only authenticated deliveries reach here. Bound diagnostics and exclude
+  // input values, provider client keys, billing details and signature material.
+  console.warn("[PayMongo] Rejected signed payload", { stage,
+    issues: issues.slice(0, 5).map(({ path, code }) => ({ path: path.join("."), code })) });
+  return NextResponse.json({ error: message }, { status: 400 });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const webhookSecret = process.env.PAYMONGO_WEBHOOK_SECRET;
@@ -56,6 +67,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Webhook service is not configured" }, { status: 503 });
     }
     const livemode = keyMode[1] === "live";
+    const namespace = paymongoNamespaceSettings();
     const signatureHeader = req.headers.get("Paymongo-Signature");
     if (!signatureHeader) {
       return NextResponse.json({ error: "Missing signature" }, { status: 401 });
@@ -73,17 +85,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid JSON payload" }, { status: 400 });
     }
     const event = paymongoEventSchema.safeParse(payload);
-    if (!event.success || event.data.data.attributes.livemode !== livemode) {
-      return NextResponse.json({ error: "Invalid event or environment" }, { status: 400 });
-    }
+    if (!event.success) return invalidPayload("Invalid event or environment", "event", event.error.issues);
+    if (event.data.data.attributes.livemode !== livemode) return invalidPayload("Invalid event or environment", "environment");
 
     const { id: eventId, attributes } = event.data.data;
     if (attributes.type !== "checkout_session.payment.paid") {
       return NextResponse.json({ success: true, outcome: "ignored" });
     }
-    const checkout = checkoutPaidSchema.safeParse(attributes.data);
+    const routing = checkoutNamespaceEnvelope.safeParse(attributes.data);
+    if (!routing.success) return invalidPayload("Invalid checkout routing payload", "routing", routing.error.issues);
+    if (!ownsPaymongoNamespace(routing.data.attributes.metadata, namespace)) {
+      return NextResponse.json({ success: true, outcome: "ignored", reason: "foreign_namespace" });
+    }
+    const checkout = await verifyWebhookCheckout(attributes.data, livemode);
     if (!checkout.success) {
-      return NextResponse.json({ error: "Invalid checkout payment payload" }, { status: 400 });
+      return invalidPayload("Invalid checkout payment payload", "payment", checkout.error.issues);
     }
 
     const result = await recordCheckoutPayment(eventId, livemode, checkout.data);
@@ -92,6 +108,13 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json({ success: true, ...result });
   } catch (error) {
+    if (error instanceof WebhookVerificationUnavailable) {
+      console.warn("[PayMongo] Provider verification requires retry");
+      return NextResponse.json({ error: "Payment verification is temporarily unavailable" }, { status: 503 });
+    }
+    if (error instanceof PaymongoNamespaceError) {
+      return NextResponse.json({ error: "Webhook service is not configured" }, { status: 503 });
+    }
     if (error instanceof PayloadTooLargeError) {
       return NextResponse.json({ error: "Payload too large" }, { status: 413 });
     }
