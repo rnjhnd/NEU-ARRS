@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import useSWR from "swr";
+import { usePageSnapshot } from "@/components/verified-access";
 import { Button } from "@/components/ui/button";
 import { formatPHP } from "@/lib/money-format";
 import { manilaDay } from "@/lib/finance-model";
@@ -19,6 +20,7 @@ const displayTime = (value: string) => new Date(value).toLocaleString("en-PH", {
 const keyOf = (item: MoneyMovement) => item.requestId + ":" + item.kind;
 const dateBasisLabels = { PROVIDER_ORIGINAL_EVIDENCE: "Provider/original evidence", REGISTRAR_ATTESTATION: "Registrar attestation", UNKNOWN: "Date not evidenced" };
 function MovementWorkspace({ actorId, initialData }: { actorId: string; initialData?: MovementDataset }) {
+  const snapshotId = usePageSnapshot();
   const [query, setQuery] = useState<MovementQuery>(DEFAULT_MOVEMENT_QUERY);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -29,8 +31,9 @@ function MovementWorkspace({ actorId, initialData }: { actorId: string; initialD
   const [inputError, setInputError] = useState("");
   const active = useRef(false);
   const url = movementURL(query);
-  const { data, error, isValidating, mutate } = useSWR<MovementDataset, Error>([url, actorId] as const, fetchMoneyMovements, {
-    fallbackData: initialData && movementURL(initialData.query) === url ? initialData : undefined,
+  const matchingInitial = initialData && movementURL(initialData.query) === url ? initialData : undefined;
+  const { data, error, isValidating, mutate } = useSWR<MovementDataset, Error>([url, actorId, snapshotId] as const, fetchMoneyMovements, {
+    fallbackData: matchingInitial, revalidateOnMount: !matchingInitial,
     keepPreviousData: true, refreshInterval: 0, revalidateOnFocus: true, revalidateOnReconnect: true, errorRetryCount: 2,
     shouldRetryOnError: error => !(error instanceof MovementRefreshError && [400, 401, 403, 404, 409, 413].includes(error.status)),
     onSuccess: () => setRequiresRefresh(false),

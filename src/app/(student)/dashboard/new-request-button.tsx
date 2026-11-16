@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { toast } from "sonner";
+import { NavigationPending } from "@/components/navigation-pending";
 
 export function NewRequestButton({ 
   isMaintenanceMode, 
@@ -33,6 +34,7 @@ export function NewRequestButton({
     <Link href="/dashboard/new" className="shrink-0">
       <Button size={size} className={className}>
         {children}
+        <NavigationPending className="ml-2" />
       </Button>
     </Link>
   );

@@ -3,11 +3,12 @@ import { useCallback, useContext, useEffect, useState, type ReactNode } from "re
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, useClerk } from "@clerk/nextjs";
 import { pageAccessSchema, sessionActorSchema, type PageAccess, type SessionActor } from "@/lib/page-access-model";
-import { PageLoading, WorkspaceLoading } from "@/components/workspace-loading";
-import { VerifiedAccess } from "./verified-access";
+import { PageLoading } from "@/components/workspace-loading";
+import { PageSnapshot, VerifiedAccess } from "./verified-access";
+import SignInPage from "@/app/sign-in/[[...sign-in]]/page";
 
 /** A page may render only for the same session and role that authorized its RSC. */
-export function SessionPage({ children, access }: { children: ReactNode; access: PageAccess }) {
+export function SessionPage({ children, access, snapshotId }: { children: ReactNode; access: PageAccess; snapshotId?: string }) {
   const current = useContext(VerifiedAccess);
   const router = useRouter();
   const pathname = usePathname();
@@ -32,7 +33,9 @@ export function SessionPage({ children, access }: { children: ReactNode; access:
     return () => clearTimeout(timeout);
   }, [matches, attempt, recheck, router]);
 
-  if (matches) return children;
+  // A new server render owns its initial data. Cached router entries retain
+  // their own cache generation, including already-confirmed local updates.
+  if (matches) return <PageSnapshot.Provider key={snapshotId} value={snapshotId}>{children}</PageSnapshot.Provider>;
   if (failed === attempt) return <div role="alert" className="space-y-3 py-8">
     <p>This page could not be verified. Its content is hidden until access can be confirmed.</p>
     <button onClick={() => setRetry(value => value + 1)}>Retry page</button>
@@ -40,18 +43,34 @@ export function SessionPage({ children, access }: { children: ReactNode; access:
   return <PageLoading />;
 }
 
-export function SessionGuard({ children }: { children: ReactNode }) {
+export function SessionGuard({ children, initialAccess = null }: { children: ReactNode; initialAccess?: PageAccess | null }) {
   const pathname = usePathname();
+  const [entry, setEntry] = useState({ path: pathname, access: initialAccess });
+  // Only the first document render may bootstrap from RootLayout. A cached
+  // layout revisited after a public route must obtain a new session check.
+  if (entry.access && entry.path !== pathname) setEntry({ path: pathname, access: null });
+  const bootstrap = entry.path === pathname ? entry.access : null;
   // Public visits discard verification state; a later private visit starts fresh.
-  return /^\/(admin|dashboard|receipt)(\/|$)/.test(pathname) ? <ProtectedSessionGuard>{children}</ProtectedSessionGuard> : children;
+  return /^\/(admin|dashboard|receipt)(\/|$)/.test(pathname) ? <ProtectedSessionGuard initialAccess={bootstrap}>{children}</ProtectedSessionGuard> : children;
 }
 
-function ProtectedSessionGuard({ children }: { children: ReactNode }) {
+function ProtectedSessionGuard({ children, initialAccess }: { children: ReactNode; initialAccess: PageAccess | null }) {
   const pathname = usePathname();
   const router = useRouter();
   const { session, isLoaded } = useSession();
   const { signOut } = useClerk();
-  const sessionId = session?.id, userId = session?.user.id;
+  const [bootstrap] = useState(() => {
+    const parsed = pageAccessSchema.safeParse(initialAccess);
+    return parsed.success ? parsed.data : null;
+  });
+  const [clientResolved, setClientResolved] = useState(isLoaded);
+  if (isLoaded && !clientResolved) setClientResolved(true);
+  // A fresh, server-authorized document can render before Clerk hydrates.
+  // Once the SDK has resolved, it always wins (including sign-out/mismatch).
+  const cold = !isLoaded && !clientResolved ? bootstrap : null;
+  const hasColdBootstrap = Boolean(cold);
+  const sessionId = isLoaded ? session?.id : cold?.sessionId;
+  const userId = isLoaded ? session?.user.id : cold?.userId;
   const sessionKey = sessionId && userId ? sessionId + ":" + userId : "anonymous";
   const portal = /^\/admin(\/|$)/.test(pathname) ? "staff" : /^\/dashboard(\/|$)/.test(pathname) ? "student" : "receipt";
   // Navigation inside a portal uses its server-authorized page result. It does
@@ -61,11 +80,16 @@ function ProtectedSessionGuard({ children }: { children: ReactNode }) {
   const recheck = useCallback(() => setRevision(value => value + 1), []);
   const [verified, setVerified] = useState<{
     key: string; state: "active" | "denied" | "unavailable"; actor?: SessionActor;
-  } | null>(null);
+  } | null>(() => bootstrap ? {
+    key: bootstrap.sessionId + ":" + bootstrap.userId + ":" + portal,
+    state: "active", actor: { userId: bootstrap.userId, role: bootstrap.role },
+  } : null);
 
   useEffect(() => {
-    if (!isLoaded) return;
-    if (!sessionId || !userId) { router.replace("/"); return; }
+    // Server-rendered content is already visible during SDK startup, so its
+    // revocation monitor must run even if the third-party script is delayed.
+    if (!isLoaded && !hasColdBootstrap) return;
+    if (!sessionId || !userId) { router.replace("/sign-in"); return; }
     let active = true, busy = false;
     const controller = new AbortController();
     async function check() {
@@ -92,15 +116,15 @@ function ProtectedSessionGuard({ children }: { children: ReactNode }) {
       active = false; controller.abort(); clearInterval(interval);
       window.removeEventListener("focus", wake); window.removeEventListener("online", wake);
     };
-  }, [key, isLoaded, sessionId, userId, revision, router]);
+  }, [key, isLoaded, hasColdBootstrap, sessionId, userId, revision, router]);
 
   const actor = verified?.key === key && verified.state === "active" ? verified.actor : undefined;
   const destination = actor && portal === "staff" && actor.role === "student" ? "/dashboard"
     : actor && portal === "student" && actor.role !== "student" ? "/admin" : null;
   useEffect(() => { if (destination) router.replace(destination); }, [destination, router]);
 
-  if (!isLoaded || !sessionId || !userId) return <WorkspaceLoading signingOut={isLoaded && !sessionId} />;
-  if (verified?.key !== key || destination) return <WorkspaceLoading />;
+  if (isLoaded && (!sessionId || !userId)) return <SignInPage />;
+  if ((!isLoaded && !cold) || verified?.key !== key || destination) return <PageLoading />;
   if (!actor) return <main className="space-y-4 p-6"><h1>Account access {verified.state === "denied" ? "restricted" : "unavailable"}</h1><p>{verified.state === "denied" ? "Access changed or your session ended. Sign in again or contact an administrator." : "Your session could not be verified. Check your connection and reload. You have not been signed out."}</p><button onClick={() => window.location.reload()}>Reload</button><button onClick={() => void signOut({ redirectUrl: "/sign-in" }).catch(() => {})}>Sign out</button></main>;
   return <VerifiedAccess.Provider value={{ sessionKey, actor, recheck }}>{children}</VerifiedAccess.Provider>;
 }

@@ -64,6 +64,10 @@ const test = base.extend<{ state: State }, { fixtureURL: string }>({
 });
 test.beforeEach(async ({ page, fixtureURL, state }) => { expect(state.queue.actorId).toBe("staff_synthetic"); await page.goto(fixtureURL); await page.waitForLoadState("networkidle"); await expect(page.getByRole("button", { name: /^View request / })).toHaveCount(10); });
 
+test("the server-loaded queue is not fetched again on hydration", async ({ state }) => {
+  expect(state.reads).toBe(0);
+});
+
 test("registrar verification requires explicit records review, refreshes versions and can be revoked", async ({ page, state }) => {
   const id = rows()[0].id; state.queue.role = "employee";
   state.queue.items[0] = { ...state.queue.items[0], identityVerified: false, identityVerifiedAt: null };

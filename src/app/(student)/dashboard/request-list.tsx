@@ -14,6 +14,7 @@ import { NewRequestButton } from "./new-request-button";
 import { RequestHistoryTable } from "./request-history-table";
 import { CancelRequestDialog } from "./cancel-request-dialog";
 import { RequestSummary } from "./request-summary";
+import { usePageSnapshot } from "@/components/verified-access";
 
 export function RequestList({ history, isMaintenanceMode = false }: { history: StudentHistory; isMaintenanceMode?: boolean }) {
   const { user, isLoaded } = useUser();
@@ -24,13 +25,15 @@ export function RequestList({ history, isMaintenanceMode = false }: { history: S
 }
 
 function StudentRequestHistory({ initialHistory, isMaintenanceMode }: { initialHistory: StudentHistory; isMaintenanceMode: boolean }) {
+  const snapshotId = usePageSnapshot();
   const { mutate: mutatePages } = useSWRConfig();
   const [query, setQuery] = useState<HistoryQuery>(DEFAULT_HISTORY_QUERY);
   const url = studentHistoryURL(query);
   const initialURL = studentHistoryURL(initialHistory.query);
   const { data, error, isValidating, mutate } = useSWR<StudentHistory, Error>(
-    [url, initialHistory.studentId] as const, fetchStudentHistory, {
+    [url, initialHistory.studentId, snapshotId] as const, fetchStudentHistory, {
       fallbackData: url === initialURL ? initialHistory : undefined, keepPreviousData: true,
+      revalidateOnMount: url !== initialURL,
       // SWR's cache can initially omit fallbackData. Re-evaluate the schedule
       // on render too, so manual/focus recovery can restart a settled interval.
       refreshInterval: current => historyRefreshInterval(current ?? initialHistory), refreshWhenHidden: false, refreshWhenOffline: false,
@@ -82,6 +85,10 @@ function StudentRequestHistory({ initialHistory, isMaintenanceMode }: { initialH
   async function recordCancellation(saved: StudentRequestChange) {
     // Cache/refresh failures cannot turn a committed cancellation into a failed action.
     try {
+      // SWR fallbackData need not exist in its shared cache. Persist the
+      // confirmed change against the displayed server snapshot before patching
+      // other cached sorts/pages, so a failed refresh cannot undo the result.
+      await mutate(current => mergeCancelledRequest(current ?? history, saved), { revalidate: false });
       // Other cached pages/sorts may contain this same row. Patch them too;
       // SWR revalidates active subscriptions and invalidates deduped reads.
       await mutatePages<StudentHistory>(key => Array.isArray(key) && key[1] === initialHistory.studentId &&

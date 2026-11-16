@@ -10,6 +10,7 @@ import type { ServerUser } from "@/lib/profile-identity";
 const mocks = vi.hoisted(() => ({ auth: vi.fn(), signOut: vi.fn(), pathname: vi.fn() }));
 vi.mock("@clerk/nextjs", () => ({ useUser: mocks.auth, useClerk: () => ({ signOut: mocks.signOut }) }));
 vi.mock("next/navigation", () => ({ usePathname: mocks.pathname }));
+vi.mock("next/link", () => ({ default: "a", useLinkStatus: () => ({ pending: false }) }));
 
 const server: NonNullable<ServerUser> = { id: "user_a", name: "Previous Person", email: "previous@example.invalid", imageUrl: "", role: "admin" };
 

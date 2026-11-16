@@ -3,7 +3,7 @@ import { studentHistorySchema } from "./student-request-model";
 export class HistoryRefreshError extends Error {
   constructor(readonly status: number, message = "Request history could not be refreshed.") { super(message); }
 }
-export async function fetchStudentHistory([url, studentId]: readonly [string, string]) {
+export async function fetchStudentHistory([url, studentId]: readonly [string, string, string?]) {
   const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(10_000) });
   if (response.redirected) throw new HistoryRefreshError(401);
   if (!response.ok) throw new HistoryRefreshError(response.status);

@@ -78,6 +78,11 @@ test.beforeEach(async ({ page, fixtureURL, state }) => {
   await expect(page.getByRole("button", { name: /^View request / })).toHaveCount(10);
 });
 
+test("the server-loaded student history is not fetched again on hydration", async ({ page, state }) => {
+  await page.waitForLoadState("networkidle");
+  expect(state.reads).toHaveLength(0);
+});
+
 test("paid and cash requests awaiting registrar action do not ask the student to pay again", async ({ page, state }) => {
   for (const paymentStatus of ["PAID", "CASH_ON_PICKUP"] as const) {
     const item = { ...rows(1)[0], paymentStatus, paymentMethod: paymentStatus === "PAID" ? "online" : "cash" };

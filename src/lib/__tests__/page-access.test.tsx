@@ -1,7 +1,7 @@
 import { beforeEach, expect, it, vi } from "vitest";
 import { auth } from "@clerk/nextjs/server";
 import { AccessError, getVerifiedActor } from "@/lib/auth";
-import { requirePageAccess } from "../page-access";
+import { initialPageAccess, requirePageAccess } from "../page-access";
 import { withVerifiedPage } from "@/components/verified-page";
 import { SessionPage } from "@/components/session-guard";
 vi.mock("@clerk/nextjs/server", () => ({ auth: vi.fn() }));
@@ -14,6 +14,13 @@ beforeEach(() => {
 
 it("serializes only the authorized account, role and matching session identifier", async () => {
   expect(await requirePageAccess(["student"])).toEqual({ userId: "student", role: "student", sessionId: "session_student" });
+});
+it("can bootstrap the initial document from the verified server binding", async () => {
+  expect(await initialPageAccess()).toEqual({ userId: "student", role: "student", sessionId: "session_student" });
+});
+it.each([401, 403, 503] as const)("keeps public sign-in available without granting a bootstrap on %s", async status => {
+  vi.mocked(getVerifiedActor).mockRejectedValue(new AccessError(status));
+  expect(await initialPageAccess()).toBeNull();
 });
 it.each([null, "employee", "admin"] as const)("does not admit a student to an unapproved role set (%s)", async role => {
   const render = vi.fn(async () => "private page");
@@ -39,5 +46,5 @@ it("keeps page props and the server-authorized result together", async () => {
   const element = await withVerifiedPage(render, ["student"])({ id: "record" });
   expect(render).toHaveBeenCalledWith({ id: "record" });
   expect(element.type).toBe(SessionPage);
-  expect(element.props).toEqual({ access: { userId: "student", role: "student", sessionId: "session_student" }, children: "private record" });
+  expect(element.props).toEqual({ access: { userId: "student", role: "student", sessionId: "session_student" }, snapshotId: expect.stringMatching(/^[0-9a-f-]{36}$/), children: "private record" });
 });

@@ -5,7 +5,6 @@ import { Loader2, KeyRound, Mail, Eye, EyeOff } from "lucide-react";
 import { LogoIcon } from "@/components/logo-icon";
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +20,6 @@ export default function SignInPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [verificationError, setVerificationError] = useState<string | null>(null);
-  const router = useRouter();
   const { signIn } = useSignIn();
   const clerk = useClerk();
   const busy = useRef(false);
@@ -61,8 +59,9 @@ export default function SignInPage() {
       }
 
       if (signIn.status === "complete") {
-        await signIn.finalize();
-        router.push("/");
+        const finalized = await signIn.finalize();
+        if (finalized.error) { toast.error("Sign-in could not be completed. Please try again."); return; }
+        window.location.replace("/");
       } else if (signIn.status === "needs_client_trust" && signIn.supportedSecondFactors.some(factor => factor.strategy === "email_code")) {
         setPassword("");
         setVerificationCode("");
@@ -110,7 +109,7 @@ export default function SignInPage() {
         setVerificationError("Sign-in could not be completed. Please try again.");
         return;
       }
-      router.push("/");
+      window.location.replace("/");
     } catch {
       setVerificationError("Verification is unavailable. Please try again.");
     } finally {

@@ -3,7 +3,7 @@ import { financeDatasetSchema, financeQuerySchema, financeRange, financeURL, man
 export class FinanceRefreshError extends Error {
   constructor(readonly status: number) { super(status === 413 ? "Report exceeds 5,000 requests. Choose a shorter period." : "Finance report could not be refreshed."); }
 }
-export async function fetchFinanceData([url, actorId]: readonly [string, string]) {
+export async function fetchFinanceData([url, actorId]: readonly [string, string, string?]) {
   const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(15_000) });
   if (response.redirected) throw new FinanceRefreshError(401);
   if (!response.ok) throw new FinanceRefreshError(response.status);

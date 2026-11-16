@@ -44,6 +44,21 @@ test.use({ timezoneId: "America/Los_Angeles" }); // All report days must still b
 test.beforeEach(async ({ page, fixtureURL, state }) => { expect(state.items).toHaveLength(9); await page.goto(fixtureURL); await page.waitForLoadState("networkidle"); await expect(page.getByText("Known Settled Value", { exact: true })).toBeVisible(); });
 const kpi = (page: Page, label: string) => page.getByText(label, { exact: true }).locator("..");
 
+test("the server-loaded finance report is not fetched again on hydration", async ({ state }) => {
+  expect(state.reads).toHaveLength(0);
+});
+
+test("a new server snapshot cannot be replaced by an older SWR cache entry", async ({ page, state }) => {
+  await page.getByRole("button", { name: "Refresh report", exact: true }).click();
+  await expect.poll(() => state.reads.length).toBe(1);
+  await expect(page.getByRole("button", { name: "Refresh report", exact: true })).toBeEnabled();
+  state.items = state.items.map(item => ({ ...item, collectedCentavos: 0 }));
+  state.items[0].collectedCentavos = 99999;
+  await page.getByRole("button", { name: "New server snapshot", exact: true }).click();
+  await expect(kpi(page, "Known Settled Value")).toContainText("999.99");
+  expect(state.reads).toHaveLength(1);
+});
+
 test("cards, warnings and declared Manila cohort reflect exact prices and real zeros", async ({ page }) => {
   await expect(kpi(page, "Known Settled Value")).toContainText("350.75"); await expect(kpi(page, "Online Settled Value")).toContainText("150.50");
   await expect(kpi(page, "Cash Settled Value")).toContainText("200.25"); await expect(kpi(page, "Settled Requests")).toContainText("4");
