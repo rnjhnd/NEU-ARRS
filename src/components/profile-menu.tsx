@@ -34,7 +34,7 @@ export function ProfileMenu({ side = "bottom", serverUser }: {
     if (pending) return;
     setPending(true);
     setError(null);
-    try { await signOut({ redirectUrl: "/" }); }
+    try { await signOut({ redirectUrl: "/sign-in" }); }
     catch { setError("Sign-out could not be confirmed. Please try again."); }
     finally { setPending(false); }
   }

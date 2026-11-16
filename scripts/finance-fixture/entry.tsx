@@ -5,13 +5,21 @@ import { Toaster } from "sonner";
 import { AuthFixture, type FixtureUser } from "../navigation-fixture/clerk";
 import { FinanceClient } from "../../src/app/(admin)/admin/finance/finance-client";
 import { financeDatasetSchema, type FinanceDataset } from "../../src/lib/finance-model";
+import { PageSnapshot } from "../../src/components/verified-access";
 import "../../src/app/globals.css";
 
 function Fixture({ actorId, data, unavailable }: { actorId: string; data?: FinanceDataset; unavailable: boolean }) {
   const [user, setUser] = useState<FixtureUser>({ id: actorId, firstName: "Synthetic", lastName: "Admin", primaryEmailAddress: null, imageUrl: "", publicMetadata: { role: "admin" } });
+  const [view, setView] = useState({ id: "snapshot-a", data });
+  async function replaceServerSnapshot() {
+    const response = await fetch("/fixture/bootstrap");
+    const updated = await response.json();
+    setView({ id: "snapshot-b", data: financeDatasetSchema.parse(updated.data) });
+  }
   return <AuthFixture.Provider value={{ user, signOut: async () => {} }}><SWRConfig value={{ provider: () => new Map(), dedupingInterval: 0 }}>
     <div className="p-4 space-y-4"><h1>Isolated finance checks</h1><button onClick={() => setUser({ ...user, id: "other_admin" })}>Switch administrator</button><button onClick={() => setUser({ ...user, publicMetadata: { role: "employee" } })}>Revoke administrator role</button>
-      <FinanceClient actorId={actorId} initialData={data} initialError={unavailable ? "Snapshot unavailable." : undefined} /></div><Toaster />
+      <button onClick={() => void replaceServerSnapshot()}>New server snapshot</button>
+      <PageSnapshot.Provider key={view.id} value={view.id}><FinanceClient actorId={actorId} initialData={view.data} initialError={unavailable ? "Snapshot unavailable." : undefined} /></PageSnapshot.Provider></div><Toaster />
   </SWRConfig></AuthFixture.Provider>;
 }
 const response = await fetch("/fixture/bootstrap");

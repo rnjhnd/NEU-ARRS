@@ -12,14 +12,17 @@ import { getStatusChangeError } from "@/lib/request-workflow";
 import { QueueTable } from "./queue-table";
 import { QueueUpdateDialog, type QueueDialog } from "./queue-update-dialog";
 import { useQueueUpdate } from "./use-queue-update";
+import { usePageSnapshot, useVerifiedActor } from "@/components/verified-access";
 
 export function AdminQueueClient({ initialQueue }: { initialQueue: AdminQueue }) {
   const { user, isLoaded } = useUser();
-  if (!isLoaded) return <p role="status">Verifying staff account...</p>;
-  if (user?.id !== initialQueue.actorId || user.publicMetadata.role !== initialQueue.role) return <p role="alert">Your staff account or role changed. Reload the queue before continuing.</p>;
+  const actor = useVerifiedActor();
+  if (!isLoaded && (actor?.userId !== initialQueue.actorId || actor.role !== initialQueue.role)) return <p role="status">Verifying staff account...</p>;
+  if (isLoaded && (user?.id !== initialQueue.actorId || user.publicMetadata.role !== initialQueue.role)) return <p role="alert">Your staff account or role changed. Reload the queue before continuing.</p>;
   return <QueueWorkspace key={initialQueue.actorId + ":" + initialQueue.role} initialQueue={initialQueue} />;
 }
 function QueueWorkspace({ initialQueue }: { initialQueue: AdminQueue }) {
+  const snapshotId = usePageSnapshot();
   const { mutate: mutatePages } = useSWRConfig();
   const [query, setQuery] = useState<QueueQuery>(initialQueue.query ?? DEFAULT_QUEUE_QUERY);
   const [search, setSearch] = useState(query.search), [requiresRefresh, setRequiresRefresh] = useState(false), [denied, setDenied] = useState(false);
@@ -33,8 +36,9 @@ function QueueWorkspace({ initialQueue }: { initialQueue: AdminQueue }) {
     return () => clearTimeout(timer);
   }, [search]);
   const url = adminQueueURL(query);
-  const { data, error, isValidating, mutate } = useSWR<AdminQueue, Error>([url, initialQueue.actorId, initialQueue.role] as const, fetchAdminQueue, {
+  const { data, error, isValidating, mutate } = useSWR<AdminQueue, Error>([url, initialQueue.actorId, initialQueue.role, snapshotId] as const, fetchAdminQueue, {
     fallbackData: url === adminQueueURL(initialQueue.query) ? initialQueue : undefined, keepPreviousData: true,
+    revalidateOnMount: url !== adminQueueURL(initialQueue.query),
     refreshInterval: current => { const summary = (current ?? initialQueue).summary; return summary.pending + summary.processing + summary.ready > 0 ? 30_000 : 0; },
     refreshWhenHidden: false, refreshWhenOffline: false, revalidateOnFocus: true, revalidateOnReconnect: true, errorRetryCount: 3,
     shouldRetryOnError: error => !(error instanceof QueueRefreshError && [400, 401, 403, 404, 409, 413].includes(error.status)),

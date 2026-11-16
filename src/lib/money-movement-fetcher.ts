@@ -2,7 +2,7 @@ import { movementDatasetSchema, movementQuerySchema, movementURL, MOVEMENT_BYTES
 export class MovementRefreshError extends Error {
   constructor(readonly status: number) { super(status === 413 ? "Too many dated movements. Choose a shorter period." : "Money movements could not be refreshed."); }
 }
-export async function fetchMoneyMovements([url, actorId]: readonly [string, string]) {
+export async function fetchMoneyMovements([url, actorId]: readonly [string, string, string?]) {
   const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(15000) });
   if (response.redirected) throw new MovementRefreshError(401);
   if (!response.ok) throw new MovementRefreshError(response.status);

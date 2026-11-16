@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import useSWR from "swr";
+import { usePageSnapshot } from "@/components/verified-access";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +17,7 @@ export function FinanceClient({ actorId, initialData, initialError }: { actorId:
   return <FinanceWorkspace key={actorId} actorId={actorId} initialData={initialData} initialError={initialError} />;
 }
 function FinanceWorkspace({ actorId, initialData, initialError }: { actorId: string; initialData?: FinanceDataset; initialError?: string }) {
+  const snapshotId = usePageSnapshot();
   const [query, setQuery] = useState<FinanceQuery>(DEFAULT_FINANCE_QUERY);
   const [period, setPeriod] = useState<FinanceQuery["period"]>("7days");
   const [from, setFrom] = useState(initialData ? shiftDay(manilaDay(initialData.asOf), -13) : "");
@@ -26,8 +28,9 @@ function FinanceWorkspace({ actorId, initialData, initialError }: { actorId: str
   const exporting = useRef(false);
   const active = useRef(false);
   const url = financeURL(query);
-  const { data, error, isValidating, mutate } = useSWR<FinanceDataset, Error>([url, actorId] as const, fetchFinanceData, {
-    fallbackData: initialData && financeURL(initialData.query) === url ? initialData : undefined,
+  const matchingInitial = initialData && financeURL(initialData.query) === url ? initialData : undefined;
+  const { data, error, isValidating, mutate } = useSWR<FinanceDataset, Error>([url, actorId, snapshotId] as const, fetchFinanceData, {
+    fallbackData: matchingInitial, revalidateOnMount: !matchingInitial,
     keepPreviousData: true, refreshInterval: 0, revalidateOnFocus: true, revalidateOnReconnect: true,
     errorRetryCount: 2, shouldRetryOnError: error => !(error instanceof FinanceRefreshError && [400, 401, 403, 409, 413].includes(error.status)),
   });

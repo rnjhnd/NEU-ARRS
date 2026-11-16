@@ -21,3 +21,12 @@ export async function requirePageAccess(roles: readonly AppRole[]): Promise<Page
   if (!roles.includes(access.role)) throw new AccessError(403);
   return access;
 }
+
+/** The initial document can reuse server verification; public auth UI stays usable on denial. */
+export async function initialPageAccess(): Promise<PageAccess | null> {
+  try { return await getPageAccess(); }
+  catch (error) {
+    if (error instanceof AccessError) return null;
+    throw error;
+  }
+}

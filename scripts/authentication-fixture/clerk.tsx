@@ -3,13 +3,17 @@ import { useUser, useClerk as useBaseClerk } from "../navigation-fixture/clerk";
 import { syntheticAction } from "./actions";
 export { useUser };
 export function useSession() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const session = useMemo(() => user ? { id: "session_" + user.id, user: { id: user.id } } : null, [user]);
-  return { session, isLoaded: true };
+  return { session, isLoaded };
 }
 export function useClerk() {
   const base = useBaseClerk();
-  return { ...base, client: { signIn: { authenticateWithRedirect: (input: unknown) => syntheticAction("oauth", input) } } };
+  return { ...base, client: { signIn: { authenticateWithRedirect: (input: unknown) => syntheticAction("oauth", input) } },
+    handleRedirectCallback: async (input: unknown, navigate: (destination: string) => Promise<unknown>) => {
+      const result = await syntheticAction("oauth-callback", input);
+      await navigate(typeof result.destination === "string" ? result.destination : "/");
+    } };
 }
 function useResource(prefix: "signin" | "signup") {
   return useMemo(() => {

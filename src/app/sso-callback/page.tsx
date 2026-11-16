@@ -1,4 +1,4 @@
-import { AuthenticateWithRedirectCallback } from "@clerk/nextjs";
+import { SSOSessionHandoff } from "@/components/sso-session-handoff";
 import { Loader2 } from "lucide-react";
 
 export default function SSOCallbackPage() {
@@ -9,11 +9,7 @@ export default function SSOCallbackPage() {
         <h2 className="text-xl font-semibold text-foreground tracking-tight">Authenticating...</h2>
         <p className="text-muted-foreground text-sm">Please wait while we securely log you in.</p>
       </div>
-      <AuthenticateWithRedirectCallback 
-        signInFallbackRedirectUrl="/dashboard"
-        signUpFallbackRedirectUrl="/dashboard"
-        continueSignUpUrl="/sign-up"
-      />
+      <SSOSessionHandoff />
     </div>
   );
 }

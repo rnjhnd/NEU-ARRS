@@ -38,6 +38,10 @@ const test = base.extend<{ state: State }, { fixtureURL: string }>({
   },
 });
 test.beforeEach(async ({ page, fixtureURL, state }) => { expect(state.items.length).toBe(15); await page.goto(fixtureURL); await expect(page.getByRole("button", { name: "Refresh movements", exact: true })).toBeEnabled(); });
+test("the server-loaded money report is not fetched again on hydration", async ({ state }) => {
+  expect(state.reads).toBe(0);
+});
+
 test("keeps undated totals separate and pages the global undated list", async ({ page }) => {
   const dated = page.getByRole("region", { name: "Dated money movements", exact: true }), undated = page.getByRole("region", { name: "Undated money movements", exact: true });
   await expect(dated.getByRole("row")).toHaveCount(3); await expect(undated.getByRole("button", { name: /^Record date / })).toHaveCount(10);

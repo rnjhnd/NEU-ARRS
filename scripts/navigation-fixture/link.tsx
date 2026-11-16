@@ -1,6 +1,8 @@
 import type { AnchorHTMLAttributes, MouseEvent } from "react";
 import { navigate } from "./navigation";
 
+export function useLinkStatus() { return { pending: false }; }
+
 export default function Link({ href = "/", onNavigate, ...props }: AnchorHTMLAttributes<HTMLAnchorElement> & {
   onNavigate?: (event: { preventDefault: () => void }) => void;
 }) {

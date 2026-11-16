@@ -5,7 +5,6 @@ import { ArrowLeft, Loader2, KeyRound, Mail, User, ShieldCheck, Zap, Clock, Eye,
 import { LogoIcon } from "@/components/logo-icon";
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { isClerkAPIResponseError } from "@clerk/nextjs/errors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +23,6 @@ export default function SignUpPage() {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [isManualLoading, setIsManualLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const router = useRouter();
   const clerk = useClerk();
   const busy = useRef(false);
 
@@ -92,8 +90,9 @@ export default function SignUpPage() {
       }
 
       if (signUp.status === "complete") {
-        await signUp.finalize();
-        router.push("/");
+        const finalized = await signUp.finalize();
+        if (finalized.error) { toast.error("Sign-up could not be completed. Please try again."); return; }
+        window.location.replace("/");
       } else {
         toast.error("Additional verification is required to complete sign-up.");
       }

@@ -3,7 +3,7 @@ import { adminQueueSchema, QUEUE_RESPONSE_BYTES, type QueueExportQuery } from ".
 export class QueueRefreshError extends Error {
   constructor(readonly status: number) { super("Queue could not be refreshed."); }
 }
-export async function fetchAdminQueue([url, actorId, role]: readonly [string, string, string]) {
+export async function fetchAdminQueue([url, actorId, role]: readonly [string, string, string, string?]) {
   const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(30_000) });
   if (response.redirected) throw new QueueRefreshError(401);
   if (!response.ok) throw new QueueRefreshError(response.status);

@@ -1,4 +1,5 @@
 import "server-only";
+import { randomUUID } from "node:crypto";
 import type { ReactNode } from "react";
 import { requirePageAccess } from "@/lib/page-access";
 import type { AppRole } from "@/lib/role-policy";
@@ -11,6 +12,6 @@ export function withVerifiedPage<Args extends unknown[]>(
 ) {
   return async function VerifiedPage(...args: Args) {
     const access = await requirePageAccess(roles);
-    return <SessionPage access={access}>{await renderPage(...args)}</SessionPage>;
+    return <SessionPage access={access} snapshotId={randomUUID()}>{await renderPage(...args)}</SessionPage>;
   };
 }

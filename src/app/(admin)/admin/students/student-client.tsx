@@ -10,20 +10,23 @@ import { formatPHP } from "@/lib/money-format";
 import { DEFAULT_DIRECTORY_SORT, DIRECTORY_URL, directoryView, type DirectoryActor, type DirectorySort, type StudentDirectory } from "@/lib/student-directory-model";
 import { DirectoryRefreshError, fetchStudentDirectory } from "@/lib/student-directory-fetcher";
 import { DirectoryTable } from "./directory-table";
+import { usePageSnapshot, useVerifiedActor } from "@/components/verified-access";
 
 type Props = DirectoryActor & { initialData?: StudentDirectory; initialError?: string };
 export function StudentClient(props: Props) {
   const { user, isLoaded } = useUser();
-  if (!isLoaded) return <p role="status">Verifying your staff session…</p>;
-  if (user?.id !== props.actorId || user.publicMetadata.role !== props.role) return <p role="alert">Your staff account or role changed. Reload the student directory.</p>;
+  const actor = useVerifiedActor();
+  if (!isLoaded && (actor?.userId !== props.actorId || actor.role !== props.role)) return <p role="status">Verifying your staff session…</p>;
+  if (isLoaded && (user?.id !== props.actorId || user.publicMetadata.role !== props.role)) return <p role="alert">Your staff account or role changed. Reload the student directory.</p>;
   return <DirectoryWorkspace key={props.actorId + ":" + props.role} {...props} />;
 }
 function DirectoryWorkspace({ actorId, role, initialData, initialError }: Props) {
+  const snapshotId = usePageSnapshot();
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<DirectorySort>(DEFAULT_DIRECTORY_SORT);
   const [requestedPage, setRequestedPage] = useState(1);
   const matchingInitial = initialData?.actorId === actorId && initialData.role === role ? initialData : undefined;
-  const { data, error, isValidating, mutate } = useSWR<StudentDirectory, Error>([DIRECTORY_URL, actorId, role] as const, fetchStudentDirectory, {
+  const { data, error, isValidating, mutate } = useSWR<StudentDirectory, Error>([DIRECTORY_URL, actorId, role, snapshotId] as const, fetchStudentDirectory, {
     fallbackData: matchingInitial, revalidateOnMount: !matchingInitial, refreshInterval: 0,
     revalidateOnFocus: true, revalidateOnReconnect: true, focusThrottleInterval: 60_000, dedupingInterval: 60_000,
     shouldRetryOnError: false,

@@ -11,6 +11,7 @@ import type { StudentCatalogItem } from "@/lib/configuration-model";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, FileText, CreditCard, Landmark, Loader2 } from "lucide-react";
+import { useVerifiedActor } from "@/components/verified-access";
 
 const PurposeOptions = [
   { id: "EMPLOYMENT", label: "Employment" },
@@ -23,8 +24,9 @@ const PurposeOptions = [
 type RequestFormProps = { actorId: string; documentConfigs: StudentCatalogItem[]; paymentMethods: { online: boolean; cash: boolean } };
 export function RequestForm(props: RequestFormProps) {
   const { isLoaded, user } = useUser();
-  if (!isLoaded) return <p role="status">Verifying your account...</p>;
-  if (!user || user.id !== props.actorId || user.publicMetadata.role != null && user.publicMetadata.role !== "student") return <p role="alert">Account access changed. Reload your dashboard before submitting.</p>;
+  const actor = useVerifiedActor();
+  if (!isLoaded && (actor?.userId !== props.actorId || actor.role !== "student")) return <p role="status">Verifying your account...</p>;
+  if (isLoaded && (!user || user.id !== props.actorId || user.publicMetadata.role != null && user.publicMetadata.role !== "student")) return <p role="alert">Account access changed. Reload your dashboard before submitting.</p>;
   return <StudentRequestForm key={props.actorId} {...props} />;
 }
 

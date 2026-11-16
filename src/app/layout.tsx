@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SessionGuard } from "@/components/session-guard";
+import { initialPageAccess } from "@/lib/page-access";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
@@ -21,11 +22,12 @@ export const metadata: Metadata = {
   description: "Request official documents from the NEU Registrar's Office",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const access = await initialPageAccess();
   return (
     <html
       lang="en"
@@ -35,7 +37,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <ClerkThemeProvider>
-            <SessionGuard>{children}</SessionGuard>
+            <SessionGuard initialAccess={access}>{children}</SessionGuard>
             <Toaster />
           </ClerkThemeProvider>
         </ThemeProvider>
