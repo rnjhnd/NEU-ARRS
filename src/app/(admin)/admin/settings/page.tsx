@@ -1,4 +1,6 @@
+import { withVerifiedPage } from "@/components/verified-page";
 import { requireAdmin } from "@/lib/auth";
+import Link from "next/link";
 import { Suspense } from "react";
 import { SettingsData } from "./settings-data";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -72,7 +74,7 @@ function SettingsSkeleton() {
   );
 }
 
-export default async function SettingsPage() {
+async function SettingsPage() {
   await requireAdmin();
 
   return (
@@ -94,10 +96,12 @@ export default async function SettingsPage() {
         </div>
       </div>
 
-      <a href="/admin/notifications" className="inline-flex rounded-md border border-border px-4 py-2 font-medium">Notification recovery</a>
+      <Link href="/admin/notifications" className="inline-flex rounded-md border border-border px-4 py-2 font-medium">Notification recovery</Link>
       <Suspense fallback={<SettingsSkeleton />}>
         <SettingsData />
       </Suspense>
     </div>
   );
 }
+
+export default withVerifiedPage(SettingsPage, ["admin"]);

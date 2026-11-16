@@ -1,3 +1,4 @@
+import { withVerifiedPage } from "@/components/verified-page";
 import { requireEmployeeOrAdmin } from "@/lib/auth";
 import { Suspense } from "react";
 import { StudentsData } from "./students-data";
@@ -73,7 +74,7 @@ function StudentsSkeleton() {
 
 export const metadata = { title: "Student Directory" };
 
-export default async function StudentsPage() {
+async function StudentsPage() {
   await requireEmployeeOrAdmin();
 
   return (
@@ -101,3 +102,5 @@ export default async function StudentsPage() {
     </div>
   );
 }
+
+export default withVerifiedPage(StudentsPage, ["admin", "employee"]);

@@ -1,10 +1,11 @@
+import { withVerifiedPage } from "@/components/verified-page";
 import { requireAdmin } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { NotificationQueue } from "./notification-queue";
 import Link from "next/link";
 import { z } from "zod";
 
-export default async function NotificationsPage({ searchParams }: { searchParams: Promise<{ after?: string | string[] }> }) {
+async function NotificationsPage({ searchParams }: { searchParams: Promise<{ after?: string | string[] }> }) {
   await requireAdmin();
   const parsed = z.string().cuid().safeParse((await searchParams).after);
   const after = parsed.success ? parsed.data : undefined;
@@ -23,3 +24,5 @@ export default async function NotificationsPage({ searchParams }: { searchParams
     </nav>
   </div>;
 }
+
+export default withVerifiedPage(NotificationsPage, ["admin"]);

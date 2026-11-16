@@ -1,3 +1,4 @@
+import { withVerifiedPage } from "@/components/verified-page";
 import Link from "next/link";
 import { Suspense } from "react";
 import { requireFinanceActor, FinanceLoadError } from "@/lib/finance-data";
@@ -15,7 +16,9 @@ async function MovementData() {
   }
   return <MovementClient actorId={actorId} initialData={data} />;
 }
-export default async function MovementPage() {
+async function MovementPage() {
   await requireFinanceActor();
   return <main className="space-y-6"><header className="space-y-2"><h1 className="text-3xl font-bold">Money Movements</h1><Link href="/admin/finance" className="underline">Settled Request Values — submitted-date report</Link></header><Suspense fallback={<p role="status">Loading money movements...</p>}><MovementData /></Suspense></main>;
 }
+
+export default withVerifiedPage(MovementPage, ["admin"]);

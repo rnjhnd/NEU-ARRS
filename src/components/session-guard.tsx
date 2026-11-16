@@ -1,23 +1,48 @@
 ﻿"use client";
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, useClerk } from "@clerk/nextjs";
-import { z } from "zod";
-import { roleSchema } from "@/lib/role-policy";
+import { pageAccessSchema, sessionActorSchema, type PageAccess, type SessionActor } from "@/lib/page-access-model";
 import { PageLoading, WorkspaceLoading } from "@/components/workspace-loading";
+import { VerifiedAccess } from "./verified-access";
 
-const actorSchema = z.object({ userId: z.string().min(1), role: roleSchema }).strict();
-const PageAccess = createContext(false);
+/** A page may render only for the same session and role that authorized its RSC. */
+export function SessionPage({ children, access }: { children: ReactNode; access: PageAccess }) {
+  const current = useContext(VerifiedAccess);
+  const router = useRouter();
+  const pathname = usePathname();
+  const parsed = pageAccessSchema.safeParse(access);
+  const proof = parsed.success ? parsed.data : null;
+  const proofKey = proof ? proof.sessionId + ":" + proof.userId : "invalid";
+  const matches = Boolean(current && proof && current.sessionKey === proofKey &&
+    current.actor.userId === proof.userId && current.actor.role === proof.role);
+  const mismatchKey = [pathname, current?.sessionKey, current?.actor.role, proofKey, proof?.role].join(":");
+  const recheck = current?.recheck;
+  const [retry, setRetry] = useState(0);
+  const [failed, setFailed] = useState<string | null>(null);
+  const attempt = mismatchKey + ":" + retry;
 
-/** Keep the verified portal shell mounted while a new page is checked. */
-export function SessionPage({ children }: { children: ReactNode }) {
-  return useContext(PageAccess) ? children : <PageLoading />;
+  useEffect(() => {
+    if (matches || !recheck) return;
+    // A cached RSC for another session/role cannot grant access or replace the
+    // current actor. Refresh it and recheck only on this exceptional mismatch.
+    recheck();
+    router.refresh();
+    const timeout = setTimeout(() => setFailed(attempt), 15_000);
+    return () => clearTimeout(timeout);
+  }, [matches, attempt, recheck, router]);
+
+  if (matches) return children;
+  if (failed === attempt) return <div role="alert" className="space-y-3 py-8">
+    <p>This page could not be verified. Its content is hidden until access can be confirmed.</p>
+    <button onClick={() => setRetry(value => value + 1)}>Retry page</button>
+  </div>;
+  return <PageLoading />;
 }
 
 export function SessionGuard({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  // Leaving protected routes unmounts the verification state. Returning from a
-  // public page must never reuse a previous visit's access snapshot.
+  // Public visits discard verification state; a later private visit starts fresh.
   return /^\/(admin|dashboard|receipt)(\/|$)/.test(pathname) ? <ProtectedSessionGuard>{children}</ProtectedSessionGuard> : children;
 }
 
@@ -26,20 +51,21 @@ function ProtectedSessionGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { session, isLoaded } = useSession();
   const { signOut } = useClerk();
-  const sessionKey = session ? session.id + ":" + session.user.id : "anonymous";
+  const sessionId = session?.id, userId = session?.user.id;
+  const sessionKey = sessionId && userId ? sessionId + ":" + userId : "anonymous";
   const portal = /^\/admin(\/|$)/.test(pathname) ? "staff" : /^\/dashboard(\/|$)/.test(pathname) ? "student" : "receipt";
-  const key = sessionKey + ":" + pathname;
+  // Navigation inside a portal uses its server-authorized page result. It does
+  // not restart this monitor or insert another /api/session waterfall.
+  const key = sessionKey + ":" + portal;
+  const [revision, setRevision] = useState(0);
+  const recheck = useCallback(() => setRevision(value => value + 1), []);
   const [verified, setVerified] = useState<{
-    key: string; sessionKey: string; portal: string;
-    state: "active" | "denied" | "unavailable" | "redirecting";
-    actor?: z.infer<typeof actorSchema>;
+    key: string; state: "active" | "denied" | "unavailable"; actor?: SessionActor;
   } | null>(null);
+
   useEffect(() => {
     if (!isLoaded) return;
-    // Clerk has already ended this session. Do not start an anonymous access
-    // check or show another workspace skeleton while sign-out redirects.
-    if (!session) { router.replace("/"); return; }
-    const expectedUserId = session.user.id;
+    if (!sessionId || !userId) { router.replace("/"); return; }
     let active = true, busy = false;
     const controller = new AbortController();
     async function check() {
@@ -48,41 +74,33 @@ function ProtectedSessionGuard({ children }: { children: ReactNode }) {
       try {
         const response = await fetch("/api/session", { cache: "no-store", signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]) });
         if (!active) return;
-        if ([401, 403, 404].includes(response.status) || response.redirected) { setVerified({ key, sessionKey, portal, state: "denied" }); return; }
+        if ([401, 403, 404].includes(response.status) || response.redirected) { setVerified({ key, state: "denied" }); return; }
         if (!response.ok) throw new Error("Session unavailable");
-        const actor = actorSchema.parse(await response.json());
+        const actor = sessionActorSchema.parse(await response.json());
         if (!active) return;
-        if (actor.userId !== expectedUserId) { setVerified({ key, sessionKey, portal, state: "denied" }); return; }
-        const destination = /^\/admin(\/|$)/.test(pathname) && actor.role === "student" ? "/dashboard"
-          : /^\/dashboard(\/|$)/.test(pathname) && actor.role !== "student" ? "/admin" : null;
-        if (destination) {
-          // The hidden server children cannot deliver their streamed redirect.
-          // Navigate only after verifying this account; never reveal the wrong portal.
-          setVerified({ key, sessionKey, portal, state: "redirecting" });
-          router.replace(destination);
-          return;
-        }
-        setVerified({ key, sessionKey, portal, state: "active", actor });
-      } catch { if (active) setVerified({ key, sessionKey, portal, state: "unavailable" }); }
+        if (actor.userId !== userId) { setVerified({ key, state: "denied" }); return; }
+        setVerified({ key, state: "active", actor });
+      } catch { if (active) setVerified({ key, state: "unavailable" }); }
       finally { busy = false; }
     }
     void check();
     const interval = setInterval(() => void check(), 30_000);
-    const focus = () => void check();
-    window.addEventListener("focus", focus);
-    return () => { active = false; controller.abort(); clearInterval(interval); window.removeEventListener("focus", focus); };
-  }, [key, sessionKey, portal, isLoaded, pathname, session, router]);
-  if (!isLoaded || !session) return <WorkspaceLoading signingOut={isLoaded && !session} />;
-  if (verified?.key !== key) {
-    // Only the already-verified shell for this exact account and portal may
-    // remain. SessionPage withholds the destination page until its fresh check
-    // completes. Account/portal switches still hide the entire private tree.
-    const keepShell = verified?.state === "active" && verified.sessionKey === sessionKey && verified.portal === portal &&
-      (portal !== "student" || verified.actor?.role === "student") &&
-      (portal !== "staff" || (verified.actor?.role === "admin" || verified.actor?.role === "employee"));
-    return keepShell ? <PageAccess.Provider value={false}>{children}</PageAccess.Provider> : <WorkspaceLoading />;
-  }
-  if (verified.state === "redirecting") return <WorkspaceLoading />;
-  if (verified.state !== "active") return <main className="space-y-4 p-6"><h1>Account access {verified.state === "denied" ? "restricted" : "unavailable"}</h1><p>{verified.state === "denied" ? "Access changed or your session ended. Sign in again or contact an administrator." : "Your session could not be verified. Check your connection and reload. You have not been signed out."}</p><button onClick={() => window.location.reload()}>Reload</button><button onClick={() => void signOut({ redirectUrl: "/sign-in" }).catch(() => {})}>Sign out</button></main>;
-  return <PageAccess.Provider value={true}>{children}</PageAccess.Provider>;
+    const wake = () => void check();
+    window.addEventListener("focus", wake);
+    window.addEventListener("online", wake);
+    return () => {
+      active = false; controller.abort(); clearInterval(interval);
+      window.removeEventListener("focus", wake); window.removeEventListener("online", wake);
+    };
+  }, [key, isLoaded, sessionId, userId, revision, router]);
+
+  const actor = verified?.key === key && verified.state === "active" ? verified.actor : undefined;
+  const destination = actor && portal === "staff" && actor.role === "student" ? "/dashboard"
+    : actor && portal === "student" && actor.role !== "student" ? "/admin" : null;
+  useEffect(() => { if (destination) router.replace(destination); }, [destination, router]);
+
+  if (!isLoaded || !sessionId || !userId) return <WorkspaceLoading signingOut={isLoaded && !sessionId} />;
+  if (verified?.key !== key || destination) return <WorkspaceLoading />;
+  if (!actor) return <main className="space-y-4 p-6"><h1>Account access {verified.state === "denied" ? "restricted" : "unavailable"}</h1><p>{verified.state === "denied" ? "Access changed or your session ended. Sign in again or contact an administrator." : "Your session could not be verified. Check your connection and reload. You have not been signed out."}</p><button onClick={() => window.location.reload()}>Reload</button><button onClick={() => void signOut({ redirectUrl: "/sign-in" }).catch(() => {})}>Sign out</button></main>;
+  return <VerifiedAccess.Provider value={{ sessionKey, actor, recheck }}>{children}</VerifiedAccess.Provider>;
 }
