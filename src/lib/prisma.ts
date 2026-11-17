@@ -1,6 +1,7 @@
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
+import { explicitPostgresTls } from "./postgres-connection";
 
 const prismaClientSingleton = () => {
   const connectionString = process.env.DATABASE_URL;
@@ -9,8 +10,7 @@ const prismaClientSingleton = () => {
     throw new Error("DATABASE_URL is missing");
   }
 
-  // Neon pooled connection strings work perfectly with standard pg
-  const pool = new Pool({ connectionString });
+  const pool = new Pool({ connectionString: explicitPostgresTls(connectionString) });
   const adapter = new PrismaPg(pool);
   
   return new PrismaClient({ adapter });

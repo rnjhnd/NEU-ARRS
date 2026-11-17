@@ -45,6 +45,13 @@ With intended isolated application services configured, run `npm run dev` and
 open [localhost:3000](http://localhost:3000). Routes live under `src/app/`.
 Application runtime uses `DATABASE_URL`; operator migrations deliberately require
 separate explicit `MIGRATION_DATABASE_URL`. Keep secrets out of committed files.
+For hosted PostgreSQL, configure `sslmode=verify-full` to verify the certificate
+and hostname. Runtime connections normalize pg's deprecated `prefer`, `require`
+and `verify-ca` aliases to that explicit mode, preserving their current pg 8
+behavior. Explicit libpq compatibility and other modes are left unchanged;
+`sslmode=disable` remains available for disposable loopback test databases.
+Operator migration/reconciliation connections use their supplied URL directly,
+so configure their TLS mode explicitly as well.
 Read the relevant installed `node_modules/next/dist/docs/` guide before changing
 Next.js code, as required by [AGENTS.md](AGENTS.md).
 
