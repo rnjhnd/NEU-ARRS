@@ -1,16 +1,17 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { NavigationPending } from "@/components/navigation-pending";
 import { ProfileMenu } from "@/components/profile-menu";
+import { AdminNavLinks } from "@/app/(admin)/admin-nav-links";
+import { useUser } from "@clerk/nextjs";
 
 export function WorkspaceChrome({ children }) {
   const [collapsed, setCollapsed] = useState(false);
+  const { user } = useUser();
   return <div className="p-6">
     <header className="flex items-center gap-4 border p-4">
       <button onClick={() => setCollapsed(value => !value)}>{collapsed ? "Expand sidebar" : "Collapse sidebar"}</button>
-      <Link href="/dashboard" prefetch={false}>Overview <NavigationPending /></Link>
-      <Link href="/dashboard/reports" prefetch={false}>Reports <NavigationPending /></Link>
+      {user?.publicMetadata.role === "student" ? <><Link href="/dashboard">Overview</Link><Link href="/dashboard/new">New request</Link></> : <AdminNavLinks role={user?.publicMetadata.role} collapsed={collapsed} />}
       <ProfileMenu />
     </header>
     <main className="p-6">{children}</main>
