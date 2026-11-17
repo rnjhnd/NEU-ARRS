@@ -3,14 +3,10 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { requireStudent as requireAuth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import Page from "@/app/(student)/dashboard/new/page";
-import { requirePageAccess } from "@/lib/page-access";
+import { NewRequestData as Page } from "@/app/(student)/dashboard/new/request-data";
 
-// Keep these configuration-render checks independent of the page-access suite.
-vi.mock("@/lib/page-access", () => ({ requirePageAccess: vi.fn() }));
-vi.mock("@/components/session-guard", () => ({ SessionPage: ({ children }: { children: React.ReactNode }) => children }));
 vi.mock("@/app/(student)/dashboard/new/request-form", () => ({ RequestForm: ({ documentConfigs, paymentMethods }: { documentConfigs: { typeId: string; price: number }[]; paymentMethods: { online: boolean; cash: boolean } }) => React.createElement("p", { "data-testid": "request-form" }, JSON.stringify({ documentConfigs, paymentMethods })) }));
-beforeEach(() => { vi.resetAllMocks(); vi.stubGlobal("React", React); vi.mocked(requirePageAccess).mockResolvedValue({ userId: "synthetic_student", role: "student", sessionId: "session_student" }); vi.mocked(requireAuth).mockResolvedValue("synthetic_student"); vi.mocked(prisma.systemSettings.findUnique).mockResolvedValue(null); vi.mocked(prisma.documentConfig.findMany).mockResolvedValue([]); });
+beforeEach(() => { vi.resetAllMocks(); vi.stubGlobal("React", React); vi.mocked(requireAuth).mockResolvedValue("synthetic_student"); vi.mocked(prisma.systemSettings.findUnique).mockResolvedValue(null); vi.mocked(prisma.documentConfig.findMany).mockResolvedValue([]); });
 afterEach(() => vi.unstubAllGlobals());
 it("shows an empty catalog without seeding documents or displaying an unusable form", async () => {
   const html = renderToStaticMarkup(await Page()); expect(html).toContain("No documents available"); expect(html).not.toContain("data-testid"); expect(prisma.documentConfig.createMany).not.toHaveBeenCalled();

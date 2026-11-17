@@ -1,0 +1,77 @@
+import type { ReactNode } from "react";
+import { WorkspaceBanner, LoadingRegion } from "@/components/workspace-banner";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
+
+export function FinanceShell({ children }: { children: ReactNode }) {
+  return <div className="space-y-8 w-full">
+    <WorkspaceBanner title="Financial Analytics" description="Review settled request values, payment methods, and requests requiring amount review." />
+      <Link href="/admin/finance/movements" className="inline-flex rounded border px-4 py-2 font-semibold underline">Money Movements — transaction-date report</Link>
+    {children}
+  </div>;
+}
+
+export function FinanceSkeleton() {
+  return (
+    <LoadingRegion label="Loading financial analytics">
+      <div className="space-y-8 mt-8 animate-pulse">
+        {/* Filters and Actions Skeleton */}
+        <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center gap-4 w-full">
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <Skeleton className="h-10 w-full sm:w-[180px] rounded-full" />
+            <Skeleton className="h-10 w-[100px] rounded-full" />
+          </div>
+        </div>
+
+        {/* KPI Cards Skeleton */}
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i} className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
+              <CardContent className="p-6 flex flex-1 items-center gap-5">
+                <Skeleton className="w-14 h-14 rounded-2xl shrink-0" />
+                <div className="space-y-2 min-w-0">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-8 w-16" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Charts Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2 shadow-sm border-border overflow-hidden bg-card rounded-3xl pt-0">
+            <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 !py-6 px-8">
+              <Skeleton className="h-6 w-full max-w-[160px] mb-2" />
+              <Skeleton className="h-4 w-full max-w-[256px]" />
+            </CardHeader>
+            <CardContent className="px-8 pb-8 pt-6">
+              <Skeleton className="h-[350px] w-full" />
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl pt-0">
+            <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 !py-6 px-8">
+              <Skeleton className="h-6 w-full max-w-[192px] mb-2" />
+              <Skeleton className="h-4 w-full max-w-[160px]" />
+            </CardHeader>
+            <CardContent className="px-8 pb-8 pt-6">
+              <Skeleton className="h-[350px] w-full rounded-full" />
+            </CardContent>
+          </Card>
+
+          <Card className="lg:col-span-3 shadow-sm border-border overflow-hidden bg-card rounded-3xl pt-0">
+            <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b border-border/50 !py-6 px-8">
+              <Skeleton className="h-6 w-full max-w-[224px] mb-2" />
+              <Skeleton className="h-4 w-full max-w-[288px]" />
+            </CardHeader>
+            <CardContent className="px-8 pb-8 pt-6">
+              <Skeleton className="h-[350px] w-full" />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </LoadingRegion>
+  );
+}

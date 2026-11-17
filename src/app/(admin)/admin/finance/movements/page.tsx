@@ -1,5 +1,5 @@
 import { withVerifiedPage } from "@/components/verified-page";
-import Link from "next/link";
+import { MovementsShell, MovementsSkeleton } from "./page-shell";
 import { Suspense } from "react";
 import { requireFinanceActor, FinanceLoadError } from "@/lib/finance-data";
 import { loadMoneyMovements } from "@/lib/money-movement-data";
@@ -18,7 +18,7 @@ async function MovementData() {
 }
 async function MovementPage() {
   await requireFinanceActor();
-  return <main className="space-y-6"><header className="space-y-2"><h1 className="text-3xl font-bold">Money Movements</h1><Link href="/admin/finance" className="underline">Settled Request Values — submitted-date report</Link></header><Suspense fallback={<p role="status">Loading money movements...</p>}><MovementData /></Suspense></main>;
+  return <MovementsShell><Suspense fallback={<MovementsSkeleton />}><MovementData /></Suspense></MovementsShell>;
 }
 
 export default withVerifiedPage(MovementPage, ["admin"]);
