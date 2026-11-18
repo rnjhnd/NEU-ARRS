@@ -1,22 +1,20 @@
-import { currentUser } from "@clerk/nextjs/server";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileNav } from "./mobile-nav";
 import { Sidebar } from "./sidebar";
-import { getVerifiedActor } from "@/lib/auth";
+import { getVerifiedAccount } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const actor = await getVerifiedActor();
+  const actor = await getVerifiedAccount();
   if (actor.role === "student") redirect("/dashboard");
   const role = actor.role;
-  const user = await currentUser();
-  const serverUser = user ? {
-    id: user.id,
-    name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User",
-    email: user.primaryEmailAddress?.emailAddress || "",
-    imageUrl: user.imageUrl,
+  const serverUser = {
+    id: actor.profile.id,
+    name: actor.profile.name,
+    email: actor.profile.email,
+    imageUrl: actor.profile.imageUrl,
     role
-  } : null;
+  };
 
   return (
     <div className="flex h-screen w-full bg-slate-50/50 dark:bg-background overflow-hidden relative">

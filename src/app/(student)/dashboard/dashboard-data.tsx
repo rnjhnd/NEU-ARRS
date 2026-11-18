@@ -1,12 +1,9 @@
 import { requireStudent } from "@/lib/auth";
 import { RequestList } from "./request-list";
-import { getRequestSetting } from "@/lib/configuration-data";
 import { loadStudentHistory } from "@/lib/student-request-data";
 
-export async function DashboardData({ userId }: { userId: string }) {
+export async function DashboardData({ userId, isMaintenanceMode }: { userId: string; isMaintenanceMode: boolean }) {
   if (await requireStudent() !== userId) throw new Error("Forbidden: Account changed.");
-  const [history, maintenanceSetting] = await Promise.all([
-    loadStudentHistory(userId), getRequestSetting("MAINTENANCE_MODE"),
-  ]);
-  return <RequestList history={history} isMaintenanceMode={!maintenanceSetting.success || maintenanceSetting.value === "true"} />;
+  const history = await loadStudentHistory(userId);
+  return <RequestList history={history} isMaintenanceMode={isMaintenanceMode} />;
 }

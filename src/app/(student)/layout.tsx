@@ -2,24 +2,21 @@ import { ProfileMenu } from "@/components/profile-menu";
 import { LogoIcon } from "@/components/logo-icon";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { currentUser } from "@clerk/nextjs/server";
 import { ProfileDetails } from "@/components/profile-details";
-import { getVerifiedActor } from "@/lib/auth";
+import { getVerifiedAccount } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
-  const actor = await getVerifiedActor();
+  const actor = await getVerifiedAccount();
   if (actor.role !== "student") redirect("/admin");
-  const user = await currentUser();
-  const name = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User" : "Student";
   const role = actor.role;
-  const serverUser = user ? {
-    id: user.id,
-    name,
-    email: user.primaryEmailAddress?.emailAddress || "",
-    imageUrl: user.imageUrl,
+  const serverUser = {
+    id: actor.profile.id,
+    name: actor.profile.name,
+    email: actor.profile.email,
+    imageUrl: actor.profile.imageUrl,
     role
-  } : null;
+  };
   
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-background overflow-hidden">
