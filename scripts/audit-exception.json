@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "advisory": "GHSA-fc5q-39xc-vjpf",
+  "url": "https://github.com/advisories/GHSA-fc5q-39xc-vjpf",
+  "affectedRange": "<=4.0.7",
+  "severity": "high",
+  "approvedFor": "Controlled demonstration only; explicitly approved by project owner on 2026-11-18",
+  "expiresAt": "2026-12-02T00:00:00.000Z",
+  "lockfileSha256": "c5c5a382c2d910a5ca87e50702f24fbc1619b31d06d0f62490b6118bc8750e7c",
+  "nodes": [
+    {
+      "path": "node_modules/@next/eslint-plugin-next",
+      "name": "@next/eslint-plugin-next",
+      "version": "16.4.6"
+    },
+    {
+      "path": "node_modules/@typescript-eslint/eslint-plugin",
+      "name": "@typescript-eslint/eslint-plugin",
+      "version": "8.72.2"
+    },
+    {
+      "path": "node_modules/@typescript-eslint/parser",
+      "name": "@typescript-eslint/parser",
+      "version": "8.72.2"
+    },
+    {
+      "path": "node_modules/@typescript-eslint/type-utils",
+      "name": "@typescript-eslint/type-utils",
+      "version": "8.72.2"
+    },
+    {
+      "path": "node_modules/@typescript-eslint/typescript-estree",
+      "name": "@typescript-eslint/typescript-estree",
+      "version": "8.72.2"
+    },
+    {
+      "path": "node_modules/@typescript-eslint/utils",
+      "name": "@typescript-eslint/utils",
+      "version": "8.72.2"
+    },
+    {
+      "path": "node_modules/eslint-config-next",
+      "name": "eslint-config-next",
+      "version": "16.4.6"
+    },
+    {
+      "path": "node_modules/eslint-import-resolver-typescript",
+      "name": "eslint-import-resolver-typescript",
+      "version": "3.10.1"
+    },
+    {
+      "path": "node_modules/fast-glob",
+      "name": "fast-glob",
+      "version": "3.3.1"
+    },
+    {
+      "path": "node_modules/micromatch",
+      "name": "micromatch",
+      "version": "4.0.8"
+    },
+    {
+      "path": "node_modules/picomatch",
+      "name": "picomatch",
+      "version": "2.3.2"
+    },
+    {
+      "path": "node_modules/tinyglobby",
+      "name": "tinyglobby",
+      "version": "0.2.17"
+    },
+    {
+      "path": "node_modules/tinyglobby/node_modules/fdir",
+      "name": "fdir",
+      "version": "6.5.0"
+    },
+    {
+      "path": "node_modules/tinyglobby/node_modules/picomatch",
+      "name": "picomatch",
+      "version": "4.0.7"
+    },
+    {
+      "path": "node_modules/typescript-eslint",
+      "name": "typescript-eslint",
+      "version": "8.72.2"
+    },
+    {
+      "path": "node_modules/vite",
+      "name": "vite",
+      "version": "8.3.8"
+    },
+    {
+      "path": "node_modules/vite/node_modules/picomatch",
+      "name": "picomatch",
+      "version": "4.0.7"
+    },
+    {
+      "path": "node_modules/vitest",
+      "name": "vitest",
+      "version": "4.1.12"
+    },
+    {
+      "path": "node_modules/vitest/node_modules/picomatch",
+      "name": "picomatch",
+      "version": "4.0.7"
+    }
+  ]
+}

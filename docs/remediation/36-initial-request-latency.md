@@ -3,6 +3,11 @@
 Implemented locally on top of `816e6c4`. Release and hosted timing checks remain
 pending. This batch does not change the live deployment or provider settings.
 
+Release CI subsequently detected an unpatched development-tool advisory. The
+owner-approved, expiring exception and its limits are documented in
+[37-controlled-demo-audit-exception.md](37-controlled-demo-audit-exception.md).
+This does not claim the complete dependency audit has zero findings.
+
 ## Findings and changes
 
 The live deployment reports `iad1` (US East). Its production `DATABASE_URL`
