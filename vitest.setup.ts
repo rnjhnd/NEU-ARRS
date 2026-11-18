@@ -50,6 +50,7 @@ vi.mock("@/lib/notification-wakeup", () => ({ scheduleNotificationDelivery: vi.f
 vi.mock("@/lib/auth", async importOriginal => ({
   AccessError: (await importOriginal<typeof import("@/lib/auth")>()).AccessError,
   getVerifiedActor: vi.fn(),
+  getVerifiedAccount: vi.fn(),
   requireStudent: vi.fn().mockResolvedValue("mock_student_id"),
   requireAuth: vi.fn().mockResolvedValue("mock_student_id"),
   requireAdmin: vi.fn().mockResolvedValue("mock_admin_id"),

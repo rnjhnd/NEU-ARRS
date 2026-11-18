@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 const { mockAuth, getUser, getSession } = vi.hoisted(() => ({ mockAuth: vi.fn(), getUser: vi.fn(), getSession: vi.fn() }));
 vi.unmock("@/lib/auth");
 vi.mock("@clerk/nextjs/server", () => ({ auth: mockAuth, clerkClient: async () => ({ users: { getUser }, sessions: { getSession } }) }));
-import { AccessError, getVerifiedActor, requireAdmin, requireAuth, requireEmployeeOrAdmin, requireStudent } from "../auth";
+import { AccessError, getVerifiedAccount, getVerifiedActor, requireAdmin, requireAuth, requireEmployeeOrAdmin, requireStudent } from "../auth";
 const session = () => ({ id: "session_a", userId: "user_a", status: "active", expireAt: Date.now() + 60000 });
 const user = (role: unknown = "student") => ({ id: "user_a", publicMetadata: { role }, banned: false, locked: false });
 beforeEach(() => {
@@ -48,5 +48,41 @@ describe("current server-side session and role guards", () => {
   it.each(["provider", "database"])("fails closed when %s verification is unavailable", async where => {
     if (where === "provider") getSession.mockRejectedValue(new Error("synthetic private provider details")); else vi.mocked(prisma.roleAccess.findUnique).mockRejectedValue(new Error("synthetic private database details"));
     await expect(requireAuth()).rejects.toEqual(new AccessError(503));
+  });
+  it("overlaps independent profile/policy reads and waits for both before returning an account", async () => {
+    const { promise, resolve } = Promise.withResolvers<ReturnType<typeof user>>();
+    getUser.mockReturnValue(promise);
+    const account = getVerifiedAccount();
+    await vi.waitFor(() => expect(prisma.roleAccess.findUnique).toHaveBeenCalledTimes(1));
+    expect(getUser).toHaveBeenCalledTimes(1);
+    let granted = false;
+    void account.then(() => { granted = true; });
+    await Promise.resolve();
+    expect(granted).toBe(false);
+    resolve(user());
+    await expect(account).resolves.toMatchObject({ userId: "user_a", role: "student" });
+  });
+  it("waits for the policy even when the profile is already available", async () => {
+    const { promise, resolve } = Promise.withResolvers<null>();
+    vi.mocked(prisma.roleAccess.findUnique).mockReturnValue(promise as ReturnType<typeof prisma.roleAccess.findUnique>);
+    const account = getVerifiedAccount();
+    await vi.waitFor(() => expect(getUser).toHaveBeenCalledTimes(1));
+    let granted = false;
+    void account.then(() => { granted = true; });
+    await Promise.resolve();
+    expect(granted).toBe(false);
+    resolve(null);
+    await expect(account).resolves.toMatchObject({ role: "student" });
+  });
+  it("returns an allowlisted profile without Clerk metadata or credentials", async () => {
+    getUser.mockResolvedValue({ ...user(), firstName: "Synthetic", lastName: "Student", primaryEmailAddress: { emailAddress: "synthetic@example.invalid" }, imageUrl: "https://example.invalid/avatar", privateMetadata: { secret: "never-serialize" }, publicMetadata: { role: "student", unrelated: "never-serialize" }, emailAddresses: [{ id: "private-address-id" }] });
+    await expect(getVerifiedAccount()).resolves.toEqual({ userId: "user_a", role: "student", profile: { id: "user_a", firstName: "Synthetic", name: "Synthetic Student", email: "synthetic@example.invalid", imageUrl: "https://example.invalid/avatar" } });
+    await expect(getVerifiedActor()).resolves.toEqual({ userId: "user_a", role: "student" });
+  });
+  it("does not reuse verified profiles between uncached action/route-handler calls", async () => {
+    await getVerifiedAccount();
+    getSession.mockResolvedValue({ ...session(), status: "revoked" });
+    await expect(getVerifiedAccount()).rejects.toMatchObject({ status: 401 });
+    expect(getUser).toHaveBeenCalledTimes(1);
   });
 });
