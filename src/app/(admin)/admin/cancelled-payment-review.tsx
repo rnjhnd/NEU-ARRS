@@ -15,7 +15,7 @@ export function CancelledPaymentReview({ request, onReconciled, disabled = false
   const active = useRef(false);
   useEffect(() => { active.current = true; return () => { active.current = false; }; }, []);
   return (
-    <form className="space-y-3 rounded-xl border border-border p-4" onSubmit={async event => {
+    <form className="space-y-3 rounded-2xl border border-border bg-muted/20 p-4" onSubmit={async event => {
       event.preventDefault();
       if (inFlight.current || disabled || reason.trim().length < 5) return;
       inFlight.current = true; setPending(true); onPendingChange?.(true);

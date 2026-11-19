@@ -5,7 +5,8 @@ import { useUser } from "@clerk/nextjs";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import { Banknote, FileText, RefreshCw, Search, Users } from "lucide-react";
+import { WorkspaceMetric, workspaceStyles } from "@/components/workspace-ui";
 import { formatPHP } from "@/lib/money-format";
 import { DEFAULT_DIRECTORY_SORT, DIRECTORY_URL, directoryView, type DirectoryActor, type DirectorySort, type StudentDirectory } from "@/lib/student-directory-model";
 import { DirectoryRefreshError, fetchStudentDirectory } from "@/lib/student-directory-fetcher";
@@ -41,40 +42,39 @@ function DirectoryWorkspace({ actorId, role, initialData, initialError }: Props)
   // fixed directory URL has no business-level not-found response.
   if (error instanceof DirectoryRefreshError && error.status === 404) return <p role="alert">Staff access to this directory could not be verified. Reload the student directory.</p>;
   if (error instanceof DirectoryRefreshError && [401, 403].includes(error.status)) return <p role="alert">Your staff session changed. Reload the student directory.</p>;
-  return <div className="space-y-6">
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <p className="text-sm text-muted-foreground">{data ? <>Complete directory snapshot: <time dateTime={data.asOf}>{data.asOf}</time>.</> : "A complete directory snapshot is not available."}</p>
-      <Button variant="outline" disabled={isValidating} onClick={() => void refresh()}>{isValidating ? "Refreshing directory…" : "Refresh directory"}</Button>
-    </div>
-    {error && <p role="alert" className="rounded border border-amber-500 p-3">{error instanceof DirectoryRefreshError && error.status === 413 ? error.message : "The student directory could not be refreshed."} {data ? "Showing the last verified complete snapshot." : "No totals are available."} Use Refresh directory to try again.</p>}
+  return <div className="space-y-8 w-full">
+    {error && <p role="alert" className={workspaceStyles.warning}>{error instanceof DirectoryRefreshError && error.status === 413 ? error.message : "The student directory could not be refreshed."} {data ? "Showing the last verified complete snapshot." : "No totals are available."} Use Refresh directory to try again.</p>}
     {!data && !error && <p role="status">{isValidating ? "Loading the complete student directory…" : initialError ?? "Student directory unavailable. Refresh to try again."}</p>}
     {data && view && <>
-      <p className="text-sm text-muted-foreground">Totals cover all registered students in this snapshot. Verified settled values use original PHP-centavo collections and exclude cancelled/refunded requests; they are not net revenue.</p>
-      {data.totals.unverified > 0 && <p role="status" className="rounded border border-amber-500 p-3">{data.totals.unverified} settled payment(s) need amount verification and are excluded from monetary totals.</p>}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <DirectoryMetric label="Registered Students" value={data.totals.students.toLocaleString("en-PH")} />
-        <DirectoryMetric label="Total Requests" value={data.totals.requests.toLocaleString("en-PH")} />
-        <DirectoryMetric label="Verified Settled Value" value={formatPHP(data.totals.collectedCentavos)} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <WorkspaceMetric label="Registered Students" value={data.totals.students.toLocaleString("en-PH")} icon={Users} tone="slate" />
+        <WorkspaceMetric label="Total Requests" value={data.totals.requests.toLocaleString("en-PH")} icon={FileText} tone="gold" />
+        <WorkspaceMetric label="Verified Settled Value" value={formatPHP(data.totals.collectedCentavos)} icon={Banknote} emphasize />
       </div>
-      <section aria-labelledby="directory-heading" className="overflow-hidden rounded-3xl border bg-card">
-        <div className="space-y-4 border-b p-4 sm:p-6">
-          <div><h2 id="directory-heading" className="text-xl font-bold">Registered students</h2><p className="text-sm text-muted-foreground">Search names and primary email addresses. Sorting applies to all matching students.</p></div>
-          <div className="max-w-md"><label htmlFor="directory-search" className="mb-1 block text-sm font-medium">Search students</label>
-            <Input id="directory-search" placeholder="Name or primary email" value={search} maxLength={320} onChange={event => { setSearch(event.target.value); setRequestedPage(1); }} />
+      {data.totals.unverified > 0 && <p role="status" className={workspaceStyles.warning}>{data.totals.unverified} settled payment(s) need amount verification and are excluded from monetary totals.</p>}
+      <section aria-labelledby="directory-heading" className={workspaceStyles.card + " border"}>
+        <div className={workspaceStyles.header}>
+          <div className="min-w-0"><h2 id="directory-heading" className="text-xl font-bold tracking-tight">Registered students</h2><p className="mt-1 text-sm text-muted-foreground">Search names and primary email addresses. Sorting applies to all matching students.</p></div>
+          <div className="relative w-full sm:w-80 shrink-0 group"><label htmlFor="directory-search" className="sr-only">Search students</label>
+            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary" />
+            <Input id="directory-search" className={workspaceStyles.search} placeholder="Name or primary email" value={search} maxLength={320} onChange={event => { setSearch(event.target.value); setRequestedPage(1); }} />
           </div>
         </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 px-6 sm:px-8 py-3">
+          <p className="text-xs text-muted-foreground">Complete directory snapshot: <time dateTime={data.asOf}>{data.asOf}</time>.</p>
+          <Button variant="outline" size="sm" className="rounded-full" disabled={isValidating} onClick={() => void refresh()}><RefreshCw aria-hidden="true" className={"size-3.5 " + (isValidating ? "animate-spin" : "")} />{isValidating ? "Refreshing directory…" : "Refresh directory"}</Button>
+        </div>
         <DirectoryTable items={view.items} sort={sort} onSort={changeSort} hasStudents={data.items.length > 0} />
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t p-4 sm:p-6">
-          <p role="status" aria-live="polite" className="text-sm">Showing {view.start}–{view.end} of {view.matched} matching students. Page {view.page} of {view.totalPages}.</p>
-          <nav aria-label="Student directory pages" className="flex gap-2">
-            <Button variant="outline" disabled={view.page <= 1} onClick={() => setRequestedPage(view.page - 1)}>Previous</Button>
-            <Button variant="outline" disabled={view.page >= view.totalPages} onClick={() => setRequestedPage(view.page + 1)}>Next</Button>
+        <div className={workspaceStyles.footer}>
+          <p role="status" aria-live="polite" className="text-sm text-muted-foreground text-center sm:text-left">Showing {view.start}–{view.end} of {view.matched} matching students. Page {view.page} of {view.totalPages}.</p>
+          <nav aria-label="Student directory pages" className="flex gap-2 shrink-0">
+            <Button variant="outline" className="rounded-full min-w-24" disabled={view.page <= 1} onClick={() => setRequestedPage(view.page - 1)}>Previous</Button>
+            <Button variant="outline" className="rounded-full min-w-24" disabled={view.page >= view.totalPages} onClick={() => setRequestedPage(view.page + 1)}>Next</Button>
           </nav>
         </div>
       </section>
+      <p className="text-xs leading-relaxed text-muted-foreground">Totals cover all registered students in this snapshot. Verified settled values use original PHP-centavo collections and exclude cancelled/refunded requests; they are not net revenue.</p>
     </>}
+    {!data && <Button variant="outline" className={workspaceStyles.button} disabled={isValidating} onClick={() => void refresh()}><RefreshCw aria-hidden="true" className={"mr-2 size-4 " + (isValidating ? "animate-spin" : "")} />{isValidating ? "Refreshing directory…" : "Refresh directory"}</Button>}
   </div>;
-}
-function DirectoryMetric({ label, value }: { label: string; value: string }) {
-  return <Card className="rounded-3xl"><CardContent className="space-y-2 p-6"><p className="text-sm font-semibold text-muted-foreground">{label}</p><p className="break-words text-3xl font-bold">{value}</p></CardContent></Card>;
 }

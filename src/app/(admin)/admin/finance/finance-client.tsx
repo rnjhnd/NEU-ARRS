@@ -6,7 +6,8 @@ import useSWR from "swr";
 import { usePageSnapshot } from "@/components/verified-access";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Banknote, CheckCircle2, CreditCard, Download, ImageDown, RefreshCw } from "lucide-react";
+import { WorkspaceMetric, workspaceStyles } from "@/components/workspace-ui";
 import { buildFinanceReport, DEFAULT_FINANCE_QUERY, financeCSV, financeQuerySchema, financeURL, formatPHP, manilaDay, REPORT_TIME_ZONE, shiftDay, type FinanceDataset, type FinanceQuery } from "@/lib/finance-model";
 import { fetchFinanceData, FinanceRefreshError } from "@/lib/finance-fetcher";
 import { FinanceCharts } from "./finance-charts";
@@ -79,10 +80,10 @@ function FinanceWorkspace({ actorId, initialData, initialError }: { actorId: str
     finally { exporting.current = false; setExportSnapshot(null); }
   }
   if (!sessionValid) return <p role="alert">Your administrator session changed. Reload the finance dashboard.</p>;
-  return <div className="space-y-6">
-    <div className="flex flex-wrap items-end gap-3">
+  return <div className="space-y-8 w-full">
+    <div className="flex flex-wrap items-end gap-3 rounded-3xl border border-border bg-card p-5 shadow-sm">
       <div className="space-y-1"><label htmlFor="finance-period" className="block text-sm font-semibold">Submitted-date period</label>
-        <select id="finance-period" value={period} disabled={Boolean(exportSnapshot)} className="rounded border bg-background p-2" onChange={event => changePeriod(event.target.value as FinanceQuery["period"])}>
+        <select id="finance-period" value={period} disabled={Boolean(exportSnapshot)} className={workspaceStyles.select} onChange={event => changePeriod(event.target.value as FinanceQuery["period"])}>
           <option value="7days">Last 7 Days</option><option value="30days">Last 30 Days</option><option value="year">This Year</option><option value="all">All Time</option><option value="custom">Custom Range</option>
         </select>
       </div>
@@ -95,26 +96,29 @@ function FinanceWorkspace({ actorId, initialData, initialError }: { actorId: str
         <div><label htmlFor="finance-to" className="block text-sm">To (inclusive)</label><input id="finance-to" type="date" required max={data ? manilaDay(data.asOf) : undefined} value={to} disabled={Boolean(exportSnapshot)} className="rounded border bg-background p-2" onChange={event => setTo(event.target.value)} /></div>
         <Button type="submit" disabled={Boolean(exportSnapshot)}>Apply dates</Button>
       </form>}
-      <Button variant="outline" disabled={isValidating || Boolean(exportSnapshot)} onClick={() => void refresh()}>Refresh report</Button>
-      <Button variant="outline" disabled={blocked || !report?.settled.length} onClick={exportCSV}>Export CSV</Button>
-      <Button variant="outline" disabled={blocked} onClick={() => void exportPNG()}>{exportSnapshot ? "Exporting image..." : "Export PNG"}</Button>
+      <Button variant="outline" className={workspaceStyles.button} disabled={isValidating || Boolean(exportSnapshot)} onClick={() => void refresh()}><RefreshCw aria-hidden="true" className={"size-4 " + (isValidating ? "animate-spin" : "")} />Refresh report</Button>
+      <Button variant="outline" className={workspaceStyles.button + " border-primary/20 text-primary"} disabled={blocked || !report?.settled.length} onClick={exportCSV}><Download aria-hidden="true" className="size-4" />Export CSV</Button>
+      <Button variant="outline" className={workspaceStyles.button + " border-primary/20 text-primary"} disabled={blocked} onClick={() => void exportPNG()}><ImageDown aria-hidden="true" className="size-4" />{exportSnapshot ? "Exporting image..." : "Export PNG"}</Button>
     </div>
     {inputError && <p role="alert">{inputError}</p>}
     {dirty && <p role="status">Apply both custom dates before exporting. The report below still shows its labelled period.</p>}
-    {(error || (!data && initialError)) && <p role="alert" className="rounded border border-destructive/30 p-4">{error instanceof FinanceRefreshError && error.status === 413 ? error.message : "Finance report could not be refreshed. Previous verified data, if available, is shown; exports are disabled."}</p>}
+    {(error || (!data && initialError)) && <p role="alert" className={workspaceStyles.error}>{error instanceof FinanceRefreshError && error.status === 413 ? error.message : "Finance report could not be refreshed. Previous verified data, if available, is shown; exports are disabled."}</p>}
     {isValidating && <p role="status">Loading finance report...</p>}
-    {snapshot && report ? <div ref={reportRef} className="space-y-6 bg-background p-3 rounded-xl">
-      <header className="space-y-2"><h2 className="text-xl font-bold">Settled Request Values</h2>
-        <p>Submitted dates: {report.range.from ?? "All recorded dates"} to {report.range.to}, {REPORT_TIME_ZONE}.</p>
-        <p className="text-sm">Data as of {snapshot.asOf}. {snapshot.items.length} requests in this cohort.</p>
-        <p className="text-sm text-muted-foreground">Values use verified collections in PHP centavos for eligible paid or cash-collected requests. Cancelled/refunded requests are excluded. This is a submitted-request report, not a payment-date or net-revenue ledger.</p>
+    {snapshot && report ? <div ref={reportRef} className="space-y-6 bg-background rounded-3xl">
+      <header className="space-y-2 rounded-3xl border border-border bg-card p-6 shadow-sm"><h2 className="text-xl font-bold tracking-tight">Settled Request Values</h2>
+        <p className="text-sm font-medium">Submitted dates: {report.range.from ?? "All recorded dates"} to {report.range.to}, {REPORT_TIME_ZONE}.</p>
+        <p className="text-xs text-muted-foreground">Data as of {snapshot.asOf}. {snapshot.items.length} requests in this cohort.</p>
+        <p className="text-xs leading-relaxed text-muted-foreground">Values use verified collections in PHP centavos for eligible paid or cash-collected requests. Cancelled/refunded requests are excluded. This is a submitted-request report, not a payment-date or net-revenue ledger.</p>
       </header>
-      {report.needsReview > 0 && <p className="rounded border border-amber-500 p-3">{report.needsReview} settled request(s) need amount review and are excluded from monetary totals. Legacy units and quotes are not treated as collections.</p>}
-      {report.cancelledPaid > 0 && <p className="rounded border border-amber-500 p-3">{report.cancelledPaid} cancelled request(s) are still marked paid. Check payment/refund reconciliation separately.</p>}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">{[
-        ["Known Settled Value", formatPHP(report.total)], ["Online Settled Value", formatPHP(report.online)], ["Cash Settled Value", formatPHP(report.cash)], ["Settled Requests", String(report.settled.length)],
-      ].map(([label, value]) => <Card key={label}><CardContent className="p-6"><p className="text-sm text-muted-foreground">{label}</p><p className="text-2xl font-bold break-words">{value}</p></CardContent></Card>)}</div>
-      <p className="text-sm">{report.knownCount} settled request(s) have a verified collection; {report.excludedCount} unpaid, cancelled, refunded, or otherwise ineligible request(s) are excluded.</p>
+      {report.needsReview > 0 && <p className={workspaceStyles.warning}>{report.needsReview} settled request(s) need amount review and are excluded from monetary totals. Legacy units and quotes are not treated as collections.</p>}
+      {report.cancelledPaid > 0 && <p className={workspaceStyles.warning}>{report.cancelledPaid} cancelled request(s) are still marked paid. Check payment/refund reconciliation separately.</p>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
+        <WorkspaceMetric label="Known Settled Value" value={formatPHP(report.total)} icon={Banknote} emphasize />
+        <WorkspaceMetric label="Online Settled Value" value={formatPHP(report.online)} icon={CreditCard} tone="blue" />
+        <WorkspaceMetric label="Cash Settled Value" value={formatPHP(report.cash)} icon={Banknote} tone="gold" />
+        <WorkspaceMetric label="Settled Requests" value={String(report.settled.length)} icon={CheckCircle2} tone="slate" />
+      </div>
+      <p className="text-xs leading-relaxed text-muted-foreground">{report.knownCount} settled request(s) have a verified collection; {report.excludedCount} unpaid, cancelled, refunded, or otherwise ineligible request(s) are excluded.</p>
       <FinanceCharts report={report} />
     </div> : !isValidating && !error ? <p>No finance snapshot is available. Refresh or select another period.</p> : null}
   </div>;

@@ -1,4 +1,5 @@
 "use client";
+import { workspaceStyles } from "@/components/workspace-ui";
 
 import { useEffect, useRef, useState } from "react";
 import { recordMovementDate } from "@/app/actions/money-date.actions";
@@ -17,7 +18,7 @@ export function DateReviewDialog({ movement, disabled, onClose, onPending, onSav
   const [error, setError] = useState("");
   const flight = useRef(false), active = useRef(false);
   useEffect(() => { active.current = true; return () => { active.current = false; }; }, []);
-  return <Dialog open onOpenChange={open => { if (!open && !pending) onClose(); }}><DialogContent className="max-h-[85dvh] overflow-y-auto" showCloseButton={!pending}>
+  return <Dialog open onOpenChange={open => { if (!open && !pending) onClose(); }}><DialogContent className={workspaceStyles.dialog + " max-h-[85dvh] overflow-y-auto"} showCloseButton={!pending}>
     <DialogHeader><DialogTitle>Record evidenced transaction date</DialogTitle><DialogDescription>Inspect the original receipt or successful provider transaction. Record when the movement actually occurred. This date cannot be overwritten.</DialogDescription></DialogHeader>
     <div className="space-y-1 text-sm"><p className="break-all font-mono text-xs">{movement.requestId}</p><p>{movement.kind === "COLLECTION" ? "Collection" : "Refund"} · <span className="whitespace-nowrap">{formatPHP(movement.amountCentavos)}</span></p></div>
     <form className="space-y-4" onSubmit={async event => {

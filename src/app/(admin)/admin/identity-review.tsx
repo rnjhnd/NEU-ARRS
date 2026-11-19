@@ -15,7 +15,7 @@ export function IdentityReview({ request, disabled, onPendingChange, onSaved }: 
   const active = useRef(false), flight = useRef(false);
   useEffect(() => { active.current = true; return () => { active.current = false; }; }, []);
   const terminal = request.status === "COMPLETED" || request.status === "CANCELLED";
-  return <section aria-label="Academic identity review" className="space-y-3 rounded border p-4">
+  return <section aria-label="Academic identity review" className="space-y-3 rounded-2xl border border-primary/15 bg-primary/5 p-4">
     <p className="font-semibold">Academic identity: {request.identityVerified ? "Verified by registrar" : terminal ? "No active attestation recorded" : "Awaiting registrar verification"}</p>
     {request.identityVerifiedAt && <p className="text-xs">Verified {new Date(request.identityVerifiedAt).toLocaleString("en-PH", { timeZone: "Asia/Manila" })}</p>}
     <p className="text-sm">Check the signed-in account holder, full name and student number against school records. Login and payment alone do not verify academic identity. Review applies to this request only.</p>

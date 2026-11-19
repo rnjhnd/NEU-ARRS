@@ -1,4 +1,5 @@
 "use client";
+import { workspaceStyles } from "@/components/workspace-ui";
 
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
@@ -33,7 +34,7 @@ export function QueueUpdateDialog({ dialog, current, canOverride, pending, block
   const invalid = blocked || changed || pending || policyError || (status === "CANCELLED" && !reason.trim()) || (override && (!canOverride || overrideReason.trim().length < 5));
   const title = details ? "Request Details" : dialog.mode === "cancel" ? "Cancel Requests" : "Confirm Cash Collection";
   return <Dialog open onOpenChange={open => { if (!open && !pending) onClose(); }}>
-    <DialogContent className="sm:max-w-[500px] max-h-[85dvh] overflow-y-auto" showCloseButton={!pending}>
+    <DialogContent className={workspaceStyles.dialog + " sm:max-w-[500px] max-h-[85dvh] overflow-y-auto"} showCloseButton={!pending}>
       <DialogHeader><DialogTitle>{title}</DialogTitle><DialogDescription>{details ? "Review the request and update its status using the permitted workflow." : dialog.mode === "cash" ? "Confirm cash has been collected for every cash-on-pickup request in this selection." : "Provide a reason for cancelling the selected requests."}</DialogDescription></DialogHeader>
       {details && <>
         <QueueStatusBadge status={item.status} />

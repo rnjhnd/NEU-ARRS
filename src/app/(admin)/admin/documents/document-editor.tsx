@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { workspaceStyles } from "@/components/workspace-ui";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { createDocumentSchema, updateDocumentSchema, type ConfigDocument } from "@/lib/configuration-model";
 
@@ -14,7 +15,7 @@ export function DocumentEditor({ initial, pending, uncertain, stale, error, onSa
   const [draft, setDraft] = useState(initial); const [validation, setValidation] = useState("");
   const locked = pending || uncertain;
   return <Dialog open onOpenChange={open => { if (!open && !pending) onClose(); }}>
-    <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+    <DialogContent className={workspaceStyles.dialog + " max-h-[90dvh] overflow-y-auto sm:max-w-lg"}>
       <DialogHeader><DialogTitle>{draft.id ? "Edit document" : "Add document"}</DialogTitle><DialogDescription>Prices support exact centavos. Existing document codes and saved request quotes stay unchanged.</DialogDescription></DialogHeader>
       <form className="space-y-4" onSubmit={event => {
         event.preventDefault(); const form = new FormData();
