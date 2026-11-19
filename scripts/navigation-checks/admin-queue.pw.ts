@@ -64,8 +64,32 @@ const test = base.extend<{ state: State }, { fixtureURL: string }>({
 });
 test.beforeEach(async ({ page, fixtureURL, state }) => { expect(state.queue.actorId).toBe("staff_synthetic"); await page.goto(fixtureURL); await page.waitForLoadState("networkidle"); await expect(page.getByRole("button", { name: /^View request / })).toHaveCount(10); });
 
+test("Command Center loading shell matches the loaded queue layout", async ({ page, fixtureURL }, info) => {
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await page.goto(fixtureURL + "?fixture-loading=1");
+  const loadingRegion = page.locator("[data-loading-region]");
+  await expect(loadingRegion).toBeVisible();
+  await expect(page.locator("tbody tr")).toHaveCount(10);
+  await page.screenshot({ path: info.outputPath("command-center-loading.png"), fullPage: true, animations: "disabled" });
+  await page.goto(fixtureURL);
+  await expect(page.getByRole("button", { name: /^View request / })).toHaveCount(10);
+  await page.screenshot({ path: info.outputPath("command-center-loaded.png"), fullPage: true, animations: "disabled" });
+});
+
 test("the server-loaded queue is not fetched again on hydration", async ({ state }) => {
   expect(state.reads).toBe(0);
+});
+
+test("focus refresh keeps export available and shows the refresh state", async ({ page, state }) => {
+  const currentReads = state.readURLs.length; state.readDelay = 700;
+  await page.waitForTimeout(5100);
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await expect.poll(() => state.readURLs.length).toBeGreaterThan(currentReads);
+  const refresh = page.getByRole("button", { name: "Refreshing queue", exact: true });
+  await expect(refresh).toBeVisible(); await expect(refresh).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Export all CSV", exact: true })).toBeEnabled();
+  await expect(refresh).toHaveText("Refreshing queue");
+  await expect(page.getByRole("button", { name: "Refresh queue", exact: true })).toBeEnabled();
 });
 
 test("registrar verification requires explicit records review, refreshes versions and can be revoked", async ({ page, state }) => {

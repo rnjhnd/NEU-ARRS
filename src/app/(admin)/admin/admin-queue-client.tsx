@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { CheckCircle2, Clock, Loader2, Search } from "lucide-react";
+import { CheckCircle2, Clock, Loader2, RefreshCw, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { WorkspaceMetric, workspaceStyles } from "@/components/workspace-ui";
 import { ADMIN_QUEUE_URL, QUEUE_PAGE_SIZE, DEFAULT_QUEUE_QUERY, adminQueueURL, queueExportSchema, queueStatusLabels, mergeQueueChanges, type AdminQueue, type QueueFilter, type QueueItem, type QueueSort, type QueueQuery, type QueueChange } from "@/lib/admin-queue-model";
@@ -33,8 +33,9 @@ function QueueWorkspace({ initialQueue }: { initialQueue: AdminQueue }) {
   const [dialog, setDialog] = useState<QueueDialog | null>(null), [reviewPending, setReviewPending] = useState(false);
   const [exportPending, setExportPending] = useState(false), [exportError, setExportError] = useState("");
   const [exportOptionsOpen, setExportOptionsOpen] = useState(false);
+  const [manualRefreshPending, setManualRefreshPending] = useState(false);
   const [exportFrom, setExportFrom] = useState(""), [exportTo, setExportTo] = useState("");
-  const exportFlight = useRef(false), active = useRef(false), exportController = useRef<AbortController | null>(null);
+  const exportFlight = useRef(false), refreshFlight = useRef(false), active = useRef(false), exportController = useRef<AbortController | null>(null);
   useEffect(() => {
     const timer = setTimeout(() => setQuery(current => current.search === search.trim() ? current : { ...current, page: 1, search: search.trim() }), 250);
     return () => clearTimeout(timer);
@@ -59,13 +60,19 @@ function QueueWorkspace({ initialQueue }: { initialQueue: AdminQueue }) {
   }
   const updates = useQueueUpdate({ mutate, blocked, sessionValid, fallbackQueue: queue, onCommitted: () => setSelection(new Map()), requireRefresh: () => setRequiresRefresh(true), patchPages });
   const pending = updates.pending || reviewPending || exportPending;
+  const exportBlocked = Boolean(error) || requiresRefresh || pending || !queue.summary.total;
   const view = { items: queue.items, page: queue.query.page, totalPages: queue.totalPages, total: queue.total };
   const sort: QueueSort = { key: queue.query.sort, direction: queue.query.direction };
   const visible = new Map(view.items.map(item => [item.id, item]));
   const selected = view.items.filter(item => selection.has(item.id));
   const staleSelection = [...selection].some(([id, version]) => visible.get(id)?.updatedAt !== version);
   const counts = queue.summary;
-  const refresh = async () => { setExportError(""); try { await mutate(); } catch { /* Retain the last verified page. */ } };
+  const refresh = async () => {
+    if (refreshFlight.current) return;
+    refreshFlight.current = true; setManualRefreshPending(true); setExportError("");
+    try { await mutate(); } catch { /* Retain the last verified page. */ }
+    finally { refreshFlight.current = false; setManualRefreshPending(false); }
+  };
   function toggle(item: QueueItem) { setSelection(current => { const next = new Map(current); if (next.has(item.id)) next.delete(item.id); else next.set(item.id, item.updatedAt); return next; }); }
   function changeSort(key: QueueSort["key"]) {
     if (pending || dialog) return;
@@ -74,7 +81,7 @@ function QueueWorkspace({ initialQueue }: { initialQueue: AdminQueue }) {
   const canUpdate = (status: QueueItem["status"]) => !blocked && !pending && !staleSelection && selected.length > 0 && selected.every(item => !getStatusChangeError(item, status, { confirmCashCollected: true }));
   async function immediate(status: QueueItem["status"]) { if (canUpdate(status)) await updates.save(selected, { status }); }
   async function exportCSV() {
-    if (blocked || pending || exportFlight.current || !queue.summary.total) return;
+    if (exportBlocked || exportFlight.current) return;
     const range = queueExportSchema.safeParse({ from: exportFrom || undefined, to: exportTo || undefined });
     if (!range.success) { setExportError("Choose both creation dates in order, or leave both empty to export all."); return; }
     exportFlight.current = true; setExportPending(true); setExportError("");
@@ -102,7 +109,7 @@ function QueueWorkspace({ initialQueue }: { initialQueue: AdminQueue }) {
     {queue.emailLookupFailed && <p role="status">Some student email addresses could not be refreshed. Stored names and student numbers remain available.</p>}
     <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between"><div role="group" aria-label="Filter requests by status" className="flex max-w-full overflow-x-auto gap-1 rounded-full border border-border/50 bg-muted/40 p-1.5 no-scrollbar">{(["ALL", ...Object.keys(queueStatusLabels)] as QueueFilter[]).map(value => <Button key={value} size="sm" className="rounded-full shrink-0 px-4" variant={value === query.status ? "default" : "ghost"} aria-pressed={value === query.status} disabled={pending || Boolean(dialog)} onClick={() => { setQuery(current => ({ ...current, status: value, page: 1 })); setSelection(new Map()); }}>{value === "ALL" ? "All" : queueStatusLabels[value]}</Button>)}</div>
       <div className="relative w-full xl:max-w-sm group"><label htmlFor="queue-search" className="sr-only">Search requests</label><Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-muted-foreground" /><Input id="queue-search" className={workspaceStyles.search} placeholder="Search name, email, or ID..." value={search} maxLength={200} disabled={pending || Boolean(dialog)} onChange={event => { setSearch(event.target.value); setSelection(new Map()); }} /></div></div>
-    <Card className={workspaceStyles.card}><CardHeader className="flex flex-col gap-5 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent px-6 sm:px-8 !py-6"><div className="flex flex-wrap items-center justify-between gap-3"><div><CardTitle className="text-xl font-bold tracking-tight">Request Queue</CardTitle><CardDescription className="mt-1">Whole-queue counts; ten server-selected rows per page. Active queues refresh every 30 seconds.</CardDescription></div><div className="flex flex-wrap gap-2"><Button variant="outline" className={workspaceStyles.button} disabled={isValidating || pending} onClick={() => void refresh()}>Refresh queue</Button><Button variant="outline" className={workspaceStyles.button + " border-primary/20 text-primary"} disabled={blocked || pending || !queue.summary.total} onClick={() => { setExportError(""); setExportOptionsOpen(true); }}>Export all CSV</Button></div></div>
+    <Card className={workspaceStyles.card}><CardHeader className="flex flex-col gap-5 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent px-6 sm:px-8 !py-6"><div className="grid w-full grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start"><div className="min-w-0 max-w-3xl"><CardTitle className="text-xl font-bold tracking-tight">Request Queue</CardTitle><CardDescription className="mt-1">Whole-queue counts; ten server-selected rows per page. Active queues refresh every 30 seconds.</CardDescription></div><div className="flex flex-wrap gap-3 xl:justify-end"><Button variant="outline" className={workspaceStyles.button} disabled={manualRefreshPending || pending} onClick={() => void refresh()}><RefreshCw aria-hidden="true" className={"size-4 " + (isValidating ? "animate-spin" : "")} />{isValidating ? "Refreshing queue" : "Refresh queue"}</Button><Button variant="outline" className={workspaceStyles.button + " border-primary/20 text-primary"} disabled={exportBlocked} onClick={() => { setExportError(""); setExportOptionsOpen(true); }}>Export all CSV</Button></div></div>
       {selection.size > 0 && <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Selected request actions"><span>{selection.size} selected</span><Button size="sm" variant="outline" disabled={pending} onClick={() => setSelection(new Map())}>Clear selection</Button><Button size="sm" disabled={!canUpdate("PROCESSING")} onClick={() => void immediate("PROCESSING")}>Process</Button><Button size="sm" disabled={!canUpdate("READY_FOR_PICKUP")} onClick={() => void immediate("READY_FOR_PICKUP")}>Mark Ready</Button><Button size="sm" disabled={!canUpdate("COMPLETED")} onClick={() => { if (selected.some(item => item.paymentMethod === "cash" && item.paymentStatus === "CASH_ON_PICKUP")) setDialog({ mode: "cash", snapshot: selected }); else void immediate("COMPLETED"); }}>Complete</Button><Button size="sm" variant="destructive" disabled={!canUpdate("CANCELLED")} onClick={() => setDialog({ mode: "cancel", snapshot: selected })}>Cancel</Button>{staleSelection && <p role="alert">Selected requests changed or left this page. Clear and select them again.</p>}</div>}
     </CardHeader><CardContent className="p-0"><QueueTable items={view.items} selection={selection} sort={sort} onSort={changeSort} disabled={pending || blocked || Boolean(dialog)} onToggle={toggle} onTogglePage={() => setSelection(current => view.items.every(item => current.has(item.id)) ? new Map() : new Map(view.items.map(item => [item.id, item.updatedAt])))} onDetails={item => setDialog({ mode: "details", snapshot: [item] })} /></CardContent>
       {view.total > 0 && <CardFooter className={workspaceStyles.footer}><span className="text-sm text-muted-foreground text-center sm:text-left">Showing {(view.page - 1) * QUEUE_PAGE_SIZE + 1} to {Math.min(view.page * QUEUE_PAGE_SIZE, view.total)} of {view.total} requests</span><nav aria-label="Queue pages" className="flex items-center gap-2 shrink-0"><Button variant="outline" size="sm" className="rounded-full min-w-24" disabled={view.page === 1 || pending || Boolean(dialog) || changingQuery} onClick={() => { setQuery(current => ({ ...current, page: view.page - 1 })); setSelection(new Map()); }}>Previous</Button><span className="text-sm whitespace-nowrap">Page {view.page} of {view.totalPages}</span><Button variant="outline" size="sm" className="rounded-full min-w-24" disabled={view.page === view.totalPages || pending || Boolean(dialog) || changingQuery} onClick={() => { setQuery(current => ({ ...current, page: view.page + 1 })); setSelection(new Map()); }}>Next</Button></nav></CardFooter>}
@@ -117,7 +124,7 @@ function QueueWorkspace({ initialQueue }: { initialQueue: AdminQueue }) {
           <label className="grid gap-1">To<Input aria-label="CSV creation end date" type="date" value={exportTo} onChange={event => setExportTo(event.target.value)} /></label>
         </fieldset>
         {exportError && <p role="alert" className="text-sm text-destructive">{exportError}</p>}
-        <DialogFooter><Button type="button" variant="outline" onClick={() => setExportOptionsOpen(false)}>{exportPending ? "Close" : "Cancel"}</Button><Button type="button" disabled={blocked || pending || !queue.summary.total} onClick={() => void exportCSV()}>{exportPending ? "Exporting..." : "Download CSV"}</Button></DialogFooter>
+        <DialogFooter><Button type="button" variant="outline" onClick={() => setExportOptionsOpen(false)}>{exportPending ? "Close" : "Cancel"}</Button><Button type="button" disabled={exportBlocked} onClick={() => void exportCSV()}>{exportPending ? "Exporting..." : "Download CSV"}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   </div>;
