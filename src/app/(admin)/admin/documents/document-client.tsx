@@ -7,12 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { CheckCircle2, FileText, Pencil, Plus, RefreshCw, Search, XCircle } from "lucide-react";
 import { WorkspaceMetric, workspaceStyles } from "@/components/workspace-ui";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AdminConfigurationSession, useConfigurationRead } from "@/components/admin-configuration-session";
 import { CONFIG_URL, documentView, type DocumentsSnapshot } from "@/lib/configuration-model";
 import { fetchDocuments } from "@/lib/configuration-fetcher";
 import { formatPHP } from "@/lib/money-format";
-import { createDocumentConfig, initializeDocumentDefaults, updateDocumentConfig } from "@/app/actions/configuration.actions";
+import { createDocumentConfig, updateDocumentConfig } from "@/app/actions/configuration.actions";
 import { DocumentEditor, documentDraft, type DocumentDraft } from "./document-editor";
 
 type Props = { actorId: string; initialData?: DocumentsSnapshot; initialError?: string };
@@ -23,7 +22,6 @@ function DocumentsWorkspace({ actorId, initialData, initialError }: Props) {
   const read = useConfigurationRead(CONFIG_URL + "documents", actorId, initialData, fetchDocuments);
   const [search, setSearch] = useState(""), [page, setPage] = useState(1);
   const [edit, setEdit] = useState<DocumentDraft | null>(null);
-  const [defaults, setDefaults] = useState(false);
   const [pending, setPending] = useState(false), [uncertain, setUncertain] = useState(false), [error, setError] = useState(""), [success, setSuccess] = useState("");
   const busy = useRef(false);
   const view = read.data ? documentView(read.data.items, search, page) : null;
@@ -47,19 +45,8 @@ function DocumentsWorkspace({ actorId, initialData, initialError }: Props) {
     } catch { if (read.session.active.current) { setError("Save outcome unconfirmed. Retry the same save or close and refresh before editing."); setUncertain(true); } }
     finally { busy.current = false; if (read.session.active.current) setPending(false); }
   }
-  async function addDefaults() {
-    if (busy.current || read.blocked) return; busy.current = true; setPending(true); setError("");
-    try {
-      const result = await initializeDocumentDefaults();
-      if (!read.session.active.current) return;
-      if (!result.success) { if (result.code === "auth") read.session.deny(); setError(result.error); return; }
-      setDefaults(false); setSuccess(result.data + " standard document(s) added; existing documents were preserved."); await read.refresh();
-    } catch { if (read.session.active.current) setError("The result is unconfirmed. Refresh before continuing; existing standard codes cannot be duplicated."); }
-    finally { busy.current = false; if (read.session.active.current) setPending(false); }
-  }
   const controls = <div className="flex flex-wrap gap-3"><Button variant="outline" className={workspaceStyles.button} disabled={pending || read.isValidating} onClick={() => void read.refresh()}><RefreshCw aria-hidden="true" className={"size-4 " + (read.isValidating ? "animate-spin" : "")} />Refresh documents</Button>
-    <Button className={workspaceStyles.button + " bg-primary/10 hover:bg-primary/20 text-primary shadow-none"} disabled={blocked || Boolean(edit)} onClick={() => { setError(""); setEdit(documentDraft()); }}><Plus aria-hidden="true" className="size-4" />Add document</Button>
-    <Button variant="ghost" className={workspaceStyles.button + " text-primary"} disabled={blocked || Boolean(edit)} onClick={() => { setError(""); setDefaults(true); }}><Plus aria-hidden="true" className="size-4" />Add standard documents</Button></div>;
+    <Button className={workspaceStyles.button + " bg-primary/10 hover:bg-primary/20 text-primary shadow-none"} disabled={blocked || Boolean(edit)} onClick={() => { setError(""); setEdit(documentDraft()); }}><Plus aria-hidden="true" className="size-4" />Add document</Button></div>;
   return <div className="space-y-8 w-full">
     {!read.data && controls}
     {(read.error || (!read.data && !read.isValidating)) && <p role="alert" className={workspaceStyles.error}>{read.error ? "The catalog could not be refreshed. Existing rows are retained; editing is disabled until a successful refresh." : initialError ?? "The document catalog is unavailable."}</p>}
@@ -88,6 +75,5 @@ function DocumentsWorkspace({ actorId, initialData, initialError }: Props) {
     {edit && <DocumentEditor key={edit.intentId} initial={edit} pending={pending} uncertain={uncertain} error={error}
       stale={Boolean(edit.id && read.data?.items.find(item => item.id === edit.id)?.updatedAt !== edit.expectedVersion) || read.blocked}
       onSave={save} onClose={() => void closeEditor()} />}
-    <Dialog open={defaults} onOpenChange={value => { if (!pending) setDefaults(value); }}><DialogContent className={workspaceStyles.dialog}><DialogHeader><DialogTitle>Add standard documents?</DialogTitle><DialogDescription>This adds missing codes only: TOR (PHP 150), GOOD_MORAL (PHP 50), DIPLOMA (PHP 500), ENROLLMENT (PHP 100). Existing documents and saved request prices are preserved.</DialogDescription></DialogHeader><DialogFooter><Button variant="outline" disabled={pending} onClick={() => setDefaults(false)}>Cancel</Button><Button disabled={blocked} onClick={() => void addDefaults()}>{pending ? "Adding…" : "Confirm standard documents"}</Button></DialogFooter></DialogContent></Dialog>
   </div>;
 }
