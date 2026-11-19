@@ -71,7 +71,7 @@ test("the server-loaded queue is not fetched again on hydration", async ({ state
 test("registrar verification requires explicit records review, refreshes versions and can be revoked", async ({ page, state }) => {
   const id = rows()[0].id; state.queue.role = "employee";
   state.queue.items[0] = { ...state.queue.items[0], identityVerified: false, identityVerifiedAt: null };
-  await page.reload(); await expect(page.getByText("Identity review required", { exact: true })).toBeVisible();
+  await page.reload(); await expect(page.getByText("Registrar verification pending", { exact: false })).toBeVisible();
   await page.getByRole("button", { name: "View request " + id, exact: true }).click();
   let dialog = page.getByRole("dialog", { name: "Request Details" });
   await expect(dialog.getByLabel("Update Status").locator('option[value="PROCESSING"]')).toBeDisabled();
@@ -81,21 +81,21 @@ test("registrar verification requires explicit records review, refreshes version
   await dialog.getByRole("checkbox", { name: /I checked school records/ }).check(); await verify.dblclick();
   await expect(dialog).toBeHidden(); expect(state.identityReviews).toHaveLength(1);
   expect(state.identityReviews[0]).toMatchObject({ decision: "verify", recordsChecked: "true", requestId: id });
-  await expect(page.getByText("Identity review required", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Registrar verification pending", { exact: false })).toHaveCount(0);
   await page.getByRole("button", { name: "View request " + id, exact: true }).click(); dialog = page.getByRole("dialog", { name: "Request Details" });
   await expect(dialog.getByLabel("Update Status").locator('option[value="PROCESSING"]')).toBeEnabled();
   await dialog.getByLabel("Revocation reason", { exact: true }).fill("School record match requires correction");
   await dialog.getByRole("checkbox", { name: /I confirm this attestation must be revoked/ }).check();
   await dialog.getByRole("button", { name: "Revoke identity verification", exact: true }).click();
   await expect(dialog).toBeHidden(); expect(state.identityReviews).toHaveLength(2);
-  await expect(page.getByText("Identity review required", { exact: true })).toBeVisible();
+  await expect(page.getByText("Registrar verification pending", { exact: false })).toBeVisible();
 });
 
 test("a rejected identity review retains the pending state and shows its failure", async ({ page, state }) => {
   const id = rows()[0].id; state.identityReviewFails = true;
   state.queue.items[0] = { ...state.queue.items[0], identityVerified: false, identityVerifiedAt: null };
   await page.getByRole("button", { name: "Refresh queue", exact: true }).click();
-  await expect(page.getByText("Identity review required", { exact: true })).toBeVisible();
+  await expect(page.getByText("Registrar verification pending", { exact: false })).toBeVisible();
   await page.getByRole("button", { name: "View request " + id, exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Request Details" });
   await dialog.getByLabel("Review reference or reason", { exact: true }).fill("Checked synthetic school record TEST-001");
@@ -289,7 +289,10 @@ test("authorization failure during a pending update recovers without stuck contr
 test("export downloads the full verified queue with escaped data", async ({ page, state }) => {
   state.queue.items[0] = { ...state.queue.items[0], studentName: 'Last, "First"', documentTypeId: "SYNTHETIC_DOCUMENT", documentLabel: "=1+1" };
   await page.getByRole("button", { name: "Refresh queue", exact: true }).click();
-  const download = page.waitForEvent("download"); await page.getByRole("button", { name: "Export all CSV", exact: true }).click();
+  await page.getByRole("button", { name: "Export all CSV", exact: true }).click();
+  const exportDialog = page.getByRole("dialog", { name: "Export request queue" });
+  await expect(exportDialog).toBeVisible();
+  const download = page.waitForEvent("download"); await exportDialog.getByRole("button", { name: "Download CSV", exact: true }).click();
   const file = await download; const path = await file.path(); if (!path) throw new Error("Missing CSV file");
   const csv = await readFile(path, "utf8"); expect(csv).toContain('"Last, ""First"""'); expect(csv).toContain('"\'=1+1"');
   expect(csv).toContain(rows()[12].id); expect(csv).not.toContain("undefined");
@@ -348,13 +351,15 @@ test("a late search response cannot replace the latest requested view", async ({
 test("oversized exports recover with independent dates and prevent duplicate downloads", async ({ page, state }) => {
   state.exportStatus = 413;
   await page.getByRole("button", { name: "Export all CSV", exact: true }).click();
-  await expect(page.getByRole("alert")).toContainText("shorter creation-date range");
+  const exportDialog = page.getByRole("dialog", { name: "Export request queue" });
+  await exportDialog.getByRole("button", { name: "Download CSV", exact: true }).click();
+  await expect(exportDialog.getByRole("alert")).toContainText("shorter creation-date range");
   await page.getByLabel("CSV creation start date").fill("2026-01-01");
   await page.getByLabel("CSV creation end date").fill("2026-01-31");
   state.exportStatus = 200; state.exportDelay = 700;
   const downloaded = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Export all CSV", exact: true }).dblclick();
-  await expect(page.getByRole("button", { name: "Exporting...", exact: true })).toBeDisabled();
+  await exportDialog.getByRole("button", { name: "Download CSV", exact: true }).dblclick();
+  await expect(exportDialog.getByRole("button", { name: "Exporting...", exact: true })).toBeDisabled();
   await expect(page.getByLabel("CSV creation start date")).toBeDisabled();
   await downloaded;
   expect(state.exportURLs).toHaveLength(2);
@@ -366,14 +371,18 @@ test("oversized exports recover with independent dates and prevent duplicate dow
 test("authorization failure during export hides cached staff data", async ({ page, state }) => {
   state.exportStatus = 404;
   await page.getByRole("button", { name: "Export all CSV", exact: true }).click();
+  await page.getByRole("dialog", { name: "Export request queue" }).getByRole("button", { name: "Download CSV", exact: true }).click();
   await expect(page.getByRole("alert")).toContainText("staff session changed");
   await expect(page.getByRole("button", { name: /^View request / })).toHaveCount(0);
 });
 
 test("switching accounts aborts a pending export without a late download", async ({ page, state }) => {
-  let downloads = 0; page.on("download", () => downloads++); state.exportDelay = 700;
+  let downloads = 0; page.on("download", () => downloads++); state.exportDelay = 5000;
   await page.getByRole("button", { name: "Export all CSV", exact: true }).click();
+  const exportDialog = page.getByRole("dialog", { name: "Export request queue" });
+  await exportDialog.getByRole("button", { name: "Download CSV", exact: true }).click();
   await expect.poll(() => state.exportURLs.length).toBe(1);
+  await exportDialog.getByRole("button", { name: "Close", exact: true }).first().click();
   await page.getByRole("button", { name: "Switch staff account", exact: true }).click();
   await page.waitForLoadState("networkidle");
   await expect(page.getByRole("alert")).toContainText("staff account or role changed"); expect(downloads).toBe(0);
