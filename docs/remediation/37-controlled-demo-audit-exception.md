@@ -1,5 +1,14 @@
 # Temporary controlled-demo dependency audit exception
 
+**Follow-up prepared locally November 19, 2026:** GitHub withdrew this advisory
+on November 18. Fresh complete and production-only npm audits now report zero
+findings for the unchanged lockfile. The exception, its December 2 deadline,
+custom evaluator and exception-specific tests have been removed locally, restoring
+the original strict audit command. See
+[38-retire-withdrawn-advisory-exception.md](38-retire-withdrawn-advisory-exception.md).
+This cleanup is local; publication remains pending. The remaining sections are
+the historical record of the November 18 controlled-demo release.
+
 The project owner explicitly approved this exception on November 18, 2026 while
 releasing PR #11. It expires **December 2, 2026 at 00:00 UTC** and applies only to
 the reviewed development-tool dependency graph. It is not approval for unrestricted

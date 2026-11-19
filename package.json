@@ -26,7 +26,7 @@
     "test:watch": "vitest",
     "check": "npm run typecheck && npm run lint && npm test",
     "verify": "npm run check && npm run audit:security && npm run test:migrations && npm run test:navigation && npm run build:check -- --smoke-cron",
-    "audit:security": "node scripts/audit-security.mjs",
+    "audit:security": "npm audit --audit-level=low",
     "test:migrations": "node scripts/test-migrations.mjs",
     "test:navigation": "playwright test --config playwright.navigation.config.ts",
     "db:status": "prisma migrate status --config prisma.migration.config.ts",
