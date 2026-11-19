@@ -15,6 +15,7 @@ import { RequestHistoryTable } from "./request-history-table";
 import { CancelRequestDialog } from "./cancel-request-dialog";
 import { RequestSummary } from "./request-summary";
 import { usePageSnapshot } from "@/components/verified-access";
+import { workspaceStyles } from "@/components/workspace-ui";
 
 export function RequestList({ history, isMaintenanceMode = false }: { history: StudentHistory; isMaintenanceMode?: boolean }) {
   const { user, isLoaded } = useUser();
@@ -118,11 +119,11 @@ function StudentRequestHistory({ initialHistory, isMaintenanceMode }: { initialH
     {error && <div role="alert" className="rounded border border-destructive/30 p-4">
       History could not be refreshed. Showing the last verified data; refresh before changing a request.
     </div>}
-    <Card className="shadow-sm border-border overflow-hidden bg-card rounded-3xl">
-      <CardHeader className="border-b">
+    <Card className={workspaceStyles.card}>
+      <CardHeader className="flex flex-col gap-2 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent px-6 sm:px-8 !py-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <CardTitle className="text-2xl">Request History</CardTitle>
-          <Button variant="outline" disabled={isValidating} onClick={() => void refresh()}>Refresh history</Button>
+          <CardTitle className="text-xl font-bold tracking-tight">Request History</CardTitle>
+          <Button variant="outline" className={workspaceStyles.button} disabled={isValidating} onClick={() => void refresh()}>Refresh history</Button>
         </div>
         <CardDescription>A complete log of your academic document requests.</CardDescription>
       </CardHeader>
@@ -137,12 +138,12 @@ function StudentRequestHistory({ initialHistory, isMaintenanceMode }: { initialH
           payingId={payingId} onPay={id => void pay(id)} actionsDisabled={Boolean(error) || changingPage || isValidating}
           cancellationOpen={Boolean(cancellation)} onCancel={id => { if (!paymentInFlight.current && !changingPage && !error && !isValidating) setCancelTarget(id); }} />}
       </CardContent>
-      {items.length > 0 && <CardFooter className="flex flex-wrap items-center justify-between gap-4 border-t py-4">
-        <span className="text-sm text-muted-foreground">Showing {(history.query.page - 1) * REQUEST_PAGE_SIZE + 1} to {Math.min(history.query.page * REQUEST_PAGE_SIZE, history.summary.total)} of {history.summary.total} requests</span>
+      {items.length > 0 && <CardFooter className={workspaceStyles.footer}>
+        <span className="text-sm text-muted-foreground text-center sm:text-left">Showing {(history.query.page - 1) * REQUEST_PAGE_SIZE + 1} to {Math.min(history.query.page * REQUEST_PAGE_SIZE, history.summary.total)} of {history.summary.total} requests</span>
         <nav aria-label="Request history pages" className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => changePage(history.query.page - 1)} disabled={history.query.page === 1 || changingPage || payingId !== null || Boolean(cancellation)}>Previous</Button>
-          <span className="text-sm">Page {history.query.page} of {history.totalPages}</span>
-          <Button variant="outline" size="sm" onClick={() => changePage(history.query.page + 1)} disabled={history.query.page === history.totalPages || changingPage || payingId !== null || Boolean(cancellation)}>Next</Button>
+          <Button variant="outline" size="sm" className="rounded-full min-w-24" onClick={() => changePage(history.query.page - 1)} disabled={history.query.page === 1 || changingPage || payingId !== null || Boolean(cancellation)}>Previous</Button>
+          <span className="text-sm whitespace-nowrap">Page {history.query.page} of {history.totalPages}</span>
+          <Button variant="outline" size="sm" className="rounded-full min-w-24" onClick={() => changePage(history.query.page + 1)} disabled={history.query.page === history.totalPages || changingPage || payingId !== null || Boolean(cancellation)}>Next</Button>
         </nav>
       </CardFooter>}
     </Card>

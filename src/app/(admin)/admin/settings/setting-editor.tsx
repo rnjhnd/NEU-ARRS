@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { workspaceStyles } from "@/components/workspace-ui";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { canonicalSetting, defaultEmailTemplates, DEFAULT_OPERATIONS, settingDefault, STATUS_KEYS, type SettingEntry } from "@/lib/configuration-model";
 
@@ -11,7 +12,7 @@ export function SettingEditor({ entry, operations, pending, uncertain, stale, er
   const [status, setStatus] = useState<typeof STATUS_KEYS[number]>("PENDING_PAYMENT"); const [validation, setValidation] = useState("");
   const value = JSON.parse(raw); const locked = pending || uncertain;
   const defaults = defaultEmailTemplates(operations);
-  return <Dialog open onOpenChange={open => { if (!open && !pending) onClose(); }}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
+  return <Dialog open onOpenChange={open => { if (!open && !pending) onClose(); }}><DialogContent className={workspaceStyles.dialog + " max-h-[90dvh] overflow-y-auto sm:max-w-xl"}>
     <DialogHeader><DialogTitle>{SETTING_LABELS[entry.key]}</DialogTitle><DialogDescription>Only confirmed saves change the configuration. Close without saving to discard this draft.</DialogDescription></DialogHeader>
     {!entry.valid && <p role="alert">The stored setting is invalid. These fields show safe defaults for an explicit repair; they are not the current effective configuration.</p>}
     <form className="space-y-4" onSubmit={event => { event.preventDefault(); let canonical: string; try { canonical = canonicalSetting(entry.key, raw); } catch { setValidation("Check the fields and keep at least one payment method enabled. Messages can contain at most 10,000 characters each."); return; }

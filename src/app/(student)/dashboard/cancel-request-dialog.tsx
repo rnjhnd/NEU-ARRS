@@ -1,4 +1,5 @@
 "use client";
+import { workspaceStyles } from "@/components/workspace-ui";
 
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -34,7 +35,7 @@ export function CancelRequestDialog({ request, onClose, onCommitted, canCancel }
     finally { inFlight.current = false; setPending(false); }
   }
   return <Dialog open onOpenChange={open => { if (!open && !pending) onClose(); }}>
-    <DialogContent className="sm:max-w-[425px]" showCloseButton={!pending}>
+    <DialogContent className={workspaceStyles.dialog + " sm:max-w-[425px] max-h-[85dvh] overflow-y-auto"} showCloseButton={!pending}>
       <form onSubmit={submit} className="space-y-4" aria-busy={pending}>
         <DialogHeader><DialogTitle>Cancel Request</DialogTitle>
           <DialogDescription>Provide a reason for cancelling this request. Check with the registrar about any unconfirmed payment or refund.</DialogDescription>
