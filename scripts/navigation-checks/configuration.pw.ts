@@ -80,10 +80,12 @@ test("guarded saves resist double activation and preserve drafts on rejection", 
   await page.getByRole("button", { name: "Save document", exact: true }).dblclick(); await expect(page.getByRole("button", { name: "Saving…" })).toBeDisabled(); await expect(page.getByLabel("Document name")).toBeDisabled();
   await expect(page.getByRole("button", { name: "Save document", exact: true })).toBeEnabled(); expect(state.calls).toHaveLength(1); await expect(page.getByLabel("Document name")).toHaveValue("New Document"); await expect(page.getByRole("alert")).toContainText("changed");
 });
-test("invalid prices are rejected locally and standard defaults require explicit confirmation", async ({ page, state }) => {
+test("invalid prices are rejected locally and document creation stays custom-only", async ({ page, state }) => {
   await create(page); await page.getByLabel("Price (PHP)").fill("1.005"); await page.getByRole("button", { name: "Save document", exact: true }).click(); await expect(page.getByRole("alert")).toContainText("decimal"); expect(state.calls).toHaveLength(0);
-  await page.getByRole("button", { name: "Close", exact: true }).first().click(); await page.getByRole("button", { name: "Add standard documents" }).click(); expect(state.calls).toHaveLength(0);
-  await page.getByRole("button", { name: "Confirm standard documents" }).click(); await expect(page.getByText(/4 standard document/)).toBeVisible(); expect(state.calls[0].kind).toBe("defaults");
+  await page.getByRole("button", { name: "Close", exact: true }).first().click();
+  await expect(page.getByRole("button", { name: "Add document", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Add standard documents", exact: true })).toHaveCount(0);
+  expect(state.calls).toHaveLength(0);
 });
 test("an initial catalog failure has recovery and no fake empty-catalog success", async ({ page, state }) => {
   state.unavailable = true; state.status = 503; await page.reload(); await page.waitForLoadState("networkidle"); await expect(page.getByRole("alert")).toContainText("could not be refreshed"); await expect(page.getByRole("button", { name: "Add document", exact: true })).toBeDisabled();
