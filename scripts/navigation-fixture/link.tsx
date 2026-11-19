@@ -1,7 +1,7 @@
 import type { AnchorHTMLAttributes, MouseEvent } from "react";
 import { navigate } from "./navigation";
 
-export function useLinkStatus() { return { pending: false }; }
+export function useLinkStatus() { return { pending: new URLSearchParams(location.search).has("fixture-link-pending") }; }
 
 export default function Link({ href = "/", onNavigate, ...props }: AnchorHTMLAttributes<HTMLAnchorElement> & {
   onNavigate?: (event: { preventDefault: () => void }) => void;

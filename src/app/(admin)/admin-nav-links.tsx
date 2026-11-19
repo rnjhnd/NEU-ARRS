@@ -19,6 +19,7 @@ export function AdminNavLinks({ role, collapsed = false, onNavigate }: {
   return <nav aria-label="Staff navigation" className="flex-1 space-y-2 p-4 overflow-y-auto overflow-x-hidden no-scrollbar">
     {adminNavigation(role).map(route => {
       const active = isNavigationActive(pathname, route.href);
+      const sameDestination = pathname === route.href;
       const Icon = icons[route.icon];
       return <div key={route.href} className={route.icon === "settings" ? "pt-2 mt-2 border-t border-primary/10" : undefined}>
         <Link href={route.href} onNavigate={onNavigate} title={collapsed ? route.label : undefined}
@@ -29,7 +30,7 @@ export function AdminNavLinks({ role, collapsed = false, onNavigate }: {
             collapsed && "justify-center")}>
           <Icon aria-hidden="true" className={cn("w-5 h-5 flex-shrink-0 transition-colors", active && "text-primary")} />
           <span className={collapsed ? "sr-only" : undefined}>{route.label}</span>
-          <NavigationPending className={collapsed ? "absolute bottom-1 right-1 h-2.5 w-2.5" : "ml-auto"} />
+          <NavigationPending enabled={!sameDestination} className={collapsed ? "absolute bottom-1 right-1 h-2.5 w-2.5" : "ml-auto"} />
         </Link>
       </div>;
     })}

@@ -109,6 +109,19 @@ test("link navigation and an external route update both close open navigation", 
   await expect(page.getByRole("dialog")).toBeHidden();
 });
 
+test("the current destination does not show a pending spinner while other destinations do", async ({ page, fixtureURL }) => {
+  await page.goto(fixtureURL + "/admin?fixture-link-pending=1");
+  await page.getByRole("button", { name: "Open navigation", exact: true }).click();
+  const navigation = page.getByRole("dialog").getByRole("navigation", { name: "Staff navigation" });
+  const current = navigation.getByRole("link", { name: "Command Center", exact: true });
+  await expect(current).toHaveAttribute("aria-current", "page");
+  await expect(current.locator('[role="status"]')).toHaveCount(1);
+  await expect(current.locator('[role="status"]')).toHaveAttribute("aria-hidden", "true");
+  const otherSpinner = navigation.getByRole("link", { name: "Student Directory Loading destination" }).locator('[role="status"]');
+  await expect(otherSpinner).toBeVisible();
+  await expect(otherSpinner).toHaveAttribute("aria-hidden", "false");
+});
+
 test("switching accounts closes the drawer and removes the previous identity and admin links", async ({ page }) => {
   await page.getByRole("button", { name: "Switch account shortly" }).click();
   await page.getByRole("button", { name: "Open navigation", exact: true }).click();
