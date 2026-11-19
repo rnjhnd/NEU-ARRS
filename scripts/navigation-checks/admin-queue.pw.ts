@@ -350,14 +350,31 @@ test("pending and failed page changes preserve read-only rows and clear selectio
   await page.getByRole("checkbox", { name: "Select this page", exact: true }).check();
   state.readDelay = 700; state.status = 503;
   await page.getByRole("button", { name: "Next", exact: true }).click();
-  await expect(page.getByText("Loading the requested view. Previous verified rows remain read-only.")).toBeVisible();
+  const table = page.locator("[data-slot='card-content']").last();
+  await expect(page.getByText("Loading the requested view. Previous verified rows remain read-only.", { exact: true })).toHaveCount(0);
+  await expect(table).toHaveAttribute("aria-busy", "true"); await expect(table).toHaveClass(/opacity-50/);
   await expect(page.getByRole("checkbox", { name: "Select this page", exact: true })).toBeDisabled();
   await expect(page.getByRole("group", { name: "Selected request actions" })).toHaveCount(0);
   await expect(page.getByRole("alert")).toContainText("last verified data");
+  await expect(table).toHaveAttribute("aria-busy", "false"); await expect(table).toHaveClass(/opacity-100/);
   state.readDelay = 0; state.status = 200;
   await page.getByRole("button", { name: "Refresh queue", exact: true }).click();
   await expect(page.getByText("Page 2 of 2", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: /^View request / })).toHaveCount(3);
+});
+
+test("switching filters keeps a dimmed read-only table until the new rows arrive", async ({ page, state }) => {
+  state.readDelay = 800;
+  const table = page.locator("[data-slot='card-content']").last();
+  await page.getByRole("button", { name: "Completed", exact: true }).click();
+  await expect(table).toHaveAttribute("aria-busy", "true"); await expect(table).toHaveClass(/opacity-50/);
+  await expect(page.getByText("Loading the requested view. Previous verified rows remain read-only.", { exact: true })).toHaveCount(0);
+  await expect(page.locator("[role='status'].sr-only")).toContainText("Loading the selected request view");
+  await expect(page.getByRole("button", { name: /^View request / })).toHaveCount(10);
+  await expect(page.getByRole("button", { name: "View request " + rows()[0].id, exact: true })).toBeDisabled();
+  await expect(table).toHaveAttribute("aria-busy", "false"); await expect(table).toHaveClass(/opacity-100/);
+  await expect(page.getByRole("button", { name: /^View request / })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "View request " + rows()[2].id, exact: true })).toBeEnabled();
 });
 
 test("a late search response cannot replace the latest requested view", async ({ page, state }) => {
