@@ -44,6 +44,26 @@ test("student selection is keyboard accessible and submits an exact actor-bound 
   expect(state.calls).toHaveLength(1); expect(state.calls[0].input).toMatchObject({ studentName: "Synthetic Student", documentType: "TOR", purpose: "EMPLOYMENT", paymentMethod: "cash" });
   expect(state.calls[0].input.submissionKey).toMatch(/^[a-f0-9-]{36}$/); expect(state.calls[0].input).not.toHaveProperty("studentId");
 });
+test("request identity is prefilled, student numbers auto-format, and invalid values are checked on blur", async ({ page, fixtureURL }) => {
+  await page.goto(fixtureURL);
+  const name = page.getByLabel("Full Name", { exact: true });
+  const number = page.getByLabel("Student Number", { exact: true });
+  await expect(name).toHaveValue("Previous Synthetic Student");
+  await expect(number).toHaveValue("21-23456-789");
+  await expect(page.getByText(/Registrar staff must verify/)).toHaveCount(0);
+
+  await number.fill("22123");
+  await expect(number).toHaveValue("22-123");
+  await name.focus();
+  await expect(number).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByRole("alert")).toContainText("22-12345-123");
+
+  await number.fill("2212345123");
+  await expect(number).toHaveValue("22-12345-123");
+  await name.focus();
+  await expect(number).not.toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByRole("alert")).toHaveCount(0);
+});
 test("unknown submission freezes fields and retries the identical payload once", async ({ page, fixtureURL, state }) => {
   state.actionStatus = 500; await page.goto(fixtureURL); await fillRequest(page); await page.getByRole("button", { name: "Submit Request", exact: true }).click();
   await expect(page.getByRole("button", { name: "Retry same request" })).toBeEnabled(); await expect(page.getByLabel("Full Name", { exact: true })).toBeDisabled();
