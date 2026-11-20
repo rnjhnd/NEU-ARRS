@@ -20,6 +20,7 @@ vi.mock("@/lib/prisma", () => ({
     requestCompletion: { upsert: vi.fn() },
     request: {
       count: vi.fn(),
+      findFirst: vi.fn().mockResolvedValue(null),
       findMany: vi.fn(),
       findUnique: vi.fn(),
       update: vi.fn(),

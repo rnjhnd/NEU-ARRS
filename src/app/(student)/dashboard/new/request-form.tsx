@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, FileText, CreditCard, Landmark, Loader2 } from "lucide-react";
 import { useVerifiedActor } from "@/components/verified-access";
+import { formatStudentNumberInput, isValidStudentNumber } from "@/lib/student-number-input";
 
 const PurposeOptions = [
   { id: "EMPLOYMENT", label: "Employment" },
@@ -21,7 +22,7 @@ const PurposeOptions = [
   { id: "PERSONAL", label: "Personal Copy" },
   { id: "OTHER", label: "Other Reason" }
 ];
-type RequestFormProps = { actorId: string; documentConfigs: StudentCatalogItem[]; paymentMethods: { online: boolean; cash: boolean } };
+type RequestFormProps = { actorId: string; documentConfigs: StudentCatalogItem[]; paymentMethods: { online: boolean; cash: boolean }; initialStudentName?: string; initialStudentNumber?: string };
 export function RequestForm(props: RequestFormProps) {
   const { isLoaded, user } = useUser();
   const actor = useVerifiedActor();
@@ -30,7 +31,7 @@ export function RequestForm(props: RequestFormProps) {
   return <StudentRequestForm key={props.actorId} {...props} />;
 }
 
-function StudentRequestForm({ actorId, documentConfigs, paymentMethods }: RequestFormProps) {
+function StudentRequestForm({ actorId, documentConfigs, paymentMethods, initialStudentName = "", initialStudentNumber = "" }: RequestFormProps) {
   const router = useRouter();
   const submissionStorageKey = "neu-arrs:new-request:v2:" + actorId;
   const active = useRef(true);
@@ -42,11 +43,15 @@ function StudentRequestForm({ actorId, documentConfigs, paymentMethods }: Reques
   const submissionKeyRef = useRef<string | null>(null);
   
   // Form State
-  const [studentName, setStudentName] = useState<string>("");
-  const [studentNumber, setStudentNumber] = useState<string>("");
+  const [studentName, setStudentName] = useState<string>(initialStudentName);
+  const [studentNumber, setStudentNumber] = useState<string>(() => formatStudentNumberInput(initialStudentNumber));
+  const [studentNumberTouched, setStudentNumberTouched] = useState(false);
   const [documentTypeId, setDocumentTypeId] = useState<string>("");
   const [purpose, setPurpose] = useState<Purpose | "">("");
   const [paymentMethod, setPaymentMethod] = useState<"online" | "cash" | "">("");
+  const studentNumberError = studentNumberTouched && !isValidStudentNumber(studentNumber)
+    ? "Enter a student number in the format 22-12345-123."
+    : "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,8 +62,8 @@ function StudentRequestForm({ actorId, documentConfigs, paymentMethods }: Reques
     }
     
     // Basic format check on frontend before submitting
-    const studentNumberRegex = /^\d{2}-\d{5}-\d{3}$/;
-    if (!studentNumberRegex.test(studentNumber)) {
+    if (!isValidStudentNumber(studentNumber)) {
+      setStudentNumberTouched(true);
       toast.error("Student number must be in the format ##-#####-### (e.g., 22-12345-123)");
       return;
     }
@@ -110,7 +115,6 @@ function StudentRequestForm({ actorId, documentConfigs, paymentMethods }: Reques
         
         {/* Student Details Section */}
         <div className="space-y-2">
-          <p className="rounded border p-3 text-sm">Enter the name and student number on your school records. Registrar staff must verify that this identity belongs to your account before processing your request. Payment does not replace this review.</p>
           <label className="block text-base font-bold tracking-tight mb-6">1. Student Details <span className="text-red-500">*</span></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
@@ -132,15 +136,20 @@ function StudentRequestForm({ actorId, documentConfigs, paymentMethods }: Reques
                 id="studentNumber"
                 maxLength={12}
                 type="text"
+                inputMode="numeric"
+                autoComplete="off"
                 value={studentNumber}
                 onChange={(e) => {
-                  const val = e.target.value.replace(/[^\d-]/g, '');
-                  setStudentNumber(val);
+                  setStudentNumber(formatStudentNumberInput(e.target.value));
                 }}
+                onBlur={() => setStudentNumberTouched(true)}
+                aria-invalid={studentNumberError ? true : undefined}
+                aria-describedby={studentNumberError ? "studentNumber-error" : undefined}
                 placeholder="22-12345-123"
                 className="w-full flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 required
               />
+              {studentNumberError && <p id="studentNumber-error" role="alert" className="mt-2 text-sm text-destructive">{studentNumberError}</p>}
             </div>
           </div>
         </div>

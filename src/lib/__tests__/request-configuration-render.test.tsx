@@ -5,8 +5,8 @@ import { requireStudent as requireAuth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { NewRequestData as Page } from "@/app/(student)/dashboard/new/request-data";
 
-vi.mock("@/app/(student)/dashboard/new/request-form", () => ({ RequestForm: ({ documentConfigs, paymentMethods }: { documentConfigs: { typeId: string; price: number }[]; paymentMethods: { online: boolean; cash: boolean } }) => React.createElement("p", { "data-testid": "request-form" }, JSON.stringify({ documentConfigs, paymentMethods })) }));
-beforeEach(() => { vi.resetAllMocks(); vi.stubGlobal("React", React); vi.mocked(requireAuth).mockResolvedValue("synthetic_student"); vi.mocked(prisma.systemSettings.findUnique).mockResolvedValue(null); vi.mocked(prisma.documentConfig.findMany).mockResolvedValue([]); });
+vi.mock("@/app/(student)/dashboard/new/request-form", () => ({ RequestForm: ({ documentConfigs, paymentMethods, initialStudentName, initialStudentNumber }: { documentConfigs: { typeId: string; price: number }[]; paymentMethods: { online: boolean; cash: boolean }; initialStudentName?: string; initialStudentNumber?: string }) => React.createElement("p", { "data-testid": "request-form" }, JSON.stringify({ documentConfigs, paymentMethods, initialStudentName, initialStudentNumber })) }));
+beforeEach(() => { vi.resetAllMocks(); vi.stubGlobal("React", React); vi.mocked(requireAuth).mockResolvedValue("synthetic_student"); vi.mocked(prisma.systemSettings.findUnique).mockResolvedValue(null); vi.mocked(prisma.documentConfig.findMany).mockResolvedValue([]); vi.mocked(prisma.request.findFirst).mockResolvedValue(null); });
 afterEach(() => vi.unstubAllGlobals());
 it("shows an empty catalog without seeding documents or displaying an unusable form", async () => {
   const html = renderToStaticMarkup(await Page()); expect(html).toContain("No documents available"); expect(html).not.toContain("data-testid"); expect(prisma.documentConfig.createMany).not.toHaveBeenCalled();
@@ -22,4 +22,11 @@ it("keeps history available during maintenance and avoids querying the catalog",
 it("does not query settings or catalog for unauthenticated requests", async () => {
   vi.mocked(requireAuth).mockRejectedValue(new Error("Unauthorized"));
   expect(renderToStaticMarkup(await Page())).not.toContain("data-testid"); expect(prisma.systemSettings.findUnique).not.toHaveBeenCalled(); expect(prisma.documentConfig.findMany).not.toHaveBeenCalled();
+});
+it("prefills the form with identity fields from this student's most recent request", async () => {
+  vi.mocked(prisma.documentConfig.findMany).mockResolvedValue([{ typeId: "TOR", label: "Transcript", description: "Academic record", price: 15000, isActive: true } as never]);
+  vi.mocked(prisma.request.findFirst).mockResolvedValue({ studentName: "Previous Student", studentNumber: "22-12345-123" } as never);
+  const html = renderToStaticMarkup(await Page());
+  expect(html).toContain("Previous Student"); expect(html).toContain("22-12345-123");
+  expect(prisma.request.findFirst).toHaveBeenCalledWith({ where: { studentId: "synthetic_student" }, select: { studentName: true, studentNumber: true }, orderBy: [{ createdAt: "desc" }, { id: "desc" }] });
 });
